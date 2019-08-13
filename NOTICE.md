@@ -25,4 +25,6 @@ For any modified file please follow these steps to ensure proper documentation o
 - Removed exisitng Docker configuration files for replacement with the new CARMA3 docker config files.
   - 8/1/2019
   - Kyle Rush
-
+- Add carma_autoware_build bash script which builds the portions of autoware needed by carma
+  - 8/13/2019
+  - Michael McConnell
