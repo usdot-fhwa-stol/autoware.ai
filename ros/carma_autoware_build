@@ -14,13 +14,13 @@
 #  License for the specific language governing permissions and limitations under
 #  the License.
 
-# This scipt builds the CARMA platform and its Autoware.ai dependancies. 
+# This scipt builds the Autoware.ai components used by the CARMA Platform
 
 usage() { 
-  echo "USAGE carma_build [OPTION]
-  carma_build will build the CARMA Platform including any drivers in the same workspace as well as any required Autoware.ai components
+  echo "USAGE carma_autoware_build [OPTION]
+  carma_autoware_build will build the Autoware.ai components used by the CARMA Platform
   
-  -a Path to Autoware.ai workspace. If this is not specified it is assumed CARMA and Autoware.ai share a workspace 
+  -a Path to Autoware.ai workspace. If this is not specified it is assumed the current workspace will work
   -b Additional build arguments to pass to Autoware.ai's colcon build
   -h Print help
   ";
