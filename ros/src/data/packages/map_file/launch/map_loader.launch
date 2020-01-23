@@ -1,0 +1,17 @@
+<launch>
+  <!-- Primary launch file for the points map loader. Allows the user to load maps using three different methods defined by the arg load_type -->
+  <arg name="load_type" default="noupdate" doc="Enum of the map loading approach to use. Can be 'download', 'noupdate', or 'arealist'"/> 
+  <arg name="single_pcd_path" default="pcd_map.pcd" doc="Path to the map pcd file if using the noupdate load type"/>
+  <arg name="area" default="1x1" doc="Dimensions of the square of cells loaded at runtime using the download and arealist load types"/>
+  <arg name="arealist_path" default="arealist.txt" doc="Path to the arealist.txt file which contains the paths and dimensions of each map cell to load with the arealist load_type"/>
+  <arg name="area_paths" default="" doc="List of cell paths to load when using the arealist load type. If this is not filled all the cells will be loaded based on the arealist.txt file"/>
+
+  <arg name="pml_args" if="$(eval 'noupdate' == arg('load_type'))" value="noupdate $(arg single_pcd_path)"/>
+  <arg name="pml_args" if="$(eval 'download' == arg('load_type'))" value="$(arg area) download"/>
+  <arg name="pml_args" if="$(eval 'arealist' == arg('load_type'))" value="$(arg area) $(arg arealist_path) $(arg area_paths)"/>
+
+  <node name="points_map_loader" pkg="map_file" type="points_map_loader" args="$(arg pml_args)">  
+    <rosparam command="load" file="$(find map_file)/config/params.yaml"/>
+  </node>
+
+</launch>

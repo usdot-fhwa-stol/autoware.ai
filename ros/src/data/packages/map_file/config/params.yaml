@@ -1,0 +1,20 @@
+# Double List: Transform describing the map frame in the ECEF frame as a translation and quaternion rotation
+# Translation followed by rotation quaternion [x,y,z,rx,ry,rz,rw]
+# Units: [m, m, m, rad, rad, rad, rad]
+# Multi map transform (Continental Map)
+# map_1_origin: [1104519.0366837296169, -4842076.8773120511323, 3988628.1614574785344, 0.27651989990159736577, -0.33059326932073251903, 0.81619708509143773512, 0.38479494997528296274]
+#
+# Demo map tf for single file
+# map_1_origin: [1104607.93693215, -4842095.17489218, 3988579.69182129,0.430988762013745, 0.0693624996150827, # 0.0957255645270654,0.894580430683]
+#
+map_1_origin: [1104902.9438952030614,
+-4842175.5626834081486,
+3988281.7007994274609,
+0.42729941382927721927,
+-0.037959256040477520888,
+0.29508781547315504623,
+0.85375493379616307354] 
+
+# Integer: Update period of the map cell publication update
+# Units: ms
+update_rate: 2000

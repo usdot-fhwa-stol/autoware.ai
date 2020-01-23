@@ -1,9 +1,0 @@
-# Integer: Indicate the type of projector we should use
-# Currently it supposes 0 as Autoware default MGRSProjector and 1 as CARMA LocalFrameProjector
-projector_type: 1
-
-# String: Base frame specified as a PROJ string for vector map projection
-base_frame: 'EPSG:4326'
-
-# String: Target frame specified as a PROJ string for vector map projection
-target_frame: '+proj=tmerc +lat_0=38.95197911150576 +lon_0=-77.14835128349988 +k=1 +x_0=0 +y_0=0 +units=m +vunits=m'

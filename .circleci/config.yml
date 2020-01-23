@@ -28,7 +28,7 @@ jobs:
     # Pull docker image from docker hub
     # XTERM used for better catkin_make output
     docker:
-      - image: usdotfhwastol/carma-base:3.6.0
+      - image: usdotfhwastol/carma-base:3.3.0
         user: carma
         environment:
           TERM: xterm
@@ -53,7 +53,7 @@ jobs:
             source ${INIT_ENV}
             export ROS_LANG_DISABLE=genjava # Disable genjava for full autoware build
             cd autoware.ai/
-            build-wrapper-linux-x86-64 --out-dir /opt/carma/bw-output ./autoware/ros/carma_autoware_build -k -b "-DCMAKE_CXX_FLAGS=${COVERAGE_FLAGS} -DCMAKE_C_FLAGS=${COVERAGE_FLAGS} -DCMAKE_BUILD_TYPE=Debug"
+            build-wrapper-linux-x86-64 --out-dir /opt/carma/bw-output ./ros/carma_autoware_build -k -b "-DCMAKE_CXX_FLAGS=${COVERAGE_FLAGS} -DCMAKE_C_FLAGS=${COVERAGE_FLAGS} -DCMAKE_BUILD_TYPE=Debug"
       # The free version of Circle CI does not have enough memory to run tests in this repo
       # The following run statement can be used as a starting point for future implementation of automated unit tests
       # - run:

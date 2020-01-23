@@ -9,12 +9,6 @@ For any modified file please follow these steps to ensure proper documentation o
 1. Add a comment at the top of any modified file with a high-level description of the modification and date the modification was made.
 2. Add a high-level description and date of the overall modification to the [NOTICE.md](NOTICE.md) file.
 
-# Repository Structure
-This repository consists of multiple git subtrees to combine the multi-repo structure used by Autoware into a single structure for CARMA. For more information on working with subtrees see the [SUBTREES.md](SUBTREES.md) file.
-
-# NOTICE: When working with subtrees please ensure that individual commits only change files in *ONE-AND-ONLY-ONE* subtree.
-If your branch must change multiple subtrees please make those changes in separate commits. Do not squash commits that change multiple subtrees, even when merging via Github.
-
 ### Local CARMA mods to this readme file:
 - Added notice section describing fork status and providing instructions for developers
   - 5/10/2019
@@ -22,9 +16,6 @@ If your branch must change multiple subtrees please make those changes in separa
 - Added several intro sections to provide consistency in appearance among all CARMA repos
   - 10/11/2019
   - John Stark
-- Added section describing new fork structure via `git subtree`
-  - 10/30/2019
-  - Kyle Rush
 
 # CARMAPlatform
 The primary CARMAPlatform repository can be found [here](https://github.com/usdot-fhwa-stol/CARMAPlatform) and is part of the [USDOT FHWA STOL](https://github.com/usdot-fhwa-stol/)

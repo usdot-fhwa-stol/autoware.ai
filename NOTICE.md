@@ -1,16 +1,12 @@
 ## Note
-
 This is a fork of Autoware containing modifications to support usage with the [CARMAPlatform](https://github.com/usdot-fhwa-stol/CARMAPlatform). This repository contains changes to the Autoware source code and configuration that may not be supported by the Autoware Foundation and may not be consistent with the original design intent of Autoware. All modifications in this repository are licensed under the same Apache License 2.0 as Autoware and all modifications of the source code made will be marked as such in accordance with the terms of the Apache License 2.0. For a list of modifications and their descriptions please see [NOTICE.md](NOTICE.md).
 
 ### For developers working in this repository:
-
 For any modified file please follow these steps to ensure proper documentation of this modification in compliance with the terms of the Apache License 2.0:
-
 1. Add a comment at the top of any modified file with a high-level description of the modification and date the modification was made.
 2. Add a high-level description and date of the overall modification to the [NOTICE.md](NOTICE.md) file.
 
 ## Modifications:
-
 - Addition of notice about fork status to the README.md and creation of this NOTICE.md file
   - 5/10/2019
   - Kyle Rush
@@ -44,13 +40,3 @@ For any modified file please follow these steps to ensure proper documentation o
 - Added standard CARMA header to the README.md, while retaining all of the original Autoware content.
   - 10/11/2019
   - John Stark
-- Changed entire repo structure to be a collection of subtrees after TierIV's repository refactor and move to Gitlab.
-  - 10/30/2019
-  - Kyle Rush
-- Removed the changes to ray_ground_filter by Michael McConnell on 8/20/2019 as Autoware.ai 1.13 makes them unnecessary 
-  - 11/18/2019
-  - Michael McConnell
-- Undid deletion of the colcon_release script which was removed in Autoware.ai v1.13 as it is still used by the carma_autoware_build script
-  - 11/18/2019
-  - Michael McConnell
-

@@ -1,0 +1,4 @@
+# File containing ray_ground_filter parameters that are vehicle specific
+# Double: Height of the lidar sensor from the ground
+# Units: m
+sensor_height: 1.8
