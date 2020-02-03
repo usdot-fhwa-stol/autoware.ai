@@ -24,6 +24,7 @@
 #include <lanelet2_io/io_handlers/OsmHandler.h>
 
 #include <string>
+#include <sstream>
 
 namespace lanelet
 {
@@ -86,6 +87,47 @@ void AutowareOsmParser::parseVersions(const std::string& filename, std::string* 
   if (metainfo.attribute("map_version"))
     *map_version = metainfo.attribute("map_version").value();
 }
+
+void AutowareOsmParser::parseMapParams (const std::string& filename, int* projector_type, std::string* base_frame, 
+                                      std::string* target_frame)
+{
+  if (base_frame == nullptr || target_frame == nullptr)
+  {
+    std::cerr << __FUNCTION__ << ": Either frame of the geo_reference is null pointer!";
+    return;
+  }
+
+  pugi::xml_document doc;
+  auto result = doc.load_file(filename.c_str());
+  if (!result)
+  {
+    throw lanelet::ParseError(std::string("Errors occured while parsing osm file: ") + result.description());
+  }
+
+  auto osmNode = doc.child("osm");
+  auto geoRef = osmNode.child("map_params");
+
+  if (geoRef.attribute("projector_type"))
+  {
+    int proj_type;
+    std::stringstream s_to_int(geoRef.attribute("projector_type").value());
+    s_to_int >> proj_type;
+    *projector_type = proj_type;
+  }
+  else
+    *projector_type = 1; // default value
+
+  if (geoRef.attribute("base_frame"))
+    *base_frame = geoRef.attribute("base_frame").value();
+  else
+    *base_frame = "+proj=geocent +ellps=WGS84 +datum=WGS84 +units=m +no_defs"; //  ECEF frame as a default base frame
+
+  if (geoRef.attribute("target_frame"))
+    *target_frame = geoRef.attribute("target_frame").value(); //geo reference value
+  else
+    *target_frame = "+proj=tmerc +lat_0=38.95197911150576 +lon_0=-77.14835128349988 +k=1 +x_0=0 +y_0=0 +units=m +vunits=m"; // Proj string for TFHRC as geo reference
+}
+
 
 }  // namespace io_handlers
 }  // namespace lanelet

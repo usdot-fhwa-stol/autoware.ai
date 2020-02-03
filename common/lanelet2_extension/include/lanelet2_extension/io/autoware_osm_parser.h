@@ -50,6 +50,15 @@ public:
    */
   static void parseVersions(const std::string& filename, std::string* format_version, std::string* map_version);
 
+  /**
+   * [parseMapParams parses GeoReference (i.e. map parameters) info from osm file]
+   * @param filename        [path to osm file]
+   * @param projector_type  [parsed information about map projector_type: Currently it supposes 0 as Autoware default MGRSProjector and 1 as CARMA LocalFrameProjector]
+   * @param base_frame      [parsed information about map geo reference: base_frame ]
+   * @param target_frame     [parsed information about map geo reference: target_frame]
+   */
+  static void parseMapParams(const std::string& filename, int* projector_type, std::string* base_frame, std::string* target_frame);
+
   static constexpr const char* extension()
   {
     return ".osm";

@@ -84,6 +84,10 @@ add_executable(lanelet2_map_loader nodes/lanelet2_map_loader/lanelet2_map_loader
 target_link_libraries(lanelet2_map_loader ${catkin_LIBRARIES})
 add_dependencies(lanelet2_map_loader ${catkin_EXPORTED_TARGETS})
 
+add_executable(map_param_loader nodes/map_param_loader/map_param_loader.cpp)
+target_link_libraries(map_param_loader ${catkin_LIBRARIES})
+add_dependencies(map_param_loader ${catkin_EXPORTED_TARGETS})
+
 add_executable(lanelet2_map_visualization nodes/lanelet2_map_loader/lanelet2_map_visualization.cpp)
 target_link_libraries(lanelet2_map_visualization ${catkin_LIBRARIES})
 add_dependencies(lanelet2_map_visualization ${catkin_EXPORTED_TARGETS})
@@ -98,6 +102,7 @@ install(TARGETS
   points_map_loader
   vector_map_loader
   lanelet2_map_loader
+  map_param_loader
   lanelet2_map_visualization
   points_map_filter
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}

@@ -18,7 +18,6 @@
  */
 
 #include <ros/ros.h>
-
 #include <lanelet2_projection/UTM.h>
 #include <lanelet2_io/Io.h>
 #include <lanelet2_core/LaneletMap.h>
@@ -30,7 +29,6 @@
 #include <lanelet2_extension/utility/utilities.h>
 
 #include <autoware_lanelet2_msgs/MapBin.h>
-
 #include <string>
 
 void printUsage()
@@ -63,18 +61,18 @@ int main(int argc, char** argv)
 
   lanelet::ErrorMessages errors;
   lanelet::LaneletMapPtr map;
-
+  
   int projector_type = 0;
-  private_nh.param<int>("projector_type", projector_type, 1);
+  std::string base_frame , target_frame;
+  // Parse geo reference info from the lanelet map (.osm)
+  lanelet::io_handlers::AutowareOsmParser::parseMapParams(lanelet2_filename, &projector_type, &base_frame, &target_frame);
+
   if(projector_type == 0)
   {
     lanelet::projection::MGRSProjector projector;
     map = lanelet::load(lanelet2_filename, projector, &errors);
   } else if(projector_type == 1)
   {
-    std::string base_frame , target_frame;
-    private_nh.param<std::string>("base_frame", base_frame, "EPSG:4326");
-    private_nh.param<std::string>("target_frame", target_frame, "");
     lanelet::projection::LocalFrameProjector local_projector(base_frame.c_str(), target_frame.c_str());
     map = lanelet::load(lanelet2_filename, local_projector, &errors);
   }

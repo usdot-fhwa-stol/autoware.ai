@@ -44,6 +44,14 @@ public:
   BasicPoint3d forward(const GPSPoint& p) const override;
 
   /**
+   * [LocalFrameProjector::forward projects between ECEF and local map/ from base to target]
+   * @param  ecef_point [point with x,y,z in ecef information]
+   * @param  proj_dir   [1 for forward -1 for reverse]
+   * @return            [projected point in local map coordinate]
+   */
+  BasicPoint3d project(const BasicPoint3d& p, const int& proj_dir) const;
+
+  /**
    * [LocalFrameProjector::reverse projects point within local map frame into gps lat/lon (WGS84)]
    * @param  local_point [3d point in local map frame]
    * @return             [projected point in WGS84]

@@ -449,22 +449,6 @@ void request_lookahead_download(const autoware_msgs::LaneArray& msg)
 	}
 }
 
-void update_map_ecef_tf(const std::vector<double>& transform)
-{
-	static tf2_ros::StaticTransformBroadcaster br;
-	geometry_msgs::TransformStamped transformStamped;
-	transformStamped.header.stamp = ros::Time::now();
-	transformStamped.header.frame_id = "earth";
-	transformStamped.child_frame_id = "map";
-	transformStamped.transform.translation.x = transform[0];
-	transformStamped.transform.translation.y = transform[1];
-	transformStamped.transform.translation.z = transform[2];
-	transformStamped.transform.rotation.x = transform[3];
-	transformStamped.transform.rotation.y = transform[4];
-	transformStamped.transform.rotation.z = transform[5];
-	transformStamped.transform.rotation.w = transform[6];
-	br.sendTransform(transformStamped);
-}
 
 void print_usage()
 {
@@ -534,16 +518,6 @@ int main(int argc, char **argv)
 				pcd_paths.push_back(path);
 			}
 		}
-	}
-
-	// Load origin of the map
-	std::vector<double> ecef_map_tf_params;
-	n.getParam("points_map_loader/map_1_origin", ecef_map_tf_params);
-	if(ecef_map_tf_params.size() != 7) {
-			ROS_ERROR_STREAM("Could not load the origin of the point cloud. TF between earth and map will not be published.");
-			ROS_ERROR_STREAM(ecef_map_tf_params.size());
-	} else {
-			update_map_ecef_tf(ecef_map_tf_params);
 	}
 
 	pcd_pub = n.advertise<sensor_msgs::PointCloud2>("points_map", 1, true);
