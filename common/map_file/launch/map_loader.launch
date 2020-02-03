@@ -10,8 +10,6 @@
   <arg name="pml_args" if="$(eval 'download' == arg('load_type'))" value="$(arg area) download"/>
   <arg name="pml_args" if="$(eval 'arealist' == arg('load_type'))" value="$(arg area) $(arg arealist_path) $(arg area_paths)"/>
 
-  <node name="points_map_loader" pkg="map_file" type="points_map_loader" args="$(arg pml_args)">  
-    <rosparam command="load" file="$(find map_file)/config/map_loader_params.yaml"/>
-  </node>
+  <node name="points_map_loader" pkg="map_file" type="points_map_loader" args="$(arg pml_args)"/>
 
 </launch>
