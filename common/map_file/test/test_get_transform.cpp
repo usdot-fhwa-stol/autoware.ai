@@ -1,0 +1,49 @@
+/*
+ * Copyright (C) 2019-2020 LEIDOS.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
+
+#include <gtest/gtest.h>
+#include <map_file/map_param_loader.h>
+//#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+
+
+TEST(GetTransformTest, testECEFPoints)
+{
+    //Example frames
+    std::string map_frame = "+proj=tmerc +lat_0=38.95197911150576 +lon_0=-77.14835128349988 +k=1 +x_0=0 +y_0=0 +units=m +vunits=m";
+    std::string ecef_frame = "+proj=geocent +ellps=WGS84 +datum=WGS84 +units=m +no_defs";
+
+    //Points are calculated using cs2cs command line function of proj library.
+    tf2::Transform tf = getTransform(map_frame, ecef_frame);
+    tf2::Vector3 origin = tf(tf2::Vector3{0,0,0});
+    ASSERT_FLOAT_EQ (origin[0],1104726.07);
+    ASSERT_FLOAT_EQ (origin[1],-4842261.44);
+    ASSERT_FLOAT_EQ (origin[2],3988172.62);
+
+    tf2::Vector3 e1 = tf(tf2::Vector3{1,0,0});
+    ASSERT_FLOAT_EQ (e1[0],1104727.04);
+    ASSERT_FLOAT_EQ (e1[1],-4842261.22);
+    ASSERT_FLOAT_EQ (e1[2],3988172.62);
+
+    tf2::Vector3 random = tf(tf2::Vector3{4,3,5});
+    ASSERT_FLOAT_EQ (random[0],1104730.41);
+    ASSERT_FLOAT_EQ (random[1],-4842262.50);
+    ASSERT_FLOAT_EQ (random[2],3988178.10);
+}
+
+
+
+

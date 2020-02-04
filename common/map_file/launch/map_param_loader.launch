@@ -1,4 +1,6 @@
 <launch>
-  <arg name="file_name"/>	
-  <node pkg="map_file" name="map_param_loader" type="map_param_loader" args="$(arg file_name)"/>
+ <arg name="file_name"/>	
+ <node pkg="map_file" type="map_param_loader" name="map_param_loader">  
+  <rosparam param = "file_name">$(arg file_name)</rosparam>
+ </node>
 </launch>

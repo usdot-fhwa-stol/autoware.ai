@@ -85,8 +85,9 @@ target_link_libraries(lanelet2_map_loader ${catkin_LIBRARIES})
 add_dependencies(lanelet2_map_loader ${catkin_EXPORTED_TARGETS})
 
 add_executable(map_param_loader nodes/map_param_loader/map_param_loader.cpp)
-target_link_libraries(map_param_loader ${catkin_LIBRARIES})
-add_dependencies(map_param_loader ${catkin_EXPORTED_TARGETS})
+add_library(map_param_loader_lib nodes/map_param_loader/map_param_loader.cpp)
+add_dependencies(map_param_loader_lib ${catkin_EXPORTED_TARGETS})
+target_link_libraries(map_param_loader_lib ${catkin_LIBRARIES})
 
 add_executable(lanelet2_map_visualization nodes/lanelet2_map_loader/lanelet2_map_visualization.cpp)
 target_link_libraries(lanelet2_map_visualization ${catkin_LIBRARIES})
@@ -121,3 +122,15 @@ install(DIRECTORY launch/
 install(DIRECTORY config/
         DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/config
         PATTERN ".svn" EXCLUDE)
+
+#############
+## Testing ##
+#############
+
+## Add gtest based cpp test target and link libraries
+catkin_add_gtest(${PROJECT_NAME}-test
+  test/test_get_transform.cpp
+  test/test_main.cpp)
+
+
+target_link_libraries(${PROJECT_NAME}-test map_param_loader_lib ${catkin_LIBRARIES})

@@ -36,7 +36,7 @@ BasicPoint3d LocalFrameProjector::forward(const GPSPoint& p) const
   return BasicPoint3d{c_out.xy.x, c_out.xy.y, 0};
 }
 
-BasicPoint3d LocalFrameProjector::project(const BasicPoint3d& p, const int& proj_dir) const
+BasicPoint3d LocalFrameProjector::projectECEF(const BasicPoint3d& p, const int& proj_dir) const
 {
   PJ_COORD c{{p[0], p[1], p[2], 0}};
   PJ_COORD c_out;

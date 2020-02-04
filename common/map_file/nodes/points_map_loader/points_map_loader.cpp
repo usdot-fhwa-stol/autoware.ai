@@ -16,8 +16,8 @@
 
 /*
  * Modifications:
- *  - Modified points_map_loader package to delegate the tf publication to map_param_loader. 
- *    - 2/3/2020
+ *  - Modified points_map_loader package to remove the publication of tf from map to ECEF frame to map_param_loader file
+ *    - 2/4/2020
  *    - Misheel Bayartsengel
  *  - Modified points_map_loader package to publish the tf from map to ECEF frame using tf2 library
  *    - 6/7/2019

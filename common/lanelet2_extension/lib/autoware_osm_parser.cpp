@@ -105,7 +105,7 @@ void AutowareOsmParser::parseMapParams (const std::string& filename, int* projec
   }
 
   auto osmNode = doc.child("osm");
-  auto geoRef = osmNode.child("map_params");
+  auto geoRef = osmNode.child("geoReference");
 
   if (geoRef.attribute("projector_type"))
   {
@@ -120,14 +120,12 @@ void AutowareOsmParser::parseMapParams (const std::string& filename, int* projec
   if (geoRef.attribute("base_frame"))
     *base_frame = geoRef.attribute("base_frame").value();
   else
-    *base_frame = "+proj=geocent +ellps=WGS84 +datum=WGS84 +units=m +no_defs"; //  ECEF frame as a default base frame
+    throw lanelet::ParseError(std::string("While parsing .osm file, base_frame could not be found in geoReference tag."));
 
   if (geoRef.attribute("target_frame"))
     *target_frame = geoRef.attribute("target_frame").value(); //geo reference value
   else
-    *target_frame = "+proj=tmerc +lat_0=38.95197911150576 +lon_0=-77.14835128349988 +k=1 +x_0=0 +y_0=0 +units=m +vunits=m"; // Proj string for TFHRC as geo reference
+    throw lanelet::ParseError(std::string("While parsing .osm file, target_frame could not be found in geoReference tag."));
 }
-
-
-}  // namespace io_handlers
-}  // namespace lanelet
+} // namespace io_handlers
+} // namespace lanelet

@@ -49,7 +49,7 @@ public:
    * @param  proj_dir   [1 for forward -1 for reverse]
    * @return            [projected point in local map coordinate]
    */
-  BasicPoint3d project(const BasicPoint3d& p, const int& proj_dir) const;
+  BasicPoint3d projectECEF(const BasicPoint3d& p, const int& proj_dir) const;
 
   /**
    * [LocalFrameProjector::reverse projects point within local map frame into gps lat/lon (WGS84)]

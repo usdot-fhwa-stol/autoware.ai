@@ -1,36 +1,39 @@
+/*
+ * Copyright (C) 2019-2020 LEIDOS.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
 
-#include <ros/ros.h>
-#include <tf2_ros/static_transform_broadcaster.h>
-#include <tf2/LinearMath/Vector3.h>
-#include <tf2/LinearMath/Matrix3x3.h>
-#include <tf2/LinearMath/Transform.h>
-#include <tf2/LinearMath/Quaternion.h>
-#include <geometry_msgs/TransformStamped.h>
+#include "map_file/map_param_loader.h"
 
-#include <lanelet2_extension/projection/local_frame_projector.h>
-#include <lanelet2_extension/io/autoware_osm_parser.h>
 
-void printUsage()
+// Get transform from map to ecef frame
+tf2::Transform getTransform(const std::string& map_frame, const std::string& ecef_frame)
 {
-  ROS_ERROR_STREAM("Usage:");
-  ROS_ERROR_STREAM("rosrun map_file map_param_loader [.OSM]");
-}
 
-// Get transform from base(ECEF) to target(map) using local_projector
-tf2::Transform getTransform(const std::string& base_frame, const std::string& target_frame)
-{
-  lanelet::projection::LocalFrameProjector local_projector(base_frame.c_str(), target_frame.c_str());
+  lanelet::projection::LocalFrameProjector local_projector(map_frame.c_str(), ecef_frame.c_str());
+  
   tf2::Matrix3x3 rot_mat, id = tf2::Matrix3x3::getIdentity();
   lanelet::BasicPoint3d origin_in_map{0,0,0}, origin_in_ecef;
 
-  // Solve map_to_ecef (target_to_base) transformation
-  // Get translation from target to base
-  origin_in_ecef = local_projector.project(origin_in_map, -1);
+  // Solve map_to_ecef transformation
+  // Get translation of map with respect to ecef
+  origin_in_ecef = local_projector.projectECEF(origin_in_map, 1);
 
   // Solve rotation matrix using (1,0,0), (0,1,0), (0,0,1) vectors in map
   for (auto i = 0; i < 3; i ++)
   {
-    lanelet::BasicPoint3d rot_mat_row = local_projector.project(lanelet::BasicPoint3d{id[i][0],id[i][1],id[i][2]}, -1) - origin_in_ecef;
+    lanelet::BasicPoint3d rot_mat_row = local_projector.projectECEF(lanelet::BasicPoint3d{id[i][0],id[i][1],id[i][2]}, 1) - origin_in_ecef;
     rot_mat[i][0] = rot_mat_row[0];
     rot_mat[i][1] = rot_mat_row[1];
     rot_mat[i][2] = rot_mat_row[2];
@@ -39,7 +42,7 @@ tf2::Transform getTransform(const std::string& base_frame, const std::string& ta
   tf2::Vector3 v_origin_in_ecef{origin_in_ecef[0],origin_in_ecef[1],origin_in_ecef[2]};
   tf2::Transform tf(rot_mat.transpose(), v_origin_in_ecef);
   
-  // base_to_target tf
+  // map_to_ecef tf
   return tf;
 }
 
@@ -67,22 +70,17 @@ void broadcastTransform(const tf2::Transform& transform)
 int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "map_param_loader");
-
-  if (argc < 2)
-  {
-      printUsage();
-      return EXIT_FAILURE;
-  }
+  ros::NodeHandle private_nh("~");
 
   int projector_type = 1; // default value
-  std::string base_frame , target_frame;
-  std::string lanelet2_filename(argv[1]);
+  std::string base_frame , target_frame, lanelet2_filename = "/home/misheel/map_file_ws/src/map_file/output.osm";
+  //private_nh.param<std::string>("file_name", lanelet2_filename, "");
   
   // Parse geo reference info from the lanelet map (.osm)
   lanelet::io_handlers::AutowareOsmParser::parseMapParams(lanelet2_filename, &projector_type, &base_frame, &target_frame);
 
-  // Get the transform
-  tf2::Transform tf = getTransform(base_frame, target_frame);
+  // Get the transform (when parsed target_frame is map_frame, and base_frame is ECEF)
+  tf2::Transform tf = getTransform(target_frame, base_frame);
 
   // Broadcast the transform
   broadcastTransform(tf);
