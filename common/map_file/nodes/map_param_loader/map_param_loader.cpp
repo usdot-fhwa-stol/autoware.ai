@@ -85,4 +85,6 @@ int main(int argc, char **argv)
   // Broadcast the transform
   broadcastTransform(tf);
 
+  ros::spin();
+
 }
