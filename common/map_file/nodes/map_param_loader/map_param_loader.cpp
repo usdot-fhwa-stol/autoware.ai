@@ -23,7 +23,7 @@ tf2::Transform getTransform(const std::string& base_frame, const std::string& ta
   tf2::Matrix3x3 rot_mat, id = tf2::Matrix3x3::getIdentity();
   lanelet::BasicPoint3d origin_in_map{0,0,0}, origin_in_ecef;
 
-  // Solve map_to_ecef (target_to_base) transformation then later invert it.
+  // Solve map_to_ecef (target_to_base) transformation
   // Get translation from target to base
   origin_in_ecef = local_projector.project(origin_in_map, -1);
 
@@ -39,8 +39,8 @@ tf2::Transform getTransform(const std::string& base_frame, const std::string& ta
   tf2::Vector3 v_origin_in_ecef{origin_in_ecef[0],origin_in_ecef[1],origin_in_ecef[2]};
   tf2::Transform tf(rot_mat.transpose(), v_origin_in_ecef);
   
-  // Inverse to change from target_to_base to base_to_target
-  return tf.inverse();
+  // base_to_target tf
+  return tf;
 }
 
 void broadcastTransform(const tf2::Transform& transform)
