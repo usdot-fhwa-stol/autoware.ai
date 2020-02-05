@@ -83,7 +83,7 @@ int main(int argc, char **argv)
   lanelet::io_handlers::AutowareOsmParser::parseMapParams(lanelet2_filename, &projector_type, &base_frame, &target_frame);
 
   // Get the transform (when parsed target_frame is map_frame, and base_frame is ECEF)
-  tf2::Transform tf = map_param_loaer::getTransform(target_frame, base_frame);
+  tf2::Transform tf = map_param_loader::getTransform(target_frame, base_frame);
 
   // Broadcast the transform
   map_param_loader::broadcastTransform(tf);
