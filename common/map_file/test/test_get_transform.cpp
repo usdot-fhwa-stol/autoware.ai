@@ -27,7 +27,7 @@ TEST(GetTransformTest, testECEFPoints)
     std::string ecef_frame = "+proj=geocent +ellps=WGS84 +datum=WGS84 +units=m +no_defs";
 
     //Points are calculated using cs2cs command line function of proj library.
-    tf2::Transform tf = getTransform(map_frame, ecef_frame);
+    tf2::Transform tf = map_param_loader::getTransform(map_frame, ecef_frame);
     tf2::Vector3 origin = tf(tf2::Vector3{0,0,0});
     ASSERT_FLOAT_EQ (origin[0],1104726.07);
     ASSERT_FLOAT_EQ (origin[1],-4842261.44);
