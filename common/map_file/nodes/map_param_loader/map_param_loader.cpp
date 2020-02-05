@@ -16,8 +16,9 @@
 
 #include "map_file/map_param_loader.h"
 
-
-// Get transform from map to ecef frame
+namespace map_param_loader
+{
+// Get transform from map_frame coord to ecef_frame coord using respective proj strings
 tf2::Transform getTransform(const std::string& map_frame, const std::string& ecef_frame)
 {
 
@@ -45,7 +46,7 @@ tf2::Transform getTransform(const std::string& map_frame, const std::string& ece
   // map_to_ecef tf
   return tf;
 }
-
+// broadcast the transform to tf_static topic
 void broadcastTransform(const tf2::Transform& transform)
 {
     static tf2_ros::StaticTransformBroadcaster br;
@@ -66,6 +67,8 @@ void broadcastTransform(const tf2::Transform& transform)
     transformStamped.transform.rotation.w = rotation[3];
     br.sendTransform(transformStamped);
 }
+} // namespace map_param_loader
+
 
 int main(int argc, char **argv)
 {
@@ -73,17 +76,17 @@ int main(int argc, char **argv)
   ros::NodeHandle private_nh("~");
 
   int projector_type = 1; // default value
-  std::string base_frame , target_frame, lanelet2_filename = "/home/misheel/map_file_ws/src/map_file/output.osm";
-  //private_nh.param<std::string>("file_name", lanelet2_filename, "");
+  std::string base_frame , target_frame, lanelet2_filename;
+  private_nh.param<std::string>("file_name", lanelet2_filename, "");
   
   // Parse geo reference info from the lanelet map (.osm)
   lanelet::io_handlers::AutowareOsmParser::parseMapParams(lanelet2_filename, &projector_type, &base_frame, &target_frame);
 
   // Get the transform (when parsed target_frame is map_frame, and base_frame is ECEF)
-  tf2::Transform tf = getTransform(target_frame, base_frame);
+  tf2::Transform tf = map_param_loaer::getTransform(target_frame, base_frame);
 
   // Broadcast the transform
-  broadcastTransform(tf);
+  map_param_loader::broadcastTransform(tf);
 
   ros::spin();
 

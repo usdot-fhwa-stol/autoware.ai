@@ -25,6 +25,11 @@
 #include <lanelet2_extension/projection/local_frame_projector.h>
 #include <lanelet2_extension/io/autoware_osm_parser.h>
 
-
+namespace map_param_loader
+{
+// Get transform from map_frame coord to ecef_frame coord using respective proj strings.
 tf2::Transform getTransform(const std::string& map_frame, const std::string& ecef_frame);
+
+// Broadcast the input transform to tf_static.
 void broadcastTransform(const tf2::Transform& transform);
+}
