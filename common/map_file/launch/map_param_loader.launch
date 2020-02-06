@@ -1,6 +1,6 @@
 <launch>
  <arg name="file_name"/>	
  <node pkg="map_file" type="map_param_loader" name="map_param_loader">  
-  <param name = "file_name">$(arg file_name)</param>
+  <param name = "file_name" value = "$(arg file_name)"/>
  </node>
 </launch>
