@@ -22,9 +22,9 @@
 #include <lanelet2_io/io_handlers/Factory.h>
 #include <lanelet2_io/io_handlers/OsmFile.h>
 #include <lanelet2_io/io_handlers/OsmHandler.h>
-
 #include <string>
 #include <sstream>
+#include <boost/algorithm/string.hpp> 
 
 namespace lanelet
 {
@@ -123,7 +123,18 @@ void AutowareOsmParser::parseMapParams (const std::string& filename, int* projec
     throw lanelet::ParseError(std::string("While parsing .osm file, base_frame could not be found in geoReference tag."));
 
   if (geoRef.attribute("target_frame"))
-    *target_frame = geoRef.attribute("target_frame").value(); //geo reference value
+  {
+    std::string raw_geo_ref = geoRef.attribute("target_frame").value();
+    // Filter unnecessary part out of georeference.
+    std::vector<std::string> buffer;
+    boost::split(buffer,  raw_geo_ref, boost::is_any_of(" "));
+
+    for (int i = 0; i < buffer.size(); i++)
+    {
+      if (!boost::algorithm::contains(buffer[i], "+geoidgrids"))
+        target_frame->append(buffer[i] + " "); //geo reference value
+    }
+  }
   else
     throw lanelet::ParseError(std::string("While parsing .osm file, target_frame could not be found in geoReference tag."));
 }
