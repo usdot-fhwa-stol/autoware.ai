@@ -31,6 +31,13 @@
 #include <autoware_lanelet2_msgs/MapBin.h>
 #include <string>
 
+/*
+* Modifications:
+*  - Modified lanelet2_map_loader to to parse georeference data from .osm file instead of yaml config file.
+*    - 2/3/2020
+*    - Misheel Bayartsengel
+*/
+
 void printUsage()
 {
   ROS_ERROR_STREAM("Usage:");
