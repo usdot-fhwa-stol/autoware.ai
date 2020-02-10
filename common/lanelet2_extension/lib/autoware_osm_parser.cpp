@@ -22,6 +22,7 @@
 #include <lanelet2_io/io_handlers/Factory.h>
 #include <lanelet2_io/io_handlers/OsmFile.h>
 #include <lanelet2_io/io_handlers/OsmHandler.h>
+#include <ros/ros.h>
 #include <string>
 #include <sstream>
 #include <boost/algorithm/string.hpp> 
@@ -94,7 +95,7 @@ void AutowareOsmParser::parseMapParams (const std::string& filename, int* projec
   if (base_frame == nullptr || target_frame == nullptr)
   {
     throw lanelet::ParseError(std::string("In function ") + __FUNCTION__ + 
-    std::string(": Errors occured while parsing .osm file - either frame of the geo_reference is a null pointer!"));
+    std::string(": Errors occured while parsing .osm file - either frame is a null pointer!"));
     return;
   }
 
@@ -102,30 +103,15 @@ void AutowareOsmParser::parseMapParams (const std::string& filename, int* projec
   auto result = doc.load_file(filename.c_str());
   if (!result)
   {
-    throw lanelet::ParseError(std::string("Errors occured while parsing osm file: ") + result.description());
+    throw lanelet::ParseError(std::string("Errors occured while parsing .osm file: ") + result.description());
   }
 
   auto osmNode = doc.child("osm");
   auto geoRef = osmNode.child("geoReference");
 
-  if (geoRef.attribute("projector_type"))
+  if (geoRef)
   {
-    int proj_type;
-    std::stringstream s_to_int(geoRef.attribute("projector_type").value());
-    s_to_int >> proj_type;
-    *projector_type = proj_type;
-  }
-  else
-    *projector_type = 1; // default value
-
-  if (geoRef.attribute("base_frame"))
-    *base_frame = geoRef.attribute("base_frame").value();
-  else
-    throw lanelet::ParseError(std::string("While parsing .osm file, base_frame could not be found in geoReference tag."));
-
-  if (geoRef.attribute("target_frame"))
-  {
-    std::string raw_geo_ref = geoRef.attribute("target_frame").value();
+    std::string raw_geo_ref = geoRef.child_value();
     // Filter unnecessary part out of georeference.
     std::vector<std::string> buffer;
     boost::split(buffer,  raw_geo_ref, boost::is_any_of(" "));
@@ -137,7 +123,13 @@ void AutowareOsmParser::parseMapParams (const std::string& filename, int* projec
     }
   }
   else
-    throw lanelet::ParseError(std::string("While parsing .osm file, target_frame could not be found in geoReference tag."));
+  {
+    throw lanelet::ParseError(std::string("While parsing .osm file, geoReference was not found!"));
+  }
+
+  // Default values
+  *projector_type = 1; // default value for autoware.ai projector type for CARMA purposes
+  *base_frame = std::string("+proj=geocent +ellps=WGS84 +datum=WGS84 +units=m +no_defs"); //default value for ECEF proj string
 }
 } // namespace io_handlers
 } // namespace lanelet

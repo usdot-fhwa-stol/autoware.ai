@@ -56,7 +56,7 @@ public:
    * @param projector_type      [parsed information about map projector_type: Currently it supposes 0 as Autoware default MGRSProjector and 1 as CARMA LocalFrameProjector]
    * @param base_frame          [parsed information about map geo reference: base_frame ]
    * @param target_frame        [parsed information about map geo reference: target_frame]
-   * @throw lanelet::ParseError [if either frame is nullptr or cannot be found in .osm file under geoReference tag]
+   * @throw lanelet::ParseError [throws if either frame is nullptr or if geoReference tag cannot be found in .osm file]
    */
   static void parseMapParams(const std::string& filename, int* projector_type, std::string* base_frame, std::string* target_frame);
 
