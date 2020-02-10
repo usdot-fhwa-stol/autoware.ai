@@ -46,7 +46,7 @@ BasicPoint3d LocalFrameProjector::projectECEF(const BasicPoint3d& p, const int& 
     c_out = proj_trans(P, PJ_INV, c);
   else
   {
-    throw std::invalid_argument(std::string("Error:  invalid projection direction: ") + 
+    throw std::invalid_argument(std::string("In function ") + __FUNCTION__ + std::string(": Error:  invalid projection direction: ") + 
     std::to_string(proj_dir) + std::string("; 1 for forward, -1 for reverse."));
   }
   
