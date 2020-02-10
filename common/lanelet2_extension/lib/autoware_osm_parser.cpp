@@ -93,7 +93,8 @@ void AutowareOsmParser::parseMapParams (const std::string& filename, int* projec
 {
   if (base_frame == nullptr || target_frame == nullptr)
   {
-    std::cerr << __FUNCTION__ << ": Either frame of the geo_reference is null pointer!";
+    throw lanelet::ParseError(std::string("In function ") + __FUNCTION__ + 
+    std::string(": Errors occured while parsing .osm file - either frame of the geo_reference is a null pointer!"));
     return;
   }
 

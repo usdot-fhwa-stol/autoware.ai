@@ -45,9 +45,10 @@ public:
 
   /**
    * [LocalFrameProjector::forward projects between ECEF and local map/ from base to target]
-   * @param  ecef_point [point with x,y,z in ecef information]
-   * @param  proj_dir   [1 for forward -1 for reverse]
-   * @return            [projected point in local map coordinate]
+   * @param  ecef_point             [point with x,y,z in ecef information]
+   * @param  proj_dir               [1 for forward -1 for reverse]
+   * @return                        [projected point in local map coordinate]
+   * @throw  std::invalid_argument  [if direction is neither of 1 (forward) or -1 (reverse)]
    */
   BasicPoint3d projectECEF(const BasicPoint3d& p, const int& proj_dir) const;
 
