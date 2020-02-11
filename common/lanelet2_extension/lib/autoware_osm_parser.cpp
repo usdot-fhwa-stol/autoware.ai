@@ -22,7 +22,6 @@
 #include <lanelet2_io/io_handlers/Factory.h>
 #include <lanelet2_io/io_handlers/OsmFile.h>
 #include <lanelet2_io/io_handlers/OsmHandler.h>
-#include <ros/ros.h>
 #include <string>
 #include <sstream>
 #include <boost/algorithm/string.hpp> 
