@@ -13,7 +13,7 @@
 #  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #  License for the specific language governing permissions and limitations under
 #  the License.
-
+set -x
 USERNAME=usdotfhwastol
 
 cd "$(dirname "$0")"
@@ -42,6 +42,9 @@ while [[ $# -gt 0 ]]; do
         -t|--test)
             USERNAME=usdotfhwastoltest
             COMPONENT_VERSION_STRING=test
+            # update Dockerfile to pull test dependencies
+            sed -i "s|usdotfhwastol|$USERNAME|g" ../Dockerfile
+            sed -i "s|[0-9].[0-9].[0-9]|$COMPONENT_VERSION_STRING|g" ../Dockerfile
             shift
             ;;
     esac
@@ -79,6 +82,11 @@ if [ "$PUSH" = true ]; then
     for tag in $TAGS; do
         docker push "${tag}"
     done
+fi
+
+if [[ "$COMPONENT_VERSION_STRING" = "usdotfhwastoltest" ]]; then
+    # restore Dockerfile
+    git checkout -- Dockerfile
 fi
 
 echo ""
