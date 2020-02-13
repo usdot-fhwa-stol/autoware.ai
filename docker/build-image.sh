@@ -43,8 +43,8 @@ while [[ $# -gt 0 ]]; do
             USERNAME=usdotfhwastoltest
             COMPONENT_VERSION_STRING=test
             # update Dockerfile to pull test dependencies
-            sed -i "s|usdotfhwastol|$USERNAME|g" ../Dockerfile
-            sed -i "s|[0-9].[0-9].[0-9]|$COMPONENT_VERSION_STRING|g" ../Dockerfile
+            # sed -i "s|usdotfhwastol|$USERNAME|g" ../Dockerfile
+            # sed -i "s|:*[0-9].*[0-9].*[0-9]|$COMPONENT_VERSION_STRING|g" ../Dockerfile
             shift
             ;;
     esac
@@ -58,10 +58,18 @@ echo "Building docker image for $IMAGE version: $COMPONENT_VERSION_STRING"
 echo "Final image name: $USERNAME/$IMAGE:$COMPONENT_VERSION_STRING"
 
 cd ..
-docker build --no-cache -t $USERNAME/$IMAGE:$COMPONENT_VERSION_STRING \
-    --build-arg VERSION="$COMPONENT_VERSION_STRING" \
-    --build-arg VCS_REF=`git rev-parse --short HEAD` \
-    --build-arg BUILD_DATE=`date -u +”%Y-%m-%dT%H:%M:%SZ”` .
+if [[ $COMPONENT_VERSION_STRING = "test" ]]; then
+    sed "s|usdotfhwastol|usdotfhwastoltest|g; s|:*[0-9].*[0-9].*[0-9]|:test|g" \
+        Dockerfile | docker build --no-cache -t $USERNAME/$IMAGE:$COMPONENT_VERSION_STRING \
+        --build-arg VERSION="$COMPONENT_VERSION_STRING" \
+        --build-arg VCS_REF=`git rev-parse --short HEAD` \
+        --build-arg BUILD_DATE=`date -u +”%Y-%m-%dT%H:%M:%SZ”` -
+else
+    docker build --no-cache -t $USERNAME/$IMAGE:$COMPONENT_VERSION_STRING \
+        --build-arg VERSION="$COMPONENT_VERSION_STRING" \
+        --build-arg VCS_REF=`git rev-parse --short HEAD` \
+        --build-arg BUILD_DATE=`date -u +”%Y-%m-%dT%H:%M:%SZ”` .
+fi
 
 TAGS=()
 TAGS+=("$USERNAME/$IMAGE:$COMPONENT_VERSION_STRING")
@@ -82,11 +90,6 @@ if [ "$PUSH" = true ]; then
     for tag in $TAGS; do
         docker push "${tag}"
     done
-fi
-
-if [[ "$COMPONENT_VERSION_STRING" = "usdotfhwastoltest" ]]; then
-    # restore Dockerfile
-    git checkout -- Dockerfile
 fi
 
 echo ""
