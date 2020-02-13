@@ -41,9 +41,6 @@ while [[ $# -gt 0 ]]; do
         -t|--test)
             USERNAME=usdotfhwastoltest
             COMPONENT_VERSION_STRING=test
-            # update Dockerfile to pull test dependencies
-            # sed -i "s|usdotfhwastol|$USERNAME|g" ../Dockerfile
-            # sed -i "s|:*[0-9].*[0-9].*[0-9]|$COMPONENT_VERSION_STRING|g" ../Dockerfile
             shift
             ;;
     esac
