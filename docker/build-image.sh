@@ -60,10 +60,10 @@ echo "Final image name: $USERNAME/$IMAGE:$COMPONENT_VERSION_STRING"
 cd ..
 if [[ $COMPONENT_VERSION_STRING = "test" ]]; then
     sed "s|usdotfhwastol|usdotfhwastoltest|g; s|:*[0-9].*[0-9].*[0-9]|:test|g" \
-        Dockerfile | docker build --no-cache -t $USERNAME/$IMAGE:$COMPONENT_VERSION_STRING \
+        Dockerfile | docker build -f - --no-cache -t $USERNAME/$IMAGE:$COMPONENT_VERSION_STRING \
         --build-arg VERSION="$COMPONENT_VERSION_STRING" \
         --build-arg VCS_REF=`git rev-parse --short HEAD` \
-        --build-arg BUILD_DATE=`date -u +”%Y-%m-%dT%H:%M:%SZ”` -
+        --build-arg BUILD_DATE=`date -u +”%Y-%m-%dT%H:%M:%SZ”` .
 else
     docker build --no-cache -t $USERNAME/$IMAGE:$COMPONENT_VERSION_STRING \
         --build-arg VERSION="$COMPONENT_VERSION_STRING" \
