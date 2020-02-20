@@ -64,6 +64,9 @@ void inline addParticipantsToSetFromMap(std::unordered_set<std::string>& partici
 
     if (part_index != std::string::npos && pair.second.value().compare(required_val) == 0)
     {  // If there is a participant tag in the attribute map add it to the set
+      if (part_index + participant_tag.size() >= pair.first.size()) {
+        continue; // This case occurs if pair.first is "participant:". We don't want to add that so continue
+      }
       std::string participant = pair.first.substr(part_index + participant_tag.size());
       participant_set.insert(participant);
     }

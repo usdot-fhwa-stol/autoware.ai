@@ -81,7 +81,7 @@ public:
    *
    * @return RegulatoryElementData containing all the necessary information to construct a speed limit element
    */
-  static lanelet::RegulatoryElementDataPtr buildData(Id id, Velocity speed_limit, Lanelets lanelets, Areas areas,
+  static std::unique_ptr<lanelet::RegulatoryElementData> buildData(Id id, Velocity speed_limit, Lanelets lanelets, Areas areas,
                                                      std::vector<std::string> participants);
 
   /**
@@ -97,7 +97,7 @@ protected:
   friend class RegisterRegulatoryElement<DigitalSpeedLimit>;
 };
 
-// Convienace Ptr Declarations
+// Convenience Ptr Declarations
 using DigitalSpeedLimitPtr = std::shared_ptr<DigitalSpeedLimit>;
 using DigitalSpeedLimitConstPtr = std::shared_ptr<const DigitalSpeedLimit>;
 

@@ -113,7 +113,7 @@ public:
    *
    * @return RegulatoryElementData containing all the necessary information to construct a passing control line
    */
-  static lanelet::RegulatoryElementDataPtr buildData(Id id, LineStrings3d controlLine,
+  static std::unique_ptr<lanelet::RegulatoryElementData> buildData(Id id, LineStrings3d controlLine,
                                                      std::vector<std::string> left_participants,
                                                      std::vector<std::string> right_participants);
 
@@ -123,7 +123,7 @@ protected:
   friend class RegisterRegulatoryElement<PassingControlLine>;
 };
 
-// Convienace Ptr Declarations
+// Convenience Ptr Declarations
 using PassingControlLinePtr = std::shared_ptr<PassingControlLine>;
 using PassingControlLineConstPtr = std::shared_ptr<const PassingControlLine>;
 

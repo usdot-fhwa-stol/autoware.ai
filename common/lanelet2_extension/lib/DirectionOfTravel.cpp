@@ -48,7 +48,7 @@ bool DirectionOfTravel::appliesTo(const std::string& participant) const
   return setContainsParticipant(participants_, participant);
 }
 
-lanelet::RegulatoryElementDataPtr DirectionOfTravel::buildData(Id id, Lanelets lanelets,
+std::unique_ptr<lanelet::RegulatoryElementData> DirectionOfTravel::buildData(Id id, Lanelets lanelets,
                                                                std::string direction_of_travel,
                                                                std::vector<std::string> participants)
 {
@@ -69,7 +69,7 @@ lanelet::RegulatoryElementDataPtr DirectionOfTravel::buildData(Id id, Lanelets l
     attribute_map[key] = "yes";
   }
 
-  return std::make_shared<RegulatoryElementData>(id, rules, attribute_map);
+  return std::make_unique<RegulatoryElementData>(id, rules, attribute_map);
 }
 
 DirectionOfTravel::DirectionOfTravel(const lanelet::RegulatoryElementDataPtr& data) : RegulatoryElement(data)

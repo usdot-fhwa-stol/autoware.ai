@@ -50,7 +50,7 @@ RegionAccessRule::RegionAccessRule(const lanelet::RegulatoryElementDataPtr& data
   addParticipantsToSetFromMap(participants_, attributes());
 }
 
-lanelet::RegulatoryElementDataPtr RegionAccessRule::buildData(Id id, Lanelets lanelets, Areas areas,
+std::unique_ptr<lanelet::RegulatoryElementData> RegionAccessRule::buildData(Id id, Lanelets lanelets, Areas areas,
                                                               std::vector<std::string> participants)
 {
   // Add parameters
@@ -71,7 +71,7 @@ lanelet::RegulatoryElementDataPtr RegionAccessRule::buildData(Id id, Lanelets la
     attribute_map[key] = "yes";
   }
 
-  return std::make_shared<RegulatoryElementData>(id, rules, attribute_map);
+  return std::make_unique<RegulatoryElementData>(id, rules, attribute_map);
 }
 
 namespace

@@ -75,7 +75,7 @@ public:
    *
    * @return RegulatoryElementData containing all the necessary information to construct a region access rule object
    */
-  static lanelet::RegulatoryElementDataPtr buildData(Id id, Lanelets lanelets, Areas areas,
+  static std::unique_ptr<lanelet::RegulatoryElementData> buildData(Id id, Lanelets lanelets, Areas areas,
                                                      std::vector<std::string> participants);
 
 protected:
@@ -84,7 +84,7 @@ protected:
   friend class RegisterRegulatoryElement<RegionAccessRule>;
 };
 
-// Convienace Ptr Declarations
+// Convenience Ptr Declarations
 using RegionAccessRulePtr = std::shared_ptr<RegionAccessRule>;
 using RegionAccessRuleConstPtr = std::shared_ptr<const RegionAccessRule>;
 

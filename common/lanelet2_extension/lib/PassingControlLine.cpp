@@ -86,7 +86,7 @@ PassingControlLine::PassingControlLine(const lanelet::RegulatoryElementDataPtr& 
   addParticipantsToSetFromMap(right_participants_, attributes(), FromBoth);
 }
 
-lanelet::RegulatoryElementDataPtr PassingControlLine::buildData(Id id, LineStrings3d controlLine,
+std::unique_ptr<lanelet::RegulatoryElementData> PassingControlLine::buildData(Id id, LineStrings3d controlLine,
                                                                 std::vector<std::string> left_participants,
                                                                 std::vector<std::string> right_participants)
 {
@@ -122,7 +122,7 @@ lanelet::RegulatoryElementDataPtr PassingControlLine::buildData(Id id, LineStrin
     }
   }
 
-  return std::make_shared<RegulatoryElementData>(id, rules, attribute_map);
+  return std::make_unique<RegulatoryElementData>(id, rules, attribute_map);
 }
 
 namespace

@@ -79,7 +79,7 @@ public:
    *
    * @return RegulatoryElementData containing all the necessary information to construct a direction of travel object
    */
-  static lanelet::RegulatoryElementDataPtr buildData(Id id, Lanelets lanelets, std::string direction_of_travel,
+  static std::unique_ptr<lanelet::RegulatoryElementData> buildData(Id id, Lanelets lanelets, std::string direction_of_travel,
                                                      std::vector<std::string> participants);
 
 protected:
@@ -88,7 +88,7 @@ protected:
   friend class RegisterRegulatoryElement<DirectionOfTravel>;
 };
 
-// Convienace Ptr Declarations
+// Convenience Ptr Declarations
 using DirectionOfTravelPtr = std::shared_ptr<DirectionOfTravel>;
 using DirectionOfTravelConstPtr = std::shared_ptr<const DirectionOfTravel>;
 

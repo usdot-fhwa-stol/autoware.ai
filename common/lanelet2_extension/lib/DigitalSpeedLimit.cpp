@@ -64,7 +64,7 @@ DigitalSpeedLimit::DigitalSpeedLimit(const lanelet::RegulatoryElementDataPtr& da
   speed_limit_ = *optional_speed_limit;
 }
 
-lanelet::RegulatoryElementDataPtr DigitalSpeedLimit::buildData(Id id, Velocity speed_limit, Lanelets lanelets,
+std::unique_ptr<lanelet::RegulatoryElementData> DigitalSpeedLimit::buildData(Id id, Velocity speed_limit, Lanelets lanelets,
                                                                Areas areas, std::vector<std::string> participants)
 {
   // Add parameters
@@ -85,7 +85,7 @@ lanelet::RegulatoryElementDataPtr DigitalSpeedLimit::buildData(Id id, Velocity s
     attribute_map[key] = "yes";
   }
 
-  return std::make_shared<RegulatoryElementData>(id, rules, attribute_map);
+  return std::make_unique<RegulatoryElementData>(id, rules, attribute_map);
 }
 
 namespace
