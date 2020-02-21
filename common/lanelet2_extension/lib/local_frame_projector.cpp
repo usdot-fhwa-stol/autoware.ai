@@ -18,6 +18,7 @@
 
 #include <lanelet2_extension/projection/local_frame_projector.h>
 #include <iostream>
+#include <math.h>
 
 namespace lanelet
 {
@@ -37,9 +38,10 @@ LocalFrameProjector::LocalFrameProjector(const char* projection_string, Origin o
 
 BasicPoint3d LocalFrameProjector::forward(const GPSPoint& p) const
 {
-  PJ_COORD c{{p.lat, p.lon, p.ele, 0}};
+  static constexpr double DEG2RAD =  M_PI/180.0; 
+  PJ_COORD c{{p.lon * DEG2RAD, p.lat * DEG2RAD, p.ele}};
   PJ_COORD c_out = proj_trans(P_, PJ_FWD, c);
-  return BasicPoint3d{c_out.xy.x, c_out.xy.y, 0};
+  return BasicPoint3d{c_out.xyz.x, c_out.xyz.y, c_out.xyz.z};
 }
 
 BasicPoint3d LocalFrameProjector::projectECEF(const BasicPoint3d& p, const int& proj_dir) const
@@ -64,10 +66,11 @@ BasicPoint3d LocalFrameProjector::projectECEF(const BasicPoint3d& p, const int& 
 
 GPSPoint LocalFrameProjector::reverse(const BasicPoint3d& p) const
 {
+  static constexpr double RAD2DEG = 180.0/M_PI;
   PJ_COORD c{{p[0], p[1], p[2], 0}};
   PJ_COORD c_out = proj_trans(P_, PJ_INV, c);
 
-  return GPSPoint{c_out.lp.lam, c_out.lp.phi};
+  return GPSPoint{c_out.lpz.phi * RAD2DEG, c_out.lpz.lam * RAD2DEG, c_out.lpz.z};
 }
 
 
