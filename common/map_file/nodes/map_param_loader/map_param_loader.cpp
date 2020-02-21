@@ -19,10 +19,10 @@
 namespace map_param_loader
 {
 // Get transform from map_frame coord to ecef_frame coord using respective proj strings
-tf2::Transform getTransform(const std::string& map_frame, const std::string& ecef_frame)
+tf2::Transform getTransform(const std::string& map_frame)
 {
 
-  lanelet::projection::LocalFrameProjector local_projector(map_frame.c_str(), ecef_frame.c_str());
+  lanelet::projection::LocalFrameProjector local_projector(map_frame.c_str());
   
   tf2::Matrix3x3 rot_mat, id = tf2::Matrix3x3::getIdentity();
   lanelet::BasicPoint3d origin_in_map{0,0,0}, origin_in_ecef;
@@ -76,14 +76,14 @@ int main(int argc, char **argv)
   ros::NodeHandle private_nh("~");
 
   int projector_type = 1; // default value
-  std::string base_frame , target_frame, lanelet2_filename;
+  std::string target_frame, lanelet2_filename;
   private_nh.param<std::string>("file_name", lanelet2_filename, "");
   
   // Parse geo reference info from the lanelet map (.osm)
-  lanelet::io_handlers::AutowareOsmParser::parseMapParams(lanelet2_filename, &projector_type, &base_frame, &target_frame);
+  lanelet::io_handlers::AutowareOsmParser::parseMapParams(lanelet2_filename, &projector_type, &target_frame);
 
-  // Get the transform (when parsed target_frame is map_frame, and base_frame is ECEF)
-  tf2::Transform tf = map_param_loader::getTransform(target_frame, base_frame);
+  // Get the transform to ecef (when parsed target_frame is map_frame)
+  tf2::Transform tf = map_param_loader::getTransform(target_frame);
 
   // Broadcast the transform
   map_param_loader::broadcastTransform(tf);
