@@ -20,7 +20,6 @@
 #include <math.h>
 
 #include <lanelet2_extension/projection/local_frame_projector.h>
-// TODO
 
 TEST(LocalProjector, ForwardProjection)
 {
@@ -54,26 +53,3 @@ TEST(LocalProjector, ReverseProjection)
   ASSERT_DOUBLE_EQ(gps_point.lon, -77.14835128349988);
   ASSERT_DOUBLE_EQ(gps_point.ele, local_point.z());
 }
-
-// TEST(LocalProjector, ReverseProjection)
-// {
-//   lanelet::projection::MGRSProjector projector;
-//   lanelet::BasicPoint3d mgrs_point;
-//   mgrs_point.x() = 94946.0;
-//   mgrs_point.y() = 46063.0;
-//   mgrs_point.z() = 12.3456789;
-
-//   projector.setMGRSCode("54SUE");
-//   lanelet::GPSPoint gps_point = projector.reverse(mgrs_point);
-
-//   // projected z value should not change
-//   ASSERT_DOUBLE_EQ(gps_point.ele, mgrs_point.z()) << "Reverse projected z value should be " << mgrs_point.z();
-
-//   // https://www.movable-type.co.uk/scripts/latlong-utm-mgrs.html
-//   // round the projected value since the above reference only gives value up to
-//   // precision of 1e-8
-//   double rounded_lat = round(gps_point.lat * 1e8) / 1e8;
-//   ASSERT_DOUBLE_EQ(rounded_lat, 35.65282525) << "Reverse projected latitude value should be " << 35.65282525;
-//   double rounded_lon = round(gps_point.lon * 1e8) / 1e8;
-//   ASSERT_DOUBLE_EQ(rounded_lon, 139.83947721) << "Reverse projected longitude value should be " << 139.83947721;
-// }
