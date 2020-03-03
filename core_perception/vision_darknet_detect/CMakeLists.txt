@@ -273,3 +273,7 @@ install(DIRECTORY launch/
 install(DIRECTORY darknet/cfg/
         DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/darknet/cfg/
         PATTERN ".svn" EXCLUDE)
+
+install(DIRECTORY darknet/data/
+        DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/darknet/data/
+        PATTERN ".svn" EXCLUDE)
