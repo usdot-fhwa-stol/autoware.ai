@@ -17,17 +17,15 @@
 
 #include <gtest/gtest.h>
 #include <map_file/map_param_loader.h>
-//#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 
 TEST(GetTransformTest, testECEFPoints)
 {
     //Example frames
-    std::string map_frame = "+proj=tmerc +lat_0=38.95197911150576 +lon_0=-77.14835128349988 +k=1 +x_0=0 +y_0=0 +units=m +vunits=m";
-    std::string ecef_frame = "+proj=geocent +ellps=WGS84 +datum=WGS84 +units=m +no_defs";
+    std::string map_frame = "+proj=tmerc +lat_0=38.95197911150576 +lon_0=-77.14835128349988 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +vunits=m +no_defs";
 
     //Points are calculated using cs2cs command line function of proj library.
-    tf2::Transform tf = map_param_loader::getTransform(map_frame, ecef_frame);
+    tf2::Transform tf = map_param_loader::getTransform(map_frame);
     tf2::Vector3 origin = tf(tf2::Vector3{0,0,0});
     ASSERT_FLOAT_EQ (origin[0],1104726.07);
     ASSERT_FLOAT_EQ (origin[1],-4842261.44);
