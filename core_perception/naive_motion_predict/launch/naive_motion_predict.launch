@@ -2,7 +2,7 @@
 <launch>
     <arg name="interval_sec" default="0.1"/>
     <arg name="num_prediction" default="10"/>
-    <arg name="sensor_height_calibration_params_file" default="$(find vehicle_calibration_dir)/naive_motion_predict/calibration.yaml"/>
+    <arg name="sensor_height_calibration_params_file" default="$(find naive_motion_predict)/config/calibration.yaml"/>
     <arg name="filter_out_close_object_threshold" default="1.5"/>
     <arg name="input_topic" default="/detection/objects"/>
 
