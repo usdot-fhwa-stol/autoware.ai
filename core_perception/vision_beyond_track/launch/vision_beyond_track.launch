@@ -1,7 +1,7 @@
 <launch>
   <arg name="camera_info_src" default="/camera_info"/>
   <arg name="objects_topic_src" default="/detection/image_detector/objects"/>
-  <arg name="camera_height_calibration_params_file" default="$(find vehicle_calibration_dir)/vision_beyond_track/calibration.yaml"/>
+  <arg name="camera_height_calibration_params_file" default="$(find vision_beyond_track)/config/calibration.yaml"/>
 
   <node pkg="vision_beyond_track" name="vision_beyond_track_01" type="vision_beyond_track" output="screen">
     <param name="camera_info_src" type="str" value="$(arg camera_info_src)"/>
