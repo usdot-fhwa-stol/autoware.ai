@@ -1,0 +1,13 @@
+<launch>
+  <arg name="register_lidar2camera_tf" default="True" />
+  <arg name="target_frame" default="velodyne" />
+  <arg name="camera_frame" default="left_optical" />
+  <arg name="calibration_file" default="$(find calibration_publisher)/config/lidar_camera_fl_calibration.yaml"/>
+
+  <node pkg="calibration_publisher" name="calibrationpublisher" type="calibration_publisher" output="screen">
+    <param name="register_lidar2camera_tf"  type="bool" value="$(arg register_lidar2camera_tf)" />
+    <param name="target_frame" type="str" value="$(arg target_frame)" />
+    <param name="camera_frame" type="str" value="$(arg camera_frame)" />
+    <param name="calibration_file" file="$(arg calibration_file)" />
+  </node>
+</launch>
