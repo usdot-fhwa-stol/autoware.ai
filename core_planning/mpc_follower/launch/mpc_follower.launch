@@ -49,6 +49,7 @@
 			<param name="out_twist_name" value="/twist_raw"/>
 			<param name="out_vehicle_cmd_name" value="/ctrl_raw"/>
 
+
 			<!-- paramters -->
 			<param name="ctrl_period" value="$(arg ctrl_period)"/>
 			<param name="traj_resample_dist" value="$(arg traj_resample_dist)"/>
