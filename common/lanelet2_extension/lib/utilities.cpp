@@ -274,32 +274,38 @@ std::vector<lanelet::BasicPoint3d> resamplePoints(const lanelet::ConstLineString
   return resampled_points;
 }
 
+  /*!
+   * \brief Return a recomputed centerline for the given input lanelet without 
+   *        modifiying the input lanelet
+   * 
+   * Computes a centerline by averaging each point in the left and right boundary
+   * of the lanelet. Assumes that the points on the left and right bound are 
+   * evenly spaced as well as equally numbered. i.e. average(left[i], right[i])
+   * = center[i].
+   * 
+   * \param lanelet_obj The lanelet to evaluate the centerline for
+   * \return A LineString3d describing the geometry of the center line
+   * \throws std::invalid_argument If the left and right bounds are not the same size
+   */
 lanelet::LineString3d generateFineCenterline(const lanelet::ConstLanelet& lanelet_obj)
 {
-  // Parameter
-  constexpr double point_interval = 1.0;  // [m]
-
-  // Get length of longer border
-  const double left_length = lanelet::geometry::length(lanelet_obj.leftBound());
-  const double right_length = lanelet::geometry::length(lanelet_obj.rightBound());
-  const double longer_distance = (left_length > right_length) ? left_length : right_length;
-  const int num_segments = std::max(static_cast<int>(ceil(longer_distance / point_interval)), 1);
-
-  // Resample points
-  const auto left_points = resamplePoints(lanelet_obj.leftBound(), num_segments);
-  const auto right_points = resamplePoints(lanelet_obj.rightBound(), num_segments);
-
-  // Create centerline
-  lanelet::LineString3d centerline(lanelet::utils::getId());
-  for (int i = 0; i < num_segments + 1; i++)
-  {
-    // Add ID for the average point of left and right
-    const auto center_basic_point = (right_points.at(i) + left_points.at(i)) / 2;
-    const lanelet::Point3d center_point(lanelet::utils::getId(), center_basic_point.x(), center_basic_point.y(),
-                                        center_basic_point.z());
-    centerline.push_back(center_point);
+  if (lanelet_obj.rightBound2d().size() != lanelet_obj.leftBound2d().size()) {
+    throw std::invalid_argument("Left and right bound not the same size for centerline computation");
   }
-  return centerline;
+
+  lanelet::ConstLineString3d left = lanelet_obj.leftBound3d();
+  lanelet::ConstLineString3d right = lanelet_obj.rightBound3d();
+  lanelet::LineString3d center;
+  double x, y, z;
+  for (int i = 0; i < lanelet_obj.rightBound3d().size(); i++) {
+    x = (left[i].x() + right[i].x())/2.0;
+    y = (left[i].y() + right[i].y())/2.0;
+    z = (left[i].z() + right[i].z())/2.0;
+    lanelet::Point3d point(lanelet::utils::getId(), x, y, z);
+    center.push_back(point);
+  }
+
+  return center;
 }
 
 }  // namespace
