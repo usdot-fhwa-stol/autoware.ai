@@ -9,19 +9,15 @@
   <arg name="sync" default="false" />
   <arg name="use_diffnormals" default="false" />
   <arg name="pose_estimation" default="true" />
-  <arg name="clip_min_height" default="-1.3" />
-  <arg name="clip_max_height" default="0.5" />
-
   <arg name="keep_lanes" default="false" />
   <arg name="keep_lane_left_distance" default="5" />
   <arg name="keep_lane_right_distance" default="5" />
   <arg name="cluster_merge_threshold" default="1.5" />
   <arg name="clustering_distance" default="0.75" />
-
   <arg name="use_vector_map" default="false" />
   <arg name="wayarea_gridmap_layer" default="wayarea" />
 
-  <arg name="output_frame" default="velodyne" />
+  <arg name="calibration_params_file" default="$(find lidar_euclidean_cluster_detect)/config/calibration.yaml"/>
 
   <arg name="remove_points_upto" default="0.0" />
 
@@ -46,9 +42,7 @@
     <param name="keep_lanes" value="$(arg keep_lanes)"/>
     <param name="keep_lane_left_distance" value="$(arg keep_lane_left_distance)"/>
     <param name="keep_lane_right_distance" value="$(arg keep_lane_right_distance)"/>
-    <param name="clip_min_height" value="$(arg clip_min_height)"/>
-    <param name="clip_max_height" value="$(arg clip_max_height)"/>
-    <param name="output_frame" value="$(arg output_frame)"/>
+    <rosparam command="load" file="$(arg calibration_params_file)" />
     <param name="remove_points_upto" value="$(arg remove_points_upto)"/>
     <param name="clustering_distance" value="$(arg clustering_distance)"/>
     <param name="cluster_merge_threshold" value="$(arg cluster_merge_threshold)"/>
