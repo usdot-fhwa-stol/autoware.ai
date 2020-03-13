@@ -39,8 +39,8 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         -t|--test)
-            USERNAME=usdotfhwastoltest
-            COMPONENT_VERSION_STRING=test
+            USERNAME=usdotfhwastoldev
+            COMPONENT_VERSION_STRING=stable
             shift
             ;;
     esac
@@ -54,8 +54,8 @@ echo "Building docker image for $IMAGE version: $COMPONENT_VERSION_STRING"
 echo "Final image name: $USERNAME/$IMAGE:$COMPONENT_VERSION_STRING"
 
 cd ..
-if [[ $COMPONENT_VERSION_STRING = "test" ]]; then
-    sed "s|usdotfhwastol|usdotfhwastoltest|g; s|:*[0-9].*[0-9].*[0-9]|:test|g" \
+if [[ $COMPONENT_VERSION_STRING = "stable" ]]; then
+    sed "s|usdotfhwastol|$USERNAME|g; s|:*[0-9].*[0-9].*[0-9]|:$COMPONENT_VERSION_STRING|g" \
         Dockerfile | docker build -f - --no-cache -t $USERNAME/$IMAGE:$COMPONENT_VERSION_STRING \
         --build-arg VERSION="$COMPONENT_VERSION_STRING" \
         --build-arg VCS_REF=`git rev-parse --short HEAD` \
