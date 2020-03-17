@@ -636,15 +636,6 @@ ROSRangeVisionFusionApp::InitializeROSIo(ros::NodeHandle &in_private_handle)
     truck_depth_ = truck_dimensions[2].as<double>();
   }
 
-  if (name_space_str != "/")
-  {
-    if (name_space_str.substr(0, 2) == "//")
-    {
-      name_space_str.erase(name_space_str.begin());
-    }
-    camera_info_src = name_space_str + camera_info_src;
-  }
-
   //generate subscribers and sychronizers
   ROS_INFO("[%s] Subscribing to... %s", __APP_NAME__, camera_info_src.c_str());
   intrinsics_subscriber_ = in_private_handle.subscribe(camera_info_src,
