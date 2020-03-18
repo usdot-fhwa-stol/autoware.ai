@@ -2,6 +2,7 @@
 
 	<arg name="ns" default="/"/>
 	<arg name="show_debug_info" default="false" doc="flag to display debug info" />
+	<arg name="publish_debug_values" default="false" doc="publish debug topics" />
 	<arg name="ctrl_period" default="0.03" doc="control period [s]"/>
 	<arg name="traj_resample_dist" default="0.1" doc="ath resampling interval [m]"/>
 	<arg name="enable_yaw_recalculation" default="true" doc="flag for recalculation of yaw angle after resampling"/>
@@ -15,6 +16,7 @@
 	<arg name="qp_solver_type" default="unconstraint_fast" doc="optimization solver type. option is unconstraint_fast, unconstraint, and qpoases_hotstart"/>
 	<arg name="qpoases_max_iter" default="500" doc="max iteration number for quadratic programming"/>
 	<arg name="vehicle_model_type" default="kinematics" doc="vehicle model type for mpc prediction. option is kinematics, kinematics_no_delay, and dynamics"/>
+
 
 	<!-- MPC design parameters -->
 	<arg name="mpc_prediction_horizon" default="70" doc="prediction horizon step"/>
@@ -35,19 +37,28 @@
 	<arg name="steer_lim_deg" default="40.0" doc="steering angle limit [deg]"/>
 	<arg name="steering_gear_ratio" default="20.0" doc="steering gear ratio"/>
 
-	<group ns="$(arg ns)">
+	<group>
 
-		<node pkg="mpc_follower" type="mpc_waypoints_converter" name="mpc_waypoints_converter" output="screen"/>
+		<node pkg="mpc_follower" type="mpc_waypoints_converter" name="mpc_waypoints_converter" output="screen">
+			<remap from="/base_waypoints" to="base_waypoints"/>
+			<remap from="/closest_waypoint" to="closest_waypoint"/>
+			<remap from="/final_waypoints" to="carma_final_waypoints"/>
+		</node>
 
 		<node pkg="mpc_follower" type="mpc_follower" name="mpc_follower" output="screen">
 
+			<remap from="/ctrl_raw" to="ctrl_raw"/>
+			<remap from="/twist_raw" to="twist_raw"/>
+
 			<!-- system -->
+			<param name="publish_debug_values" value="$(arg publish_debug_values)"/>
 			<param name="ctrl_cmd_interface" value="all"/>
 			<param name="in_waypoints_name" value="/mpc_waypoints"/>
 			<param name="in_vehicle_status_name" value="/vehicle_status"/>
 			<param name="in_selfpose_name" value="/current_pose"/>
 			<param name="out_twist_name" value="/twist_raw"/>
 			<param name="out_vehicle_cmd_name" value="/ctrl_raw"/>
+
 
 			<!-- paramters -->
 			<param name="ctrl_period" value="$(arg ctrl_period)"/>

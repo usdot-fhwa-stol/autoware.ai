@@ -27,8 +27,8 @@
 
 namespace map_param_loader
 {
-// Get transform from map_frame coord to ecef_frame coord using respective proj strings.
-tf2::Transform getTransform(const std::string& map_frame, const std::string& ecef_frame);
+// Get transform from map_frame to ecef_frame using respective proj strings.
+tf2::Transform getTransform(const std::string& map_frame);
 
 // Broadcast the input transform to tf_static.
 void broadcastTransform(const tf2::Transform& transform);

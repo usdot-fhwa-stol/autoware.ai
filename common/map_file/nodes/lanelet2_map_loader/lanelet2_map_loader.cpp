@@ -70,9 +70,9 @@ int main(int argc, char** argv)
   lanelet::LaneletMapPtr map;
   
   int projector_type = 0;
-  std::string base_frame , target_frame;
+  std::string target_frame;
   // Parse geo reference info from the lanelet map (.osm)
-  lanelet::io_handlers::AutowareOsmParser::parseMapParams(lanelet2_filename, &projector_type, &base_frame, &target_frame);
+  lanelet::io_handlers::AutowareOsmParser::parseMapParams(lanelet2_filename, &projector_type, &target_frame);
 
   if(projector_type == 0)
   {
@@ -80,7 +80,7 @@ int main(int argc, char** argv)
     map = lanelet::load(lanelet2_filename, projector, &errors);
   } else if(projector_type == 1)
   {
-    lanelet::projection::LocalFrameProjector local_projector(base_frame.c_str(), target_frame.c_str());
+    lanelet::projection::LocalFrameProjector local_projector(target_frame.c_str());
     map = lanelet::load(lanelet2_filename, local_projector, &errors);
   }
 

@@ -88,13 +88,12 @@ void AutowareOsmParser::parseVersions(const std::string& filename, std::string* 
     *map_version = metainfo.attribute("map_version").value();
 }
 
-void AutowareOsmParser::parseMapParams (const std::string& filename, int* projector_type, std::string* base_frame, 
-                                      std::string* target_frame)
+void AutowareOsmParser::parseMapParams (const std::string& filename, int* projector_type, std::string* target_frame)
 {
-  if (base_frame == nullptr || target_frame == nullptr)
+  if (target_frame == nullptr)
   {
     throw lanelet::ParseError(std::string("In function ") + __FUNCTION__ + 
-    std::string(": Errors occured while parsing .osm file - either frame is a null pointer!"));
+    std::string(": Errors occured while parsing .osm file - target frame is a null pointer!"));
     return;
   }
 
@@ -111,14 +110,18 @@ void AutowareOsmParser::parseMapParams (const std::string& filename, int* projec
   if (geoRef)
   {
     std::string raw_geo_ref = geoRef.child_value();
+
     // Filter unnecessary part out of georeference.
     std::vector<std::string> buffer;
     boost::split(buffer,  raw_geo_ref, boost::is_any_of(" "));
 
     for (int i = 0; i < buffer.size(); i++)
     {
-      if (!boost::algorithm::contains(buffer[i], "+geoidgrids"))
+      if (!boost::algorithm::contains(buffer[i], "+geoidgrids")) {
         target_frame->append(buffer[i] + " "); //geo reference value
+      } else {
+        std::cerr << "Removing +geoidgrids from input projection as this is not currently supported by AutowareOsmParser" << std::endl;
+      }
     }
   }
   else
@@ -128,7 +131,6 @@ void AutowareOsmParser::parseMapParams (const std::string& filename, int* projec
 
   // Default values
   *projector_type = 1; // default value for autoware.ai projector type for CARMA purposes
-  *base_frame = std::string("+proj=geocent +ellps=WGS84 +datum=WGS84 +units=m +no_defs"); //default value for ECEF proj string
 }
 } // namespace io_handlers
 } // namespace lanelet

@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 2.8.11)
 project(lanelet2_extension)
 
+#
+#- Modified to install add CARMA regulatory elements to build
+#    - 2/19/2019
+#    - Michael McConnell
+#
+
 find_package(PkgConfig)
 find_path(GeographicLib_INCLUDE_DIR GeographicLib/Config.h
   PATH_SUFFIXES GeographicLib
@@ -69,6 +75,11 @@ add_library( lanelet2_extension_lib
   lib/query.cpp
   lib/utilities.cpp
   lib/visualization.cpp
+  lib/CarmaUSTrafficRules.cpp
+  lib/PassingControlLine.cpp
+  lib/DigitalSpeedLimit.cpp
+  lib/RegionAccessRule.cpp
+  lib/DirectionOfTravel.cpp
 )
 
 add_dependencies(lanelet2_extension_lib
@@ -118,4 +129,18 @@ if(CATKIN_ENABLE_TESTING)
  target_link_libraries(regulatory_elements-test ${catkin_LIBRARIES} lanelet2_extension_lib)
  add_rostest_gtest(utilities-test test/test_utilities.test test/src/test_utilities.cpp)
  target_link_libraries(utilities-test ${catkin_LIBRARIES} lanelet2_extension_lib)
+
+ catkin_add_gmock(carma-additions-test
+  test/src/CarmaTestsMain.cpp
+  test/src/RegionAccessRuleTest.cpp
+  test/src/PassingControlLineTest.cpp
+  test/src/DirectionOfTravelTest.cpp
+  test/src/DigitalSpeedLimitTest.cpp
+  test/src/CarmaUSTrafficRulesTest.cpp
+  test/src/MapLoadingTest.cpp
+  test/src/test_local_projector.cpp
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test # Add test directory as working directory for unit tests
+ )
+
+ target_link_libraries(carma-additions-test lanelet2_extension_lib ${catkin_LIBRARIES})
 endif()

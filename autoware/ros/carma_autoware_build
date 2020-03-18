@@ -33,7 +33,7 @@ autoware_src="$(realpath .)"
 autoware_build_args=""
 use_catkin=false
 # The list of packages which are required by carma from autoware
-AUTOWARE_PACKAGE_SELECTION="map_tools lidar_localizer map_file deadreckoner points_downsampler points_preprocessor lane_planner waypoint_maker autoware_msgs autoware_config_msgs as waypoint_planner pure_pursuit twist_filter twist_gate lanelet2_extension vision_darknet_detect vision_beyond_track lidar_euclidean_cluster_detect range_vision_fusion imm_ukf_pda_track naive_motion_predict"
+AUTOWARE_PACKAGE_SELECTION="map_tools lidar_localizer map_file deadreckoner points_downsampler points_preprocessor lane_planner waypoint_maker autoware_msgs autoware_config_msgs as waypoint_planner pure_pursuit twist_filter twist_gate lanelet2_extension vision_darknet_detect vision_beyond_track lidar_euclidean_cluster_detect range_vision_fusion imm_ukf_pda_track naive_motion_predict ekf_localizer detected_objects_visualizer calibration_publisher mpc_follower"
 
 # The list of message packages used by autoware which will need to have thier rosjava artifacts generated for carma
 # Note: The order of this list is the order of compilation and therefore must account for dependancies

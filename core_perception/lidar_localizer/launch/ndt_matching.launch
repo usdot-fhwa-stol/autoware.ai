@@ -10,10 +10,11 @@
   <arg name="queue_size" default="1" />
   <arg name="offset" default="linear" />
   <arg name="get_height" default="false" />
-  <arg name="use_local_transform" default="false" />
+  <arg name="use_local_transform" default="false" doc="This parameter is deprecated"/>
   <arg name="sync" default="false" />
   <arg name="output_log_data" default="false" />
   <arg name="gnss_reinit_fitness" default="500.0" />
+  <arg name="base_frame" default="base_link" />
 
   <node pkg="lidar_localizer" type="ndt_matching" name="ndt_matching" output="log">
     <param name="method_type" value="$(arg method_type)" />
@@ -28,6 +29,7 @@
     <param name="use_local_transform" value="$(arg use_local_transform)" />
     <param name="output_log_data" value="$(arg output_log_data)" />
     <param name="gnss_reinit_fitness" value="$(arg gnss_reinit_fitness)" />
+    <param name="base_frame" value="$(arg base_frame)" />
     <remap from="/points_raw" to="/sync_drivers/points_raw" if="$(arg sync)" />
   </node>
 

@@ -52,14 +52,14 @@ public:
 
   /**
    * [parseMapParams parses GeoReference (i.e. map parameters) info from osm file and loads default ECEF proj strings]
+   * NOTE: projector_type = 0 is currently not supported by CARMA
+   *       +geoidgrids is also currently not a supported georeference field by the parser
    * @param filename            [path to osm file]
    * @param projector_type      [parsed information about map projector_type: Currently it supposes 0 as Autoware default MGRSProjector and 1 as CARMA LocalFrameProjector]
-   * @param base_frame          [parsed information about map geo reference: base_frame ]
    * @param target_frame        [parsed information about map geo reference: target_frame]
    * @throw lanelet::ParseError [throws if either frame is nullptr or if geoReference tag cannot be found in .osm file]
-
    */
-  static void parseMapParams(const std::string& filename, int* projector_type, std::string* base_frame, std::string* target_frame);
+  static void parseMapParams(const std::string& filename, int* projector_type, std::string* target_frame);
 
   static constexpr const char* extension()
   {

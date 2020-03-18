@@ -230,20 +230,7 @@ int main(int argc, char *argv[])
   extrinsics_parsed_ = false;
 
   std::string name_space_str = ros::this_node::getNamespace();
-  if (name_space_str != "/")
-  {
-    image_topic_name = name_space_str + image_topic_name;
-    camera_info_name = name_space_str + camera_info_name;
-    projection_matrix_topic = name_space_str + projection_matrix_topic;
-    if (name_space_str.substr(0, 2) == "//")
-    {
-      /* if name space obtained by ros::this::node::getNamespace()
-         starts with "//", delete one of them */
-      name_space_str.erase(name_space_str.begin());
-    }
-    camera_id_str_ = name_space_str;
-  }
-
+  
   ros::Subscriber image_sub;
 
   image_sub = n.subscribe(image_topic_name, 10, image_raw_cb);

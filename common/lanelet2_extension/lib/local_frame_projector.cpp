@@ -18,32 +18,43 @@
 
 #include <lanelet2_extension/projection/local_frame_projector.h>
 #include <iostream>
+#include <math.h>
 
 namespace lanelet
 {
 namespace projection
 {
 
-LocalFrameProjector::LocalFrameProjector(const char* base_frame, const char* target_frame, Origin origin) : Projector(origin)
+// C++ 14 vs 17 constant defintion
+#if __cplusplus < 201703L
+// Forward declare static constexpr
+constexpr char LocalFrameProjector::ECEF_PROJ_STR[];  // instantiate string in cpp file
+#endif
+
+LocalFrameProjector::LocalFrameProjector(const char* projection_string, Origin origin) : Projector(origin), map_proj_string_(projection_string)
 {
-  P = proj_create_crs_to_crs(PJ_DEFAULT_CTX, base_frame, target_frame, NULL);
+  P_ = proj_create(PJ_DEFAULT_CTX, map_proj_string_.c_str());
 }
 
 BasicPoint3d LocalFrameProjector::forward(const GPSPoint& p) const
 {
-  PJ_COORD c{{p.lat, p.lon, p.ele, 0}};
-  PJ_COORD c_out = proj_trans(P, PJ_FWD, c);
-  return BasicPoint3d{c_out.xy.x, c_out.xy.y, 0};
+  static constexpr double DEG2RAD =  M_PI/180.0; 
+  PJ_COORD c{{p.lon * DEG2RAD, p.lat * DEG2RAD, p.ele}};
+  PJ_COORD c_out = proj_trans(P_, PJ_FWD, c);
+  return BasicPoint3d{c_out.xyz.x, c_out.xyz.y, c_out.xyz.z};
 }
 
 BasicPoint3d LocalFrameProjector::projectECEF(const BasicPoint3d& p, const int& proj_dir) const
 {
+  static PJ* ecef_in_map_proj = proj_create_crs_to_crs(PJ_DEFAULT_CTX, map_proj_string_.c_str(), ECEF_PROJ_STR, NULL);
+  
   PJ_COORD c{{p[0], p[1], p[2], 0}};
   PJ_COORD c_out;
+
   if (proj_dir == 1)
-    c_out = proj_trans(P, PJ_FWD, c);
+    c_out = proj_trans(ecef_in_map_proj, PJ_FWD, c);
   else if (proj_dir == -1)
-    c_out = proj_trans(P, PJ_INV, c);
+    c_out = proj_trans(ecef_in_map_proj, PJ_INV, c);
   else
   {
     throw std::invalid_argument(std::string("In function ") + __FUNCTION__ + std::string(": Error:  invalid projection direction: ") + 
@@ -55,9 +66,11 @@ BasicPoint3d LocalFrameProjector::projectECEF(const BasicPoint3d& p, const int& 
 
 GPSPoint LocalFrameProjector::reverse(const BasicPoint3d& p) const
 {
+  static constexpr double RAD2DEG = 180.0/M_PI;
   PJ_COORD c{{p[0], p[1], p[2], 0}};
-  PJ_COORD c_out = proj_trans(P, PJ_INV, c);
-  return GPSPoint{c_out.lp.lam, c_out.lp.phi};
+  PJ_COORD c_out = proj_trans(P_, PJ_INV, c);
+
+  return GPSPoint{c_out.lpz.phi * RAD2DEG, c_out.lpz.lam * RAD2DEG, c_out.lpz.z};
 }
 
 
