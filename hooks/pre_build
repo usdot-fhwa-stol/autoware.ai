@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [[ "$SOURCE_BRANCH" = "feature/test_build" ]]; then
+if [[ "$SOURCE_BRANCH" = "develop" ]]; then
     # add -t flag to checkout.sh and update image dependencies
-    sed -i "s|/home/carma/autoware.ai/docker/checkout.sh|/home/carma/autoware.ai/docker/checkout.sh -t|g; s|usdotfhwastol|usdotfhwastoldev|g; s|:[0-9]*\.[0-9]*\.[0-9]*|:stable|g" \
+    sed -i "s|/home/carma/autoware.ai/docker/checkout.sh|/home/carma/autoware.ai/docker/checkout.sh -d|g; s|usdotfhwastol|usdotfhwastoldev|g; s|:[0-9]*\.[0-9]*\.[0-9]*|:develop|g" \
         Dockerfile
 fi
