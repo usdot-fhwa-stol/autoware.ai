@@ -17,6 +17,13 @@
  *
  */
 
+/*
+ * Updated to revise the way centerline recalulation works to better
+ * reflect the kinds of maps that CARMA has and to work better with
+ * the CARMA World Model.
+ * Kyle Rush<kyle.rush@leidos.com> 3/11/2020 
+ */
+
 #include <lanelet2_core/geometry/LineString.h>
 #include <lanelet2_core/primitives/BasicRegulatoryElements.h>
 #include <lanelet2_traffic_rules/TrafficRules.h>

@@ -54,3 +54,9 @@ For any modified file please follow these steps to ensure proper documentation o
   - 11/18/2019
   - Michael McConnell
 
+- Updated to revise the way centerline recalulation works to better
+  reflect the kinds of maps that CARMA has and to work better with
+  the CARMA World Model.
+  - 3/11/2020
+  - Kyle Rush
+
