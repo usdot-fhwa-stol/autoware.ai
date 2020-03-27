@@ -1,3 +1,4 @@
+  
 <launch>
   <arg name="detected_objects_range" default="/detection/lidar_detector/objects"/>
   <arg name="detected_objects_vision" default="/detection/image_detector/objects"/>

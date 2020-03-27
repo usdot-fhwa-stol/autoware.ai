@@ -47,3 +47,4 @@ cluster_merge_threshold: 1.5
 
 # Estimate the pose of the cluster using a minimum-area bounding rectangle
 pose_estimation: true
+

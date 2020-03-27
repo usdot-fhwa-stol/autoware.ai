@@ -77,7 +77,9 @@ void AutowareOsmParser::parseVersions(const std::string& filename, std::string* 
   auto result = doc.load_file(filename.c_str());
   if (!result)
   {
-    throw lanelet::ParseError(std::string("Errors occured while parsing osm file: ") + result.description());
+    throw lanelet::ParseError(std::string("In function ") + __FUNCTION__ + 
+    std::string(":\nErrors occured while parsing osm file: ") + result.description());
+    return;
   }
 
   auto osmNode = doc.child("osm");
@@ -93,7 +95,7 @@ void AutowareOsmParser::parseMapParams (const std::string& filename, int* projec
   if (target_frame == nullptr)
   {
     throw lanelet::ParseError(std::string("In function ") + __FUNCTION__ + 
-    std::string(": Errors occured while parsing .osm file - target frame is a null pointer!"));
+    std::string(":\nErrors occured while parsing .osm file - target frame is a null pointer!"));
     return;
   }
 
@@ -101,16 +103,17 @@ void AutowareOsmParser::parseMapParams (const std::string& filename, int* projec
   auto result = doc.load_file(filename.c_str());
   if (!result)
   {
-    throw lanelet::ParseError(std::string("Errors occured while parsing .osm file: ") + result.description());
+    throw lanelet::ParseError(std::string("In function ") + __FUNCTION__ + 
+    std::string(":\nErrors occured while parsing .osm file: ") + result.description());
+    return;
   }
 
   auto osmNode = doc.child("osm");
   auto geoRef = osmNode.child("geoReference");
 
-  if (geoRef)
+  if (geoRef && std::string(geoRef.child_value()) != "")
   {
     std::string raw_geo_ref = geoRef.child_value();
-
     // Filter unnecessary part out of georeference.
     std::vector<std::string> buffer;
     boost::split(buffer,  raw_geo_ref, boost::is_any_of(" "));
@@ -126,7 +129,9 @@ void AutowareOsmParser::parseMapParams (const std::string& filename, int* projec
   }
   else
   {
-    throw lanelet::ParseError(std::string("While parsing .osm file, geoReference was not found!"));
+    throw lanelet::ParseError(std::string("In function ") + __FUNCTION__ + 
+    std::string(":\nWhile parsing .osm file, geoReference was not found! Please check geoReference syntax in vector_map.osm"));
+    return;
   }
 
   // Default values
