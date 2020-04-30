@@ -21,6 +21,12 @@
 
 #include <lanelet2_core/LaneletMap.h>
 #include <lanelet2_core/primitives/Lanelet.h>
+#include <lanelet2_core/primitives/Area.h>
+#include <lanelet2_core/primitives/LineString.h>
+#include <lanelet2_core/primitives/Point.h>
+#include <lanelet2_core/primitives/RegulatoryElement.h>
+#include <lanelet2_core/primitives/BasicRegulatoryElements.h>
+#include <lanelet2_core/primitives/Primitive.h>
 
 #include <geometry_msgs/PolygonStamped.h>
 
@@ -28,6 +34,7 @@
 
 #include <vector>
 #include <string>
+#include <unordered_set>
 
 namespace lanelet
 {
@@ -41,6 +48,15 @@ namespace utils
 {
 namespace query
 {
+enum direction {CHECK_CHILD,CHECK_PARENT};
+/**
+ * [TODO]
+ * @param  ll_Map [TODO]
+ * @return        [TODO]
+ */
+template <typename T, typename primT>
+std::vector<Primitive<T>> findReferences (const primT prim, const lanelet::LaneletMapPtr ll_Map);
+
 /**
  * [laneletLayer converts laneletLayer into lanelet vector]
  * @param  ll_Map [input lanelet map]

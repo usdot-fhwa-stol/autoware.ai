@@ -31,6 +31,134 @@ namespace lanelet
 {
 namespace utils
 {
+//====================================================================================================> DEVELOP START
+
+// Comparison function
+
+struct comparator
+{
+  template <typename PrimT>
+  bool operator()(const PrimT& t1, const PrimT& t2) const {
+    // TODO:
+    // 1. assume every lanelet object has different id
+    // 2. assume every lanelet object has unique id within its layer only
+    return true;
+  }
+};
+// Depending on the type of input, different recurse functions will be called
+// primT: Point, LS, llt, regem, polygon etc
+template <typename T, typename primT>
+std::vector<lanelet::Primitive<T>> query::findReferences (const primT prim, const lanelet::LaneletMapPtr ll_Map)
+{
+  std::vector<lanelet::Primitive<T>> return_list;
+  // use set to record only once
+  // some_comparison_func should be implemented to detect type and compare ids appropriately
+  std::unordered_set<lanelet::Primitive<T>, std::hash<lanelet::Primitive<T>>, comparator> recorded_set;
+  // call relevant recurse function based on prim's typedef 
+  // and pass recorded_set by reference
+  recurse(prim, recorded_set, ll_Map, query::CHECK_CHILD);
+  // somehow turn the set into vector here
+  // recorded_set-> return_list
+  return return_list;
+} 
+
+// following recurse functions are helper functions for each primitives
+// not sure if its possible to reduce it using template, but the skeleton code is as follows
+
+// Point
+template <typename T>
+void recurse (lanelet::Point3d prim, std::unordered_set<lanelet::Primitive<T>>& recorded_set, const lanelet::LaneletMapPtr ll_Map, query::direction check_dir)
+{
+  // no primitive to go down
+
+  // so always go back up : query::CHECK_PARENT
+  // get LSs that owns this point
+  auto ls_list_owning_point = ll_Map->lineStringLayer.findUsages(prim);
+  for (auto ls : ls_list_owning_point)
+  {
+    // get the owners of this ls
+    // checking size makes sure we don't add this primitive again if its owner is added already when recursion finishes
+    // although most likely some other primitive will own this point
+    //int size_before = recorded_set.size();
+    recurse(ls, recorded_set, query::CHECK_PARENT);
+    //if (size_before == recorded_set.size())
+    //  recorded_set.insert(ls);
+  }
+  // return
+}
+// LS
+template <typename T>
+void recurse (lanelet::LineString3d prim, std::unordered_set<lanelet::Primitive<T>>& recorded_set, const lanelet::LaneletMapPtr ll_Map, query::direction check_dir)
+{
+  // go down?
+  if (check_dir == query::CHECK_CHILD)
+  {
+    // loop through its child and call recurse on it
+    for (auto p: prim.points())
+    {
+      recurse(p, recorded_set, check_dir);
+    }
+    // go back up once finished
+    return;
+  }
+  
+  // go up := check_Dir == query::CHECK_PARENT
+  // process lanelets owning this ls
+  auto llt_list_owning_ls = ll_Map->laneletLayer.findUsages(prim);
+  for (auto llt : llt_list_owning_ls)
+  {
+    // recurse on this lanelet
+    int size_before = recorded_set.size();
+    recurse(llt, recorded_set, query::CHECK_PARENT);
+  }
+  // process areas owning this ls
+  // similar to above
+
+  // process regems owning this ls
+  // similar to above
+
+}
+
+// Lanelet
+template <typename T>
+void recurse (lanelet::Lanelet prim, std::unordered_set<lanelet::Primitive<T>>& recorded_set, const lanelet::LaneletMapPtr ll_Map, query::direction check_dir)
+{
+  // go down := query::CHECK_CHILD
+  if (check_dir == query::CHECK_CHILD)
+  {
+    // loop through its child and call recurse on it
+    recurse(prim.leftBound(), recorded_set, check_dir);
+    recurse(prim.rightBound(), recorded_set, check_dir);
+    recurse(prim.centerline(), recorded_set, check_dir);
+    recurse(prim.regulatoryElements(), recorded_set, check_dir);
+    // go back up once finished
+    return;
+  }
+
+  // go up := query::CHECK_PARENT
+  // no one 'owns' lanelet, so just add it
+  recorded_set.insert(prim);
+  return;
+}
+
+// Area
+template <typename T>
+void recurse (lanelet::Area prim, std::unordered_set<lanelet::Primitive<T>>& recorded_set, const lanelet::LaneletMapPtr ll_Map, query::direction check_dir)
+{
+
+  // basically same as Lanelet
+
+} 
+
+// RegulatoryElement
+template <typename T>
+void recurse (lanelet::RegulatoryElement prim, std::unordered_set<lanelet::Primitive<T>>& recorded_set, const lanelet::LaneletMapPtr ll_Map, query::direction check_dir)
+{
+  // Basically same as linestring, except it doesn't go down to point
+
+}
+//==================================================================================================> END
+
 // returns all lanelets in laneletLayer - don't know how to convert
 // PrimitveLayer<Lanelets> -> std::vector<Lanelets>
 lanelet::ConstLanelets query::laneletLayer(const lanelet::LaneletMapPtr ll_map)
