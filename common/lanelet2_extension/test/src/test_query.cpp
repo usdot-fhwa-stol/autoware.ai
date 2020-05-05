@@ -89,12 +89,12 @@ private:
 
 TEST_F(TestSuite, QueryRefs)
 {
-  lanelet::utils::query::referenceFinder rf;
-  rf.run<lanelet::RegulatoryElementPtr>(tl, sample_map_ptr);
+  lanelet::utils::query::References rf = lanelet::utils::query::findReferences(tl, sample_map_ptr);
   ASSERT_EQ(rf.pts.size(), 0);
   ASSERT_EQ(rf.lss.size(), 0);
   ASSERT_EQ(rf.llts.size(), 1);
   ASSERT_EQ(rf.areas.size(), 0);
+  //lanelet::utils::recurse(tl,sample_map_ptr, lanelet::utils::query::CHECK_CHILD ,rf);
 }
 
 TEST_F(TestSuite, QueryLanelets)

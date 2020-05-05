@@ -32,10 +32,9 @@ namespace lanelet
 namespace utils
 {
 //====================================================================================================> DEVELOP START
-// following recurse functions are helper functions for each primitives
 
 // Point
-void query::referenceFinder::recurse (lanelet::Point3d prim, const lanelet::LaneletMapPtr ll_Map, direction check_dir)
+void recurse (lanelet::Point3d prim, const lanelet::LaneletMapPtr ll_Map, query::direction check_dir, query::References& rfs)
 {
   // no primitive lower than point
 
@@ -46,14 +45,14 @@ void query::referenceFinder::recurse (lanelet::Point3d prim, const lanelet::Lane
   for (auto ls : ls_list_owning_point)
   {
     // recurse
-    recurse(ls, ll_Map, direction::CHECK_PARENT);
+    recurse(ls, ll_Map, query::direction::CHECK_PARENT, rfs);
   }
   if (ls_list_owning_point.size() == 0)
-      pts.insert(prim);
+      rfs.pts.insert(prim);
 }
 
 // LS
-void query::referenceFinder::recurse (lanelet::LineString3d prim, const lanelet::LaneletMapPtr ll_Map, direction check_dir)
+void recurse (lanelet::LineString3d prim, const lanelet::LaneletMapPtr ll_Map, query::direction check_dir, query::References& rfs)
 {
 
   // go down?
@@ -62,7 +61,7 @@ void query::referenceFinder::recurse (lanelet::LineString3d prim, const lanelet:
     // loop through its child and call recurse on it
     for (auto p: prim)
     {
-      recurse(p, ll_Map, check_dir);
+      recurse(p, ll_Map, check_dir, rfs);
     }
     // go back up once finished
     return;
@@ -75,7 +74,7 @@ void query::referenceFinder::recurse (lanelet::LineString3d prim, const lanelet:
   for (auto llt : llt_list_owning_ls)
   {
     // recurse on this lanelet
-    recurse(llt, ll_Map, query::CHECK_PARENT);
+    recurse(llt, ll_Map, query::CHECK_PARENT, rfs);
   }
   
   // similarly, process areas owning this ls
@@ -83,64 +82,64 @@ void query::referenceFinder::recurse (lanelet::LineString3d prim, const lanelet:
   for (auto area : area_list_owning_ls)
   {
     // recurse on this lanelet
-    recurse(area, ll_Map, query::CHECK_PARENT);
+    recurse(area, ll_Map, query::CHECK_PARENT, rfs);
   }
 
   if (area_list_owning_ls.size() ==0 && llt_list_owning_ls.size() == 0)
-    lss.insert(prim);
+    rfs.lss.insert(prim);
 }
 
 // Lanelet
-void query::referenceFinder::recurse (lanelet::Lanelet prim, const lanelet::LaneletMapPtr ll_Map, direction check_dir)
+void recurse (lanelet::Lanelet prim, const lanelet::LaneletMapPtr ll_Map, query::direction check_dir, query::References& rfs)
 {
   // go down, query::CHECK_CHILD
   if (check_dir == query::CHECK_CHILD)
   {
     // loop through its child and call recurse on it
-    recurse(prim.leftBound(), ll_Map, check_dir);
-    recurse(prim.rightBound(), ll_Map, check_dir);
+    recurse(prim.leftBound(), ll_Map, check_dir, rfs);
+    recurse(prim.rightBound(), ll_Map, check_dir, rfs);
     for (auto regem: prim.regulatoryElements())
-      recurse(regem, ll_Map, check_dir);
+      recurse(regem, ll_Map, check_dir, rfs);
     // go back up once finished
     return;
   }
 
   // go up, query::CHECK_PARENT
   // no one 'owns' lanelet, so just add it
-  llts.insert(prim);
+  rfs.llts.insert(prim);
   return;
 }
 
 // Area
-void query::referenceFinder::recurse (lanelet::Area prim, const lanelet::LaneletMapPtr ll_Map, direction check_dir)
+void recurse (lanelet::Area prim, const lanelet::LaneletMapPtr ll_Map, query::direction check_dir, query::References& rfs)
 {
   // go down, query::CHECK_CHILD
   if (check_dir == query::CHECK_CHILD)
   {
     // loop through its child and call recurse on it
     for (auto ls: prim.outerBound())
-      recurse(ls, ll_Map, check_dir);
+      recurse(ls, ll_Map, check_dir, rfs);
     for (auto inner_lss: prim.innerBounds())
     {
       for (auto ls: inner_lss)
       {
-        recurse(ls,ll_Map, check_dir);
+        recurse(ls,ll_Map, check_dir, rfs);
       }
     }
     for (auto regem: prim.regulatoryElements())
-      recurse(regem, ll_Map, check_dir);
+      recurse(regem, ll_Map, check_dir, rfs);
     // go back up once finished
     return;
   }
 
   // go up, query::CHECK_PARENT
   // no one 'owns' lanelet, so just add it
-  areas.insert(prim);
+  rfs.areas.insert(prim);
   return;
 }
 
 // RegulatoryElement
-void query::referenceFinder::recurse (lanelet::RegulatoryElementPtr prim_ptr, const lanelet::LaneletMapPtr ll_Map, direction check_dir)
+void recurse (lanelet::RegulatoryElementPtr prim_ptr, const lanelet::LaneletMapPtr ll_Map, query::direction check_dir, query::References& rfs)
 {
   // go up, check_Dir == query::CHECK_PARENT
   // process lanelets owning this regem
@@ -149,7 +148,7 @@ void query::referenceFinder::recurse (lanelet::RegulatoryElementPtr prim_ptr, co
   for (auto llt : llt_list_owning_regem)
   {
     // recurse on this lanelet
-    recurse(llt, ll_Map, query::CHECK_PARENT);
+    recurse(llt, ll_Map, query::CHECK_PARENT, rfs);
   }
   
   // similarly, process areas owning this ls
@@ -157,11 +156,11 @@ void query::referenceFinder::recurse (lanelet::RegulatoryElementPtr prim_ptr, co
   for (auto area : area_list_owning_regem)
   {
     // recurse on this lanelet
-    recurse(area, ll_Map, query::CHECK_PARENT);
+    recurse(area, ll_Map, query::CHECK_PARENT, rfs);
   }
 
   if (area_list_owning_regem.size() ==0 && llt_list_owning_regem.size() == 0)
-    regems.insert(prim_ptr);
+    rfs.regems.insert(prim_ptr);
 }
 
 //==================================================================================================> END
