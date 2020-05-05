@@ -94,7 +94,7 @@ TEST_F(TestSuite, QueryRefs)
   ASSERT_EQ(rf.lss.size(), 0);
   ASSERT_EQ(rf.llts.size(), 1);
   ASSERT_EQ(rf.areas.size(), 0);
-  //lanelet::utils::recurse(tl,sample_map_ptr, lanelet::utils::query::CHECK_CHILD ,rf);
+  lanelet::utils::recurse(tl,sample_map_ptr, lanelet::utils::query::CHECK_CHILD ,rf);
 }
 
 TEST_F(TestSuite, QueryLanelets)

@@ -32,7 +32,6 @@ namespace lanelet
 namespace utils
 {
 //====================================================================================================> DEVELOP START
-
 // Point
 void recurse (lanelet::Point3d prim, const lanelet::LaneletMapPtr ll_Map, query::direction check_dir, query::References& rfs)
 {

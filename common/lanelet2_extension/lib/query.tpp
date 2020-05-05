@@ -1,12 +1,5 @@
 #pragma once
 
-#include <ros/ros.h>
-#include <lanelet2_extension/utility/query.h>
-
-/**
- * CPP File containing CARMANodeHandle method definitions
- */
-
 namespace lanelet
 {
 namespace utils
