@@ -32,131 +32,138 @@ namespace lanelet
 namespace utils
 {
 //====================================================================================================> DEVELOP START
-
-// Comparison function
-
-struct comparator
-{
-  template <typename PrimT>
-  bool operator()(const PrimT& t1, const PrimT& t2) const {
-    // TODO:
-    // 1. assume every lanelet object has different id
-    // 2. assume every lanelet object has unique id within its layer only
-    return true;
-  }
-};
-// Depending on the type of input, different recurse functions will be called
-// primT: Point, LS, llt, regem, polygon etc
-template <typename T, typename primT>
-std::vector<lanelet::Primitive<T>> query::findReferences (const primT prim, const lanelet::LaneletMapPtr ll_Map)
-{
-  std::vector<lanelet::Primitive<T>> return_list;
-  // use set to record only once
-  // some_comparison_func should be implemented to detect type and compare ids appropriately
-  std::unordered_set<lanelet::Primitive<T>, std::hash<lanelet::Primitive<T>>, comparator> recorded_set;
-  // call relevant recurse function based on prim's typedef 
-  // and pass recorded_set by reference
-  recurse(prim, recorded_set, ll_Map, query::CHECK_CHILD);
-  // somehow turn the set into vector here
-  // recorded_set-> return_list
-  return return_list;
-} 
-
 // following recurse functions are helper functions for each primitives
-// not sure if its possible to reduce it using template, but the skeleton code is as follows
 
 // Point
-template <typename T>
-void recurse (lanelet::Point3d prim, std::unordered_set<lanelet::Primitive<T>>& recorded_set, const lanelet::LaneletMapPtr ll_Map, query::direction check_dir)
+void query::referenceFinder::recurse (lanelet::Point3d prim, const lanelet::LaneletMapPtr ll_Map, direction check_dir)
 {
-  // no primitive to go down
+  // no primitive lower than point
 
   // so always go back up : query::CHECK_PARENT
   // get LSs that owns this point
   auto ls_list_owning_point = ll_Map->lineStringLayer.findUsages(prim);
+  
   for (auto ls : ls_list_owning_point)
   {
-    // get the owners of this ls
-    // checking size makes sure we don't add this primitive again if its owner is added already when recursion finishes
-    // although most likely some other primitive will own this point
-    //int size_before = recorded_set.size();
-    recurse(ls, recorded_set, query::CHECK_PARENT);
-    //if (size_before == recorded_set.size())
-    //  recorded_set.insert(ls);
+    // recurse
+    recurse(ls, ll_Map, direction::CHECK_PARENT);
   }
-  // return
+  if (ls_list_owning_point.size() == 0)
+      pts.insert(prim);
 }
+
 // LS
-template <typename T>
-void recurse (lanelet::LineString3d prim, std::unordered_set<lanelet::Primitive<T>>& recorded_set, const lanelet::LaneletMapPtr ll_Map, query::direction check_dir)
+void query::referenceFinder::recurse (lanelet::LineString3d prim, const lanelet::LaneletMapPtr ll_Map, direction check_dir)
 {
+
   // go down?
   if (check_dir == query::CHECK_CHILD)
   {
     // loop through its child and call recurse on it
-    for (auto p: prim.points())
+    for (auto p: prim)
     {
-      recurse(p, recorded_set, check_dir);
+      recurse(p, ll_Map, check_dir);
     }
     // go back up once finished
     return;
   }
   
-  // go up := check_Dir == query::CHECK_PARENT
+  // go up, check_Dir == query::CHECK_PARENT
   // process lanelets owning this ls
   auto llt_list_owning_ls = ll_Map->laneletLayer.findUsages(prim);
+
   for (auto llt : llt_list_owning_ls)
   {
     // recurse on this lanelet
-    int size_before = recorded_set.size();
-    recurse(llt, recorded_set, query::CHECK_PARENT);
+    recurse(llt, ll_Map, query::CHECK_PARENT);
   }
-  // process areas owning this ls
-  // similar to above
+  
+  // similarly, process areas owning this ls
+  auto area_list_owning_ls = ll_Map->areaLayer.findUsages(prim);
+  for (auto area : area_list_owning_ls)
+  {
+    // recurse on this lanelet
+    recurse(area, ll_Map, query::CHECK_PARENT);
+  }
 
-  // process regems owning this ls
-  // similar to above
-
+  if (area_list_owning_ls.size() ==0 && llt_list_owning_ls.size() == 0)
+    lss.insert(prim);
 }
 
 // Lanelet
-template <typename T>
-void recurse (lanelet::Lanelet prim, std::unordered_set<lanelet::Primitive<T>>& recorded_set, const lanelet::LaneletMapPtr ll_Map, query::direction check_dir)
+void query::referenceFinder::recurse (lanelet::Lanelet prim, const lanelet::LaneletMapPtr ll_Map, direction check_dir)
 {
-  // go down := query::CHECK_CHILD
+  // go down, query::CHECK_CHILD
   if (check_dir == query::CHECK_CHILD)
   {
     // loop through its child and call recurse on it
-    recurse(prim.leftBound(), recorded_set, check_dir);
-    recurse(prim.rightBound(), recorded_set, check_dir);
-    recurse(prim.centerline(), recorded_set, check_dir);
-    recurse(prim.regulatoryElements(), recorded_set, check_dir);
+    recurse(prim.leftBound(), ll_Map, check_dir);
+    recurse(prim.rightBound(), ll_Map, check_dir);
+    for (auto regem: prim.regulatoryElements())
+      recurse(regem, ll_Map, check_dir);
     // go back up once finished
     return;
   }
 
-  // go up := query::CHECK_PARENT
+  // go up, query::CHECK_PARENT
   // no one 'owns' lanelet, so just add it
-  recorded_set.insert(prim);
+  llts.insert(prim);
   return;
 }
 
 // Area
-template <typename T>
-void recurse (lanelet::Area prim, std::unordered_set<lanelet::Primitive<T>>& recorded_set, const lanelet::LaneletMapPtr ll_Map, query::direction check_dir)
+void query::referenceFinder::recurse (lanelet::Area prim, const lanelet::LaneletMapPtr ll_Map, direction check_dir)
 {
+  // go down, query::CHECK_CHILD
+  if (check_dir == query::CHECK_CHILD)
+  {
+    // loop through its child and call recurse on it
+    for (auto ls: prim.outerBound())
+      recurse(ls, ll_Map, check_dir);
+    for (auto inner_lss: prim.innerBounds())
+    {
+      for (auto ls: inner_lss)
+      {
+        recurse(ls,ll_Map, check_dir);
+      }
+    }
+    for (auto regem: prim.regulatoryElements())
+      recurse(regem, ll_Map, check_dir);
+    // go back up once finished
+    return;
+  }
 
-  // basically same as Lanelet
-
-} 
+  // go up, query::CHECK_PARENT
+  // no one 'owns' lanelet, so just add it
+  areas.insert(prim);
+  return;
+}
 
 // RegulatoryElement
-template <typename T>
-void recurse (lanelet::RegulatoryElement prim, std::unordered_set<lanelet::Primitive<T>>& recorded_set, const lanelet::LaneletMapPtr ll_Map, query::direction check_dir)
+void query::referenceFinder::recurse (lanelet::RegulatoryElementPtr prim_ptr, const lanelet::LaneletMapPtr ll_Map, direction check_dir)
 {
-  // Basically same as linestring, except it doesn't go down to point
+  // go up, check_Dir == query::CHECK_PARENT
+  // process lanelets owning this regem
+  auto llt_list_owning_regem = ll_Map->laneletLayer.findUsages(prim_ptr);
 
+  for (auto llt : llt_list_owning_regem)
+  {
+    // recurse on this lanelet
+    recurse(llt, ll_Map, query::CHECK_PARENT);
+  }
+  
+  // similarly, process areas owning this ls
+  auto area_list_owning_regem = ll_Map->areaLayer.findUsages(prim_ptr);
+  for (auto area : area_list_owning_regem)
+  {
+    // recurse on this lanelet
+    recurse(area, ll_Map, query::CHECK_PARENT);
+  }
+
+  if (area_list_owning_regem.size() ==0 && llt_list_owning_regem.size() == 0)
+    regems.insert(prim_ptr);
 }
+
 //==================================================================================================> END
 
 // returns all lanelets in laneletLayer - don't know how to convert

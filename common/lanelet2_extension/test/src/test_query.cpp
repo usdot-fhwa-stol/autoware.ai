@@ -29,10 +29,16 @@ using lanelet::utils::getId;
 class TestSuite : public ::testing::Test
 {
 public:
+  Point3d p1, p2, p3, p4;
+  LineString3d ls_left, ls_right;
+  Point3d p5, p6, p7, p8, p9, p10, p11, p12;
+  LineString3d traffic_light_base, traffic_light_bulbs, stop_line;
+  Lanelet road_lanelet, crosswalk_lanelet;
+  lanelet::autoware::AutowareTrafficLight::Ptr tl;
+
   TestSuite() : sample_map_ptr(new lanelet::LaneletMap())
   {  // NOLINT
     // create sample lanelets
-    Point3d p1, p2, p3, p4;
 
     p1 = Point3d(getId(), 0., 0., 0.);
     p2 = Point3d(getId(), 0., 1., 0.);
@@ -40,19 +46,15 @@ public:
     p3 = Point3d(getId(), 1., 0., 0.);
     p4 = Point3d(getId(), 1., 1., 0.);
 
-    LineString3d ls_left(getId(), { p1, p2 });   // NOLINT
-    LineString3d ls_right(getId(), { p3, p4 });  // NOLINT
+    ls_left  = LineString3d(getId(), { p1, p2 });   // NOLINT
+    ls_right = LineString3d(getId(), { p3, p4 });  // NOLINT
 
-    Lanelet road_lanelet(getId(), ls_left, ls_right);
+    road_lanelet = Lanelet(getId(), ls_left, ls_right);
     road_lanelet.attributes()[lanelet::AttributeName::Subtype] = lanelet::AttributeValueString::Road;
-
-    Lanelet crosswalk_lanelet(getId(), ls_left, ls_right);
+    crosswalk_lanelet = Lanelet(getId(), ls_left, ls_right);
     crosswalk_lanelet.attributes()[lanelet::AttributeName::Subtype] = lanelet::AttributeValueString::Crosswalk;
 
     // create sample traffic light
-    Point3d p5, p6, p7, p8, p9, p10, p11, p12;
-    LineString3d traffic_light_base, traffic_light_bulbs, stop_line;
-
     p6 = Point3d(getId(), 0., 1., 4.);
     p7 = Point3d(getId(), 1., 1., 4.);
 
@@ -67,7 +69,7 @@ public:
     traffic_light_bulbs = LineString3d(getId(), Points3d{ p8, p9, p10 });  // NOLINT
     stop_line = LineString3d(getId(), Points3d{ p11, p12 });               // NOLINT
 
-    auto tl = lanelet::autoware::AutowareTrafficLight::make(getId(), lanelet::AttributeMap(), { traffic_light_base },
+    tl = lanelet::autoware::AutowareTrafficLight::make(getId(), lanelet::AttributeMap(), { traffic_light_base },
                                                             stop_line, { traffic_light_bulbs });  // NOLINT
 
     road_lanelet.addRegulatoryElement(tl);
@@ -84,6 +86,16 @@ public:
 
 private:
 };
+
+TEST_F(TestSuite, QueryRefs)
+{
+  lanelet::utils::query::referenceFinder rf;
+  rf.run<lanelet::RegulatoryElementPtr>(tl, sample_map_ptr);
+  ASSERT_EQ(rf.pts.size(), 0);
+  ASSERT_EQ(rf.lss.size(), 0);
+  ASSERT_EQ(rf.llts.size(), 1);
+  ASSERT_EQ(rf.areas.size(), 0);
+}
 
 TEST_F(TestSuite, QueryLanelets)
 {

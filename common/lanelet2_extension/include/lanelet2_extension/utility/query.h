@@ -49,13 +49,51 @@ namespace utils
 namespace query
 {
 enum direction {CHECK_CHILD,CHECK_PARENT};
-/**
- * [TODO]
- * @param  ll_Map [TODO]
- * @return        [TODO]
- */
-template <typename T, typename primT>
-std::vector<Primitive<T>> findReferences (const primT prim, const lanelet::LaneletMapPtr ll_Map);
+class referenceFinder
+{
+    public:
+    referenceFinder() {};
+    struct comparator
+    {
+        template <typename PrimT>
+        bool operator()(const PrimT& prim1, const PrimT& prim2) const {
+            return prim1.id() == prim2.id();
+        }
+        bool operator()(const lanelet::RegulatoryElementPtr& prim1, 
+        const lanelet::RegulatoryElementPtr& prim2) const {
+            return prim1->id() == prim2->id();
+        }
+    };
+    
+    /**
+     * [TODO]
+     * @param  ll_Map [TODO]
+     * @return        [TODO]
+     */
+    template <class primT>
+    void run (primT prim, const lanelet::LaneletMapPtr ll_Map);
+    // following recurse functions are helper functions for each primitives
+
+    // Point
+    void recurse (lanelet::Point3d prim,const lanelet::LaneletMapPtr ll_Map, direction check_dir);
+    // LS
+    void recurse (lanelet::LineString3d prim, const lanelet::LaneletMapPtr ll_Map, direction check_dir);
+    // Lanelet
+    void recurse (lanelet::Lanelet prim,const lanelet::LaneletMapPtr ll_Map, direction check_dir);
+    // Area
+    void recurse (lanelet::Area prim,const lanelet::LaneletMapPtr ll_Map, direction check_dir);
+    // Regem
+    void recurse (lanelet::RegulatoryElementPtr prim_ptr,const lanelet::LaneletMapPtr ll_Map, direction check_dir);
+    // Comparator
+    std::unordered_set<lanelet::Point3d, std::hash<lanelet::Point3d>, comparator> pts;
+    std::unordered_set<lanelet::LineString3d, std::hash<lanelet::LineString3d>, comparator> lss;
+    std::unordered_set<lanelet::Lanelet, std::hash<lanelet::Lanelet>, comparator> llts;
+    std::unordered_set<lanelet::Area, std::hash<lanelet::Area>, comparator> areas;
+    std::unordered_set<lanelet::RegulatoryElementPtr, std::hash<lanelet::RegulatoryElementPtr>, comparator> regems;
+    private:
+    // will put sets here once finished
+};
+
 
 /**
  * [laneletLayer converts laneletLayer into lanelet vector]
@@ -130,5 +168,7 @@ std::vector<lanelet::ConstLineString3d> stopSignStopLines(const lanelet::ConstLa
 }  // namespace query
 }  // namespace utils
 }  // namespace lanelet
+
+#include <lanelet2_extension/utility/impl/query.h>
 
 #endif  // LANELET2_EXTENSION_UTILITY_QUERY_H

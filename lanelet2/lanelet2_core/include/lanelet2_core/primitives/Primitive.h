@@ -42,6 +42,7 @@ class PrimitiveData {
 
   Id id;                    //!< Id of this primitive (unique across one map)
   AttributeMap attributes;  //!< attributes of this primitive
+  
  protected:
   ~PrimitiveData() = default;
 };  // class PrimitiveData

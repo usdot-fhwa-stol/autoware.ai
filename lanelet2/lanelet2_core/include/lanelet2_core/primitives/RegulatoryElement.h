@@ -507,3 +507,12 @@ template <typename T, typename RetT>
 using IfRE = std::enable_if_t<traits::isRegulatoryElementT<T>(), RetT>;
 
 }  // namespace lanelet
+
+// Hash function for usage in containers
+namespace std {
+template <>
+struct hash<lanelet::RegulatoryElementPtr>{
+  size_t operator()(const lanelet::RegulatoryElementPtr& x) const noexcept { return std::hash<lanelet::Id>()(x->id()); }
+};
+
+} // namespace lanelet
