@@ -58,24 +58,23 @@ struct References
         bool operator()(const PrimT& prim1, const PrimT& prim2) const {
             return prim1.id() == prim2.id();
         }
-        bool operator()(const lanelet::RegulatoryElementPtr& prim1, 
-        const lanelet::RegulatoryElementPtr& prim2) const {
+        bool operator()(const lanelet::RegulatoryElementConstPtr& prim1, 
+        const lanelet::RegulatoryElementConstPtr& prim2) const {
             return prim1->id() == prim2->id();
         }
     };
-    std::unordered_set<lanelet::Point3d, std::hash<lanelet::Point3d>, comparator> pts;
-    std::unordered_set<lanelet::LineString3d, std::hash<lanelet::LineString3d>, comparator> lss;
-    std::unordered_set<lanelet::Lanelet, std::hash<lanelet::Lanelet>, comparator> llts;
-    std::unordered_set<lanelet::Area, std::hash<lanelet::Area>, comparator> areas;
-    std::unordered_set<lanelet::RegulatoryElementPtr, std::hash<lanelet::RegulatoryElementPtr>, comparator> regems;
+    std::unordered_set<lanelet::ConstLineString3d, std::hash<lanelet::ConstLineString3d>, comparator> lss;
+    std::unordered_set<lanelet::ConstLanelet, std::hash<lanelet::ConstLanelet>, comparator> llts;
+    std::unordered_set<lanelet::ConstArea, std::hash<lanelet::ConstArea>, comparator> areas;
+    std::unordered_set<lanelet::RegulatoryElementConstPtr, std::hash<lanelet::RegulatoryElementConstPtr>, comparator> regems;
 };
 /**
- * [TODO]
- * @param  ll_Map [TODO]
- * @return        [TODO]
+ * [findReferences finds all primitives that reference the given primitive in a given map]
+ * @param  ll_Map [input lanelet map]
+ * @return        [References object with referenced element sets for each primitive layers]
  */
 template <class primT>
-References findReferences (primT prim, const lanelet::LaneletMapPtr ll_Map);
+References findReferences (const primT& prim, const lanelet::LaneletMapPtr ll_Map);
 
 /**
  * [laneletLayer converts laneletLayer into lanelet vector]

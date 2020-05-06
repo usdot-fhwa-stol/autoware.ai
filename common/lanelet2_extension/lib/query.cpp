@@ -31,33 +31,30 @@ namespace lanelet
 {
 namespace utils
 {
-//====================================================================================================> DEVELOP START
 // Point
-void recurse (lanelet::Point3d prim, const lanelet::LaneletMapPtr ll_Map, query::direction check_dir, query::References& rfs)
+void recurse (const lanelet::ConstPoint3d& prim, const lanelet::LaneletMapPtr ll_Map, query::direction check_dir, query::References& rfs)
 {
-  // no primitive lower than point
-
-  // so always go back up : query::CHECK_PARENT
-  // get LSs that owns this point
+  // no primitive lower than point, so always go back up : CHECK_PARENT
+  // get LineStrings that own this point
   auto ls_list_owning_point = ll_Map->lineStringLayer.findUsages(prim);
-  
+
+  // if it's not owned by anyone, do not record it since points are no meaningful objects in Lanelet
+  if (ls_list_owning_point.size() == 0)
+      return;
+
   for (auto ls : ls_list_owning_point)
   {
-    // recurse
     recurse(ls, ll_Map, query::direction::CHECK_PARENT, rfs);
   }
-  if (ls_list_owning_point.size() == 0)
-      rfs.pts.insert(prim);
 }
 
-// LS
-void recurse (lanelet::LineString3d prim, const lanelet::LaneletMapPtr ll_Map, query::direction check_dir, query::References& rfs)
+// LineString
+void recurse (const lanelet::ConstLineString3d& prim, const lanelet::LaneletMapPtr ll_Map, query::direction check_dir, query::References& rfs)
 {
-
-  // go down?
+  // go down in primitive layer
   if (check_dir == query::CHECK_CHILD)
   {
-    // loop through its child and call recurse on it
+    // loop through its child and call recurse down on it
     for (auto p: prim)
     {
       recurse(p, ll_Map, check_dir, rfs);
@@ -66,13 +63,13 @@ void recurse (lanelet::LineString3d prim, const lanelet::LaneletMapPtr ll_Map, q
     return;
   }
   
-  // go up, check_Dir == query::CHECK_PARENT
+  // go up, CHECK_PARENT
   // process lanelets owning this ls
   auto llt_list_owning_ls = ll_Map->laneletLayer.findUsages(prim);
 
   for (auto llt : llt_list_owning_ls)
   {
-    // recurse on this lanelet
+    // recurse up on this lanelet
     recurse(llt, ll_Map, query::CHECK_PARENT, rfs);
   }
   
@@ -80,7 +77,7 @@ void recurse (lanelet::LineString3d prim, const lanelet::LaneletMapPtr ll_Map, q
   auto area_list_owning_ls = ll_Map->areaLayer.findUsages(prim);
   for (auto area : area_list_owning_ls)
   {
-    // recurse on this lanelet
+    // recurse up on this area
     recurse(area, ll_Map, query::CHECK_PARENT, rfs);
   }
 
@@ -89,14 +86,15 @@ void recurse (lanelet::LineString3d prim, const lanelet::LaneletMapPtr ll_Map, q
 }
 
 // Lanelet
-void recurse (lanelet::Lanelet prim, const lanelet::LaneletMapPtr ll_Map, query::direction check_dir, query::References& rfs)
+void recurse (const lanelet::ConstLanelet& prim, const lanelet::LaneletMapPtr ll_Map, query::direction check_dir, query::References& rfs)
 {
   // go down, query::CHECK_CHILD
   if (check_dir == query::CHECK_CHILD)
   {
-    // loop through its child and call recurse on it
+    // loop through its child and call recurse down on it
     recurse(prim.leftBound(), ll_Map, check_dir, rfs);
     recurse(prim.rightBound(), ll_Map, check_dir, rfs);
+    recurse(prim.centerline(), ll_Map, check_dir, rfs);
     for (auto regem: prim.regulatoryElements())
       recurse(regem, ll_Map, check_dir, rfs);
     // go back up once finished
@@ -110,12 +108,12 @@ void recurse (lanelet::Lanelet prim, const lanelet::LaneletMapPtr ll_Map, query:
 }
 
 // Area
-void recurse (lanelet::Area prim, const lanelet::LaneletMapPtr ll_Map, query::direction check_dir, query::References& rfs)
+void recurse (const lanelet::ConstArea& prim, const lanelet::LaneletMapPtr ll_Map, query::direction check_dir, query::References& rfs)
 {
   // go down, query::CHECK_CHILD
   if (check_dir == query::CHECK_CHILD)
   {
-    // loop through its child and call recurse on it
+    // loop through its child and call recurse down on it
     for (auto ls: prim.outerBound())
       recurse(ls, ll_Map, check_dir, rfs);
     for (auto inner_lss: prim.innerBounds())
@@ -138,9 +136,9 @@ void recurse (lanelet::Area prim, const lanelet::LaneletMapPtr ll_Map, query::di
 }
 
 // RegulatoryElement
-void recurse (lanelet::RegulatoryElementPtr prim_ptr, const lanelet::LaneletMapPtr ll_Map, query::direction check_dir, query::References& rfs)
+void recurse (const lanelet::RegulatoryElementConstPtr& prim_ptr, const lanelet::LaneletMapPtr ll_Map, query::direction check_dir, query::References& rfs)
 {
-  // go up, check_Dir == query::CHECK_PARENT
+  // go up, query::CHECK_PARENT
   // process lanelets owning this regem
   auto llt_list_owning_regem = ll_Map->laneletLayer.findUsages(prim_ptr);
 
@@ -154,15 +152,13 @@ void recurse (lanelet::RegulatoryElementPtr prim_ptr, const lanelet::LaneletMapP
   auto area_list_owning_regem = ll_Map->areaLayer.findUsages(prim_ptr);
   for (auto area : area_list_owning_regem)
   {
-    // recurse on this lanelet
+    // recurse up on this lanelet
     recurse(area, ll_Map, query::CHECK_PARENT, rfs);
   }
 
   if (area_list_owning_regem.size() ==0 && llt_list_owning_regem.size() == 0)
     rfs.regems.insert(prim_ptr);
 }
-
-//==================================================================================================> END
 
 // returns all lanelets in laneletLayer - don't know how to convert
 // PrimitveLayer<Lanelets> -> std::vector<Lanelets>

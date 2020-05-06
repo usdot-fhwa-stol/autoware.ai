@@ -514,5 +514,9 @@ template <>
 struct hash<lanelet::RegulatoryElementPtr>{
   size_t operator()(const lanelet::RegulatoryElementPtr& x) const noexcept { return std::hash<lanelet::Id>()(x->id()); }
 };
+template <>
+struct hash<lanelet::RegulatoryElementConstPtr>{
+  size_t operator()(const lanelet::RegulatoryElementConstPtr& x) const noexcept { return std::hash<lanelet::Id>()(x->id()); }
+};
 
 } // namespace lanelet
