@@ -11,11 +11,7 @@ void recurse (const lanelet::ConstLanelet& prim,const lanelet::LaneletMapPtr ll_
 void recurse (const lanelet::ConstArea& prim,const lanelet::LaneletMapPtr ll_Map, query::direction check_dir, query::References& rfs);
 void recurse (const lanelet::RegulatoryElementConstPtr& prim_ptr,const lanelet::LaneletMapPtr ll_Map, query::direction check_dir, query::References& rfs);
 
-/**
- * [findReferences finds all primitives that reference the given primitive in a given map]
- * @param  ll_Map [input lanelet map]
- * @return        [References object with referenced element sets (including the input if applicable) for each primitive layers]
- */
+// Helper visitor class for finding all references in other primities for a given RuleParameter, which is boost::variant
 struct RecurseVisitor : public RuleParameterVisitor {
   explicit RecurseVisitor (const lanelet::LaneletMapPtr ll_Map, query::direction check_dir, query::References& rfs) :
                   ll_Map_(ll_Map), check_dir_(check_dir), rfs_(rfs){}
@@ -38,6 +34,11 @@ struct RecurseVisitor : public RuleParameterVisitor {
   query::References &rfs_;
 };
 
+/**
+ * [findReferences finds all primitives that reference the given primitive in a given map]
+ * @param  ll_Map [input lanelet map]
+ * @return        [References object with referenced element sets (including the input if applicable) for each primitive layers]
+ */
 template <class primT>
 query::References query::findReferences(const primT& prim, const lanelet::LaneletMapPtr ll_Map)
 {
