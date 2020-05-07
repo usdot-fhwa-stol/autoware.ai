@@ -152,20 +152,20 @@ TEST_F(TestSuite, QueryReferences)
   // Test references to regulatory elements
   rf = lanelet::utils::query::findReferences(tl, sample_map_ptr);
   ASSERT_EQ(rf.regems.size(), 0);
-  ASSERT_EQ(rf.lss.size(), 0);
+  ASSERT_EQ(rf.lss.size(), 3);
   ASSERT_EQ(rf.llts.size(), 1);
   ASSERT_EQ(rf.areas.size(), 0);
   rf = lanelet::utils::query::findReferences(pcl, sample_map_ptr);
   ASSERT_EQ(rf.regems.size(), 0);
   ASSERT_EQ(rf.lss.size(), 0);
-  ASSERT_EQ(rf.llts.size(), 1);
+  ASSERT_EQ(rf.llts.size(), 3); //road_lanelet(directly added), road_lanelet1(leftBound is pcl), crosswalk_lanelet(rightBound is pcl)
   ASSERT_EQ(rf.areas.size(), 1);
 
   // Test references to Area
   rf = lanelet::utils::query::findReferences(side_area, sample_map_ptr);
   ASSERT_EQ(rf.regems.size(), 0);
   ASSERT_EQ(rf.lss.size(), 0);
-  ASSERT_EQ(rf.llts.size(), 2);
+  ASSERT_EQ(rf.llts.size(), 3); //it has pcl, which is referenced by 3 llts
   ASSERT_EQ(rf.areas.size(), 1); 
   ASSERT_EQ(rf.areas.begin()->id(), side_area.id()); //referencing itself
   // area that half exist (shares borders, but not in the map)
@@ -180,10 +180,11 @@ TEST_F(TestSuite, QueryReferences)
 
   // Test references to Lanelet
   rf = lanelet::utils::query::findReferences(road_lanelet, sample_map_ptr);
-  ASSERT_EQ(rf.regems.size(), 0);
-  ASSERT_EQ(rf.lss.size(), 0);
-  ASSERT_EQ(rf.llts.size(), 3); //itself, overlays but different type, and one that shares border, 
-  ASSERT_EQ(rf.areas.size(), 1); // due to having a same regem
+  ASSERT_EQ(rf.regems.size(), 0); //tl and pcl both are accounted for inside road_lanelet
+  ASSERT_EQ(rf.lss.size(), 3); //it has tl, which has stop_line,traffic_light_base,traffic_light_bulbs linestrings
+                                // which are not in the map, although tl itself is in the lanelet
+  ASSERT_EQ(rf.llts.size(), 3); //itself + llt that overlays but different type + and llt that shares border, 
+  ASSERT_EQ(rf.areas.size(), 1); // due to having a same regem pcl
 }
 
 TEST_F(TestSuite, QueryLanelets)

@@ -16,6 +16,28 @@ void recurse (const lanelet::RegulatoryElementConstPtr& prim_ptr,const lanelet::
  * @param  ll_Map [input lanelet map]
  * @return        [References object with referenced element sets (including the input if applicable) for each primitive layers]
  */
+struct RecurseVisitor : public RuleParameterVisitor {
+  explicit RecurseVisitor (const lanelet::LaneletMapPtr ll_Map, query::direction check_dir, query::References& rfs) :
+                  ll_Map_(ll_Map), check_dir_(check_dir), rfs_(rfs){}
+  void operator()(const ConstPoint3d& p) override {recurse(p, ll_Map_, check_dir_, rfs_);}
+  void operator()(const ConstLineString3d& ls) override{ recurse(ls, ll_Map_, check_dir_, rfs_);}
+  void operator()(const ConstWeakLanelet& llt) override { 
+    if (llt.expired()) {  // NOLINT
+      return;
+    }
+    recurse(llt.lock(), ll_Map_, check_dir_, rfs_);
+  }
+  void operator()(const ConstWeakArea& area) override { 
+    if (area.expired()) {  // NOLINT
+      return;
+    }
+    recurse(area.lock(), ll_Map_, check_dir_, rfs_);}
+  private:
+  lanelet::LaneletMapPtr ll_Map_;
+  query::direction check_dir_;
+  query::References &rfs_;
+};
+
 template <class primT>
 query::References query::findReferences(const primT& prim, const lanelet::LaneletMapPtr ll_Map)
 {

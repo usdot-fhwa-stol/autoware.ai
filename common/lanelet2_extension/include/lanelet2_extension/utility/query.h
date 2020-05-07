@@ -72,6 +72,7 @@ struct References
  * [findReferences finds all primitives that reference the given primitive in a given map]
  * @param  ll_Map [input lanelet map]
  * @return        [References object with referenced element sets for each primitive layers]
+ * NOTE: Polygons and Compound primitives such as LaneletOrArea are not currently supported
  */
 template <class primT>
 References findReferences (const primT& prim, const lanelet::LaneletMapPtr ll_Map);

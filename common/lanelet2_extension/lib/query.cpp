@@ -31,6 +31,7 @@ namespace lanelet
 {
 namespace utils
 {
+
 // Point
 void recurse (const lanelet::ConstPoint3d& prim, const lanelet::LaneletMapPtr ll_Map, query::direction check_dir, query::References& rfs)
 {
@@ -38,7 +39,7 @@ void recurse (const lanelet::ConstPoint3d& prim, const lanelet::LaneletMapPtr ll
   // get LineStrings that own this point
   auto ls_list_owning_point = ll_Map->lineStringLayer.findUsages(prim);
 
-  // if it's not owned by anyone, do not record it since points are no meaningful objects in Lanelet
+  // if it's not owned by anyone, do not record it since points are not meaningful objects in Lanelet
   if (ls_list_owning_point.size() == 0)
       return;
 
@@ -129,14 +130,19 @@ void recurse (const lanelet::ConstArea& prim, const lanelet::LaneletMapPtr ll_Ma
   }
 
   // go up, query::CHECK_PARENT
-  // no one 'owns' lanelet, so just add it
+  // no one 'owns' area, so just add it
   rfs.areas.insert(prim);
   return;
 }
 
 // RegulatoryElement
+
 void recurse (const lanelet::RegulatoryElementConstPtr& prim_ptr, const lanelet::LaneletMapPtr ll_Map, query::direction check_dir, query::References& rfs)
 {
+  // go down, query::CHECK_CHILD
+  RecurseVisitor recurse_visitor(ll_Map, check_dir, rfs);
+  prim_ptr->applyVisitor(recurse_visitor);
+  
   // go up, query::CHECK_PARENT
   // process lanelets owning this regem
   auto llt_list_owning_regem = ll_Map->laneletLayer.findUsages(prim_ptr);

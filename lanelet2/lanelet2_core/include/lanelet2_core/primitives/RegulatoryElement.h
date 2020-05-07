@@ -24,7 +24,7 @@ namespace lanelet {
 //! ## Design
 //! Every regulatoryElement has a number of RuleParameters that are implemented
 //! as boost::variants. A RuleParameter can be any lanelet primitive. For
-//! techical reasons (to avoid cyclic shared_ptr issues), Area and Lanelet is
+//! technical reasons (to avoid cyclic shared_ptr issues), Area and Lanelet is
 //! stored using WeakPtrs. If Lanelets go out of scope, this weak ptr will
 //! become invalid. Usually this will not be an issue because LaneletMap still
 //! holds the Lanelets.
@@ -47,7 +47,7 @@ namespace lanelet {
 //! ## Generic rules
 //! For corner cases, a GenericRegulatoryElement is offered which is mutable and
 //! can be used to model any yet unknown traffic rule.
-//! Traffic rules should be interpreted by extending the lanele2_traffic_rules
+//! Traffic rules should be interpreted by extending the lanelet2_traffic_rules
 //! package, preferably for all countries that have this rule.
 
 //! Typical role names within lanelet (for faster lookup)
