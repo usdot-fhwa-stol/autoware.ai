@@ -94,7 +94,6 @@ void recurse (const lanelet::ConstLanelet& prim, const lanelet::LaneletMapPtr ll
     // loop through its child and call recurse down on it
     recurse(prim.leftBound(), ll_Map, check_dir, rfs);
     recurse(prim.rightBound(), ll_Map, check_dir, rfs);
-    recurse(prim.centerline(), ll_Map, check_dir, rfs);
     for (auto regem: prim.regulatoryElements())
       recurse(regem, ll_Map, check_dir, rfs);
     // go back up once finished
