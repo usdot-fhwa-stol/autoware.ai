@@ -16,6 +16,7 @@
 
 #pragma once
 
+// NOTE: This file is not meant to be included directly. Include query.h instead
 namespace lanelet
 {
 namespace utils

@@ -153,6 +153,6 @@ std::vector<lanelet::ConstLineString3d> stopSignStopLines(const lanelet::ConstLa
 
 // Template functions cannot be linked unless the implementation is provided
 // Therefore include implementation to allow for template functions
-#include "../../../lib/query.tpp"
+#include "internal/query.tpp"
 
 #endif  // LANELET2_EXTENSION_UTILITY_QUERY_H
