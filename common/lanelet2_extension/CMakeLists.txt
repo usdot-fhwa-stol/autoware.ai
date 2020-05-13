@@ -73,6 +73,7 @@ add_library( lanelet2_extension_lib
   lib/message_conversion.cpp
   lib/mgrs_projector.cpp
   lib/query.cpp
+  lib/query.tpp
   lib/utilities.cpp
   lib/visualization.cpp
   lib/CarmaUSTrafficRules.cpp
