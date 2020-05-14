@@ -26,10 +26,10 @@ using lanelet::LineString3d;
 using lanelet::Point3d;
 using lanelet::utils::getId;
 
-class TestSuite : public ::testing::Test
+class TestSuite1 : public ::testing::Test
 {
 public:
-  TestSuite() : sample_map_ptr(new lanelet::LaneletMap())
+  TestSuite1() : sample_map_ptr(new lanelet::LaneletMap())
   {  // NOLINT
     // create sample lanelets
     Point3d p1, p2, p3, p4, p5, p6, p7, p8, p9, p10;
@@ -77,7 +77,7 @@ public:
     sample_map_ptr->add(next_lanelet2);
     sample_map_ptr->add(merging_lanelet);
   }
-  ~TestSuite()
+  ~TestSuite1()
   {
   }
 
@@ -90,7 +90,7 @@ public:
 private:
 };
 
-TEST_F(TestSuite, MatchWaypointAndLanelet)
+TEST_F(TestSuite1, MatchWaypointAndLanelet)
 {
   std::map<int, lanelet::Id> waypointid2laneletid;
   autoware_msgs::LaneArray lane_array;
@@ -127,7 +127,7 @@ TEST_F(TestSuite, MatchWaypointAndLanelet)
   ASSERT_EQ(next_lanelet2.id(), waypointid2laneletid.at(3)) << "failed to match waypoints with lanelet";
 }
 
-TEST_F(TestSuite, OverwriteLaneletsCenterline)
+TEST_F(TestSuite1, OverwriteLaneletsCenterline)
 {
   lanelet::utils::overwriteLaneletsCenterline(sample_map_ptr);
 

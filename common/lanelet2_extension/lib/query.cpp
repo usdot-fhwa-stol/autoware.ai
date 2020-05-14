@@ -82,7 +82,15 @@ void recurse (const lanelet::ConstLineString3d& prim, const lanelet::LaneletMapP
     recurse(area, ll_Map, query::CHECK_PARENT, rfs);
   }
 
-  if (area_list_owning_ls.size() ==0 && llt_list_owning_ls.size() == 0)
+  // similarly, process areas owning this ls
+  auto regem_list_owning_ls = ll_Map->regulatoryElementLayer.findUsages(prim);
+  for (auto regem : regem_list_owning_ls)
+  {
+    // recurse up on this area
+    recurse(regem, ll_Map, query::CHECK_PARENT, rfs);
+  }
+
+  if (area_list_owning_ls.size() ==0 && llt_list_owning_ls.size() == 0 && regem_list_owning_ls.size() == 0)
     rfs.lss.insert(prim);
 }
 
@@ -136,13 +144,16 @@ void recurse (const lanelet::ConstArea& prim, const lanelet::LaneletMapPtr ll_Ma
 }
 
 // RegulatoryElement
-
 void recurse (const lanelet::RegulatoryElementConstPtr& prim_ptr, const lanelet::LaneletMapPtr ll_Map, query::direction check_dir, query::References& rfs)
 {
   // go down, query::CHECK_CHILD
-  RecurseVisitor recurse_visitor(ll_Map, check_dir, rfs);
-  prim_ptr->applyVisitor(recurse_visitor);
-  
+  if (check_dir == query::CHECK_CHILD)
+  {
+    RecurseVisitor recurse_visitor(ll_Map, check_dir, rfs);
+    prim_ptr->applyVisitor(recurse_visitor);
+    return;
+  }
+
   // go up, query::CHECK_PARENT
   // process lanelets owning this regem
   auto llt_list_owning_regem = ll_Map->laneletLayer.findUsages(prim_ptr);
@@ -153,7 +164,7 @@ void recurse (const lanelet::RegulatoryElementConstPtr& prim_ptr, const lanelet:
     recurse(llt, ll_Map, query::CHECK_PARENT, rfs);
   }
   
-  // similarly, process areas owning this ls
+  // similarly, process areas owning this regem
   auto area_list_owning_regem = ll_Map->areaLayer.findUsages(prim_ptr);
   for (auto area : area_list_owning_regem)
   {
