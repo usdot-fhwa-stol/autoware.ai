@@ -70,7 +70,7 @@ void recurse (const lanelet::ConstLineString3d& prim, const lanelet::LaneletMapP
 
   for (auto llt : llt_list_owning_ls)
   {
-    // recurse up on this lanelet
+    // recurse up to this lanelet
     recurse(llt, ll_Map, query::CHECK_PARENT, rfs);
   }
   
@@ -78,15 +78,15 @@ void recurse (const lanelet::ConstLineString3d& prim, const lanelet::LaneletMapP
   auto area_list_owning_ls = ll_Map->areaLayer.findUsages(prim);
   for (auto area : area_list_owning_ls)
   {
-    // recurse up on this area
+    // recurse up to this area
     recurse(area, ll_Map, query::CHECK_PARENT, rfs);
   }
 
-  // similarly, process areas owning this ls
+  // similarly, process regems owning this ls
   auto regem_list_owning_ls = ll_Map->regulatoryElementLayer.findUsages(prim);
   for (auto regem : regem_list_owning_ls)
   {
-    // recurse up on this area
+    // recurse up to this regem
     recurse(regem, ll_Map, query::CHECK_PARENT, rfs);
   }
 
@@ -164,7 +164,7 @@ void recurse (const lanelet::RegulatoryElementConstPtr& prim_ptr, const lanelet:
     recurse(llt, ll_Map, query::CHECK_PARENT, rfs);
   }
   
-  // similarly, process areas owning this regem
+  // similarly, process regems owning this regem
   auto area_list_owning_regem = ll_Map->areaLayer.findUsages(prim_ptr);
   for (auto area : area_list_owning_regem)
   {
