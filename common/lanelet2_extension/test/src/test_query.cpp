@@ -31,14 +31,14 @@ using lanelet::utils::getId;
 class TestSuite : public ::testing::Test
 {
 public:
-  Point3d p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15;
+  Point3d p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p_unreg1, p_unreg2;
   LineString3d ls_left, ls_right, ls_right_right, traffic_light_base, 
-    traffic_light_bulbs, stop_line, ls_area_right, ls_area_top, ls_area_bottom;
+    traffic_light_bulbs, stop_line, ls_area_right, ls_area_top, ls_area_bottom, pcl_unreg_ls, ls_unreg;
   lanelet::ConstLineString3d centerline;
   Lanelet road_lanelet, road_lanelet1, crosswalk_lanelet;
   Area side_area;
   lanelet::autoware::AutowareTrafficLight::Ptr tl;
-  std::shared_ptr<lanelet::PassingControlLine> pcl;
+  std::shared_ptr<lanelet::PassingControlLine> pcl, pcl_unreg;
 
   TestSuite() : sample_map_ptr(new lanelet::LaneletMap())
   {  // NOLINT
@@ -46,6 +46,8 @@ public:
     // create sample lanelets
     p1 = Point3d(getId(), 0., 0., 0.);
     p2 = Point3d(getId(), 0., 1., 0.);
+    p_unreg1 = Point3d(getId(), 0., 11., 0.);
+    p_unreg2 = Point3d(getId(), 0., 12., 0.);
 
     p3 = Point3d(getId(), 1., 0., 0.);
     p4 = Point3d(getId(), 1., 1., 0.);
@@ -63,6 +65,7 @@ public:
     ls_area_right = LineString3d(getId(), { p14, p15 });  // NOLINT
     ls_area_top = LineString3d(getId(), { p15, p6 });
     ls_area_bottom = LineString3d(getId(), { p14, p5 });
+    ls_unreg = LineString3d(getId(), { p_unreg1, p_unreg2 });
     
     road_lanelet = Lanelet(getId(), ls_left, ls_right);
     road_lanelet.attributes()[lanelet::AttributeName::Subtype] = lanelet::AttributeValueString::Road;
@@ -87,12 +90,16 @@ public:
     traffic_light_base = LineString3d(getId(), Points3d{ p7, p8 });        // NOLINT
     traffic_light_bulbs = LineString3d(getId(), Points3d{ p9, p10, p11 });  // NOLINT
     stop_line = LineString3d(getId(), Points3d{ p12, p13 });               // NOLINT
+    pcl_unreg_ls = LineString3d(getId(), { p16, p17 });
 
     tl = lanelet::autoware::AutowareTrafficLight::make(getId(), lanelet::AttributeMap(), { traffic_light_base },
                                                             stop_line, { traffic_light_bulbs });  // NOLINT
 
     pcl = std::make_shared<lanelet::PassingControlLine>(lanelet::PassingControlLine::buildData(
       lanelet::utils::getId(), {road_lanelet1.leftBound() }, {}, { lanelet::Participants::Vehicle }));
+
+    pcl_unreg = std::make_shared<lanelet::PassingControlLine>(lanelet::PassingControlLine::buildData(
+      lanelet::utils::getId(), {pcl_unreg_ls}, {}, { lanelet::Participants::Vehicle }));
 
     road_lanelet.addRegulatoryElement(tl);
     road_lanelet.addRegulatoryElement(pcl);
@@ -102,6 +109,7 @@ public:
     sample_map_ptr->add(road_lanelet1);
     sample_map_ptr->add(crosswalk_lanelet);
     sample_map_ptr->add(side_area);
+    sample_map_ptr->add(pcl_unreg);
   }
   ~TestSuite(){}
 
@@ -139,6 +147,12 @@ TEST_F(TestSuite, QueryReferences)
   ASSERT_EQ(rf.lss.size(), 0);
   ASSERT_EQ(rf.llts.size(), 0);
   ASSERT_EQ(rf.regems.size(), 0);
+  // linestring that exist individually (not part of any other primitive)
+  sample_map_ptr->add(ls_unreg);
+  rf = lanelet::utils::query::findReferences(ls_unreg, sample_map_ptr);
+  ASSERT_EQ(rf.lss.size(), 1);
+  ASSERT_EQ(rf.llts.size(), 0);
+  ASSERT_EQ(rf.regems.size(), 0);
   // linestrings that half exist, sharing a point
   LineString3d ls_halfexist  = LineString3d(getId(), { p1, pne2 });
   rf = lanelet::utils::query::findReferences(ls_halfexist, sample_map_ptr);
@@ -160,6 +174,12 @@ TEST_F(TestSuite, QueryReferences)
   ASSERT_EQ(rf.lss.size(), 0);
   ASSERT_EQ(rf.llts.size(), 3); //road_lanelet(directly added), road_lanelet1(leftBound is pcl), crosswalk_lanelet(rightBound is pcl)
   ASSERT_EQ(rf.areas.size(), 1);
+  // regem that exists by itself, not referenced by any other primitive
+  rf = lanelet::utils::query::findReferences(pcl_unreg, sample_map_ptr);
+  ASSERT_EQ(rf.regems.size(), 1); //itself
+  ASSERT_EQ(rf.lss.size(), 0); //not part of any other primitives
+  ASSERT_EQ(rf.llts.size(), 0); 
+  ASSERT_EQ(rf.areas.size(), 0);
 
   // Test references to Area
   rf = lanelet::utils::query::findReferences(side_area, sample_map_ptr);
