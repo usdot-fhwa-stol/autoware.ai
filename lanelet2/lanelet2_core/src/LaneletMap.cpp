@@ -135,6 +135,30 @@ struct AssignIdVisitor : public boost::static_visitor<void> {
   LaneletMap* map_;
 };
 
+/* TODO: Uncomment when each layer's remove function is implemented
+struct RemoveVisitor : public lanelet::internal::MutableParameterVisitor {
+  explicit RemoveVisitor(LaneletMap* map) : map_(map) {}
+
+  void operator()(const Point3d& p) override { map_->remove(p); }
+  void operator()(const LineString3d& l) override { map_->remove(l); }
+  void operator()(const Polygon3d& p) override { map_->remove(p); }
+  void operator()(const WeakLanelet& ll) override {
+    if (ll.expired()) {  // NOLINT
+      return;
+    }
+    map_->remove(ll.lock());
+  }
+  void operator()(const WeakArea& ar) override {
+    if (ar.expired()) {  // NOLINT
+      return;
+    }
+    map_->remove(ar.lock());
+  }
+
+ private:
+  LaneletMap* map_;
+};
+*/
 struct AddVisitor : public lanelet::internal::MutableParameterVisitor {
   explicit AddVisitor(LaneletMap* map) : map_(map) {}
 
@@ -233,6 +257,15 @@ struct UsageLookup<RegulatoryElementPtr> {
       }
     }
   }
+  void remove(const RegulatoryElementPtr& prim) {
+    for (auto it = ownedLookup.begin(); it != ownedLookup.end(); ){
+      if (it->second->id() == prim->id()) { 
+        ownedLookup.erase(it++); 
+      } else { 
+        ++it;          
+      }
+    }
+  }
   std::unordered_multimap<ConstRuleParameter, RegulatoryElementPtr> ownedLookup;
 };
 template <>
@@ -268,6 +301,7 @@ struct UsageLookup<Lanelet> {
 template <>
 struct UsageLookup<Point3d> {
   void add(const Point3d& /*unused*/) {}
+  void remove(const Point3d& /*unused*/) {}
 };
 
 template <typename T>
@@ -410,6 +444,44 @@ void PrimitiveLayer<RegulatoryElementPtr>::add(const PrimitiveLayer<RegulatoryEl
   tree_->usage.add(element);
   elements_.insert({element->id(), element});
   tree_->insert(element);
+}
+
+template <typename T>
+void PrimitiveLayer<T>::remove(Id id) {
+  // find the element with this id (the user must make sure it exists)
+  T element = elements_.find(id)->second;
+  
+  // remove from usage lookup
+  for (auto it = tree_->usage.ownedLookup.begin(); it != tree_->usage.ownedLookup.end(); )
+  {
+    if (it->second.id() == element.id()) { 
+      tree_->usage.ownedLookup.erase(it++); 
+    } else { 
+      ++it;          
+    }
+  }
+  // erase id from registered elements in this layer
+  elements_.erase(id);
+  // erase from tree
+  tree_->erase(element);
+}
+
+template <>
+void PrimitiveLayer<Point3d>::remove(Id id) {
+  /*tree_->usage.add(p);
+  elements_.insert({p.id(), p});
+  tree_->insert(p);
+  */
+  std::cout<< "Hey we entered point primitive remove func" << std::endl;
+  return;
+}
+
+template <>
+void PrimitiveLayer<RegulatoryElementPtr>::remove(Id id) {
+  RegulatoryElementPtr element = elements_.find(id)->second;
+  tree_->usage.remove(element);
+  elements_.erase(id);
+  tree_->erase(element);
 }
 
 template <typename T>
@@ -614,6 +686,25 @@ void LaneletMap::add(Area area) {
   for (const auto& regElem : area.regulatoryElements()) {
     add(regElem);
   }
+}
+
+void LaneletMap::remove(const RegulatoryElementPtr& regElem)
+{
+  // TODO check the conditionals correctly here
+  if (!regElem || regElem->id() == InvalId) 
+  {
+    throw NullptrError("Empty regulatory element passed to add()!");
+  }
+  if (regulatoryElementLayer.exists(regElem->id()))
+  {
+    regulatoryElementLayer.remove(regElem->id());
+  }
+  // remove its parameters
+  // TODO: uncomment when each layer's remove is implemented
+  /*
+  RemoveVisitor visitor(this);
+  regElem->applyVisitor(visitor);
+  */
 }
 
 void LaneletMap::add(const RegulatoryElementPtr& regElem) {

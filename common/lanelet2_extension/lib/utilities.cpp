@@ -290,19 +290,19 @@ std::vector<lanelet::BasicPoint3d> resamplePoints(const lanelet::ConstLineString
   return resampled_points;
 }
 
-  /*!
-   * \brief Return a recomputed centerline for the given input lanelet without 
-   *        modifiying the input lanelet
-   * 
-   * Computes a centerline by averaging each point in the left and right boundary
-   * of the lanelet. Assumes that the points on the left and right bound are 
-   * evenly spaced as well as equally numbered. i.e. average(left[i], right[i])
-   * = center[i].
-   * 
-   * \param lanelet_obj The lanelet to evaluate the centerline for
-   * \return A LineString3d describing the geometry of the center line
-   * \throws std::invalid_argument If the left and right bounds are not the same size
-   */
+/*!
+  * \brief Return a recomputed centerline for the given input lanelet without 
+  *        modifiying the input lanelet
+  * 
+  * Computes a centerline by averaging each point in the left and right boundary
+  * of the lanelet. Assumes that the points on the left and right bound are 
+  * evenly spaced as well as equally numbered. i.e. average(left[i], right[i])
+  * = center[i].
+  * 
+  * \param lanelet_obj The lanelet to evaluate the centerline for
+  * \return A LineString3d describing the geometry of the center line
+  * \throws std::invalid_argument If the left and right bounds are not the same size
+  */
 lanelet::LineString3d generateFineCenterline(const lanelet::ConstLanelet& lanelet_obj)
 {
   if (lanelet_obj.rightBound2d().size() != lanelet_obj.leftBound2d().size()) {
@@ -323,6 +323,8 @@ lanelet::LineString3d generateFineCenterline(const lanelet::ConstLanelet& lanele
 
   return center;
 }
+
+
 
 }  // namespace
 
@@ -406,5 +408,13 @@ void overwriteLaneletsCenterline(lanelet::LaneletMapPtr lanelet_map, const bool 
   }
 }
 
+void removeRegulatoryElements(std::vector<lanelet::RegulatoryElementPtr> regem_list, const lanelet::LaneletMapPtr lanelet_map)
+{
+  for (lanelet::RegulatoryElementPtr regem : regem_list)
+  {
+    lanelet_map->remove(regem);
+  }
+  return;
+}
 }  // namespace utils
 }  // namespace lanelet

@@ -434,6 +434,17 @@ class LaneletMap : public LaneletMapLayers {
    * sure that the id has not already been for a different element.
    */
   void add(Point3d point);
+
+  /**
+   * @brief removes the regulatory element without removing its referenced parameters
+   * @param regElem regulatory element to be removed
+   * @throws NullptrError if regElem is a nullptr or has InvalId as Id
+   *
+   * NOTE: currently removing this regElem will not remove elements that it owns from the map
+   *       the function is expected to be overloaded with remaining primitive types in the future
+   *       by that time, all overloads could be one function with expected input of just lanelet Id
+   */
+  void remove(const RegulatoryElementPtr& regElem);
 };
 
 /**

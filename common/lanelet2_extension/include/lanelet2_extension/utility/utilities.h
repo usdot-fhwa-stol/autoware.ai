@@ -51,6 +51,13 @@ void matchWaypointAndLanelet(const lanelet::LaneletMapPtr lanelet_map,
  */
 void overwriteLaneletsCenterline(lanelet::LaneletMapPtr lanelet_map, const bool force_overite = false);
 
+/**
+ * @brief  [Removes the list of regulatory elements from the given map in 
+ *         such a way that the resulting map is valid and self-contained]
+ * @param  regem_list  [list of regulatory element ptrs to be removed]
+ * @param  lanelet_map [pointer to lanelet2 map]
+ */
+void removeRegulatoryElements(std::vector<lanelet::RegulatoryElementPtr> regem_list, const lanelet::LaneletMapPtr lanelet_map);
 }  // namespace utils
 }  // namespace lanelet
 

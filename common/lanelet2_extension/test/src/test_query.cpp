@@ -16,6 +16,7 @@
 
 #include <gtest/gtest.h>
 #include <lanelet2_extension/utility/query.h>
+#include <lanelet2_extension/utility/utilities.h>
 #include <lanelet2_extension/regulatory_elements/PassingControlLine.h>
 #include <math.h>
 #include <ros/ros.h>
@@ -117,7 +118,58 @@ public:
 
 private:
 };
+TEST_F(TestSuite, DEBUGSTUFF)
+{
+  // check what is the difference between direcly owning and parameterizing
+  // I can remove it from lanelet
+  // can I remove it from linestring
+  std::vector<lanelet::RegulatoryElementPtr> regems = sample_map_ptr->regulatoryElementLayer.findUsages(pcl_unreg_ls);
+  ASSERT_EQ(regems.size(), 1);
+  std::vector<lanelet::Lanelet> llts1 = sample_map_ptr->laneletLayer.findUsages(pcl_unreg_ls);
+  ASSERT_EQ(llts1.size(), 0);
+  Point3d pz1 = Point3d(getId(), 0., 88., 0.);
+  Point3d pz2 = Point3d(getId(), 0., 89., 0.);
+  LineString3d lss_left = LineString3d(getId(), { pz1, pz2 });  
+  //road_lanelet = Lanelet(getId(), lss_left, ls_right);
+  std::vector<lanelet::LineString3d> lss = sample_map_ptr->lineStringLayer.findUsages(pz1);
+  ASSERT_EQ(lss.size(), 0);
+  //ASSERT_EQ(lss[0].id(), lss_left.id());
+  std::vector<lanelet::Lanelet> llt2 = sample_map_ptr->laneletLayer.findUsages(lss_left);
+  ASSERT_EQ(llt2.size(), 0);
+  //ASSERT_EQ(llt2[0].id(), road_lanelet.id());
 
+  ///// OK if I remove linestring from a lanelet that was in the map, would I still get the lienstring
+  std::vector<lanelet::Lanelet> llt3 = sample_map_ptr->laneletLayer.findUsages(tl);
+  ASSERT_EQ(llt3.size(), 1);
+  ASSERT_EQ(llt3[0].id(), road_lanelet.id());
+  llt3[0].removeRegulatoryElement(tl);
+  std::vector<lanelet::Lanelet> llt1 = sample_map_ptr->laneletLayer.findUsages(tl);  
+  ASSERT_EQ(llt1.size(), 1);
+  ASSERT_EQ(llt3[0].id(), llt1[0].id());
+  for (auto regem: llt3[0].regulatoryElements())
+  {
+    ASSERT_EQ(regem->id(), 1033);
+  }
+  for (auto regem: llt1[0].regulatoryElements())
+  {
+    ASSERT_EQ(regem->id(), 1033);
+  }
+
+  // First actual test if regulatory element removal is working
+  lanelet::utils::removeRegulatoryElements({pcl_unreg}, sample_map_ptr);
+  lanelet::utils::query::References rf = lanelet::utils::query::findReferences(pcl_unreg, sample_map_ptr);
+  ASSERT_EQ(rf.regems.size(), 0); //pcl_unreg is gone
+  ASSERT_EQ(rf.lss.size(), 1); //not part of pcl_unreg anymore so stand alone
+  ASSERT_EQ(rf.lss.begin()->id(), pcl_unreg_ls.id());
+  ASSERT_EQ(rf.llts.size(), 0); 
+  ASSERT_EQ(rf.areas.size(), 0);
+  std::vector<lanelet::RegulatoryElementPtr> regems1 = sample_map_ptr->regulatoryElementLayer.findUsages(pcl_unreg_ls);
+  ASSERT_EQ(regems1.size(), 0);
+  
+  // test if the map is valid
+  // TODO: there is a file called Validation folder inside lanelet2, gotta look into it
+  
+}
 TEST_F(TestSuite, QueryReferences)
 {
   // Test references to a point
