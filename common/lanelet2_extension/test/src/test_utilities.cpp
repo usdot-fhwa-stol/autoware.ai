@@ -15,16 +15,136 @@
  */
 
 #include <gtest/gtest.h>
+#include <lanelet2_extension/utility/query.h>
 #include <lanelet2_extension/utility/utilities.h>
 #include <lanelet2_routing/RoutingGraphContainer.h>
 #include <lanelet2_traffic_rules/TrafficRulesFactory.h>
+#include <lanelet2_extension/regulatory_elements/PassingControlLine.h>
 #include <map>
 #include <ros/ros.h>
 
+#include <lanelet2_extension/projection/local_frame_projector.h>
+#include <lanelet2_io/Io.h>
+#include <lanelet2_io/io_handlers/Factory.h>
+#include <lanelet2_io/io_handlers/Writer.h>
+#include <lanelet2_extension/io/autoware_osm_parser.h>
+#include <lanelet2_validation/Validation.h>
+
+///
+
+#include <stdio.h>  /* defines FILENAME_MAX */
+// #define WINDOWS  /* uncomment this line to use it for windows.*/ 
+#ifdef WINDOWS
+#include <direct.h>
+#define GetCurrentDir _getcwd
+#else
+#include <unistd.h>
+#define GetCurrentDir getcwd
+#endif
+#include<iostream>
+
+///
+
 using lanelet::Lanelet;
 using lanelet::LineString3d;
+using lanelet::LineStringOrPolygon3d;
 using lanelet::Point3d;
+using lanelet::Points3d;
+using lanelet::Area;
 using lanelet::utils::getId;
+
+
+
+class TestSuite : public ::testing::Test
+{
+public:
+  Point3d p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p_unreg1, p_unreg2;
+  LineString3d ls_left, ls_right, ls_right_right, traffic_light_base, 
+    traffic_light_bulbs, stop_line, ls_area_right, ls_area_top, ls_area_bottom, pcl_unreg_ls, ls_unreg;
+  lanelet::ConstLineString3d centerline;
+  Lanelet road_lanelet, road_lanelet1, crosswalk_lanelet;
+  Area side_area;
+  lanelet::autoware::AutowareTrafficLight::Ptr tl;
+  std::shared_ptr<lanelet::PassingControlLine> pcl, pcl_unreg;
+
+  TestSuite() : sample_map_ptr(new lanelet::LaneletMap())
+  {  // NOLINT
+
+    // create sample lanelets
+    p1 = Point3d(getId(), 0., 0., 0.);
+    p2 = Point3d(getId(), 0., 1., 0.);
+    p_unreg1 = Point3d(getId(), 0., 11., 0.);
+    p_unreg2 = Point3d(getId(), 0., 12., 0.);
+
+    p3 = Point3d(getId(), 1., 0., 0.);
+    p4 = Point3d(getId(), 1., 1., 0.);
+
+    p5 = Point3d(getId(), 2., 0., 0.);
+    p6 = Point3d(getId(), 2., 1., 0.);
+
+    // create a sample area
+    p14 = Point3d(getId(), 3., 0., 0.);
+    p15 = Point3d(getId(), 3., 1., 0.);
+
+    ls_left  = LineString3d(getId(), { p1, p2 });   // NOLINT
+    ls_right = LineString3d(getId(), { p3, p4 });  // NOLINT
+    ls_right_right = LineString3d(getId(), { p5, p6 });  // NOLINT
+    ls_area_right = LineString3d(getId(), { p14, p15 });  // NOLINT
+    ls_area_top = LineString3d(getId(), { p15, p6 });
+    ls_area_bottom = LineString3d(getId(), { p14, p5 });
+    ls_unreg = LineString3d(getId(), { p_unreg1, p_unreg2 });
+    
+    road_lanelet = Lanelet(getId(), ls_left, ls_right);
+    road_lanelet.attributes()[lanelet::AttributeName::Subtype] = lanelet::AttributeValueString::Road;
+    centerline = road_lanelet.centerline();
+    road_lanelet1 = Lanelet(getId(), ls_right, ls_right_right);
+    road_lanelet1.attributes()[lanelet::AttributeName::Subtype] = lanelet::AttributeValueString::Road;
+    crosswalk_lanelet = Lanelet(getId(), ls_left, ls_right);
+    crosswalk_lanelet.attributes()[lanelet::AttributeName::Subtype] = lanelet::AttributeValueString::Crosswalk;
+    side_area = Area(getId(), {ls_area_top, ls_area_right, ls_area_bottom, ls_right_right});
+
+    // create sample traffic light
+    p7 = Point3d(getId(), 0., 1., 4.);
+    p8 = Point3d(getId(), 1., 1., 4.);
+
+    p9 = Point3d(getId(), 0., 1., 4.5);
+    p10 = Point3d(getId(), 0.5, 1., 4.5);
+    p11 = Point3d(getId(), 1., 1., 4.5);
+
+    p12 = Point3d(getId(), 0., 0., 0.);
+    p13 = Point3d(getId(), 1., 0., 0.);
+
+    traffic_light_base = LineString3d(getId(), Points3d{ p7, p8 });        // NOLINT
+    traffic_light_bulbs = LineString3d(getId(), Points3d{ p9, p10, p11 });  // NOLINT
+    stop_line = LineString3d(getId(), Points3d{ p12, p13 });               // NOLINT
+    pcl_unreg_ls = LineString3d(getId(), { p16, p17 });
+
+    tl = lanelet::autoware::AutowareTrafficLight::make(getId(), lanelet::AttributeMap(), { traffic_light_base },
+                                                            stop_line, { traffic_light_bulbs });  // NOLINT
+
+    pcl = std::make_shared<lanelet::PassingControlLine>(lanelet::PassingControlLine::buildData(
+      lanelet::utils::getId(), {road_lanelet1.leftBound() }, {}, { lanelet::Participants::Vehicle }));
+
+    pcl_unreg = std::make_shared<lanelet::PassingControlLine>(lanelet::PassingControlLine::buildData(
+      lanelet::utils::getId(), {pcl_unreg_ls}, {}, { lanelet::Participants::Vehicle }));
+
+    road_lanelet.addRegulatoryElement(tl);
+    road_lanelet.addRegulatoryElement(pcl);
+    side_area.addRegulatoryElement(pcl);
+    // add items to map
+    sample_map_ptr->add(road_lanelet);
+    sample_map_ptr->add(road_lanelet1);
+    sample_map_ptr->add(crosswalk_lanelet);
+    sample_map_ptr->add(side_area);
+    sample_map_ptr->add(pcl_unreg);
+  }
+
+  ~TestSuite(){}
+
+  lanelet::LaneletMapPtr sample_map_ptr;
+
+private:
+};
 
 class TestSuite1 : public ::testing::Test
 {
@@ -71,29 +191,6 @@ public:
 
     merging_lanelet = Lanelet(getId(), ls_left4, ls_right4);
     merging_lanelet.attributes()[lanelet::AttributeName::Subtype] = lanelet::AttributeValueString::Road;
-
-    Point3d p_unreg1,p_unreg;
-    p_unreg1 = Point3d(getId(), 0., 11., 0.);
-    p_unreg2 = Point3d(getId(), 0., 12., 0.);
-
-    road_lanelet1 = Lanelet(getId(), ls_right, ls_right_right);
-    road_lanelet1.attributes()[lanelet::AttributeName::Subtype] = lanelet::AttributeValueString::Road;
-
-
-    LineString3d pcl_unreg_ls, ls_unreg;
-    std::shared_ptr<lanelet::PassingControlLine> pcl, pcl_unreg;
-    ls_unreg = LineString3d(getId(), { p_unreg1, p_unreg2 });
-
-    tl = lanelet::autoware::AutowareTrafficLight::make(getId(), lanelet::AttributeMap(), { traffic_light_base },
-                                                        stop_line, { traffic_light_bulbs });  // NOLINT
-
-    pcl = std::make_shared<lanelet::PassingControlLine>(lanelet::PassingControlLine::buildData(
-          lanelet::utils::getId(), {road_lanelet1.leftBound() }, {}, { lanelet::Participants::Vehicle }));
-
-    pcl_unreg = std::make_shared<lanelet::PassingControlLine>(lanelet::PassingControlLine::buildData(
-          lanelet::utils::getId(), {pcl_unreg_ls}, {}, { lanelet::Participants::Vehicle }));
-
-
 
     sample_map_ptr->add(road_lanelet);
     sample_map_ptr->add(next_lanelet);
@@ -160,22 +257,9 @@ TEST_F(TestSuite1, OverwriteLaneletsCenterline)
   }
 }
 
-TEST_F(TestSuite2, RemoveRegulatoryElements)
+TEST_F(TestSuite, RemoveRegulatoryElements)
 {
-    
-  LineString3d pcl_unreg_ls, ls_unreg;
-  std::shared_ptr<lanelet::PassingControlLine> pcl, pcl_unreg;
-
-  Point3d p1, p2;
-  p1 = Point3d(getId(), 0., 1., 4.);
-  p2 = Point3d(getId(), 1., 1., 4.);
-
-  pcl_unreg_ls = LineString3d(getId(), { p1, p2 });
-  pcl_unreg = std::make_shared<lanelet::PassingControlLine>(lanelet::PassingControlLine::buildData(
-  lanelet::utils::getId(), {pcl_unreg_ls}, {}, { lanelet::Participants::Vehicle }));
-  // we added pcl_unreg in TestSuite 
-
-  // call remove function for remove REG elem
+  // call remove function for REG elem
   std::vector<lanelet::RegulatoryElementPtr> regem_list = {pcl_unreg};
   lanelet::utils::removeRegulatoryElements(regem_list, sample_map_ptr);
 
@@ -187,16 +271,77 @@ TEST_F(TestSuite2, RemoveRegulatoryElements)
 
   // find regems that are using pcl_unreg_ls
   std::vector<lanelet::RegulatoryElementPtr> regems1 = sample_map_ptr->regulatoryElementLayer.findUsages(pcl_unreg_ls);
-  ASSERT_EQ(regems1.size(), 0);
+  ASSERT_EQ(regems1.size(), 0); //there should be none as it was removed
 
   // check if other primitives are referencing the removed regem
-  std::vector<lanelet::RegulatoryElementPtr> regems1 = sample_map_ptr->laneletLayer.findUsages(pcl_unreg_ls);
-  ASSERT_EQ(regems1.size(), 0);
+  // road_lanelet had 2 regems originally: pcl, tf
+  ASSERT_EQ(sample_map_ptr->laneletLayer.find(road_lanelet.id())->regulatoryElements().size(),2);
+  lanelet::utils::removeRegulatoryElements({tl}, sample_map_ptr);
 
+  // now it should only have 1 regem: pcl
+  ASSERT_EQ(sample_map_ptr->regulatoryElementLayer.find(tl->id()),sample_map_ptr->regulatoryElementLayer.end());
+  ASSERT_EQ(sample_map_ptr->regulatoryElementLayer.findUsages(stop_line).size(), 0); //dangling parameter not referencing back
+  ASSERT_EQ(sample_map_ptr->laneletLayer.find(road_lanelet.id())->regulatoryElements().size(),1);
+  ASSERT_EQ(sample_map_ptr->laneletLayer.find(road_lanelet.id())->regulatoryElements()[0]->id(),pcl->id());
+  rf = lanelet::utils::query::findReferences(tl, sample_map_ptr);
+  ASSERT_EQ(rf.regems.size(), 0); 
+  ASSERT_EQ(rf.lss.size(), 3); //tl local copy still references these 3 parameters, 
+                              // but those parameters don't reference it back as it should 
+  ASSERT_EQ(rf.llts.size(), 0); // connection with parent llt is severed
 
-  // TODO 
-  // test if map is valid
+  // Test if map is valid by writing it to a file and loading it
+  // Build new map from modified data
+  std::vector<lanelet::Area> new_areas;
+  std::vector<lanelet::Lanelet> new_lanelets;
+  for (auto lanelet : sample_map_ptr->laneletLayer)
+  {
+    std::cerr << "Adding lanelet: " << lanelet.id() << std::endl;
+    lanelet::Lanelet mutable_ll = sample_map_ptr->laneletLayer.get(lanelet.id());
+    new_lanelets.emplace_back(mutable_ll);
+  }
+  for (auto area : sample_map_ptr->areaLayer)
+  {
+    std::cerr << "Adding area: " << area.id() << std::endl;
+    lanelet::Area mutable_area = sample_map_ptr->areaLayer.get(area.id());
+    new_areas.emplace_back(mutable_area);
+  }
+  auto new_map = lanelet::utils::createMap(new_lanelets, new_areas);
+  // Write new map to file
+  std::string new_file = "modified_map.osm";
+  lanelet::projection::LocalFrameProjector local_projector("+proj=tmerc +lat_0=39.46636844371259 +lon_0=-76.16919523566943 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +vunits=m +no_defs");
+  lanelet::ErrorMessages write_errors;
 
+  lanelet::write(new_file, *new_map, local_projector, &write_errors);
+
+  if (write_errors.size() > 0)
+  {
+    std::cerr << "Errors occurred while writing the map! Output file located at " << new_file << std::endl;
+  }
+  else
+  {
+    std::cerr << "Map written without errors to: " << new_file << std::endl;
+  }
+  for (auto msg : write_errors)
+  {
+    std::cerr << "Write Error: " << msg << std::endl;
+  }
+
+  // Now try to load it back
+  using namespace lanelet;
+  LaneletMapPtr map = lanelet::load(new_file, local_projector);
+  lanelet::validation::ValidationConfig config;
+  auto issues = lanelet::validation::validateMap(*map, config);
+  auto report = lanelet::validation::buildReport(issues);
+  EXPECT_EQ(13, report.warnings.size()); // these 13 warnings have been verified  
+                                         // that they are not related to our issue of focus
+  EXPECT_EQ(0ul, report.errors.size());
+  // In fact, it should be routable
+  traffic_rules::TrafficRulesPtr trafficRules =
+    traffic_rules::TrafficRulesFactory::create(Locations::Germany, Participants::Vehicle);
+  auto new_routing_graph = lanelet::routing::RoutingGraph::build(*map, *trafficRules);
+  new_routing_graph->exportGraphViz("modified_map_graph.viz"); //TODO: not sure where it is writing to...
+                                                               // open to see if the map is valid still
+  EXPECT_EQ(map->regulatoryElementLayer.size(), 1);
 }
 
 int main(int argc, char** argv)

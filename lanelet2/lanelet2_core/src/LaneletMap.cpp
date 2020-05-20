@@ -468,11 +468,11 @@ void PrimitiveLayer<T>::remove(Id id) {
 
 template <>
 void PrimitiveLayer<Point3d>::remove(Id id) {
-  /*tree_->usage.add(p);
-  elements_.insert({p.id(), p});
-  tree_->insert(p);
+  /*tree_->usage.remove(p);
+  elements_.remove({p.id(), p});
+  tree_->remove(p);
+  TODO
   */
-  std::cout<< "Hey we entered point primitive remove func" << std::endl;
   return;
 }
 
@@ -690,16 +690,28 @@ void LaneletMap::add(Area area) {
 
 void LaneletMap::remove(const RegulatoryElementPtr& regElem)
 {
-  // TODO check the conditionals correctly here
-  if (!regElem || regElem->id() == InvalId) 
+  if (!regElem) 
   {
-    throw NullptrError("Empty regulatory element passed to add()!");
+    throw NullptrError("Empty regulatory element passed to remove()!");
+  }
+  if (regElem->id() == InvalId)
+  {
+    throw InvalidInputError("Regulatory element with InvalidId is passed to remove()!");
   }
   if (regulatoryElementLayer.exists(regElem->id()))
   {
     regulatoryElementLayer.remove(regElem->id());
   }
-  // remove its parameters
+  // remove local copies of regem inside lanelet and areas
+  for (Lanelet llt : laneletLayer.findUsages(regElem))
+  {
+    llt.removeRegulatoryElement(regElem);
+  }
+  for (Area area : areaLayer.findUsages(regElem))
+  {
+    area.removeRegulatoryElement(regElem);
+  }
+  // remove its (possibly dangling) parameters 
   // TODO: uncomment when each layer's remove is implemented
   /*
   RemoveVisitor visitor(this);
