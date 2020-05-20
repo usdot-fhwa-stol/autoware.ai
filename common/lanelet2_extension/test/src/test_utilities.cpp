@@ -72,6 +72,29 @@ public:
     merging_lanelet = Lanelet(getId(), ls_left4, ls_right4);
     merging_lanelet.attributes()[lanelet::AttributeName::Subtype] = lanelet::AttributeValueString::Road;
 
+    Point3d p_unreg1,p_unreg;
+    p_unreg1 = Point3d(getId(), 0., 11., 0.);
+    p_unreg2 = Point3d(getId(), 0., 12., 0.);
+
+    road_lanelet1 = Lanelet(getId(), ls_right, ls_right_right);
+    road_lanelet1.attributes()[lanelet::AttributeName::Subtype] = lanelet::AttributeValueString::Road;
+
+
+    LineString3d pcl_unreg_ls, ls_unreg;
+    std::shared_ptr<lanelet::PassingControlLine> pcl, pcl_unreg;
+    ls_unreg = LineString3d(getId(), { p_unreg1, p_unreg2 });
+
+    tl = lanelet::autoware::AutowareTrafficLight::make(getId(), lanelet::AttributeMap(), { traffic_light_base },
+                                                        stop_line, { traffic_light_bulbs });  // NOLINT
+
+    pcl = std::make_shared<lanelet::PassingControlLine>(lanelet::PassingControlLine::buildData(
+          lanelet::utils::getId(), {road_lanelet1.leftBound() }, {}, { lanelet::Participants::Vehicle }));
+
+    pcl_unreg = std::make_shared<lanelet::PassingControlLine>(lanelet::PassingControlLine::buildData(
+          lanelet::utils::getId(), {pcl_unreg_ls}, {}, { lanelet::Participants::Vehicle }));
+
+
+
     sample_map_ptr->add(road_lanelet);
     sample_map_ptr->add(next_lanelet);
     sample_map_ptr->add(next_lanelet2);
@@ -82,7 +105,7 @@ public:
   }
 
   lanelet::LaneletMapPtr sample_map_ptr;
-  Lanelet road_lanelet;
+  Lanelet road_lanelet, road_lanelet1;
   Lanelet next_lanelet;
   Lanelet next_lanelet2;
   Lanelet merging_lanelet;
@@ -135,6 +158,45 @@ TEST_F(TestSuite1, OverwriteLaneletsCenterline)
   {
     ASSERT_TRUE(lanelet.hasCustomCenterline()) << "failed to calculate fine centerline";
   }
+}
+
+TEST_F(TestSuite2, RemoveRegulatoryElements)
+{
+    
+  LineString3d pcl_unreg_ls, ls_unreg;
+  std::shared_ptr<lanelet::PassingControlLine> pcl, pcl_unreg;
+
+  Point3d p1, p2;
+  p1 = Point3d(getId(), 0., 1., 4.);
+  p2 = Point3d(getId(), 1., 1., 4.);
+
+  pcl_unreg_ls = LineString3d(getId(), { p1, p2 });
+  pcl_unreg = std::make_shared<lanelet::PassingControlLine>(lanelet::PassingControlLine::buildData(
+  lanelet::utils::getId(), {pcl_unreg_ls}, {}, { lanelet::Participants::Vehicle }));
+  // we added pcl_unreg in TestSuite 
+
+  // call remove function for remove REG elem
+  std::vector<lanelet::RegulatoryElementPtr> regem_list = {pcl_unreg};
+  lanelet::utils::removeRegulatoryElements(regem_list, sample_map_ptr);
+
+  // check if reg was removed
+  lanelet::utils::query::References rf = lanelet::utils::query::findReferences(pcl_unreg, sample_map_ptr);
+  ASSERT_EQ(rf.regems.size(), 0); //pcl_unreg is gone
+  ASSERT_EQ(rf.lss.size(), 1); //not part of pcl_unreg anymore so stand alone
+  ASSERT_EQ(rf.lss.begin()->id(), pcl_unreg_ls.id());
+
+  // find regems that are using pcl_unreg_ls
+  std::vector<lanelet::RegulatoryElementPtr> regems1 = sample_map_ptr->regulatoryElementLayer.findUsages(pcl_unreg_ls);
+  ASSERT_EQ(regems1.size(), 0);
+
+  // check if other primitives are referencing the removed regem
+  std::vector<lanelet::RegulatoryElementPtr> regems1 = sample_map_ptr->laneletLayer.findUsages(pcl_unreg_ls);
+  ASSERT_EQ(regems1.size(), 0);
+
+
+  // TODO 
+  // test if map is valid
+
 }
 
 int main(int argc, char** argv)
