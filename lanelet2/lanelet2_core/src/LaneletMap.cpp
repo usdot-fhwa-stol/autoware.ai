@@ -468,12 +468,10 @@ void PrimitiveLayer<T>::remove(Id id) {
 
 template <>
 void PrimitiveLayer<Point3d>::remove(Id id) {
-  /*tree_->usage.remove(p);
-  elements_.remove({p.id(), p});
-  tree_->remove(p);
-  TODO
-  */
-  return;
+  Point3d p = elements_.find(id)->second;
+  tree_->usage.remove(p);
+  elements_.erase(id);
+  tree_->erase(p);
 }
 
 template <>

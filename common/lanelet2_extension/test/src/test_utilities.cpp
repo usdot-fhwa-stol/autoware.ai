@@ -30,30 +30,12 @@
 #include <lanelet2_extension/io/autoware_osm_parser.h>
 #include <lanelet2_validation/Validation.h>
 
-///
-
-#include <stdio.h>  /* defines FILENAME_MAX */
-// #define WINDOWS  /* uncomment this line to use it for windows.*/ 
-#ifdef WINDOWS
-#include <direct.h>
-#define GetCurrentDir _getcwd
-#else
-#include <unistd.h>
-#define GetCurrentDir getcwd
-#endif
-#include<iostream>
-
-///
-
 using lanelet::Lanelet;
 using lanelet::LineString3d;
-using lanelet::LineStringOrPolygon3d;
 using lanelet::Point3d;
 using lanelet::Points3d;
 using lanelet::Area;
 using lanelet::utils::getId;
-
-
 
 class TestSuite : public ::testing::Test
 {
@@ -202,7 +184,7 @@ public:
   }
 
   lanelet::LaneletMapPtr sample_map_ptr;
-  Lanelet road_lanelet, road_lanelet1;
+  Lanelet road_lanelet;
   Lanelet next_lanelet;
   Lanelet next_lanelet2;
   Lanelet merging_lanelet;
