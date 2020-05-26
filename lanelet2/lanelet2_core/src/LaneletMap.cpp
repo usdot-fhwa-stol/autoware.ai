@@ -135,30 +135,6 @@ struct AssignIdVisitor : public boost::static_visitor<void> {
   LaneletMap* map_;
 };
 
-/* TODO: Uncomment when each layer's remove function is implemented
-struct RemoveVisitor : public lanelet::internal::MutableParameterVisitor {
-  explicit RemoveVisitor(LaneletMap* map) : map_(map) {}
-
-  void operator()(const Point3d& p) override { map_->remove(p); }
-  void operator()(const LineString3d& l) override { map_->remove(l); }
-  void operator()(const Polygon3d& p) override { map_->remove(p); }
-  void operator()(const WeakLanelet& ll) override {
-    if (ll.expired()) {  // NOLINT
-      return;
-    }
-    map_->remove(ll.lock());
-  }
-  void operator()(const WeakArea& ar) override {
-    if (ar.expired()) {  // NOLINT
-      return;
-    }
-    map_->remove(ar.lock());
-  }
-
- private:
-  LaneletMap* map_;
-};
-*/
 struct AddVisitor : public lanelet::internal::MutableParameterVisitor {
   explicit AddVisitor(LaneletMap* map) : map_(map) {}
 
@@ -709,12 +685,6 @@ void LaneletMap::remove(const RegulatoryElementPtr& regElem)
   {
     area.removeRegulatoryElement(regElem);
   }
-  // remove its (possibly dangling) parameters 
-  // TODO: uncomment when each layer's remove is implemented
-  /*
-  RemoveVisitor visitor(this);
-  regElem->applyVisitor(visitor);
-  */
 }
 
 void LaneletMap::add(const RegulatoryElementPtr& regElem) {

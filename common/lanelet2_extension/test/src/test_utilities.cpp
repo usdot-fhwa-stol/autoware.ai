@@ -316,13 +316,7 @@ TEST_F(TestSuite, RemoveRegulatoryElements)
   auto report = lanelet::validation::buildReport(issues);
   EXPECT_EQ(13, report.warnings.size()); // these 13 warnings have been verified  
                                          // that they are not related to our issue of focus
-  EXPECT_EQ(0ul, report.errors.size());
-  // In fact, it should be routable
-  traffic_rules::TrafficRulesPtr trafficRules =
-    traffic_rules::TrafficRulesFactory::create(Locations::Germany, Participants::Vehicle);
-  auto new_routing_graph = lanelet::routing::RoutingGraph::build(*map, *trafficRules);
-  new_routing_graph->exportGraphViz("modified_map_graph.viz"); //TODO: not sure where it is writing to...
-                                                               // open to see if the map is valid still
+  EXPECT_EQ(0ul, report.errors.size());                                                          
   EXPECT_EQ(map->regulatoryElementLayer.size(), 1);
 }
 
