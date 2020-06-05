@@ -15,6 +15,7 @@
  */
 
 #include "map_file/map_param_loader.h"
+#include <std_msgs/String.h>
 
 namespace map_param_loader
 {
@@ -90,8 +91,10 @@ int main(int argc, char **argv)
   map_param_loader::broadcastTransform(tf);
 
   // Broadcast the georeference
-  ros::Publisher georef_pub = private_nh.advertise<std::string>("georeference", 1, true);
-  georef_pub.publish(target_frame);
+  ros::Publisher georef_pub = private_nh.advertise<std_msgs::String>("georeference", 1, true);
+  std_msgs::String georef_msg;
+  georef_msg.data = target_frame;
+  georef_pub.publish(georef_msg);
 
   ros::spin();
 
