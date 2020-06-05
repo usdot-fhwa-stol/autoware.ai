@@ -78,6 +78,7 @@ int main(int argc, char **argv)
   int projector_type = 1; // default value
   std::string target_frame, lanelet2_filename;
   private_nh.param<std::string>("file_name", lanelet2_filename, "");
+
   
   // Parse geo reference info from the lanelet map (.osm)
   lanelet::io_handlers::AutowareOsmParser::parseMapParams(lanelet2_filename, &projector_type, &target_frame);
@@ -87,6 +88,10 @@ int main(int argc, char **argv)
 
   // Broadcast the transform
   map_param_loader::broadcastTransform(tf);
+
+  // Broadcast the georeference
+  ros::Publisher georef_pub = private_nh.advertise<std::string>("georeference", 1, true);
+  georef_pub.publish(target_frame);
 
   ros::spin();
 
