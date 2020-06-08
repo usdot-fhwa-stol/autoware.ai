@@ -123,7 +123,7 @@ public:
     sample_map_ptr->add(road_lanelet1);
     sample_map_ptr->add(crosswalk_lanelet);
     sample_map_ptr->add(side_area);
-    //sample_map_ptr->add(pcl_unreg);
+    sample_map_ptr->add(pcl_unreg);
   }
 
   ~TestSuite(){}
