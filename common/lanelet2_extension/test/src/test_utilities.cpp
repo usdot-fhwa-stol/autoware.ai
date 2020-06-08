@@ -338,7 +338,7 @@ TEST_F(TestSuite, DISABLED_RemoveRegulatoryElements)
 
   // check if reg was removed
   lanelet::utils::query::References rf = lanelet::utils::query::findReferences(pcl_unreg, sample_map_ptr);
-  ASSERT_EQ(rf.regems.size(), 0); //pcl_unreg is gone
+  ASSERT_EQ(rf.regems.size(), 0); // because pcl_unreg is now removed
   ASSERT_EQ(rf.lss.size(), 1); //not part of pcl_unreg anymore so stand alone
   ASSERT_EQ(rf.lss.begin()->id(), pcl_unreg_ls.id());
 
@@ -360,7 +360,9 @@ TEST_F(TestSuite, DISABLED_RemoveRegulatoryElements)
   ASSERT_EQ(rf.regems.size(), 0); 
   ASSERT_EQ(rf.lss.size(), 3); //tl local copy still references these 3 parameters, 
                               // but those parameters don't reference it back as it should 
-  ASSERT_EQ(rf.llts.size(), 0); // connection with parent llt is severed
+  ASSERT_EQ(rf.llts.size(), 0); // should be 0 connection with parent llt is severed
+  ASSERT_EQ(sample_map_ptr->laneletLayer.findUsages(tl).size(), 0); // this is proved by looking for a owner for tl regem in 
+                                                                    // lanelet layer will result in 0
 
   // Test if map is valid by writing it to a file and loading it
   // Build new map from modified data

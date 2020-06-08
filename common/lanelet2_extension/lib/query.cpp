@@ -39,7 +39,7 @@ void recurse (const lanelet::ConstPoint3d& prim, const lanelet::LaneletMapPtr ll
   // get LineStrings that own this point
   auto ls_list_owning_point = ll_Map->lineStringLayer.findUsages(prim);
 
-  // if it's not owned by anyone, do not record it since points are not meaningful objects in Lanelet
+  // if it's not owned by anyone, do not record it since points are not meaningful objects by only themselves in Lanelet
   if (ls_list_owning_point.size() == 0)
       return;
 
@@ -90,7 +90,7 @@ void recurse (const lanelet::ConstLineString3d& prim, const lanelet::LaneletMapP
     recurse(regem, ll_Map, query::CHECK_PARENT, rfs);
   }
 
-  if (area_list_owning_ls.size() ==0 && llt_list_owning_ls.size() == 0 && regem_list_owning_ls.size() == 0)
+  if (area_list_owning_ls.size() ==0 && llt_list_owning_ls.size() == 0 && regem_list_owning_ls.size() == 0 && ll_Map->lineStringLayer.exists(prim.id()))
     rfs.lss.insert(prim);
 }
 
@@ -111,7 +111,8 @@ void recurse (const lanelet::ConstLanelet& prim, const lanelet::LaneletMapPtr ll
 
   // go up, query::CHECK_PARENT
   // no one 'owns' lanelet, so just add it
-  rfs.llts.insert(prim);
+  if (ll_Map->laneletLayer.exists(prim.id()))
+    rfs.llts.insert(prim);
   return;
 }
 
@@ -139,7 +140,8 @@ void recurse (const lanelet::ConstArea& prim, const lanelet::LaneletMapPtr ll_Ma
 
   // go up, query::CHECK_PARENT
   // no one 'owns' area, so just add it
-  rfs.areas.insert(prim);
+  if (ll_Map->areaLayer.exists(prim.id()))
+    rfs.areas.insert(prim);
   return;
 }
 
@@ -172,7 +174,7 @@ void recurse (const lanelet::RegulatoryElementConstPtr& prim_ptr, const lanelet:
     recurse(area, ll_Map, query::CHECK_PARENT, rfs);
   }
 
-  if (area_list_owning_regem.size() ==0 && llt_list_owning_regem.size() == 0)
+  if (area_list_owning_regem.size() ==0 && llt_list_owning_regem.size() == 0 && ll_Map->regulatoryElementLayer.exists(prim_ptr->id()))
     rfs.regems.insert(prim_ptr);
 }
 
