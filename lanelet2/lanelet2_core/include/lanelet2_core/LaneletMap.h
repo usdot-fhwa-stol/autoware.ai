@@ -246,6 +246,9 @@ class PrimitiveLayer {
   // removes specified subelement from the element's UsageLookup
   template <typename SubT>
   void remove(Id element_id, const SubT& subelement);
+  // adds specified subelement to the the element's UsageLookup
+  template <typename SubT>
+  void update(Id element_id, const SubT& subelement);
 
   // NOLINTNEXTLINE
   Map elements_;  //!< the list of elements in this layer
@@ -388,6 +391,17 @@ class LaneletMap : public LaneletMapLayers {
    * sure that the id has not already been for a different element.
    */
   void add(Lanelet lanelet);
+
+  /**
+   * @brief adds a lanelet and all the elements it owns to the map
+   * @throws InvalidInputError if lanelet has a reglatory element without
+   * members
+   * //TODO dev
+   * If the lanelet or elements owned by the lanelet have InvalId as Id, they
+   * will be assigned a new, unique id. Otherwise you are responsible for making
+   * sure that the id has not already been for a different element.
+   */
+  void update(Lanelet ll, const RegulatoryElementPtr& regElem);
 
   /**
    * @brief adds an area and all the elements it owns

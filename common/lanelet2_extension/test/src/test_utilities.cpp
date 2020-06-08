@@ -244,34 +244,6 @@ TEST_F(TestSuite1, OverwriteLaneletsCenterline)
   }
 }
 
-TEST_F(TestSuite, DISABLED_TEMPORARYREMOVEREGCHECK)
-{
-  lanelet::utils::query::References rf = lanelet::utils::query::findReferences(tl, sample_map_ptr);
-  ASSERT_EQ(rf.regems.size(), 0); // no other regem should be referenced (itself shoudl nto be there)
-  ASSERT_EQ(rf.lss.size(), 0); //3 lines are part of tl
-  ASSERT_EQ(rf.llts.size(), 1); // only one referencing was road_lanelet, for now we havent removed it yet
-  ASSERT_EQ(rf.llts.begin()->id(), road_lanelet.id());
-
-  // Check if findUsages for regems owning linestrings work the way I think
-  // now that we have removed it, the 
-
-
-  // call remove function for REG elem
-  std::vector<lanelet::RegulatoryElementPtr> regem_list = {tl};
-  lanelet::utils::removeRegulatoryElements(regem_list, sample_map_ptr); // not added in the first place
-
-
-  // check if findUsages is still returning if tl is being used = YES IT IS
-  ASSERT_EQ(sample_map_ptr->laneletLayer.findUsages(tl)[0].id(),road_lanelet.id() );
-  // check if it is actually that lanelet
-  ASSERT_EQ(sample_map_ptr->laneletLayer.findUsages(tl).size(),1 );
-  // check if my function is workign properly to catch that?
-  rf = lanelet::utils::query::findReferences(tl, sample_map_ptr);
-  ASSERT_EQ(rf.regems.size(), 0); // no other regem should be referenced (itself shoudl nto be there)
-  ASSERT_EQ(rf.lss.size(), 3); //3 lines are part of tl
-  ASSERT_EQ(rf.llts.size(), 1); // only one referencing was road_lanelet, it should still be refencing... if it correctrly working
-
-}
 TEST_F(TestSuite, TEMPORARY_REPLACING)
 {
   // call remove function for REG elem
