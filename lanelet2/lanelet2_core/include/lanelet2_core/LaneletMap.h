@@ -243,6 +243,9 @@ class PrimitiveLayer {
 
   void add(const PrimitiveT& element);
   void remove(Id element);
+  // removes specified subelement from the element's UsageLookup
+  template <typename SubT>
+  void remove(Id element_id, const SubT& subelement);
 
   // NOLINTNEXTLINE
   Map elements_;  //!< the list of elements in this layer

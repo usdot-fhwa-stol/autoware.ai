@@ -269,7 +269,9 @@ TEST_F(TestSuite, RemoveRegulatoryElements)
   ASSERT_EQ(rf.regems.size(), 0); 
   ASSERT_EQ(rf.lss.size(), 3); //tl local copy still references these 3 parameters, 
                               // but those parameters don't reference it back as it should 
-  ASSERT_EQ(rf.llts.size(), 1); // TODO, should be 0 connection with parent llt is severed
+  ASSERT_EQ(rf.llts.size(), 0); // should be 0 connection with parent llt is severed
+  ASSERT_EQ(sample_map_ptr->laneletLayer.findUsages(tl).size(), 0); // this is proved by looking for a owner for tl regem in 
+                                                                    // lanelet layer will result in 0
 
   // Test if map is valid by writing it to a file and loading it
   // Build new map from modified data

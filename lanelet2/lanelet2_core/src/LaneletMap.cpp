@@ -242,6 +242,16 @@ struct UsageLookup<RegulatoryElementPtr> {
       }
     }
   }
+  void remove(const RegulatoryElementPtr& prim, ConstRuleParameter owned_element) {
+    for (auto it = ownedLookup.begin(); it != ownedLookup.end(); ){
+      if (it->second->id() == prim->id() && lanelet::IdVisitor().getId(it->first) == lanelet::IdVisitor().getId(owned_element)) { 
+        ownedLookup.erase(it++); 
+      } else { 
+        ++it;          
+      }
+    }
+  }
+
   std::unordered_multimap<ConstRuleParameter, RegulatoryElementPtr> ownedLookup;
 };
 template <>
@@ -258,6 +268,26 @@ struct UsageLookup<Area> {
       regElemLookup.insert(std::make_pair(elem, area));
     }
   }
+  void remove(Area area, ConstLineString3d ls)
+  {
+    for (auto it = ownedLookup.begin(); it != ownedLookup.end(); ){
+      if (it->second.id() == area.id() && it->first.id() == ls.id()) { 
+        ownedLookup.erase(it++); 
+      } else { 
+        ++it;          
+      }
+    }
+  }
+  void remove(Area area, RegulatoryElementConstPtr regem_ptr)
+  {
+    for (auto it = regElemLookup.begin(); it != regElemLookup.end(); ){
+      if (it->second.id() == area.id() && it->first->id() == regem_ptr->id()) { 
+        regElemLookup.erase(it++); 
+      } else { 
+        ++it;          
+      }
+    }
+  }
   std::unordered_multimap<ConstLineString3d, Area> ownedLookup;
   std::unordered_multimap<RegulatoryElementConstPtr, Area> regElemLookup;
 };
@@ -270,6 +300,27 @@ struct UsageLookup<Lanelet> {
       regElemLookup.insert(std::make_pair(elem, ll));
     }
   }
+  void remove(Lanelet ll, ConstLineString3d ls)
+  {
+    for (auto it = ownedLookup.begin(); it != ownedLookup.end(); ){
+      if (it->second.id() == ll.id() && it->first.id() == ls.id()) { 
+        ownedLookup.erase(it++); 
+      } else { 
+        ++it;          
+      }
+    }
+  }
+  void remove(Lanelet ll, RegulatoryElementConstPtr regem_ptr)
+  {
+    for (auto it = regElemLookup.begin(); it != regElemLookup.end(); ){
+      if (it->second.id() == ll.id() && it->first->id() == regem_ptr->id()) { 
+        regElemLookup.erase(it++); 
+      } else { 
+        ++it;          
+      }
+    }
+  }
+
   std::unordered_multimap<ConstLineString3d, Lanelet> ownedLookup;
   std::unordered_multimap<RegulatoryElementConstPtr, Lanelet> regElemLookup;
 };
@@ -442,12 +493,34 @@ void PrimitiveLayer<T>::remove(Id id) {
   tree_->erase(element);
 }
 
+template <typename T>
+template <typename SubT>
+void PrimitiveLayer<T>::remove(Id element_id, const SubT& subelement)
+{
+  // find the element with this id (the user must make sure it exists)
+  T element = elements_.find(element_id)->second;
+  // remove the subelement from usage lookup of element with this Id in this layer
+  for (auto it = tree_->usage.ownedLookup.begin(); it != tree_->usage.ownedLookup.end(); )
+  {
+    if (it->second.id() == element.id() && it->first.id() == subelement.id()) { 
+      tree_->usage.ownedLookup.erase(it++); 
+    } else { 
+      ++it;          
+    }
+  }
+}
+
 template <>
 void PrimitiveLayer<Point3d>::remove(Id id) {
   Point3d p = elements_.find(id)->second;
   tree_->usage.remove(p);
   elements_.erase(id);
   tree_->erase(p);
+}
+template <>
+template <>
+void PrimitiveLayer<Point3d>::remove(Id id, const traits::ConstPrimitiveType<traits::OwnedT<PrimitiveT>>& subelement) {
+  //not used as point doesn't have any sub_element
 }
 
 template <>
@@ -457,6 +530,41 @@ void PrimitiveLayer<RegulatoryElementPtr>::remove(Id id) {
   elements_.erase(id);
   tree_->erase(element);
 }
+
+template <>
+template <>
+void PrimitiveLayer<RegulatoryElementPtr>::remove(Id element_id, const traits::ConstPrimitiveType<traits::OwnedT<PrimitiveT>>& subelement) {
+  RegulatoryElementPtr element = elements_.find(element_id)->second;
+  tree_->usage.remove(element, subelement);
+}
+
+template <>
+template <>
+void PrimitiveLayer<Area>::remove(Id element_id, const traits::ConstPrimitiveType<traits::OwnedT<PrimitiveT>>& subelement) {
+  Area element = elements_.find(element_id)->second;
+  tree_->usage.remove(element, subelement);
+}
+
+template <>
+template <>
+void PrimitiveLayer<Area>::remove(Id element_id, const RegulatoryElementPtr& regElem) {
+  Area element = elements_.find(element_id)->second;
+  tree_->usage.remove(element, regElem);
+}
+
+template <>
+template <>
+void PrimitiveLayer<Lanelet>::remove(Id element_id, const traits::ConstPrimitiveType<traits::OwnedT<PrimitiveT>>& subelement) {
+  Lanelet element = elements_.find(element_id)->second;
+  tree_->usage.remove(element, subelement);
+}
+template <>
+template <>
+void PrimitiveLayer<Lanelet>::remove(Id element_id, const RegulatoryElementPtr&  regElem) {
+  Lanelet element = elements_.find(element_id)->second;
+  tree_->usage.remove(element, regElem);
+}
+
 
 template <typename T>
 std::vector<typename PrimitiveLayer<T>::ConstPrimitiveT> PrimitiveLayer<T>::findUsages(
@@ -679,10 +787,12 @@ void LaneletMap::remove(const RegulatoryElementPtr& regElem)
   // remove local copies of regem inside lanelet and areas
   for (Lanelet llt : laneletLayer.findUsages(regElem))
   {
+    laneletLayer.remove(llt.id(), regElem);
     llt.removeRegulatoryElement(regElem);
   }
   for (Area area : areaLayer.findUsages(regElem))
   {
+    areaLayer.remove(area.id(), regElem);
     area.removeRegulatoryElement(regElem);
   }
 }
