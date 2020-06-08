@@ -29,6 +29,9 @@
 #include <lanelet2_io/io_handlers/Writer.h>
 #include <lanelet2_extension/io/autoware_osm_parser.h>
 #include <lanelet2_validation/Validation.h>
+//TEMPORARY DEV
+#include <lanelet2_extension/regulatory_elements/DigitalSpeedLimit.h>
+#include <lanelet2_core/utility/Units.h>
 
 using lanelet::Lanelet;
 using lanelet::LineString3d;
@@ -48,6 +51,7 @@ public:
   Area side_area;
   lanelet::autoware::AutowareTrafficLight::Ptr tl;
   std::shared_ptr<lanelet::PassingControlLine> pcl, pcl_unreg;
+  lanelet::Id pcl_unreg_id;
 
   TestSuite() : sample_map_ptr(new lanelet::LaneletMap())
   {  // NOLINT
@@ -109,6 +113,7 @@ public:
 
     pcl_unreg = std::make_shared<lanelet::PassingControlLine>(lanelet::PassingControlLine::buildData(
       lanelet::utils::getId(), {pcl_unreg_ls}, {}, { lanelet::Participants::Vehicle }));
+    pcl_unreg_id = pcl_unreg->id();
 
     road_lanelet.addRegulatoryElement(tl);
     road_lanelet.addRegulatoryElement(pcl);
@@ -118,7 +123,7 @@ public:
     sample_map_ptr->add(road_lanelet1);
     sample_map_ptr->add(crosswalk_lanelet);
     sample_map_ptr->add(side_area);
-    sample_map_ptr->add(pcl_unreg);
+    //sample_map_ptr->add(pcl_unreg);
   }
 
   ~TestSuite(){}
@@ -239,7 +244,93 @@ TEST_F(TestSuite1, OverwriteLaneletsCenterline)
   }
 }
 
-TEST_F(TestSuite, RemoveRegulatoryElements)
+TEST_F(TestSuite, DISABLED_TEMPORARYREMOVEREGCHECK)
+{
+  lanelet::utils::query::References rf = lanelet::utils::query::findReferences(tl, sample_map_ptr);
+  ASSERT_EQ(rf.regems.size(), 0); // no other regem should be referenced (itself shoudl nto be there)
+  ASSERT_EQ(rf.lss.size(), 0); //3 lines are part of tl
+  ASSERT_EQ(rf.llts.size(), 1); // only one referencing was road_lanelet, for now we havent removed it yet
+  ASSERT_EQ(rf.llts.begin()->id(), road_lanelet.id());
+
+  // Check if findUsages for regems owning linestrings work the way I think
+  // now that we have removed it, the 
+
+
+  // call remove function for REG elem
+  std::vector<lanelet::RegulatoryElementPtr> regem_list = {tl};
+  lanelet::utils::removeRegulatoryElements(regem_list, sample_map_ptr); // not added in the first place
+
+
+  // check if findUsages is still returning if tl is being used = YES IT IS
+  ASSERT_EQ(sample_map_ptr->laneletLayer.findUsages(tl)[0].id(),road_lanelet.id() );
+  // check if it is actually that lanelet
+  ASSERT_EQ(sample_map_ptr->laneletLayer.findUsages(tl).size(),1 );
+  // check if my function is workign properly to catch that?
+  rf = lanelet::utils::query::findReferences(tl, sample_map_ptr);
+  ASSERT_EQ(rf.regems.size(), 0); // no other regem should be referenced (itself shoudl nto be there)
+  ASSERT_EQ(rf.lss.size(), 3); //3 lines are part of tl
+  ASSERT_EQ(rf.llts.size(), 1); // only one referencing was road_lanelet, it should still be refencing... if it correctrly working
+
+}
+TEST_F(TestSuite, TEMPORARY_REPLACING)
+{
+  // call remove function for REG elem
+  std::vector<lanelet::RegulatoryElementPtr> regem_list = {pcl_unreg};
+  //lanelet::utils::removeRegulatoryElements(regem_list, sample_map_ptr); // not added in the first place
+
+  // check if reg was removed
+  lanelet::utils::query::References rf = lanelet::utils::query::findReferences(pcl_unreg, sample_map_ptr);
+  ASSERT_EQ(rf.regems.size(), 1); //pcl_unreg referencing itself
+  ASSERT_EQ(rf.lss.size(), 0); //
+  ASSERT_EQ(rf.llts.size(), 0);
+  
+  rf = lanelet::utils::query::findReferences(road_lanelet1, sample_map_ptr);
+  ASSERT_EQ(rf.regems.size(), 0); // pcl uses its boundary
+  ASSERT_EQ(rf.lss.size(), 0); //no lss
+  ASSERT_EQ(rf.llts.size(), 3); //itself and another llt
+  auto it = rf.llts.begin();
+  it++; //toggle for road_lanelet1 to add pcl_unreg
+  
+  ASSERT_EQ(it->id(), road_lanelet1.id()); //check that toggle
+  ASSERT_EQ(it->regulatoryElements().size(), 0); //previously it had 0
+  sample_map_ptr->laneletLayer.find(it->id())->addRegulatoryElement(pcl_unreg); // here we handled from lanelet perspective...
+                                                                                // but it is now configured for lanelet in the map scope
+                                                                                // which means not handled correctly from regem perspective too
+                                                                              
+  // now check if adding like this through .find() actually adds the regem, IT DOES!
+  ASSERT_EQ(sample_map_ptr->laneletLayer.find(it->id())->regulatoryElements().size(), 1);
+  ASSERT_EQ(it->regulatoryElements().size(), 0);
+  // then we will add that lanelet as its parameter in this regem?
+  // adding to it as its parameter really doesn't make sense...
+  // although we may just be able to
+  ASSERT_EQ(pcl->getParameters().size(), 1);
+  
+
+  //seems like move operation may have invalidated pcl_unreg, so check
+  ASSERT_EQ(pcl_unreg->id(), pcl_unreg_id); //confirmed it is fine after adding. std::move(was ok)
+  ASSERT_EQ(sample_map_ptr->laneletLayer.find(it->id())->regulatoryElements().size(), 1); // should only have 1 regem, pcl_unreg but check tho correct
+  ASSERT_EQ(sample_map_ptr->laneletLayer.find(it->id())->regulatoryElements()[0]->id(), pcl_unreg_id); // should be pcl_unreg, correct
+  
+  sample_map_ptr->add(pcl_unreg);
+  // check if it is registered in the map, not just the lanelet
+  // findReferences is 1) const, and 2) just a copy I think...
+  rf = lanelet::utils::query::findReferences(pcl_unreg, sample_map_ptr);
+  ASSERT_EQ(sample_map_ptr->laneletLayer.findUsages(pcl_unreg).size(), 1); //should be 1, but expecting it to be erroneously 0
+  ASSERT_EQ(rf.regems.size(), 1); //just adding to the llt through find() 
+                                  // does not seem to add to the map
+                                  // okay we are doomed..
+  ASSERT_EQ(rf.lss.size(), 0); 
+  ASSERT_EQ(rf.llts.size(), 0); // this is weird... it should have been connected!!! found the reason
+
+  // soooooooooo adding back the regulatory element requires either of this
+  // change how the lanelet is added to the map
+  // implement remove lanelet functionality
+
+  
+}
+
+
+TEST_F(TestSuite, DISABLED_RemoveRegulatoryElements)
 {
   // call remove function for REG elem
   std::vector<lanelet::RegulatoryElementPtr> regem_list = {pcl_unreg};

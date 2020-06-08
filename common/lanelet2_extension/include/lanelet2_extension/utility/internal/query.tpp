@@ -61,6 +61,7 @@ query::References query::findReferences(const primT& prim, const lanelet::Lanele
 {
   query::References references;
   recurse(prim, ll_Map, query::direction::CHECK_CHILD, references);
+  recurse(prim, ll_Map, query::direction::CHECK_PARENT, references); // this is must REVIEW unit tests again TODO
   return references;
 } 
 } // namespace utils
