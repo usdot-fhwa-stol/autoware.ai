@@ -244,65 +244,7 @@ TEST_F(TestSuite1, OverwriteLaneletsCenterline)
   }
 }
 
-TEST_F(TestSuite, TEMPORARY_REPLACING)
-{
-  // call remove function for REG elem
-  std::vector<lanelet::RegulatoryElementPtr> regem_list = {pcl_unreg};
-  //lanelet::utils::removeRegulatoryElements(regem_list, sample_map_ptr); // not added in the first place
-
-  // check if reg was removed
-  lanelet::utils::query::References rf = lanelet::utils::query::findReferences(pcl_unreg, sample_map_ptr);
-  ASSERT_EQ(rf.regems.size(), 1); //pcl_unreg referencing itself
-  ASSERT_EQ(rf.lss.size(), 0); //
-  ASSERT_EQ(rf.llts.size(), 0);
-  
-  rf = lanelet::utils::query::findReferences(road_lanelet1, sample_map_ptr);
-  ASSERT_EQ(rf.regems.size(), 0); // pcl uses its boundary
-  ASSERT_EQ(rf.lss.size(), 0); //no lss
-  ASSERT_EQ(rf.llts.size(), 3); //itself and another llt
-  auto it = rf.llts.begin();
-  it++; //toggle for road_lanelet1 to add pcl_unreg
-  
-  ASSERT_EQ(it->id(), road_lanelet1.id()); //check that toggle
-  ASSERT_EQ(it->regulatoryElements().size(), 0); //previously it had 0
-  sample_map_ptr->laneletLayer.find(it->id())->addRegulatoryElement(pcl_unreg); // here we handled from lanelet perspective...
-                                                                                // but it is now configured for lanelet in the map scope
-                                                                                // which means not handled correctly from regem perspective too
-                                                                              
-  // now check if adding like this through .find() actually adds the regem, IT DOES!
-  ASSERT_EQ(sample_map_ptr->laneletLayer.find(it->id())->regulatoryElements().size(), 1);
-  ASSERT_EQ(it->regulatoryElements().size(), 0);
-  // then we will add that lanelet as its parameter in this regem?
-  // adding to it as its parameter really doesn't make sense...
-  // although we may just be able to
-  ASSERT_EQ(pcl->getParameters().size(), 1);
-  
-
-  //seems like move operation may have invalidated pcl_unreg, so check
-  ASSERT_EQ(pcl_unreg->id(), pcl_unreg_id); //confirmed it is fine after adding. std::move(was ok)
-  ASSERT_EQ(sample_map_ptr->laneletLayer.find(it->id())->regulatoryElements().size(), 1); // should only have 1 regem, pcl_unreg but check tho correct
-  ASSERT_EQ(sample_map_ptr->laneletLayer.find(it->id())->regulatoryElements()[0]->id(), pcl_unreg_id); // should be pcl_unreg, correct
-  
-  sample_map_ptr->add(pcl_unreg);
-  // check if it is registered in the map, not just the lanelet
-  // findReferences is 1) const, and 2) just a copy I think...
-  rf = lanelet::utils::query::findReferences(pcl_unreg, sample_map_ptr);
-  ASSERT_EQ(sample_map_ptr->laneletLayer.findUsages(pcl_unreg).size(), 1); //should be 1, but expecting it to be erroneously 0
-  ASSERT_EQ(rf.regems.size(), 1); //just adding to the llt through find() 
-                                  // does not seem to add to the map
-                                  // okay we are doomed..
-  ASSERT_EQ(rf.lss.size(), 0); 
-  ASSERT_EQ(rf.llts.size(), 0); // this is weird... it should have been connected!!! found the reason
-
-  // soooooooooo adding back the regulatory element requires either of this
-  // change how the lanelet is added to the map
-  // implement remove lanelet functionality
-
-  
-}
-
-
-TEST_F(TestSuite, DISABLED_RemoveRegulatoryElements)
+TEST_F(TestSuite, RemoveRegulatoryElements)
 {
   // call remove function for REG elem
   std::vector<lanelet::RegulatoryElementPtr> regem_list = {pcl_unreg};

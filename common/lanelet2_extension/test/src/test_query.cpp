@@ -118,7 +118,8 @@ public:
 
 private:
 };
-TEST_F(TestSuite, DISABLED_QueryReferences)
+
+TEST_F(TestSuite, QueryReferences)
 {
   // Test references to a point
   lanelet::utils::query::References rf = lanelet::utils::query::findReferences(p1, sample_map_ptr);
