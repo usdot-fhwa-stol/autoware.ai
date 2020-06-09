@@ -251,8 +251,16 @@ struct UsageLookup<RegulatoryElementPtr> {
       }
     }
   }
-
+  void update(const RegulatoryElementPtr& prim, ConstRuleParameter new_element) {
+    for (auto it = ownedLookup.begin(); it != ownedLookup.end(); it++)
+    {
+      if (it->second->id() == prim->id() && lanelet::IdVisitor().getId(it->first) == lanelet::IdVisitor().getId(new_element))
+        return;
+    }
+    ownedLookup.insert(std::make_pair(new_element, prim));
+  }
   std::unordered_multimap<ConstRuleParameter, RegulatoryElementPtr> ownedLookup;
+
 };
 template <>
 struct UsageLookup<Area> {
@@ -268,7 +276,16 @@ struct UsageLookup<Area> {
       regElemLookup.insert(std::make_pair(elem, area));
     }
   }
-
+  void remove(Area area, ConstLineString3d ls)
+  {
+    for (auto it = ownedLookup.begin(); it != ownedLookup.end(); ){
+      if (it->second.id() == area.id() && it->first.id() == ls.id()) { 
+        ownedLookup.erase(it++); 
+      } else { 
+        ++it;          
+      }
+    }
+  }
   void remove(Area area, RegulatoryElementConstPtr regem_ptr)
   {
     for (auto it = regElemLookup.begin(); it != regElemLookup.end(); ){
@@ -291,6 +308,16 @@ struct UsageLookup<Lanelet> {
       regElemLookup.insert(std::make_pair(elem, ll));
     }
   }
+  void remove(Lanelet ll, ConstLineString3d ls)
+  {
+    for (auto it = ownedLookup.begin(); it != ownedLookup.end(); ){
+      if (it->second.id() == ll.id() && it->first.id() == ls.id()) { 
+        ownedLookup.erase(it++); 
+      } else { 
+        ++it;          
+      }
+    }
+  }
   void remove(Lanelet ll, RegulatoryElementConstPtr regem_ptr)
   {
     for (auto it = regElemLookup.begin(); it != regElemLookup.end(); ){
@@ -300,6 +327,20 @@ struct UsageLookup<Lanelet> {
         ++it;          
       }
     }
+  }
+  void update(Lanelet ll, ConstLineString3d ls) {
+    for (auto it = ownedLookup.begin(); it != ownedLookup.end(); it++){
+      if (it->second.id() == ll.id() && it->first.id() == ls.id())
+        return;
+    }
+    ownedLookup.insert(std::make_pair(ls, ll));
+  }
+  void update(Lanelet ll, RegulatoryElementConstPtr regem_ptr) {
+    for (auto it = regElemLookup.begin(); it != regElemLookup.end(); it++){
+      if (it->second.id() == ll.id() && it->first->id() == regem_ptr->id())
+        return;
+    }
+    regElemLookup.insert(std::make_pair(regem_ptr, ll));
   }
 
   std::unordered_multimap<ConstLineString3d, Lanelet> ownedLookup;
@@ -491,12 +532,33 @@ void PrimitiveLayer<T>::remove(Id element_id, const SubT& subelement)
   }
 }
 
+template <typename T>
+template <typename SubT>
+void PrimitiveLayer<T>::update(Id element_id, const SubT& subelement)
+{
+  // find the element with this id (the user must make sure it exists)
+  T element = elements_.find(element_id)->second;
+  // remove the subelement from usage lookup of element with this Id in this layer
+  for (auto it = tree_->usage.ownedLookup.begin(); it != tree_->usage.ownedLookup.end(); it++)
+  {
+    // return if it is already there
+    if (it->second.id() == element.id() && it->first.id() == subelement.id()) { 
+      return;
+  }
+  tree_->usage.update(element_id, element);
+}
+}
 template <>
 void PrimitiveLayer<Point3d>::remove(Id id) {
   Point3d p = elements_.find(id)->second;
   tree_->usage.remove(p);
   elements_.erase(id);
   tree_->erase(p);
+}
+template <>
+template <>
+void PrimitiveLayer<Point3d>::remove(Id id, const traits::ConstPrimitiveType<traits::OwnedT<PrimitiveT>>& subelement) {
+  //not used as point doesn't have any sub_element
 }
 
 template <>
@@ -516,6 +578,13 @@ void PrimitiveLayer<RegulatoryElementPtr>::remove(Id element_id, const traits::C
 
 template <>
 template <>
+void PrimitiveLayer<Area>::remove(Id element_id, const traits::ConstPrimitiveType<traits::OwnedT<PrimitiveT>>& subelement) {
+  Area element = elements_.find(element_id)->second;
+  tree_->usage.remove(element, subelement);
+}
+
+template <>
+template <>
 void PrimitiveLayer<Area>::remove(Id element_id, const RegulatoryElementPtr& regElem) {
   Area element = elements_.find(element_id)->second;
   tree_->usage.remove(element, regElem);
@@ -523,9 +592,28 @@ void PrimitiveLayer<Area>::remove(Id element_id, const RegulatoryElementPtr& reg
 
 template <>
 template <>
+void PrimitiveLayer<Lanelet>::remove(Id element_id, const traits::ConstPrimitiveType<traits::OwnedT<PrimitiveT>>& subelement) {
+  Lanelet element = elements_.find(element_id)->second;
+  tree_->usage.remove(element, subelement);
+}
+template <>
+template <>
 void PrimitiveLayer<Lanelet>::remove(Id element_id, const RegulatoryElementPtr&  regElem) {
   Lanelet element = elements_.find(element_id)->second;
   tree_->usage.remove(element, regElem);
+}
+
+template <>
+template <>
+void PrimitiveLayer<Lanelet>::update(Id element_id, const traits::ConstPrimitiveType<traits::OwnedT<PrimitiveT>>& subelement) {
+  Lanelet element = elements_.find(element_id)->second;
+  tree_->usage.update(element, subelement);
+}
+template <>
+template <>
+void PrimitiveLayer<Lanelet>::update(Id element_id, const RegulatoryElementPtr&  regElem) {
+  Lanelet element = elements_.find(element_id)->second;
+  tree_->usage.update(element, regElem);
 }
 
 template <typename T>
@@ -757,6 +845,32 @@ void LaneletMap::remove(const RegulatoryElementPtr& regElem)
     areaLayer.remove(area.id(), regElem);
     area.removeRegulatoryElement(regElem);
   }
+}
+
+
+void LaneletMap::update(Lanelet ll, const RegulatoryElementPtr& regElem)
+{
+  if (!regElem) {
+    throw NullptrError("Empty regulatory element passed to add()!");
+  }
+  if (regElem->id() == InvalId) {
+    regElem->setId(regulatoryElementLayer.uniqueId());
+  } else {
+    utils::registerId(regElem->id());
+  }
+  if (ll.id() == InvalId) {
+    throw InvalidInputError("Lanelet element with InvalId is passed to update()!");
+  }
+  else if (!laneletLayer.exists(ll.id()))
+  {
+    throw InvalidInputError("Lanelet element that is not in the map is passed to update()!");
+  }
+  // Add the regem to the map in general (regulatoryElementLayer)
+  add(regElem);
+  // Add this regem to specified ll so that it can be queried in laneletLayer
+  laneletLayer.update(ll.id(), regElem);
+  // Add this to the lanelet itself
+  laneletLayer.find(ll.id())->addRegulatoryElement(regElem);
 }
 
 void LaneletMap::add(const RegulatoryElementPtr& regElem) {
