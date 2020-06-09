@@ -276,16 +276,6 @@ struct UsageLookup<Area> {
       regElemLookup.insert(std::make_pair(elem, area));
     }
   }
-  void remove(Area area, ConstLineString3d ls)
-  {
-    for (auto it = ownedLookup.begin(); it != ownedLookup.end(); ){
-      if (it->second.id() == area.id() && it->first.id() == ls.id()) { 
-        ownedLookup.erase(it++); 
-      } else { 
-        ++it;          
-      }
-    }
-  }
   void remove(Area area, RegulatoryElementConstPtr regem_ptr)
   {
     for (auto it = regElemLookup.begin(); it != regElemLookup.end(); ){
@@ -306,16 +296,6 @@ struct UsageLookup<Lanelet> {
     ownedLookup.insert(std::make_pair(ll.rightBound(), ll));
     for (const auto& elem : ll.regulatoryElements()) {
       regElemLookup.insert(std::make_pair(elem, ll));
-    }
-  }
-  void remove(Lanelet ll, ConstLineString3d ls)
-  {
-    for (auto it = ownedLookup.begin(); it != ownedLookup.end(); ){
-      if (it->second.id() == ll.id() && it->first.id() == ls.id()) { 
-        ownedLookup.erase(it++); 
-      } else { 
-        ++it;          
-      }
     }
   }
   void remove(Lanelet ll, RegulatoryElementConstPtr regem_ptr)
@@ -517,23 +497,6 @@ void PrimitiveLayer<T>::remove(Id id) {
 
 template <typename T>
 template <typename SubT>
-void PrimitiveLayer<T>::remove(Id element_id, const SubT& subelement)
-{
-  // find the element with this id (the user must make sure it exists)
-  T element = elements_.find(element_id)->second;
-  // remove the subelement from usage lookup of element with this Id in this layer
-  for (auto it = tree_->usage.ownedLookup.begin(); it != tree_->usage.ownedLookup.end(); )
-  {
-    if (it->second.id() == element.id() && it->first.id() == subelement.id()) { 
-      tree_->usage.ownedLookup.erase(it++); 
-    } else { 
-      ++it;          
-    }
-  }
-}
-
-template <typename T>
-template <typename SubT>
 void PrimitiveLayer<T>::update(Id element_id, const SubT& subelement)
 {
   // find the element with this id (the user must make sure it exists)
@@ -555,11 +518,6 @@ void PrimitiveLayer<Point3d>::remove(Id id) {
   elements_.erase(id);
   tree_->erase(p);
 }
-template <>
-template <>
-void PrimitiveLayer<Point3d>::remove(Id id, const traits::ConstPrimitiveType<traits::OwnedT<PrimitiveT>>& subelement) {
-  //not used as point doesn't have any sub_element
-}
 
 template <>
 void PrimitiveLayer<RegulatoryElementPtr>::remove(Id id) {
@@ -576,12 +534,6 @@ void PrimitiveLayer<RegulatoryElementPtr>::remove(Id element_id, const traits::C
   tree_->usage.remove(element, subelement);
 }
 
-template <>
-template <>
-void PrimitiveLayer<Area>::remove(Id element_id, const traits::ConstPrimitiveType<traits::OwnedT<PrimitiveT>>& subelement) {
-  Area element = elements_.find(element_id)->second;
-  tree_->usage.remove(element, subelement);
-}
 
 template <>
 template <>
@@ -590,12 +542,6 @@ void PrimitiveLayer<Area>::remove(Id element_id, const RegulatoryElementPtr& reg
   tree_->usage.remove(element, regElem);
 }
 
-template <>
-template <>
-void PrimitiveLayer<Lanelet>::remove(Id element_id, const traits::ConstPrimitiveType<traits::OwnedT<PrimitiveT>>& subelement) {
-  Lanelet element = elements_.find(element_id)->second;
-  tree_->usage.remove(element, subelement);
-}
 template <>
 template <>
 void PrimitiveLayer<Lanelet>::remove(Id element_id, const RegulatoryElementPtr&  regElem) {
