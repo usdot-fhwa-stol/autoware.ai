@@ -383,7 +383,7 @@ class LaneletMap : public LaneletMapLayers {
 
   /**
    * @brief adds a lanelet and all the elements it owns to the map
-   * @throws InvalidInputError if lanelet has a reglatory element without
+   * @throws InvalidInputError if lanelet has a regulatory element without
    * members
    *
    * If the lanelet or elements owned by the lanelet have InvalId as Id, they
@@ -393,11 +393,10 @@ class LaneletMap : public LaneletMapLayers {
   void add(Lanelet lanelet);
 
   /**
-   * @brief adds a lanelet and all the elements it owns to the map
-   * @throws InvalidInputError if lanelet has a reglatory element without
-   * members
-   * //TODO dev
-   * If the lanelet or elements owned by the lanelet have InvalId as Id, they
+   * @brief adds the regElem to specified ll that is in the map
+   * @throws NullptrError if has a regulatory element without members and 
+   *         InvalidInputError if lanelet is not in the map, or has InvalId
+   * If the new element that will be owned by lanelet have InvalId as Id, they
    * will be assigned a new, unique id. Otherwise you are responsible for making
    * sure that the id has not already been for a different element.
    */

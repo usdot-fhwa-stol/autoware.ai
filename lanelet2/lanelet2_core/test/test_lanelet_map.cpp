@@ -26,6 +26,17 @@ TEST_F(LaneletMapTest, AddWorks) {  // NOLINT
   EXPECT_TRUE(map->laneletLayer.exists(ll2.id()));
 }
 
+TEST_F(LaneletMapTest, UpdateWorks) {  // NOLINT
+  EXPECT_FALSE(map->pointLayer.exists(p5.id()));
+  map->add(ll2);
+  EXPECT_TRUE(map->pointLayer.exists(p5.id()));
+  EXPECT_TRUE(map->laneletLayer.exists(ll2.id()));
+  EXPECT_EQ(map->laneletLayer.findUsages(regelem1).size(), 0);
+  map->update(ll2, regelem1);
+  EXPECT_EQ(map->laneletLayer.findUsages(regelem1).size(), 1);
+  
+}
+
 TEST_F(LaneletMapTest, AddAPolygon) {  // NOLINT
   poly1.setId(InvalId);
   auto map = utils::createMap({poly1});

@@ -329,14 +329,14 @@ struct UsageLookup<Lanelet> {
     }
   }
   void update(Lanelet ll, ConstLineString3d ls) {
-    for (auto it = ownedLookup.begin(); it != ownedLookup.end(); ){
+    for (auto it = ownedLookup.begin(); it != ownedLookup.end(); it++){
       if (it->second.id() == ll.id() && it->first.id() == ls.id())
         return;
     }
     ownedLookup.insert(std::make_pair(ls, ll));
   }
   void update(Lanelet ll, RegulatoryElementConstPtr regem_ptr) {
-    for (auto it = regElemLookup.begin(); it != regElemLookup.end(); ){
+    for (auto it = regElemLookup.begin(); it != regElemLookup.end(); it++){
       if (it->second.id() == ll.id() && it->first->id() == regem_ptr->id())
         return;
     }
@@ -616,8 +616,6 @@ void PrimitiveLayer<Lanelet>::update(Id element_id, const RegulatoryElementPtr& 
   tree_->usage.update(element, regElem);
 }
 
-
-
 template <typename T>
 std::vector<typename PrimitiveLayer<T>::ConstPrimitiveT> PrimitiveLayer<T>::findUsages(
     const traits::ConstPrimitiveType<traits::OwnedT<PrimitiveLayer<T>::PrimitiveT>>& primitive) const {
@@ -861,7 +859,7 @@ void LaneletMap::update(Lanelet ll, const RegulatoryElementPtr& regElem)
     utils::registerId(regElem->id());
   }
   if (ll.id() == InvalId) {
-    throw InvalidInputError("Lanelet element with InvalidId is passed to update()!");
+    throw InvalidInputError("Lanelet element with InvalId is passed to update()!");
   }
   else if (!laneletLayer.exists(ll.id()))
   {
