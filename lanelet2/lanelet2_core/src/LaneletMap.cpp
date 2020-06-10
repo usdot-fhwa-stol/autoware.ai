@@ -497,6 +497,23 @@ void PrimitiveLayer<T>::remove(Id id) {
 
 template <typename T>
 template <typename SubT>
+void PrimitiveLayer<T>::remove(Id element_id, const SubT& subelement)	
+{
+  // find the element with this id (the user must make sure it exists)
+  T element = elements_.find(element_id)->second;
+  // remove the subelement from usage lookup of element with this Id in this layer
+  for (auto it = tree_->usage.ownedLookup.begin(); it != tree_->usage.ownedLookup.end(); )
+  {
+    if (it->second.id() == element.id() && it->first.id() == subelement.id()) { 
+      tree_->usage.ownedLookup.erase(it++); 
+    } else { 
+      ++it;
+    }          
+  }
+}
+
+template <typename T>
+template <typename SubT>
 void PrimitiveLayer<T>::update(Id element_id, const SubT& subelement)
 {
   // find the element with this id (the user must make sure it exists)
@@ -737,6 +754,7 @@ void LaneletMap::add(Lanelet lanelet) {
   }
 }
 
+
 void LaneletMap::add(Area area) {
   if (area.id() == InvalId) {
     area.setId(areaLayer.uniqueId());
@@ -797,7 +815,7 @@ void LaneletMap::remove(const RegulatoryElementPtr& regElem)
 void LaneletMap::update(Lanelet ll, const RegulatoryElementPtr& regElem)
 {
   if (!regElem) {
-    throw NullptrError("Empty regulatory element passed to add()!");
+    throw NullptrError("Empty regulatory element passed to update()!");
   }
   if (regElem->id() == InvalId) {
     regElem->setId(regulatoryElementLayer.uniqueId());
