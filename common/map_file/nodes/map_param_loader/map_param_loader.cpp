@@ -15,7 +15,6 @@
  */
 
 #include "map_file/map_param_loader.h"
-#include <std_msgs/String.h>
 
 namespace map_param_loader
 {

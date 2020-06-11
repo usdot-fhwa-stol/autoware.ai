@@ -252,11 +252,9 @@ struct UsageLookup<RegulatoryElementPtr> {
     }
   }
   void update(const RegulatoryElementPtr& prim, ConstRuleParameter new_element) {
-    for (auto it = ownedLookup.begin(); it != ownedLookup.end(); it++)
-    {
-      if (it->second->id() == prim->id() && lanelet::IdVisitor().getId(it->first) == lanelet::IdVisitor().getId(new_element))
-        return;
-    }
+    auto it = ownedLookup.find(new_element);
+    if (it != ownedLookup.end() && it->second->id() == prim->id())
+      return;
     ownedLookup.insert(std::make_pair(new_element, prim));
   }
   std::unordered_multimap<ConstRuleParameter, RegulatoryElementPtr> ownedLookup;
@@ -309,17 +307,15 @@ struct UsageLookup<Lanelet> {
     }
   }
   void update(Lanelet ll, ConstLineString3d ls) {
-    for (auto it = ownedLookup.begin(); it != ownedLookup.end(); it++){
-      if (it->second.id() == ll.id() && it->first.id() == ls.id())
-        return;
-    }
+    auto it = ownedLookup.find(ls);
+    if (it != ownedLookup.end() && it->second.id() == ll.id())
+      return;
     ownedLookup.insert(std::make_pair(ls, ll));
   }
   void update(Lanelet ll, RegulatoryElementConstPtr regem_ptr) {
-    for (auto it = regElemLookup.begin(); it != regElemLookup.end(); it++){
-      if (it->second.id() == ll.id() && it->first->id() == regem_ptr->id())
-        return;
-    }
+    auto it = regElemLookup.find(regem_ptr);
+    if (it != regElemLookup.end() && it->second.id() == ll.id())
+      return;
     regElemLookup.insert(std::make_pair(regem_ptr, ll));
   }
 
@@ -518,15 +514,10 @@ void PrimitiveLayer<T>::update(Id element_id, const SubT& subelement)
 {
   // find the element with this id (the user must make sure it exists)
   T element = elements_.find(element_id)->second;
-  // remove the subelement from usage lookup of element with this Id in this layer
-  for (auto it = tree_->usage.ownedLookup.begin(); it != tree_->usage.ownedLookup.end(); it++)
-  {
-    // return if it is already there
-    if (it->second.id() == element.id() && it->first.id() == subelement.id()) { 
-      return;
-  }
+  auto it = tree_->usage.ownedLookup.find(subelement);
+  if (it != tree_->usage.ownedLookup.end() && element_id == it->second.id())
+    return; //return if it is already there
   tree_->usage.update(element_id, element);
-}
 }
 template <>
 void PrimitiveLayer<Point3d>::remove(Id id) {
@@ -550,7 +541,6 @@ void PrimitiveLayer<RegulatoryElementPtr>::remove(Id element_id, const traits::C
   RegulatoryElementPtr element = elements_.find(element_id)->second;
   tree_->usage.remove(element, subelement);
 }
-
 
 template <>
 template <>
@@ -818,8 +808,11 @@ void LaneletMap::update(Lanelet ll, const RegulatoryElementPtr& regElem)
     throw NullptrError("Empty regulatory element passed to update()!");
   }
   if (regElem->id() == InvalId) {
-    regElem->setId(regulatoryElementLayer.uniqueId());
-  } else {
+    regElem->setId(utils::getId());
+  } else if (regulatoryElementLayer.exists(regElem->id())) {
+    throw InvalidInputError("Regulatory Element with Id that is already in the map is passed to update()!");
+  }
+  else {
     utils::registerId(regElem->id());
   }
   if (ll.id() == InvalId) {
