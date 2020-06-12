@@ -396,7 +396,7 @@ class LaneletMap : public LaneletMapLayers {
    * @brief adds the regElem to specified ll that is in the map
    * @throws NullptrError if has a regulatory element without members and 
    *         InvalidInputError if lanelet is not in the map, or it has InvalId, or
-   *         regElem with ID that is already in the map is passed in
+   *         regElem and lanelet with ID combination that is already in the map is passed in
    * If the new element that will be owned by lanelet have InvalId as Id, they
    * will be assigned a new, unique id. Otherwise you are responsible for making
    * sure that the id has not already been for a different element.

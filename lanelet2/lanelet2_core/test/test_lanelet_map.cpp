@@ -34,7 +34,7 @@ TEST_F(LaneletMapTest, UpdateWorks) {  // NOLINT
   EXPECT_EQ(map->laneletLayer.findUsages(regelem1).size(), 0);
   map->update(ll2, regelem1);
   EXPECT_EQ(map->laneletLayer.findUsages(regelem1).size(), 1);
-  
+  EXPECT_THROW(map->update(ll2, regelem1), InvalidInputError);
 }
 
 TEST_F(LaneletMapTest, AddAPolygon) {  // NOLINT
