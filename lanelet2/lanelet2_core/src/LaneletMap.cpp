@@ -804,17 +804,6 @@ void LaneletMap::remove(const RegulatoryElementPtr& regElem)
 
 void LaneletMap::update(Lanelet ll, const RegulatoryElementPtr& regElem)
 {
-  if (!regElem) {
-    throw NullptrError("Empty regulatory element passed to update()!");
-  }
-  if (regElem->id() == InvalId) {
-    regElem->setId(utils::getId());
-  } else if (regulatoryElementLayer.exists(regElem->id())) {
-    throw InvalidInputError("Regulatory Element with Id that is already in the map is passed to update()!");
-  }
-  else {
-    utils::registerId(regElem->id());
-  }
   if (ll.id() == InvalId) {
     throw InvalidInputError("Lanelet element with InvalId is passed to update()!");
   }
@@ -822,6 +811,22 @@ void LaneletMap::update(Lanelet ll, const RegulatoryElementPtr& regElem)
   {
     throw InvalidInputError("Lanelet element that is not in the map is passed to update()!");
   }
+  if (!regElem) {
+    throw NullptrError("Empty regulatory element passed to update()!");
+  }
+  
+  if (regElem->id() == InvalId) {
+    regElem->setId(regulatoryElementLayer.uniqueId());
+  }
+  lanelet::Lanelets parent_llts = laneletLayer.findUsages(regElem);
+
+  if (regulatoryElementLayer.exists(regElem->id()) && std::find(parent_llts.begin(), parent_llts.end(), ll) != parent_llts.end()) {
+    throw InvalidInputError("Regulatory Element and Lanelet whose relation is already in the map is passed to update()!");
+  }
+  else {
+    utils::registerId(regElem->id());
+  }
+ 
   // Add the regem to the map in general (regulatoryElementLayer)
   add(regElem);
   // Add this regem to specified ll so that it can be queried in laneletLayer
