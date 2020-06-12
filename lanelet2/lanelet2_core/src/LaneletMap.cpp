@@ -820,7 +820,10 @@ void LaneletMap::update(Lanelet ll, const RegulatoryElementPtr& regElem)
   }
   lanelet::Lanelets parent_llts = laneletLayer.findUsages(regElem);
 
-  if (regulatoryElementLayer.exists(regElem->id()) && std::find(parent_llts.begin(), parent_llts.end(), ll) != parent_llts.end()) {
+  if (regulatoryElementLayer.exists(regElem->id()) && regulatoryElementLayer.get(regElem->id()) != regElem) {
+    throw InvalidInputError("Regulatory Element passed in to update() has an Id that is being used by different regElement!");
+  }
+  else if (regulatoryElementLayer.exists(regElem->id()) && std::find(parent_llts.begin(), parent_llts.end(), ll) != parent_llts.end()) {
     throw InvalidInputError("Regulatory Element and Lanelet whose relation is already in the map is passed to update()!");
   }
   else {

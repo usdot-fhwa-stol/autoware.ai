@@ -395,11 +395,11 @@ class LaneletMap : public LaneletMapLayers {
   /**
    * @brief adds the regElem to specified ll that is in the map
    * @throws NullptrError if has a regulatory element without members and 
-   *         InvalidInputError if lanelet is not in the map, or it has InvalId, or
-   *         regElem and lanelet with ID combination that is already in the map is passed in
-   * If the new element that will be owned by lanelet have InvalId as Id, they
-   * will be assigned a new, unique id. Otherwise you are responsible for making
-   * sure that the id has not already been for a different element.
+   * @throws InvalidInputError if lanelet is not in the map, or it has InvalId, or
+   *         if regElem that is different from the one in the map with same ID is passed,
+   *         this regElem and lanelet combination is already there
+   * Except above, if the new element that will be owned by lanelet have InvalId as Id, they
+   * will be assigned a new, unique id.
    */
   void update(Lanelet ll, const RegulatoryElementPtr& regElem);
 
