@@ -816,7 +816,7 @@ void LaneletMap::update(Lanelet ll, const RegulatoryElementPtr& regElem)
   }
   
   if (regElem->id() == InvalId) {
-    regElem->setId(regulatoryElementLayer.uniqueId());
+    regElem->setId(utils::getId());
   }
   lanelet::Lanelets parent_llts = laneletLayer.findUsages(regElem);
 
