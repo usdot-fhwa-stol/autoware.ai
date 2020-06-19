@@ -42,6 +42,27 @@ TEST_F(LaneletMapTest, UpdateWorks) {  // NOLINT
   EXPECT_THROW(map->update(ll2, regelem_err), InvalidInputError); //cant add different regem with existing id
 }
 
+TEST_F(LaneletMapTest, RemoveSpecificLaneletAndRegemWorks) {  // NOLINT
+  EXPECT_FALSE(map->laneletLayer.exists(ll2.id()));
+  EXPECT_THROW(map->remove(ll2,regelem1), InvalidInputError); //ll2 is not in the map
+  map->add(ll2);
+  EXPECT_TRUE(map->laneletLayer.exists(ll2.id()));
+  EXPECT_THROW(map->remove(ll2,regelem1), InvalidInputError); //regelem1 is not in the map
+  EXPECT_EQ(map->laneletLayer.findUsages(regelem1).size(), 0);
+  map->update(ll2, regelem1);
+  EXPECT_EQ(map->laneletLayer.findUsages(regelem1).size(), 1);
+  EXPECT_EQ(ll2.regulatoryElements().size(), 1); //increased to 1
+  EXPECT_TRUE(map->laneletLayer.exists(ll1.id()));
+  EXPECT_THROW(map->remove(ll1,regelem1), InvalidInputError); // regelem1 is not part of ll1
+  map->update(ll1, regelem1);
+  EXPECT_EQ(map->laneletLayer.findUsages(regelem1).size(), 2);
+  map->remove(ll2, regelem1);
+  EXPECT_EQ(map->laneletLayer.findUsages(regelem1).size(), 1); // removed the from ll2
+  EXPECT_EQ(ll2.regulatoryElements().size(), 0); // reduced to 0
+  EXPECT_TRUE(map->regulatoryElementLayer.exists(regelem1->id())); // but it still exists for ll1
+  EXPECT_EQ(map->laneletLayer.findUsages(regelem1)[0].regulatoryElements()[0]->id(), regelem1->id());
+}
+
 TEST_F(LaneletMapTest, AddAPolygon) {  // NOLINT
   poly1.setId(InvalId);
   auto map = utils::createMap({poly1});

@@ -453,6 +453,17 @@ class LaneletMap : public LaneletMapLayers {
   void add(Point3d point);
 
   /**
+   * @brief removes the regElem from the specified ll that is in the map. Used when one regulatory element is appied 
+   *        to multiple lanelets
+   * @throw NullptrError if regElem is a nullptr
+   * @throw InvalidInputError if lanelet or regem is not in the map, or they have InvalId, or
+   *         if regElem and lanelet ID combination that is not in the map
+   * NOTE: the user must make sure that the id associated to each of the element is correctly
+   *       referencing those with correct data
+   */
+  void remove(Lanelet ll, const RegulatoryElementPtr& regElem);
+
+  /**
    * @brief removes the regulatory element without removing its referenced parameters
    * @param regElem regulatory element to be removed
    * @throw NullptrError if regElem is a nullptr
@@ -463,6 +474,7 @@ class LaneletMap : public LaneletMapLayers {
    *       The function is expected to be overloaded with remaining primitive types in the future.
    */
   void remove(const RegulatoryElementPtr& regElem);
+
 };
 
 /**

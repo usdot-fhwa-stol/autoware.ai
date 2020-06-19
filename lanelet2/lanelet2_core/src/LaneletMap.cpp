@@ -774,6 +774,44 @@ void LaneletMap::add(Area area) {
   }
 }
 
+void LaneletMap::remove(Lanelet ll, const RegulatoryElementPtr& regElem)
+{
+  if (ll.id() == InvalId) {
+    throw InvalidInputError("Lanelet element with InvalId is passed to update()!");
+  }
+  else if (!laneletLayer.exists(ll.id()))
+  {
+    throw InvalidInputError("Lanelet element that is not in the map is passed to update()!");
+  }
+  if (!regElem) {
+    throw NullptrError("Empty regulatory element passed to update()!");
+  }
+  
+  if (regElem->id() == InvalId) {
+    throw InvalidInputError("Regulatory element with InvalId is passed to update()!");
+  }
+  else if (!regulatoryElementLayer.exists(regElem->id())) {
+    throw InvalidInputError("Id of the regulatory element is not registered in the map");
+  }
+ 
+  lanelet::Lanelets parent_llts = laneletLayer.findUsages(regElem);
+
+  if (regulatoryElementLayer.exists(regElem->id()) && std::find(parent_llts.begin(), parent_llts.end(), ll) == parent_llts.end()) {
+    throw InvalidInputError("In remove function: The specified lanelet does not hold a regulatory element with that Id!");
+  }
+
+  // remove local copies of regem inside lanelets and their relationship in laneletlayer
+  for (Lanelet llt : laneletLayer.findUsages(regElem))
+  {
+    if (llt.id() == ll.id())
+    {
+      laneletLayer.remove(llt.id(), regElem);
+      llt.removeRegulatoryElement(regElem);
+    }
+  }
+}
+
+
 void LaneletMap::remove(const RegulatoryElementPtr& regElem)
 {
   if (!regElem) 
