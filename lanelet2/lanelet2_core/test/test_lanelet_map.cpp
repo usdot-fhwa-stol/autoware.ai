@@ -45,22 +45,29 @@ TEST_F(LaneletMapTest, UpdateWorks) {  // NOLINT
 TEST_F(LaneletMapTest, RemoveSpecificLaneletAndRegemWorks) {  // NOLINT
   EXPECT_FALSE(map->laneletLayer.exists(ll2.id()));
   EXPECT_THROW(map->remove(ll2,regelem1), InvalidInputError); //ll2 is not in the map
+  RuleParameterMap rules{
+    {"test"s, {ll2}}, {"point"s, {p1, p9}}, {"areas"s, {ar1}}, {"linestr"s, {outside}}, {"poly"s, {poly1}}};
+  auto regelem2 = std::make_shared<GenericRegulatoryElement>(lanelet::utils::getId(), rules);
+  ll2.addRegulatoryElement(regelem2);
   map->add(ll2);
   EXPECT_TRUE(map->laneletLayer.exists(ll2.id()));
   EXPECT_THROW(map->remove(ll2,regelem1), InvalidInputError); //regelem1 is not in the map
   EXPECT_EQ(map->laneletLayer.findUsages(regelem1).size(), 0);
   map->update(ll2, regelem1);
   EXPECT_EQ(map->laneletLayer.findUsages(regelem1).size(), 1);
-  EXPECT_EQ(ll2.regulatoryElements().size(), 1); //increased to 1
+  EXPECT_EQ(ll2.regulatoryElements().size(), 2); //increased to 2 (other is regem2)
   EXPECT_TRUE(map->laneletLayer.exists(ll1.id()));
   EXPECT_THROW(map->remove(ll1,regelem1), InvalidInputError); // regelem1 is not part of ll1
   map->update(ll1, regelem1);
   EXPECT_EQ(map->laneletLayer.findUsages(regelem1).size(), 2);
   map->remove(ll2, regelem1);
   EXPECT_EQ(map->laneletLayer.findUsages(regelem1).size(), 1); // removed the from ll2
-  EXPECT_EQ(ll2.regulatoryElements().size(), 0); // reduced to 0
+  EXPECT_EQ(ll2.regulatoryElements().size(), 1); // reduced to 1 (which is regem2)
   EXPECT_TRUE(map->regulatoryElementLayer.exists(regelem1->id())); // but it still exists for ll1
-  EXPECT_EQ(map->laneletLayer.findUsages(regelem1)[0].regulatoryElements()[0]->id(), regelem1->id());
+  EXPECT_EQ(map->laneletLayer.findUsages(regelem1)[0].regulatoryElements()[0]->id(), regelem1->id()); 
+  EXPECT_EQ(map->regulatoryElementLayer.findUsages(ll2)[0]->id(), regelem2->id());
+  map->remove(ll2, regelem2);// sever connection as parameter
+  EXPECT_EQ(map->regulatoryElementLayer.findUsages(ll2).size(), 0); // they are not connected anymore
 }
 
 TEST_F(LaneletMapTest, AddAPolygon) {  // NOLINT

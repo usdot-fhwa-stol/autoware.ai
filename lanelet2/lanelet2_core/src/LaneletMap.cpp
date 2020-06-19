@@ -536,8 +536,8 @@ void PrimitiveLayer<RegulatoryElementPtr>::remove(Id id) {
 }
 
 template <>
-template <>
-void PrimitiveLayer<RegulatoryElementPtr>::remove(Id element_id, const traits::ConstPrimitiveType<traits::OwnedT<PrimitiveT>>& subelement) {
+template <typename SubT>
+void PrimitiveLayer<RegulatoryElementPtr>::remove(Id element_id, const SubT& subelement) {
   RegulatoryElementPtr element = elements_.find(element_id)->second;
   tree_->usage.remove(element, subelement);
 }
@@ -796,17 +796,19 @@ void LaneletMap::remove(Lanelet ll, const RegulatoryElementPtr& regElem)
  
   lanelet::Lanelets parent_llts = laneletLayer.findUsages(regElem);
 
-  if (regulatoryElementLayer.exists(regElem->id()) && std::find(parent_llts.begin(), parent_llts.end(), ll) == parent_llts.end()) {
+  if (std::find(parent_llts.begin(), parent_llts.end(), ll) == parent_llts.end()) {
     throw InvalidInputError("In remove function: The specified lanelet does not hold a regulatory element with that Id!");
   }
 
   // remove local copies of regem inside lanelets and their relationship in laneletlayer
+  // as well as the connection of this lanelet to the regem as a parameter
   for (Lanelet llt : laneletLayer.findUsages(regElem))
   {
     if (llt.id() == ll.id())
     {
       laneletLayer.remove(llt.id(), regElem);
       llt.removeRegulatoryElement(regElem);
+      regulatoryElementLayer.remove(regElem->id(), llt);
     }
   }
 }
