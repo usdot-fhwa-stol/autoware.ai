@@ -506,6 +506,12 @@ struct Owned<RegulatoryElementPtr> {
 template <typename T, typename RetT>
 using IfRE = std::enable_if_t<traits::isRegulatoryElementT<T>(), RetT>;
 
+inline bool operator==(const RegulatoryElementConstPtr& lhs, const RegulatoryElementConstPtr& rhs) {
+  return lhs->constData() == rhs->constData();
+}
+
+inline bool operator!=(const RegulatoryElementConstPtr& lhs, const RegulatoryElementConstPtr& rhs) { return !(lhs == rhs); }
+
 }  // namespace lanelet
 
 // Hash function for usage in containers
