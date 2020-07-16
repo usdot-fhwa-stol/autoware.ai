@@ -36,6 +36,9 @@
 *  - Modified lanelet2_map_loader to to parse georeference data from .osm file instead of yaml config file.
 *    - 2/3/2020
 *    - Misheel Bayartsengel
+*  - Removed call to overwrite lanelet centerlines as it was causing issues with loading maps and not providing a clear benefit
+*    - 7/16/2020
+*    - Michael McConnell
 */
 
 void printUsage()
@@ -93,7 +96,6 @@ int main(int argc, char** argv)
     return EXIT_FAILURE;
   }
 
-  lanelet::utils::overwriteLaneletsCenterline(map, false);
 
   std::string format_version, map_version;
   lanelet::io_handlers::AutowareOsmParser::parseVersions(lanelet2_filename, &format_version, &map_version);

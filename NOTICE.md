@@ -60,3 +60,7 @@ For any modified file please follow these steps to ensure proper documentation o
   - 3/11/2020
   - Kyle Rush
 
+- Removed the use of centerline overwriting as it was causing issues with map loading. It may be added back in the future if the need arises. 
+  - 7/16/2020
+  - Michael McConnell
+
