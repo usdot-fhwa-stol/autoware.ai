@@ -787,24 +787,31 @@ void LaneletMap::remove(Lanelet ll, const RegulatoryElementPtr& regElem)
   else if (!regulatoryElementLayer.exists(regElem->id())) {
     throw InvalidInputError("Id of the regulatory element is not registered in the map");
   }
- 
-  lanelet::Lanelets parent_llts = laneletLayer.findUsages(regElem);
-
-  if (std::find(parent_llts.begin(), parent_llts.end(), ll) == parent_llts.end()) {
-    throw InvalidInputError("In remove function: The specified lanelet does not hold a regulatory element with that Id!");
-  }
-
-  // remove local copies of regem inside lanelets and their relationship in laneletlayer
-  // as well as the connection of this lanelet to the regem as a parameter
-  for (Lanelet llt : laneletLayer.findUsages(regElem))
+  
+  // remove local copies of regem inside lanelets and connection of this lanelet to the regem as a parameter
+  bool regElem_exists_in_lanelet = false;
+  auto llt = laneletLayer.get(ll.id());
+  for (auto llt_regem : llt.regulatoryElements())
   {
-    if (llt.id() == ll.id())
+    if (llt_regem->id() == regElem->id())
     {
-      laneletLayer.remove(llt.id(), regElem);
       llt.removeRegulatoryElement(regElem);
       regulatoryElementLayer.remove(regElem->id(), llt);
+      regElem_exists_in_lanelet = true;
+      break;
     }
   }
+ 
+  // as well as this pair's relationship in laneletlayer
+  lanelet::Lanelets parent_llts = laneletLayer.findUsages(regElem);
+  bool regElem_exists_in_laneletLayer = std::find(parent_llts.begin(), parent_llts.end(), ll) != parent_llts.end();
+  if (!regElem_exists_in_laneletLayer && !regElem_exists_in_lanelet) {
+    throw InvalidInputError("In remove function: The specified lanelet " + std::to_string(ll.id()) + " does not hold a regulatory element with this Id!: " + std::to_string(regElem->id()));
+  }
+  else if (regElem_exists_in_laneletLayer)
+  {
+    laneletLayer.remove(ll.id(), regElem);
+  } 
 }
 
 
