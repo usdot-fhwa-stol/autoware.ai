@@ -21,13 +21,11 @@
 namespace lanelet
 {
 /**
- * @brief TODO: Represents a  restriction in the form of a line laying on the roadway. Restricts whether a given
- * participant can cross the line from the left or right. General usage is as lane boundaries.
+ * @brief TODO: Represents a virtual stop and wait line horizontally laying on the roadway. Restricts whether a given
+ * participant can cross the line over to go forward. General usage is as a stop line that is not represented by an actual
+ * physical roadway object.
  *
- * A PassingControlLine is created from a list of contiguous LineString3d and participants who are allowed to cross from
- * the left or right. If the control line is representing a lane boundary, each LineString3d parameter should exactly
- * match a right or left bound of an adjacent lanelet. In this fashion, a single regulatory element can represent the
- * lane change restrictions of multiple lanelets while still allowing each lanelet to be associated individually.
+ * A StopRule is created from a list of contiguous LineString3d and participants who are allowed to cross ver to go forward. 
  *
  * @ingroup RegulatoryElementPrimitives
  * @ingroup Primitives
@@ -60,22 +58,18 @@ public:
   bool passable(const std::string& participant) const;
 
   /**
-   * @brief Helper function to match a given bound with a control line regulatory element then determine if it can be
-   * passed on the right or left
+   * @brief Helper function to match a given bound with a stop and wait line regulatory element then determine if it can be
+   * passed over to go forward
    *
-   * The set of line strings contained in each of the provided control lines is searched until a sub-line is found that
-   * matches the provided lanelet or area bound. Then the inverted ness of that line is evaluated to determine whether
-   * the passableFromLeft or passableFromRight function should be called. The returned value indicates if the control
-   * line can be crossed from the direction specified by the fromLeft parameter where the left/rightness relates to the
-   * provided bound not the control line
+   * The set of line strings contained in each of the provided stop and wait lines is searched until a sub-line is found that
+   * matches the provided lanelet or area bound. The returned value indicates if the stop and wait
+   * line can be crossed.
    *
-   * @param bound The bound to try passing. The fromLeft is treated relative to this bound
-   * @param controlLines The set of possible control lines which this bound might be a part of
-   * @param fromLeft True if the user is trying to check if the bound is passable from its left. False if the user is
-   * trying to check if the bound is passable from its right
+   * @param bound The bound to try passing forward.
+   * @param stopAndWaitLines The set of possible stop lines which this bound might be a part of
    * @param participant The participant being evaluated
    *
-   * @return True if the bound can be crossed from the specified direction or if none of the controlLines match the
+   * @return True if the bound can be crossed or if none of the stopAndWaitLines match the
    * provided bound
    */
   static bool boundPassable(const ConstLineString3d& bound,
