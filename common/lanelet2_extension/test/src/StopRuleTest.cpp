@@ -57,13 +57,13 @@ TEST(StopRuleTest, StopRule)
   ASSERT_EQ(1, nonconstLine.size());
   ASSERT_EQ(nonconstLine.front().id(), stop_line_id);
 
-  ASSERT_TRUE(stop_and_wait->passable(lanelet::Participants::VehicleBus));
-  ASSERT_FALSE(stop_and_wait->passable(lanelet::Participants::Bicycle));
+  ASSERT_TRUE(stop_and_wait->appliesTo(lanelet::Participants::VehicleBus));
+  ASSERT_FALSE(stop_and_wait->appliesTo(lanelet::Participants::Bicycle));
 
   
-  ASSERT_TRUE(StopRule::boundPassable(virtual_stop_line, ll_1.regulatoryElementsAs<StopRule>(),
+  ASSERT_TRUE(StopRule::appliesTo(virtual_stop_line, ll_1.regulatoryElementsAs<StopRule>(),
                                                  lanelet::Participants::Vehicle));
-  ASSERT_FALSE(StopRule::boundPassable(virtual_stop_line, ll_1.regulatoryElementsAs<StopRule>(),
+  ASSERT_FALSE(StopRule::appliesTo(virtual_stop_line, ll_1.regulatoryElementsAs<StopRule>(),
                                                 lanelet::Participants::Bicycle));
 }
 

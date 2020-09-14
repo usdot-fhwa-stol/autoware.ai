@@ -34,12 +34,12 @@ LineStrings3d StopRule::stopAndWaitLine()
   return getParameters<LineString3d>(RoleName::RefLine);
 }
 
-bool StopRule::passable(const std::string& participant) const
+bool StopRule::appliesTo(const std::string& participant) const
 {
   return setContainsParticipant(participants_, participant);
 }
 
-bool StopRule::boundPassable(const ConstLineString3d& bound,
+bool StopRule::appliesTo(const ConstLineString3d& bound,
                                        const std::vector<std::shared_ptr<const StopRule>>& stopAndWaitLines,
                                        const std::string& participant)
 {
@@ -49,18 +49,18 @@ bool StopRule::boundPassable(const ConstLineString3d& bound,
     {
       if (bound.id() == sub_line.id())
       {
-        return stop_line->passable(participant);
+        return stop_line->appliesTo(participant);
       }
     }
   }
   return true;
 }
 
-bool StopRule::boundPassable(const ConstLineString3d& bound,
+bool StopRule::appliesTo(const ConstLineString3d& bound,
                                        const std::vector<std::shared_ptr<StopRule>>& stopAndWaitLines,
                                        const std::string& participant)
 {
-  return boundPassable(bound, utils::transformSharedPtr<const StopRule>(stopAndWaitLines), participant);
+  return appliesTo(bound, utils::transformSharedPtr<const StopRule>(stopAndWaitLines), participant);
 }
 
 

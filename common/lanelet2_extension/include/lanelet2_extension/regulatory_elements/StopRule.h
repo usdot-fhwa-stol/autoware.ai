@@ -25,7 +25,7 @@ namespace lanelet
  * participant can cross the line over to go forward. General usage is as a stop line that is not represented by an actual
  * physical roadway object.
  *
- * A StopRule is created from a list of contiguous LineString3d and participants who are allowed to cross ver to go forward.
+ * A StopRule is created from a list of contiguous LineString3d and participants who are allowed to crossover to go forward.
  * The object is agnostic to the line's invertedness.
  *
  * @ingroup RegulatoryElementPrimitives
@@ -56,7 +56,7 @@ public:
    *
    * @return True if participant can cross
    */
-  bool passable(const std::string& participant) const;
+  bool appliesTo(const std::string& participant) const;
 
   /**
    * @brief Helper function to match a given bound with a stop and wait line regulatory element then determine if it can be
@@ -70,14 +70,14 @@ public:
    * @param stopAndWaitLines The set of possible stop lines which this bound might be a part of
    * @param participant The participant being evaluated
    *
-   * @return True if the bound can be crossed or if none of the stopAndWaitLines match the
-   * provided bound
+   * @return True if the line can be crossed or if none of the stopAndWaitLines match the
+   * provided line
    */
-  static bool boundPassable(const ConstLineString3d& bound,
+  static bool appliesTo(const ConstLineString3d& bound,
                             const std::vector<std::shared_ptr<const StopRule>>& stopAndWaitLines,
                             const std::string& participant);
 
-  static bool boundPassable(const ConstLineString3d& bound,
+  static bool appliesTo(const ConstLineString3d& bound,
                             const std::vector<std::shared_ptr<StopRule>>& stopAndWaitLines,
                             const std::string& participant);
 
