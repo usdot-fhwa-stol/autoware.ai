@@ -21,11 +21,12 @@
 namespace lanelet
 {
 /**
- * @brief TODO: Represents a virtual stop and wait line horizontally laying on the roadway. Restricts whether a given
+ * @brief Represents a virtual stop and wait line horizontally laying on the roadway. Restricts whether a given
  * participant can cross the line over to go forward. General usage is as a stop line that is not represented by an actual
  * physical roadway object.
  *
- * A StopRule is created from a list of contiguous LineString3d and participants who are allowed to cross ver to go forward. 
+ * A StopRule is created from a list of contiguous LineString3d and participants who are allowed to cross ver to go forward.
+ * The object is agnostic to the line's invertedness.
  *
  * @ingroup RegulatoryElementPrimitives
  * @ingroup Primitives
