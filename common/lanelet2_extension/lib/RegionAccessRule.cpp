@@ -47,7 +47,7 @@ bool RegionAccessRule::accessable(const std::string& participant) const
 RegionAccessRule::RegionAccessRule(const lanelet::RegulatoryElementDataPtr& data) : RegulatoryElement(data)
 {
   // Read participants
-  addParticipantsToSetFromMap(participants_, attributes());
+  addParticipantsToSetFromMap(participants_, attributes(), "yes");
 }
 
 std::unique_ptr<lanelet::RegulatoryElementData> RegionAccessRule::buildData(Id id, Lanelets lanelets, Areas areas,

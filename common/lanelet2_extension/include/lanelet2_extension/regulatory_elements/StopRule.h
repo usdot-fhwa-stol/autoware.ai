@@ -60,6 +60,33 @@ public:
   bool passable(const std::string& participant) const;
 
   /**
+   * @brief Helper function to match a given bound with a control line regulatory element then determine if it can be
+   * passed on the right or left
+   *
+   * The set of line strings contained in each of the provided control lines is searched until a sub-line is found that
+   * matches the provided lanelet or area bound. Then the inverted ness of that line is evaluated to determine whether
+   * the passableFromLeft or passableFromRight function should be called. The returned value indicates if the control
+   * line can be crossed from the direction specified by the fromLeft parameter where the left/rightness relates to the
+   * provided bound not the control line
+   *
+   * @param bound The bound to try passing. The fromLeft is treated relative to this bound
+   * @param controlLines The set of possible control lines which this bound might be a part of
+   * @param fromLeft True if the user is trying to check if the bound is passable from its left. False if the user is
+   * trying to check if the bound is passable from its right
+   * @param participant The participant being evaluated
+   *
+   * @return True if the bound can be crossed from the specified direction or if none of the controlLines match the
+   * provided bound
+   */
+  static bool boundPassable(const ConstLineString3d& bound,
+                            const std::vector<std::shared_ptr<const StopRule>>& stopAndWaitLines,
+                            const std::string& participant);
+
+  static bool boundPassable(const ConstLineString3d& bound,
+                            const std::vector<std::shared_ptr<StopRule>>& stopAndWaitLines,
+                            const std::string& participant);
+
+  /**
    * @brief Constructor defined to support loading from lanelet files
    */
   explicit StopRule(const lanelet::RegulatoryElementDataPtr& data);

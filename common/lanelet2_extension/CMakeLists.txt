@@ -135,7 +135,7 @@ if(CATKIN_ENABLE_TESTING)
   test/src/CarmaTestsMain.cpp
   test/src/RegionAccessRuleTest.cpp
   test/src/PassingControlLineTest.cpp
-  test/src/StopRule.cpp
+  test/src/StopRuleTest.cpp
   test/src/DirectionOfTravelTest.cpp
   test/src/DigitalSpeedLimitTest.cpp
   test/src/CarmaUSTrafficRulesTest.cpp

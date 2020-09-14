@@ -58,23 +58,13 @@ TEST(StopRuleTest, StopRule)
   ASSERT_EQ(nonconstLine.front().id(), stop_line_id);
 
   ASSERT_TRUE(stop_and_wait->passable(lanelet::Participants::VehicleBus));
-  ASSERT_TRUE(stop_and_wait->passable(lanelet::Participants::Bicycle));
+  ASSERT_FALSE(stop_and_wait->passable(lanelet::Participants::Bicycle));
 
-  /*
-  ASSERT_FALSE(StopRule::boundPassable(ll_1.leftBound(), ll_1.regulatoryElementsAs<StopRule>(),
-                                                 true, lanelet::Participants::Vehicle));
-  ASSERT_TRUE(StopRule::boundPassable(ll_1.leftBound(), ll_1.regulatoryElementsAs<StopRule>(),
-                                                false, lanelet::Participants::Vehicle));
-
-  // Check inverted bound
-  ASSERT_TRUE(StopRule::boundPassable(ll_1.leftBound().invert(),
-                                                ll_1.regulatoryElementsAs<StopRule>(), true,
-                                                lanelet::Participants::Vehicle));
-  ASSERT_FALSE(StopRule::boundPassable(ll_1.leftBound().invert(),
-                                                 ll_1.regulatoryElementsAs<StopRule>(), false,
+  
+  ASSERT_TRUE(StopRule::boundPassable(virtual_stop_line, ll_1.regulatoryElementsAs<StopRule>(),
                                                  lanelet::Participants::Vehicle));
-  */
-
+  ASSERT_FALSE(StopRule::boundPassable(virtual_stop_line, ll_1.regulatoryElementsAs<StopRule>(),
+                                                lanelet::Participants::Bicycle));
 }
 
 }  // namespace lanelet

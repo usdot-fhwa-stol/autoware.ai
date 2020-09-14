@@ -39,6 +39,31 @@ bool StopRule::passable(const std::string& participant) const
   return setContainsParticipant(participants_, participant);
 }
 
+bool StopRule::boundPassable(const ConstLineString3d& bound,
+                                       const std::vector<std::shared_ptr<const StopRule>>& stopAndWaitLines,
+                                       const std::string& participant)
+{
+  for (auto stop_line : stopAndWaitLines)
+  {
+    for (auto sub_line : stop_line->stopAndWaitLine())
+    {
+      if (bound.id() == sub_line.id())
+      {
+        return stop_line->passable(participant);
+      }
+    }
+  }
+  return true;
+}
+
+bool StopRule::boundPassable(const ConstLineString3d& bound,
+                                       const std::vector<std::shared_ptr<StopRule>>& stopAndWaitLines,
+                                       const std::string& participant)
+{
+  return boundPassable(bound, utils::transformSharedPtr<const StopRule>(stopAndWaitLines), participant);
+}
+
+
 StopRule::StopRule(const lanelet::RegulatoryElementDataPtr& data) : RegulatoryElement(data)
 {
   // Read participants
@@ -48,6 +73,11 @@ StopRule::StopRule(const lanelet::RegulatoryElementDataPtr& data) : RegulatoryEl
 std::unique_ptr<lanelet::RegulatoryElementData> StopRule::buildData(Id id, LineStrings3d stopAndWaitLine,
                                                                 std::vector<std::string> participants)
 {
+  for (auto ls : stopAndWaitLine)
+  {
+    if (ls.empty()) throw lanelet::InvalidInputError("Empty linestring was passed into StopRule buildData function");
+  }
+  
   // Add parameters
   RuleParameterMap rules;
 
