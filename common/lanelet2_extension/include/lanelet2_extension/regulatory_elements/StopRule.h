@@ -21,11 +21,11 @@
 namespace lanelet
 {
 /**
- * @brief Represents a virtual stop and wait line horizontally laying on the roadway. Restricts whether a given
- * participant can cross the line over to go forward. General usage is as a stop line that is not represented by an actual
- * physical roadway object.
+ * @brief Represents a virtual stop and wait line horizontally laying on the roadway. It indicates whether a given participant 
+ * should stop and wait momentarily before passing the line. General usage is as a stop line that is not represented by an actual
+ * physical roadway object. By default, it does not apply to all objects except the ones in participant list.
  *
- * A StopRule is created from a list of contiguous LineString3d and participants who are allowed to crossover to go forward.
+ * A StopRule is created from a list of contiguous LineString3d and participants who should stop and wait before crossing.
  * The object is agnostic to the line's invertedness.
  *
  * @ingroup RegulatoryElementPrimitives
@@ -50,34 +50,33 @@ public:
   LineStrings3d stopAndWaitLine();
 
   /**
-   * @brief Returns true if the provided participant is allowed to cross this stop-and-wait line
+   * @brief Returns true if the provided participant should stop and wait before crossing the line
    *
    * @param participant The string classification of the participant type
    *
-   * @return True if participant can cross
+   * @return True if participant should stop and wait momentarily before the line
    */
   bool appliesTo(const std::string& participant) const;
 
   /**
-   * @brief Helper function to match a given bound with a stop and wait line regulatory element then determine if it can be
-   * passed over to go forward
+   * @brief Helper function to match a given line with a stop and wait line regulatory element then determine if it applies to
+   * the given participant
    *
    * The set of line strings contained in each of the provided stop and wait lines is searched until a sub-line is found that
-   * matches the provided lanelet or area bound. The returned value indicates if the stop and wait
-   * line can be crossed.
+   * matches the provided lanelet or area line. The returned value indicates if the rule is applied to the participant
    *
-   * @param bound The bound to try passing forward.
-   * @param stopAndWaitLines The set of possible stop lines which this bound might be a part of
+   * @param line The line to stop before
+   * @param stopAndWaitLines The set of possible stop lines which this line might be a part of
    * @param participant The participant being evaluated
    *
-   * @return True if the line can be crossed or if none of the stopAndWaitLines match the
+   * @return True if the rule is applied to the participant or if none of the stopAndWaitLines match the
    * provided line
    */
-  static bool appliesTo(const ConstLineString3d& bound,
+  static bool appliesTo(const ConstLineString3d& line,
                             const std::vector<std::shared_ptr<const StopRule>>& stopAndWaitLines,
                             const std::string& participant);
 
-  static bool appliesTo(const ConstLineString3d& bound,
+  static bool appliesTo(const ConstLineString3d& line,
                             const std::vector<std::shared_ptr<StopRule>>& stopAndWaitLines,
                             const std::string& participant);
 
@@ -87,13 +86,13 @@ public:
   explicit StopRule(const lanelet::RegulatoryElementDataPtr& data);
 
   /**
-   * @brief Static helper function that creates a passing control line data object based on the provided inputs
+   * @brief Static helper function that creates a stop line data object based on the provided inputs
    *
    * @param id The lanelet::Id of this element
    * @param stopAndWaitLine The line strings which represent this regularoty elements geometry
-   * @param participants The set of participants which can cross this line forward
+   * @param participants The set of participants which this rule applies to
    *
-   * @return RegulatoryElementData containing all the necessary information to construct a passing control line
+   * @return RegulatoryElementData containing all the necessary information to construct a stop rule
    */
   static std::unique_ptr<lanelet::RegulatoryElementData> buildData(Id id, LineStrings3d stopAndWaitLine,
                                                      std::vector<std::string> participants);

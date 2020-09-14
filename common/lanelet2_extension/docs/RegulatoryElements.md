@@ -206,18 +206,18 @@ To support multiple types of participants a new attribute should be added for ea
 
 ## Stop Rule
 
-Represents a virtual stop and wait line horizontally laying on the roadway. Restricts whether a given
-participant can cross the line over to go forward. General usage is as a stop line that is not represented by an actual
-physical roadway object.
+Represents a virtual stop and wait line horizontally laying on the roadway. It indicates whether a given participant 
+should stop and wait momentarily before passing the line. General usage is as a stop line that is not represented by an actual
+physical roadway object. By default, it does not apply to all objects except the ones in participant list.
 
-A StopRule is created from a list of contiguous LineString3d and participants who are allowed to cross ver to go forward.
+A StopRule is created from a list of contiguous LineString3d and participants who should stop and wait before crossing.
 The object is agnostic to the line's invertedness.
 
 ### Parameters
 
 | **Role** | **Possible Type** | **description**                |
 |-------------|--------------|----------------------------------|
-| **ref_line**    | **LineString3d**    | The linestrings which define the geometry of this control line. Must be contiguous |
+| **ref_line**    | **LineString3d**    | The linestrings which define the geometry of this stop line. Must be contiguous |
 
 ### Custom Attributes
 

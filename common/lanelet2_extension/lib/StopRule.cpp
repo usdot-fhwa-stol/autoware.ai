@@ -39,7 +39,7 @@ bool StopRule::appliesTo(const std::string& participant) const
   return setContainsParticipant(participants_, participant);
 }
 
-bool StopRule::appliesTo(const ConstLineString3d& bound,
+bool StopRule::appliesTo(const ConstLineString3d& line,
                                        const std::vector<std::shared_ptr<const StopRule>>& stopAndWaitLines,
                                        const std::string& participant)
 {
@@ -47,7 +47,7 @@ bool StopRule::appliesTo(const ConstLineString3d& bound,
   {
     for (auto sub_line : stop_line->stopAndWaitLine())
     {
-      if (bound.id() == sub_line.id())
+      if (line.id() == sub_line.id())
       {
         return stop_line->appliesTo(participant);
       }
@@ -56,11 +56,11 @@ bool StopRule::appliesTo(const ConstLineString3d& bound,
   return true;
 }
 
-bool StopRule::appliesTo(const ConstLineString3d& bound,
+bool StopRule::appliesTo(const ConstLineString3d& line,
                                        const std::vector<std::shared_ptr<StopRule>>& stopAndWaitLines,
                                        const std::string& participant)
 {
-  return appliesTo(bound, utils::transformSharedPtr<const StopRule>(stopAndWaitLines), participant);
+  return appliesTo(line, utils::transformSharedPtr<const StopRule>(stopAndWaitLines), participant);
 }
 
 
