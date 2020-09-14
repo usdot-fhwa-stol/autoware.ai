@@ -22,11 +22,11 @@
     <tag k="type" v="line_thin" />
   </way>
   <!-- Middle/Horizontal -->
-  <way id="1350" visible="true" version="1">
+  <way id="1350" visible="false" version="1">
     <nd ref="1339" />
-    <nd ref="1340" />
-    <tag k="subtype" v="solid" />
-    <tag k="type" v="line_thin" />
+    <nd ref="1342" />
+    <tag k="subtype" v="-" />
+    <tag k="type" v="virtual" />
   </way>
 
   <!-- Lanelet -->

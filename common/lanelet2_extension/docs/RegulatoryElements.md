@@ -245,6 +245,14 @@ To support multiple types of participants a new attribute should be added for ea
   <member type='relation' ref='45221' role='regulatory_element' />
 </relation>
 
+<!-- Virtual Linestring for Stop Rule>
+<way id="1349" visible="false" version="1">
+  <nd ref="1339" />
+  <nd ref="1342" />
+  <tag k="subtype" v="-" />
+  <tag k="type" v="virtual" />
+</way>
+
 <!-- Regulatory Stop Rule -->
 <relation id='45221' visible='true' version='1'>
   <member type="way" ref="1349" role="ref_line" /> <!-- Horizontal linestring representing the stop line -->
