@@ -110,7 +110,7 @@ TEST(MapLoadingTest, mapLoadingTest)
   ASSERT_EQ(1, stop_lines.size());
 
   ASSERT_FALSE(
-      StopRule::appliesTo(map->lineStringLayer.get(1350), stop_lines, lanelet::Participants::VehicleCar)); //"no": (not passable by default) is implied in the map
+      StopRule::appliesTo(map->lineStringLayer.get(1350), stop_lines, lanelet::Participants::VehicleCar)); //"no": (not applied to this vehicle by default) is implied in the map
 }
 
 }  // namespace lanelet
