@@ -25,6 +25,7 @@
 #include <lanelet2_extension/regulatory_elements/DigitalSpeedLimit.h>
 #include <lanelet2_extension/regulatory_elements/DirectionOfTravel.h>
 #include <lanelet2_extension/regulatory_elements/PassingControlLine.h>
+#include <lanelet2_extension/regulatory_elements/StopRule.h>
 
 #include <lanelet2_core/geometry/LineString.h>
 #include <lanelet2_traffic_rules/TrafficRulesFactory.h>
@@ -104,6 +105,12 @@ TEST(MapLoadingTest, mapLoadingTest)
   ASSERT_EQ(1, dot.size());
   ASSERT_TRUE(rar[0]->accessable("vehicle:car"));
   ASSERT_FALSE(rar[0]->accessable("vehicle"));
+
+  auto stop_lines = (*ll_1).regulatoryElementsAs<StopRule>();
+  ASSERT_EQ(1, stop_lines.size());
+
+  ASSERT_FALSE(
+      StopRule::boundPassable(map->lineStringLayer.get(1350), stop_lines, lanelet::Participants::VehicleCar)); //"no": (not passable by default) is implied in the map
 }
 
 }  // namespace lanelet

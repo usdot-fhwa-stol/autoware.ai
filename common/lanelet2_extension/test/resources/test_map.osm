@@ -21,6 +21,13 @@
     <tag k="subtype" v="solid" />
     <tag k="type" v="line_thin" />
   </way>
+  <!-- Middle/Horizontal -->
+  <way id="1350" visible="true" version="1">
+    <nd ref="1339" />
+    <nd ref="1340" />
+    <tag k="subtype" v="solid" />
+    <tag k="type" v="line_thin" />
+  </way>
 
   <!-- Lanelet -->
   <relation id="1349" visible="true" version="1">
@@ -42,6 +49,8 @@
     <member type='relation' ref='45221' role='regulatory_element' />
     <!-- Control Line Right -->
     <member type='relation' ref='45222' role='regulatory_element' />
+    <!-- Stop Rule -->
+    <member type='relation' ref='45223' role='regulatory_element' />
   </relation>
 
   <!-- Regulatory speed limit -->
@@ -82,6 +91,14 @@
   <relation id='45222' visible='true' version='1'>
     <member type="way" ref="1348" role="ref_line" />
     <tag k='subtype' v='passing_control_line' />
+    <tag k='type' v='regulatory_element' />
+    <!-- No crossing -->
+  </relation>
+
+  <!-- Regulatory Stop Rule -->
+  <relation id='45223' visible='true' version='1'>
+    <member type="way" ref="1350" role="ref_line" />
+    <tag k='subtype' v='stop_rule' />
     <tag k='type' v='regulatory_element' />
     <!-- No crossing -->
   </relation>

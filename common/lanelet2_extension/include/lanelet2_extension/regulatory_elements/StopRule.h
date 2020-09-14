@@ -50,7 +50,7 @@ public:
   LineStrings3d stopAndWaitLine();
 
   /**
-   * @brief Returns true if the provided participant is allowed to cross this stop and wait line
+   * @brief Returns true if the provided participant is allowed to cross this stop-and-wait line
    *
    * @param participant The string classification of the participant type
    *
