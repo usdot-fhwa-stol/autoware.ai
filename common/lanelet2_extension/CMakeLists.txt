@@ -77,6 +77,7 @@ add_library( lanelet2_extension_lib
   lib/visualization.cpp
   lib/CarmaUSTrafficRules.cpp
   lib/PassingControlLine.cpp
+  lib/StopRule.cpp
   lib/DigitalSpeedLimit.cpp
   lib/RegionAccessRule.cpp
   lib/DirectionOfTravel.cpp
@@ -134,6 +135,7 @@ if(CATKIN_ENABLE_TESTING)
   test/src/CarmaTestsMain.cpp
   test/src/RegionAccessRuleTest.cpp
   test/src/PassingControlLineTest.cpp
+  test/src/StopRule.cpp
   test/src/DirectionOfTravelTest.cpp
   test/src/DigitalSpeedLimitTest.cpp
   test/src/CarmaUSTrafficRulesTest.cpp
