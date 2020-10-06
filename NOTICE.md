@@ -69,3 +69,6 @@ For any modified file please follow these steps to ensure proper documentation o
   - 9/13/2020
   - Kyle Rush
 
+- Added hardcoded_params package to be used by twist_filter for the longitudinal velocity change above. 
+  - 10/6/2020
+  - Michael McConnell
