@@ -27,6 +27,7 @@
 #include <lanelet2_extension/regulatory_elements/DigitalSpeedLimit.h>
 #include <lanelet2_extension/regulatory_elements/PassingControlLine.h>
 #include <lanelet2_extension/regulatory_elements/DirectionOfTravel.h>
+#include <hardcoded_params/control_limits/control_limits.h>
 
 namespace lanelet
 {
@@ -38,6 +39,7 @@ class CarmaUSTrafficRules : public TrafficRules
 public:
   // Declare new US location. Prefix with carma to prevent future collisions if lanelet adds US support
   static constexpr char Location[] = "carma_us";
+  const lanelet::Velocity MAX_SPEED_LIMIT = lanelet::Velocity(hardcoded_params::control_limits::MAX_LONGITUDINAL_VELOCITY_MPS * lanelet::units::MPS());
 
   CarmaUSTrafficRules(Configuration config = Configuration()) : TrafficRules(config){};
 

@@ -27,4 +27,5 @@
   <depend>visualization_msgs</depend>
   <depend>pugixml-dev</depend>
   <depend>roslint</depend>
+  <depend>hardcoded_params</depend>
 </package>

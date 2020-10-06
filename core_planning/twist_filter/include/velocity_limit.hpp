@@ -18,10 +18,11 @@
 #include <ros/ros.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <autoware_msgs/ControlCommandStamped.h>
+#include <hardcoded_params/control_limits/control_limits.h>
 
 namespace twist_filter {
 
-constexpr double MAX_LONGITUDINAL_VELOCITY_HARDCODED_LIMIT_M_S = 35.7632;
+constexpr double MAX_LONGITUDINAL_VELOCITY_HARDCODED_LIMIT_M_S = hardcoded_params::control_limits::MAX_LONGITUDINAL_VELOCITY_MPS;
 
 /**
  * Limit the longitudinal speed found in the input ControlCommandStamped

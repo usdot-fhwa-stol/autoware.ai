@@ -256,17 +256,17 @@ SpeedLimitInformation CarmaUSTrafficRules::speedLimit(const ConstLaneletOrArea& 
   {
     sL = trafficSignToVelocity(sign_speed_limit->type()); //Retrieve speed limit information from  trafficSignToVelocity function
 
-    if(config_limit > 0_mph && config_limit < 80_mph)//Accounting for the configured speed limit, input zero when not in use
+    if(config_limit > 0_mph && config_limit < MAX_SPEED_LIMIT)//Accounting for the configured speed limit, input zero when not in use
       {
         ROS_WARN_STREAM("Configurable value in use.");
         sL = config_limit;
       }
 
     //Determine whether or not the value exceeds the predetermined maximum speed limit value.
-    if (sL > 80_mph)
+    if (sL > MAX_SPEED_LIMIT)
     {
       ROS_WARN_STREAM("Invalid speed limit value. Value reset to maximum speed limit. ");//Display warning message
-      sL = 80_mph;//Reset the speed limit value to be capped at the maximum value.
+      sL = MAX_SPEED_LIMIT;//Reset the speed limit value to be capped at the maximum value.
     }
     speed_limit = sL ;
   }
@@ -274,7 +274,7 @@ SpeedLimitInformation CarmaUSTrafficRules::speedLimit(const ConstLaneletOrArea& 
   {
     sL = dig_speed_limit->getSpeedLimit();
 
-    if(config_limit > 0_mph && config_limit < 80_mph)//Accounting for the configured speed limit, input zero when not in use
+    if(config_limit > 0_mph && config_limit < MAX_SPEED_LIMIT)//Accounting for the configured speed limit, input zero when not in use
        { 
           ROS_WARN_STREAM("Configurable value in use.");
 
@@ -284,10 +284,10 @@ SpeedLimitInformation CarmaUSTrafficRules::speedLimit(const ConstLaneletOrArea& 
     if (dig_speed_limit->appliesTo(participant()))
     {
         //Determine whether or not the value exceeds the predetermined maximum speed limit value.
-        if (sL > 80_mph)
+        if (sL > MAX_SPEED_LIMIT)
         {
           ROS_WARN_STREAM("Invalid speed limit value. Value reset to maximum speed limit. ");//Display warning message
-          sL = 80_mph;//Reset the speed limit value to be capped at the maximum value.
+          sL = MAX_SPEED_LIMIT;//Reset the speed limit value to be capped at the maximum value.
         }
       speed_limit = sL;
     }

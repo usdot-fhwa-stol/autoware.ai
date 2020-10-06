@@ -19,6 +19,7 @@ find_package(
     rostest
     std_msgs
     roslint
+    hardcoded_params
 )
 
 catkin_package(
