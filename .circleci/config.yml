@@ -19,7 +19,7 @@ version: 2
 # CI will report failure if any executed command returns and error status
 # Operations performed are as follows
 # Build source code
-# Run unit tests for C++ and Java
+# Run unit tests for C++
 # Run static code analyzer for SourceCloud
 # Upload test results
 # Every run command should start with source ${INIT_ENV} to ensure all default dependancies are available
@@ -51,7 +51,6 @@ jobs:
           name: Build autoware.ai
           command: |
             source ${INIT_ENV}
-            export ROS_LANG_DISABLE=genjava # Disable genjava for full autoware build
             cd autoware.ai/
             build-wrapper-linux-x86-64 --out-dir /opt/carma/bw-output ./autoware/ros/carma_autoware_build -k -b "-DCMAKE_CXX_FLAGS=${COVERAGE_FLAGS} -DCMAKE_C_FLAGS=${COVERAGE_FLAGS} -DCMAKE_BUILD_TYPE=Debug"
       # The free version of Circle CI does not have enough memory to run tests in this repo
@@ -62,7 +61,6 @@ jobs:
       #       source ${INIT_ENV}
       #       source /opt/carma/autoware.ai/ros/install/setup.bash
       #       cd autoware.ai/ros
-      #       export ROS_LANG_DISABLE=genjava # Disable genjava for full autoware build
       #       bash make_with_coverage.bash -t -e . -o /opt/carma/coverage_reports/gcov
       
       # Run SonarCloud analysis
