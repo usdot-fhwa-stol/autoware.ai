@@ -210,6 +210,9 @@ void PurePursuit::getNextWaypoint()
   // look for the next waypoint.
   for (int i = 0; i < path_size; i++)
   {
+    bool min_distance_satisfied = false;
+    bool in_front = false;
+    
     // if search waypoint is the last
     if (i == (path_size - 1))
     {
@@ -218,14 +221,39 @@ void PurePursuit::getNextWaypoint()
       return;
     }
 
+    // check if the point is in front or back
+    tf::Vector3 curr_vector(current_waypoints_.at(i).pose.pose.position.x - current_pose_.position.x, 
+                      current_waypoints_.at(i).pose.pose.position.y - current_pose_.position.y, 
+                      current_waypoints_.at(i).pose.pose.position.z - current_pose_.position.z);
+    curr_vector.setZ(0);
+
     // if there exists an effective waypoint
     if (getPlaneDistance(
       current_waypoints_.at(i).pose.pose.position, current_pose_.position)
       > lookahead_distance_)
     {
+      min_distance_satisfied = true;
+    }
+
+    // if first point, we won't have previous vector to compare
+    if (i == 0)
+    {
+      in_front = true;
+      prev_travelled_vector_ = curr_vector;
+    } 
+    //else we check if trajectory is not turning more than 90 deg instantaneously than its previous direction
+    else if (abs(tf::tfAngle(curr_vector, prev_travelled_vector_)) < M_PI / 2)
+    {
+      in_front = true;
+    }
+    
+    if (min_distance_satisfied && in_front)
+    {
+      prev_travelled_vector_ = curr_vector;
       next_waypoint_number_ = i;
       return;
-    }
+    }    
+      
   }
 
   // if this program reaches here , it means we lost the waypoint!

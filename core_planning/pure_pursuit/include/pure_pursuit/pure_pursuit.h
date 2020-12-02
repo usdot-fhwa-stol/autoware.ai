@@ -105,6 +105,7 @@ private:
   double minimum_lookahead_distance_;
   geometry_msgs::Pose current_pose_;
   double current_linear_velocity_;
+  tf::Vector3 prev_travelled_vector_;
   std::vector<autoware_msgs::Waypoint> current_waypoints_;
 
   // functions
