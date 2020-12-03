@@ -20,6 +20,15 @@
 
 namespace waypoint_follower
 {
+  geometry_msgs::PoseStamped generateCurrentPose(double x, double y, double yaw)
+  {
+    geometry_msgs::PoseStamped pose;
+    pose.pose.position.x = x;
+    pose.pose.position.y = y;
+    tf::Quaternion quaternion = tf::createQuaternionFromRPY(0, 0, yaw);
+    quaternionTFToMsg(quaternion, pose.pose.orientation);
+    return std::move(pose);
+  }
 class PurePursuitNodeTestSuite : public ::testing::Test
 {
 protected:
@@ -65,7 +74,7 @@ public:
   }
   void ASSERT_NEXT_WP_POSE_USING_CURR_POSE(double curr_pose_x, double curr_pose_y, double next_wp_pose_x, double next_wp_pose_y)
   {
-    geometry_msgs::PoseStamped pose = generateCurrentPose(curr_pose_x, curr_pose_y, 0);
+    geometry_msgs::PoseStamped pose = waypoint_follower::generateCurrentPose(curr_pose_x, curr_pose_y, 0);
     geometry_msgs::PoseStampedConstPtr pose_ptr = boost::make_shared<const geometry_msgs::PoseStamped>(pose);
     ppcallbackFromCurrentPose(pose_ptr);
     ppgetNextWaypoint();
@@ -75,15 +84,7 @@ public:
   }
 };
 
-geometry_msgs::PoseStamped generateCurrentPose(double x, double y, double yaw)
-{
-  geometry_msgs::PoseStamped pose;
-  pose.pose.position.x = x;
-  pose.pose.position.y = y;
-  tf::Quaternion quaternion = tf::createQuaternionFromRPY(0, 0, yaw);
-  quaternionTFToMsg(quaternion, pose.pose.orientation);
-  return std::move(pose);
-}
+
 
 TEST_F(PurePursuitNodeTestSuite, inputPositivePath)
 {
@@ -191,10 +192,6 @@ TEST_F(PurePursuitNodeTestSuite, checkWaypointIsAheadOrBehind)
   ASSERT_NEXT_WP_POSE_USING_CURR_POSE(1.9, 0, 2, 0);
 
   ASSERT_NEXT_WP_POSE_USING_CURR_POSE(2.5, 0, 4, 0);
-
-  ASSERT_NEXT_WP_POSE_USING_CURR_POSE()
-
-  ASSERT_NEXT_WP_POSE_USING_CURR_POSE();
 
 }
 
