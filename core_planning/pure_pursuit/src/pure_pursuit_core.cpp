@@ -296,6 +296,7 @@ void PurePursuitNode::callbackFromWayPoints(
     expand_size_ = -expanded_lane.waypoints.size();
     connectVirtualLastWaypoints(&expanded_lane, direction_);
     expand_size_ += expanded_lane.waypoints.size();
+    std::cerr << "set waypoints with min_lookahead:" << minimum_lookahead_distance_ << std::endl;
 
     pp_.setCurrentWaypoints(expanded_lane.waypoints);
   }
@@ -304,6 +305,12 @@ void PurePursuitNode::callbackFromWayPoints(
     pp_.setCurrentWaypoints(msg->waypoints);
   }
   is_waypoint_set_ = true;
+  std::cerr << "Printing current waypoints set!\n";
+  for (auto wp : pp_.getCurrentWaypoints())
+  {
+    std::cerr << wp.pose.pose.position.x << " ";
+  }
+  std::cerr << std::endl;
 }
 
 void PurePursuitNode::connectVirtualLastWaypoints(
@@ -329,10 +336,22 @@ void PurePursuitNode::connectVirtualLastWaypoints(
   }
 }
 
+geometry_msgs::Point PurePursuitNode::getPoseOfNextWaypoint() const
+{
+  return pp_.getPoseOfNextWaypoint();
+}
+
+void PurePursuitNode::getNextWaypoint()
+{
+  pp_.getNextWaypoint();
+}
+
 double convertCurvatureToSteeringAngle(
   const double& wheel_base, const double& kappa)
 {
   return atan(wheel_base * kappa);
 }
+
+
 
 }  // namespace waypoint_follower

@@ -117,7 +117,10 @@ private:
     const std::vector<autoware_msgs::Waypoint>& waypoints) const;
   void connectVirtualLastWaypoints(
     autoware_msgs::Lane* expand_lane, LaneDirection direction);
-
+  // debug
+  geometry_msgs::Point getPoseOfNextWaypoint() const;
+  void getNextWaypoint();
+  
   int getSgn() const;
   double computeLookaheadDistance() const;
   double computeCommandVelocity() const;

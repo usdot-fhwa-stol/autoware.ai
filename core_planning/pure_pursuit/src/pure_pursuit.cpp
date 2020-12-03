@@ -212,14 +212,17 @@ void PurePursuit::getNextWaypoint()
   {
     bool min_distance_satisfied = false;
     bool in_front = false;
-    
+    std:: cerr << "prev_travelled" << prev_travelled_vector_.x() << std::endl;
     // if search waypoint is the last
     if (i == (path_size - 1))
     {
       ROS_INFO("search waypoint is the last");
+      std::cerr << "hit last: set next_waypoint to " << i << "\n";
       next_waypoint_number_ = i;
       return;
     }
+    std::cerr << "curr pos " << current_pose_.position.x << "\n";
+    std::cerr << "curr vec " << current_waypoints_.at(i).pose.pose.position.x << "\n";
 
     // check if the point is in front or back
     tf::Vector3 curr_vector(current_waypoints_.at(i).pose.pose.position.x - current_pose_.position.x, 
@@ -234,25 +237,32 @@ void PurePursuit::getNextWaypoint()
     {
       min_distance_satisfied = true;
     }
+    else{
+      std::cerr << "Did not get through here! 1" << std::endl;
+    }
 
-    // if first point, we won't have previous vector to compare
-    if (i == 0)
-    {
-      in_front = true;
-      prev_travelled_vector_ = curr_vector;
-    } 
+    std::cerr << ">> angle:" << abs(tf::tfAngle(curr_vector, prev_travelled_vector_)) << std::endl;
     //else we check if trajectory is not turning more than 90 deg instantaneously than its previous direction
-    else if (abs(tf::tfAngle(curr_vector, prev_travelled_vector_)) < M_PI / 2)
+    if (abs(tf::tfAngle(curr_vector, prev_travelled_vector_)) < M_PI / 2)
     {
       in_front = true;
     }
-    
+    else{
+      std::cerr << "Did not get through here! 2" << std::endl;
+    }
+
     if (min_distance_satisfied && in_front)
     {
       prev_travelled_vector_ = curr_vector;
       next_waypoint_number_ = i;
+      std::cerr << "set next_waypoint to " << i << "\n";
       return;
-    }    
+    }
+    else
+    {
+      std::cout << ">>>>>>>>>>>>>>>passed next_waypoint to " << i << std::endl;
+    }
+    
       
   }
 
