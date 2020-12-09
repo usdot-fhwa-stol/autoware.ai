@@ -41,6 +41,7 @@ if (NOT "${PCL_LIBRARIES}" STREQUAL "")
 endif ()
 
 find_package(CURL REQUIRED)
+find_package(PROJ4 REQUIRED)
 
 set(CMAKE_CXX_FLAGS "-O2 -Wall ${CMAKE_CXX_FLAGS}")
 
@@ -53,6 +54,8 @@ catkin_package(
   geometry_msgs
   tf2_geometry_msgs
   autoware_msgs
+
+  DEPENDS PROJ4
 )
 
 ###########
@@ -63,6 +66,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${PCL_IO_INCLUDE_DIRS}
   ${CURL_INCLUDE_DIRS}
+  ${PROJ4_INCLUDE_DIRS}
 )
 
 add_library(get_file
@@ -88,8 +92,8 @@ add_executable(map_param_loader nodes/map_param_loader/map_param_loader.cpp)
 add_library(map_param_loader_lib nodes/map_param_loader/map_param_loader.cpp)
 add_dependencies(map_param_loader_lib ${catkin_EXPORTED_TARGETS})
 add_dependencies(map_param_loader ${catkin_EXPORTED_TARGETS})
-target_link_libraries(map_param_loader_lib ${catkin_LIBRARIES})
-target_link_libraries(map_param_loader ${catkin_LIBRARIES})
+target_link_libraries(map_param_loader_lib ${catkin_LIBRARIES} ${PROJ4_LIBRARIES})
+target_link_libraries(map_param_loader ${catkin_LIBRARIES} ${PROJ4_LIBRARIES})
 
 add_executable(lanelet2_map_visualization nodes/lanelet2_map_loader/lanelet2_map_visualization.cpp)
 target_link_libraries(lanelet2_map_visualization ${catkin_LIBRARIES})
