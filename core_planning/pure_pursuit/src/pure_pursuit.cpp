@@ -212,7 +212,7 @@ void PurePursuit::getNextWaypoint()
   {
     bool min_distance_satisfied = false;
     bool in_front = false;
-    std:: cerr << "prev_travelled" << prev_travelled_vector_.x() << std::endl;
+    std:: cerr << "prev_travelled: " << prev_travelled_vector_.x() << std::endl;
     // if search waypoint is the last
     if (i == (path_size - 1))
     {
@@ -221,14 +221,17 @@ void PurePursuit::getNextWaypoint()
       next_waypoint_number_ = i;
       return;
     }
+    std::cerr << "prev pos " << previous_pose_.position.x << "\n";
     std::cerr << "curr pos " << current_pose_.position.x << "\n";
-    std::cerr << "curr vec " << current_waypoints_.at(i).pose.pose.position.x << "\n";
 
     // check if the point is in front or back
     tf::Vector3 curr_vector(current_waypoints_.at(i).pose.pose.position.x - current_pose_.position.x, 
                       current_waypoints_.at(i).pose.pose.position.y - current_pose_.position.y, 
                       current_waypoints_.at(i).pose.pose.position.z - current_pose_.position.z);
     curr_vector.setZ(0);
+
+    std::cerr << "curr vec x:" << curr_vector.x() << "\n";
+    std::cerr << "curr vec y:" << curr_vector.y() << "\n";
 
     // if there exists an effective waypoint
     if (getPlaneDistance(
@@ -253,7 +256,14 @@ void PurePursuit::getNextWaypoint()
 
     if (min_distance_satisfied && in_front)
     {
-      prev_travelled_vector_ = curr_vector;
+      tf::Vector3 prev_travelled_vector_tmp(current_pose_.position.x - previous_pose_.position.x, 
+                      current_pose_.position.y - previous_pose_.position.y, 
+                      current_pose_.position.z - previous_pose_.position.z);
+      prev_travelled_vector_tmp.setZ(0);
+      // if current pose did not change, we don't change the previous vector direction
+      // this also handles the case when waypoint is set for the first time, current_pos_ and previous_pos_ are same
+      prev_travelled_vector_ = (prev_travelled_vector_tmp.x() == 0 && prev_travelled_vector_tmp.y() == 0) ? prev_travelled_vector_ : prev_travelled_vector_tmp;
+      previous_pose_ = current_pose_;
       next_waypoint_number_ = i;
       std::cerr << "set next_waypoint to " << i << "\n";
       return;

@@ -59,6 +59,7 @@ public:
     tf::Vector3 curr_vector(current_waypoints_.at(1).pose.pose.position.x - current_pose_.position.x, 
                       current_waypoints_.at(1).pose.pose.position.y - current_pose_.position.y, 
                       current_waypoints_.at(1).pose.pose.position.z - current_pose_.position.z);
+    previous_pose_ = current_pose_;
     curr_vector.setZ(0);
     prev_travelled_vector_ = curr_vector;
   }
@@ -114,7 +115,7 @@ private:
   geometry_msgs::Point next_target_position_;
   double lookahead_distance_;
   double minimum_lookahead_distance_;
-  geometry_msgs::Pose current_pose_;
+  geometry_msgs::Pose current_pose_, previous_pose_;
   double current_linear_velocity_;
   tf::Vector3 prev_travelled_vector_;
   std::vector<autoware_msgs::Waypoint> current_waypoints_;
