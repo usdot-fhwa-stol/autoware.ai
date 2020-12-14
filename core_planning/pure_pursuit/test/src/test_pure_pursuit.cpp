@@ -162,6 +162,15 @@ TEST_F(PurePursuitNodeTestSuite, inputNormalLane)
 // We simulate that by inserting previously checked point again.
 TEST_F(PurePursuitNodeTestSuite, checkWaypointIsAheadOrBehind)
 {  
+  /*
+  *           2.             |3  x. > x-th waypoint coordinate 
+  *                          |2  
+  *                          |1
+  *  0. 1.          4.    3. |0
+  * ------------------------ y 
+  *x 0  1  2  3  4  5  6  7   
+  */
+  
   autoware_msgs::Lane original_lane;
   original_lane.waypoints.resize(8, autoware_msgs::Waypoint());
   original_lane.waypoints[0].pose.pose.position.x = 0;
@@ -189,18 +198,22 @@ TEST_F(PurePursuitNodeTestSuite, checkWaypointIsAheadOrBehind)
     lp(boost::make_shared<autoware_msgs::Lane>(original_lane));
   ppCallbackFromWayPoints(lp);
   ppgetNextWaypoint();
+
+  // following simulates the car going straight on x coord
+  // despite the waypoint being in 2D to test the angles
   ASSERT_NEAR(ppGetPoseOfNextWaypoint().x, 0, 0.001);
 
-  ASSERT_NEAR_NEXT_WP_POSE_USING_CURR_POSE(0.95, 0, 1, 0);
+  ASSERT_NEAR_NEXT_WP_POSE_USING_CURR_POSE(0.95, 0, 1, 0); // closest next waypoint is 1. (<1,0> 0 degrees ahead): qualified
 
-  ASSERT_NEAR_NEXT_WP_POSE_USING_CURR_POSE(2.95, 0, 3, 3);
+  ASSERT_NEAR_NEXT_WP_POSE_USING_CURR_POSE(2.95, 0, 3, 3); // closest next waypoint is 2. (<3,3> little less than 90 degrees ahead): qualified
 
-  ASSERT_NEAR_NEXT_WP_POSE_USING_CURR_POSE(5.95, 0, 7, 0);
+  ASSERT_NEAR_NEXT_WP_POSE_USING_CURR_POSE(3.15, 0, 7, 0); // closest next waypoint is 2. (<3,3> little more than 90 degrees ahead): disqualified
+                                                                                    // so picked 3. (<7,0> 0 degrees ahead): qualified
 
-  ASSERT_NEAR_NEXT_WP_POSE_USING_CURR_POSE(6.95, 0, 7, 0);
+  ASSERT_NEAR_NEXT_WP_POSE_USING_CURR_POSE(6.95, 0, 7, 0); // closest next waypoint is 3. (<7,0> 0 degrees ahead): qualified
 
-  ASSERT_NOT_NEAR_NEXT_WP_POSE_USING_CURR_POSE(7.95, 0, 7, 0);
-
+  ASSERT_NOT_NEAR_NEXT_WP_POSE_USING_CURR_POSE(7.95, 0, 7, 0); //  closest next waypoint is 3. (<7,0> 180 degrees ahead): disqualified
+  ASSERT_NOT_NEAR_NEXT_WP_POSE_USING_CURR_POSE(7.95, 0, 5, 0); //  another next waypoint is 4. (<5,0> 180 degrees ahead): disqualified
 }
 
 }  // namespace waypoint_follower

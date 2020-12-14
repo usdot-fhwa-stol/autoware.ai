@@ -244,9 +244,9 @@ void PurePursuit::getNextWaypoint()
       std::cerr << "Did not get through here! 1" << std::endl;
     }
 
-    std::cerr << ">> angle:" << abs(tf::tfAngle(curr_vector, prev_travelled_vector_)) << std::endl;
+    std::cerr << ">> angle:" << std::abs(tf::tfAngle(curr_vector, prev_travelled_vector_)) << std::endl;
     //else we check if trajectory is not turning more than 90 deg instantaneously than its previous direction
-    if (abs(tf::tfAngle(curr_vector, prev_travelled_vector_)) < M_PI / 2)
+    if (std::abs(tf::tfAngle(curr_vector, prev_travelled_vector_)) < M_PI / 2)
     {
       in_front = true;
     }
