@@ -229,7 +229,7 @@ void PurePursuit::getNextWaypoint()
                       current_waypoints_.at(i).pose.pose.position.y - current_pose_.position.y, 
                       current_waypoints_.at(i).pose.pose.position.z - current_pose_.position.z);
     curr_vector.setZ(0);
-
+    std::cerr << ">>>>>>> lookahead distance" << lookahead_distance_ << std::endl;
     // if there exists an effective waypoint
     if (getPlaneDistance(
       current_waypoints_.at(i).pose.pose.position, current_pose_.position)
