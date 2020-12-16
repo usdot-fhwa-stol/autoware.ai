@@ -212,45 +212,42 @@ void PurePursuit::getNextWaypoint()
   {
     bool min_distance_satisfied = false;
     bool in_front = false;
-    std:: cerr << "prev_travelled: " << prev_travelled_vector_.x() << std::endl;
     // if search waypoint is the last
     if (i == (path_size - 1))
     {
-      ROS_INFO("search waypoint is the last");
-      std::cerr << "hit last: set next_waypoint to " << i << "\n";
+      ROS_DEBUG_STREAM(">> Search waypoint reached the last: x: " << current_waypoints_.at(i).pose.pose.position.x 
+                                              << ", y: " << current_waypoints_.at(i).pose.pose.position.y << ", speed: " << current_waypoints_.at(i).twist.twist.linear.x);
       next_waypoint_number_ = i;
+      ROS_DEBUG_STREAM(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
       return;
     }
-    std::cerr << "prev pos " << previous_pose_.position.x << "\n";
-    std::cerr << "curr pos " << current_pose_.position.x << "\n";
 
     // check if the point is in front or back
     tf::Vector3 curr_vector(current_waypoints_.at(i).pose.pose.position.x - current_pose_.position.x, 
                       current_waypoints_.at(i).pose.pose.position.y - current_pose_.position.y, 
                       current_waypoints_.at(i).pose.pose.position.z - current_pose_.position.z);
     curr_vector.setZ(0);
-    std::cerr << ">>>>>>> lookahead distance" << lookahead_distance_ << std::endl;
-    std::cerr << "curr vec x:" << curr_vector.x() << "\n";
-    std::cerr << "curr vec y:" << curr_vector.y() << "\n";
+
     // if there exists an effective waypoint
     if (getPlaneDistance(
       current_waypoints_.at(i).pose.pose.position, current_pose_.position)
       > lookahead_distance_)
     {
       min_distance_satisfied = true;
-    }
-    else{
-      std::cerr << "Did not get through here! 1" << std::endl;
+      ROS_DEBUG_STREAM(">>>>>>>>>");
+      ROS_DEBUG_STREAM(">> Would have picked wp at following: x: " << current_waypoints_.at(i).pose.pose.position.x 
+                                              << ", y: " << current_waypoints_.at(i).pose.pose.position.y << ", speed: " << current_waypoints_.at(i).twist.twist.linear.x);
+      ROS_DEBUG_STREAM(">> Where current position is x: " << current_pose_.position.x << ", y: " << current_pose_.position.y);
+      ROS_DEBUG_STREAM(">> Angle degrees: "  << std::abs(tf::tfAngle(curr_vector, prev_travelled_vector_) / M_PI * 180));
     }
 
-    std::cerr << ">> angle:" << std::abs(tf::tfAngle(curr_vector, prev_travelled_vector_)) << std::endl;
     //else we check if trajectory is not turning more than 90 deg instantaneously than its previous direction
     if (std::abs(tf::tfAngle(curr_vector, prev_travelled_vector_)) < M_PI / 2)
     {
       in_front = true;
     }
     else{
-      std::cerr << "Did not get through here! 2" << std::endl;
+      ROS_DEBUG_STREAM(">>>>>!!!! Did not satisfy angle requirement!");
     }
 
     if (min_distance_satisfied && in_front)
@@ -264,19 +261,17 @@ void PurePursuit::getNextWaypoint()
       prev_travelled_vector_ = (prev_travelled_vector_tmp.x() == 0 && prev_travelled_vector_tmp.y() == 0) ? prev_travelled_vector_ : prev_travelled_vector_tmp;
       previous_pose_ = current_pose_;
       next_waypoint_number_ = i;
-      std::cerr << "set next_waypoint to " << i << "\n";
+      ROS_DEBUG_STREAM(">> Following waypoint satisfied all: x: " << current_waypoints_.at(i).pose.pose.position.x 
+                                              << ", y: " << current_waypoints_.at(i).pose.pose.position.y << ", speed: " << current_waypoints_.at(i).twist.twist.linear.x);
+      ROS_DEBUG_STREAM(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
       return;
     }
-    else
-    {
-      std::cout << ">>>>>>>>>>>>>>>passed next_waypoint to " << i << std::endl;
-    }
-    
-      
+         
   }
-
+  
   // if this program reaches here , it means we lost the waypoint!
   next_waypoint_number_ = -1;
+  ROS_DEBUG_STREAM(">>>>>>>>>>>>>>>>>>>>>>>Lost the waypoint !>>>>>>>>>>>>>>>>>");
   return;
 }
 
