@@ -240,8 +240,8 @@ int PurePursuit::getNextWaypointNumber()
       ROS_DEBUG_STREAM(">> Would have picked wp at following: x: " << current_waypoints_.at(i).pose.pose.position.x 
                                               << ", y: " << current_waypoints_.at(i).pose.pose.position.y << ", speed: " << current_waypoints_.at(i).twist.twist.linear.x * 2.23694 << "mph");
       ROS_DEBUG_STREAM(">> Where current position is x: " << current_pose_.position.x << ", y: " << current_pose_.position.y);
+      ROS_DEBUG_STREAM(">> Angle degrees: "  << std::abs(tf::tfAngle(curr_vector, prev_travelled_vector_) / M_PI * 180));
     }
-    ROS_DEBUG_STREAM(">> Angle degrees: "  << std::abs(tf::tfAngle(curr_vector, prev_travelled_vector_) / M_PI * 180));
 
     //else we check if trajectory is not turning more than 90 deg instantaneously than its previous direction
     if (std::abs(tf::tfAngle(curr_vector, prev_travelled_vector_)) < M_PI / 2)
