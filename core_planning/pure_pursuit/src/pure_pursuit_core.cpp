@@ -303,11 +303,8 @@ void PurePursuitNode::callbackFromWayPoints(
   }
   is_waypoint_set_ = true;
   int next_waypoint_number = pp_.getNextWaypointNumber();
-    // check if the point is in front or back
-  // we skip 0 because it is our current position
-  if (next_waypoint_number != -1 && next_waypoint_number + 1 < pp_.getCurrentWaypoints().size())
+  if (next_waypoint_number != -1)
   {
-    pp_.initializeUsingNextWaypoint(next_waypoint_number);
     command_linear_velocity_ =
       (!msg->waypoints.empty()) ? pp_.getCurrentWaypoints().at(next_waypoint_number).twist.twist.linear.x : 0;
   }

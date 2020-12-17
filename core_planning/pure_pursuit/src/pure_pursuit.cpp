@@ -208,11 +208,11 @@ int PurePursuit::getNextWaypointNumber()
     next_waypoint_number = -1;
     return next_waypoint_number;
   }
-
+  double closest_distance = getPlaneDistance(current_waypoints_.at(0).pose.pose.position, current_pose_.position);
   // look for the next waypoint.
-  for (int i = 0; i < path_size; i++)
+  for (int i = 1; i < path_size; i++)
   {
-    bool min_distance_satisfied = false;
+    bool min_lookahead_satisfied = false;
     bool in_front = false;
     // if search waypoint is the last
     if (i == (path_size - 1))
@@ -220,55 +220,61 @@ int PurePursuit::getNextWaypointNumber()
       ROS_DEBUG_STREAM(">> Search waypoint reached the last: x: " << current_waypoints_.at(i).pose.pose.position.x 
                                               << ", y: " << current_waypoints_.at(i).pose.pose.position.y << ", speed: " << current_waypoints_.at(i).twist.twist.linear.x * 2.23694 << "mph");
       next_waypoint_number = i;
+      std::cerr << ">> Search waypoint reached the last: x: " << current_waypoints_.at(i).pose.pose.position.x 
+                                              << ", y: " << current_waypoints_.at(i).pose.pose.position.y << ", speed: " << current_waypoints_.at(i).twist.twist.linear.x * 2.23694 << "mph" <<std::endl;
       ROS_DEBUG_STREAM(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
       return next_waypoint_number;
     }
 
-    // check if the point is in front or back
-    tf::Vector3 curr_vector(current_waypoints_.at(i).pose.pose.position.x - current_pose_.position.x, 
-                      current_waypoints_.at(i).pose.pose.position.y - current_pose_.position.y, 
-                      current_waypoints_.at(i).pose.pose.position.z - current_pose_.position.z);
+    double current_distance = getPlaneDistance(current_waypoints_.at(i).pose.pose.position, current_pose_.position);
+    // loop through until we hit closest and effective point
+    if (current_distance < closest_distance || closest_distance < lookahead_distance_)
+    {
+      closest_distance = current_distance;
+      continue;
+    }
+    // Else, by this point, we found that prev point is closest point and is bigger than lookahead_distance
+
+    // check if the prev point is in front or back
+    tf::Vector3 curr_vector(current_waypoints_.at(i - 1).pose.pose.position.x - current_pose_.position.x, 
+                      current_waypoints_.at(i - 1).pose.pose.position.y - current_pose_.position.y, 
+                      current_waypoints_.at(i - 1).pose.pose.position.z - current_pose_.position.z);
     curr_vector.setZ(0);
+    tf::Vector3 traj_vector(current_waypoints_.at(i).pose.pose.position.x - current_waypoints_.at(i - 1).pose.pose.position.x, 
+                      current_waypoints_.at(i).pose.pose.position.y - current_waypoints_.at(i - 1).pose.pose.position.y, 
+                      current_waypoints_.at(i).pose.pose.position.z - current_waypoints_.at(i - 1).pose.pose.position.z);
+    traj_vector.setZ(0);
+    
+    ROS_DEBUG_STREAM(">>>>>>>>>");
+    ROS_DEBUG_STREAM(">> Would have picked wp at following: x: " << current_waypoints_.at(i - 1).pose.pose.position.x 
+                                            << ", y: " << current_waypoints_.at(i - 1).pose.pose.position.y << ", speed: " << current_waypoints_.at(i - 1).twist.twist.linear.x * 2.23694 << "mph");
+    ROS_DEBUG_STREAM(">> Where current position is x: " << current_pose_.position.x << ", y: " << current_pose_.position.y);
+    ROS_DEBUG_STREAM(">> Where next traj position is x: " << current_waypoints_.at(i ).pose.pose.position.x << ", y: " << current_waypoints_.at(i).pose.pose.position.y);
+    ROS_DEBUG_STREAM(">> Angle degrees: "  << std::abs(tf::tfAngle(curr_vector, traj_vector) / M_PI * 180));
 
-    // if there exists an effective waypoint
-    if (getPlaneDistance(
-      current_waypoints_.at(i).pose.pose.position, current_pose_.position)
-      > lookahead_distance_)
-    {
-      min_distance_satisfied = true;
-      ROS_DEBUG_STREAM(">>>>>>>>>");
-      ROS_DEBUG_STREAM(">> Would have picked wp at following: x: " << current_waypoints_.at(i).pose.pose.position.x 
-                                              << ", y: " << current_waypoints_.at(i).pose.pose.position.y << ", speed: " << current_waypoints_.at(i).twist.twist.linear.x * 2.23694 << "mph");
-      ROS_DEBUG_STREAM(">> Where current position is x: " << current_pose_.position.x << ", y: " << current_pose_.position.y);
-      ROS_DEBUG_STREAM(">> Angle degrees: "  << std::abs(tf::tfAngle(curr_vector, prev_travelled_vector_) / M_PI * 180));
-    }
+    std::cerr << ">> Would have picked wp at following: x: " << current_waypoints_.at(i - 1).pose.pose.position.x 
+                                            << ", y: " << current_waypoints_.at(i - 1).pose.pose.position.y << ", speed: " << current_waypoints_.at(i - 1).twist.twist.linear.x * 2.23694 << "mph" <<std::endl;
+    std::cerr << ">> Where current position is x: " << current_pose_.position.x << ", y: " << current_pose_.position.y <<std::endl;
+    std::cerr << ">> Where next traj position is x: " << current_waypoints_.at(i).pose.pose.position.x << ", y: " << current_waypoints_.at(i).pose.pose.position.y << std::endl;
+    std::cerr << ">> Angle degrees: "  << std::abs(tf::tfAngle(curr_vector, traj_vector) / M_PI * 180) <<std::endl;
 
-    //else we check if trajectory is not turning more than 90 deg instantaneously than its previous direction
-    if (std::abs(tf::tfAngle(curr_vector, prev_travelled_vector_)) < M_PI / 2)
+    // if degree between curr_vector and the direction of the trajectory is more than 90 degrees, we know last point is behind us.
+    if (std::abs(tf::tfAngle(curr_vector, traj_vector)) > M_PI / 2)
     {
-      in_front = true;
+      ROS_DEBUG_STREAM(">>>>>!!!! Did not satisfy angle requirement!" << std::abs(tf::tfAngle(curr_vector, traj_vector) / M_PI * 180));
+      std::cerr << ">>>>>!!!! Did not satisfy angle requirement!" << std::abs(tf::tfAngle(curr_vector, traj_vector) / M_PI * 180) <<std::endl;
+      
+      closest_distance = current_distance;
+      continue;
     }
-    else{
-      ROS_DEBUG_STREAM(">>>>>!!!! Did not satisfy angle requirement!" << std::abs(tf::tfAngle(curr_vector, prev_travelled_vector_) / M_PI * 180));
-    }
-
-    if (min_distance_satisfied && in_front)
-    {
-      tf::Vector3 prev_travelled_vector_tmp(current_pose_.position.x - previous_pose_.position.x, 
-                      current_pose_.position.y - previous_pose_.position.y, 
-                      current_pose_.position.z - previous_pose_.position.z);
-      prev_travelled_vector_tmp.setZ(0);
-      // if current pose did not change, we don't change the previous vector direction
-      // this also handles the case when waypoint is set for the first time, current_pos_ and previous_pos_ are same
-      prev_travelled_vector_ = (prev_travelled_vector_tmp.x() == 0 && prev_travelled_vector_tmp.y() == 0) ? prev_travelled_vector_ : prev_travelled_vector_tmp;
-      previous_pose_ = current_pose_;
-      next_waypoint_number = i;
-      ROS_DEBUG_STREAM(">> ***** Following waypoint satisfied all: x: " << current_waypoints_.at(i).pose.pose.position.x 
-                                              << ", y: " << current_waypoints_.at(i).pose.pose.position.y << ", speed: " << current_waypoints_.at(i).twist.twist.linear.x * 2.23694 << "mph");
-      ROS_DEBUG_STREAM(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-      return next_waypoint_number;
-    }
-         
+    next_waypoint_number = i - 1;
+    ROS_DEBUG_STREAM(">> ***** Following waypoint satisfied all: x: " << current_waypoints_.at(i - 1).pose.pose.position.x 
+                                            << ", y: " << current_waypoints_.at(i - 1).pose.pose.position.y << ", speed: " << current_waypoints_.at(i - 1).twist.twist.linear.x * 2.23694 << "mph");
+    ROS_DEBUG_STREAM(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+    std::cerr << ">> ***** Following waypoint satisfied all: x: " << current_waypoints_.at(i - 1).pose.pose.position.x 
+                                            << ", y: " << current_waypoints_.at(i - 1).pose.pose.position.y << ", speed: " << current_waypoints_.at(i - 1).twist.twist.linear.x * 2.23694 << "mph" <<std::endl;
+    std::cerr << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"<<std::endl;
+    return next_waypoint_number;
   }
   
   // if this program reaches here , it means we lost the waypoint!
