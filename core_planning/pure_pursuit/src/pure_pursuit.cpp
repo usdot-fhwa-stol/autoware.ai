@@ -218,7 +218,7 @@ int PurePursuit::getNextWaypointNumber()
     if (i == (path_size - 1))
     {
       ROS_DEBUG_STREAM(">> Search waypoint reached the last: x: " << current_waypoints_.at(i).pose.pose.position.x 
-                                              << ", y: " << current_waypoints_.at(i).pose.pose.position.y << ", speed: " << current_waypoints_.at(i).twist.twist.linear.x);
+                                              << ", y: " << current_waypoints_.at(i).pose.pose.position.y << ", speed: " << current_waypoints_.at(i).twist.twist.linear.x * 2.23694 << "mph");
       next_waypoint_number = i;
       ROS_DEBUG_STREAM(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
       return next_waypoint_number;
@@ -238,10 +238,10 @@ int PurePursuit::getNextWaypointNumber()
       min_distance_satisfied = true;
       ROS_DEBUG_STREAM(">>>>>>>>>");
       ROS_DEBUG_STREAM(">> Would have picked wp at following: x: " << current_waypoints_.at(i).pose.pose.position.x 
-                                              << ", y: " << current_waypoints_.at(i).pose.pose.position.y << ", speed: " << current_waypoints_.at(i).twist.twist.linear.x);
+                                              << ", y: " << current_waypoints_.at(i).pose.pose.position.y << ", speed: " << current_waypoints_.at(i).twist.twist.linear.x * 2.23694 << "mph");
       ROS_DEBUG_STREAM(">> Where current position is x: " << current_pose_.position.x << ", y: " << current_pose_.position.y);
-      ROS_DEBUG_STREAM(">> Angle degrees: "  << std::abs(tf::tfAngle(curr_vector, prev_travelled_vector_) / M_PI * 180));
     }
+    ROS_DEBUG_STREAM(">> Angle degrees: "  << std::abs(tf::tfAngle(curr_vector, prev_travelled_vector_) / M_PI * 180));
 
     //else we check if trajectory is not turning more than 90 deg instantaneously than its previous direction
     if (std::abs(tf::tfAngle(curr_vector, prev_travelled_vector_)) < M_PI / 2)
@@ -249,7 +249,7 @@ int PurePursuit::getNextWaypointNumber()
       in_front = true;
     }
     else{
-      ROS_DEBUG_STREAM(">>>>>!!!! Did not satisfy angle requirement!");
+      ROS_DEBUG_STREAM(">>>>>!!!! Did not satisfy angle requirement!" << std::abs(tf::tfAngle(curr_vector, prev_travelled_vector_) / M_PI * 180));
     }
 
     if (min_distance_satisfied && in_front)
