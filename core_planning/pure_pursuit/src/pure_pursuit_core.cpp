@@ -303,8 +303,26 @@ void PurePursuitNode::callbackFromWayPoints(
   }
   is_waypoint_set_ = true;
   int next_waypoint_number = pp_.getNextWaypointNumber();
-  command_linear_velocity_ =
-    (!msg->waypoints.empty()) ? pp_.getCurrentWaypoints().at(next_waypoint_number).twist.twist.linear.x : 0;
+    // check if the point is in front or back
+  // we skip 0 because it is our current position
+  if (next_waypoint_number != -1 && next_waypoint_number + 1 < pp_.getCurrentWaypoints().size())
+  {
+    tf::Vector3 curr_vector(current_waypoints_.at(next_waypoint_number + 1).pose.pose.position.x - current_pose_.position.x, 
+                    current_waypoints_.at(next_waypoint_number + 1).pose.pose.position.y - current_pose_.position.y, 
+                    current_waypoints_.at(next_waypoint_number + 1).pose.pose.position.z - current_pose_.position.z);
+    previous_pose_ = current_pose_;
+    curr_vector.setZ(0);
+    prev_travelled_vector_ = curr_vector;
+    command_linear_velocity_ =
+      (!msg->waypoints.empty()) ? pp_.getCurrentWaypoints().at(next_waypoint_number).twist.twist.linear.x : 0;
+  }
+  else
+  {
+    ROS_ERROR_STREAM("We are putting 0 speed because next_waypoint did not satisfy!!!");
+    ROS_ERROR_STREAM("next wp:" << next_waypoint_number << " wp size: "<< pp_.getCurrentWaypoints().size());
+    command_linear_velocity_ = 0;
+  }
+  
   ROS_DEBUG_STREAM("||||||||| Set actual command_linear_velocity_: " << command_linear_velocity_ * 2.23694 << "mph");
 }
 

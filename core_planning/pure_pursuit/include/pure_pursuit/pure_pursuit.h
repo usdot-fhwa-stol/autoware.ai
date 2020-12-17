@@ -54,14 +54,6 @@ public:
   void setCurrentWaypoints(const std::vector<autoware_msgs::Waypoint>& wps)
   {
     current_waypoints_ = wps;
-    // check if the point is in front or back
-    // we skip 0 because it is our current position
-    tf::Vector3 curr_vector(current_waypoints_.at(1).pose.pose.position.x - current_pose_.position.x, 
-                      current_waypoints_.at(1).pose.pose.position.y - current_pose_.position.y, 
-                      current_waypoints_.at(1).pose.pose.position.z - current_pose_.position.z);
-    previous_pose_ = current_pose_;
-    curr_vector.setZ(0);
-    prev_travelled_vector_ = curr_vector;
   }
   void setCurrentPose(const geometry_msgs::PoseStampedConstPtr& msg)
   {
