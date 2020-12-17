@@ -221,7 +221,7 @@ int PurePursuit::getNextWaypointNumber()
                                               << ", y: " << current_waypoints_.at(i).pose.pose.position.y << ", speed: " << current_waypoints_.at(i).twist.twist.linear.x * 2.23694 << "mph");
       next_waypoint_number = i;
       //std::cerr << ">> Search waypoint reached the last: x: " << current_waypoints_.at(i).pose.pose.position.x 
-                                              << ", y: " << current_waypoints_.at(i).pose.pose.position.y << ", speed: " << current_waypoints_.at(i).twist.twist.linear.x * 2.23694 << "mph" <<std::endl;
+      //                                        << ", y: " << current_waypoints_.at(i).pose.pose.position.y << ", speed: " << current_waypoints_.at(i).twist.twist.linear.x * 2.23694 << "mph" <<std::endl;
       ROS_DEBUG_STREAM(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
       return next_waypoint_number;
     }
