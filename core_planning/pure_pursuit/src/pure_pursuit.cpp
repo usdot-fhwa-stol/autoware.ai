@@ -253,7 +253,7 @@ int PurePursuit::getNextWaypointNumber()
     ROS_DEBUG_STREAM(">> Angle degrees: "  << std::abs(tf::tfAngle(curr_vector, traj_vector) / M_PI * 180));
 
     //std::cerr << ">> Would have picked wp at following: x: " << current_waypoints_.at(i - 1).pose.pose.position.x 
-                                            << ", y: " << current_waypoints_.at(i - 1).pose.pose.position.y << ", speed: " << current_waypoints_.at(i - 1).twist.twist.linear.x * 2.23694 << "mph" <<std::endl;
+    //                                        << ", y: " << current_waypoints_.at(i - 1).pose.pose.position.y << ", speed: " << current_waypoints_.at(i - 1).twist.twist.linear.x * 2.23694 << "mph" <<std::endl;
     //std::cerr << ">> Where current position is x: " << current_pose_.position.x << ", y: " << current_pose_.position.y <<std::endl;
     //std::cerr << ">> Where next traj position is x: " << current_waypoints_.at(i).pose.pose.position.x << ", y: " << current_waypoints_.at(i).pose.pose.position.y << std::endl;
     //std::cerr << ">> Angle degrees: "  << std::abs(tf::tfAngle(curr_vector, traj_vector) / M_PI * 180) <<std::endl;
