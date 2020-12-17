@@ -196,15 +196,17 @@ bool PurePursuit::interpolateNextTarget(
   }
 }
 
-void PurePursuit::getNextWaypoint()
+int PurePursuit::getNextWaypointNumber()
 {
+  int next_waypoint_number = -1;
+  
   int path_size = static_cast<int>(current_waypoints_.size());
 
   // if waypoints are not given, do nothing.
   if (path_size == 0)
   {
-    next_waypoint_number_ = -1;
-    return;
+    next_waypoint_number = -1;
+    return next_waypoint_number;
   }
 
   // look for the next waypoint.
@@ -217,9 +219,9 @@ void PurePursuit::getNextWaypoint()
     {
       ROS_DEBUG_STREAM(">> Search waypoint reached the last: x: " << current_waypoints_.at(i).pose.pose.position.x 
                                               << ", y: " << current_waypoints_.at(i).pose.pose.position.y << ", speed: " << current_waypoints_.at(i).twist.twist.linear.x);
-      next_waypoint_number_ = i;
+      next_waypoint_number = i;
       ROS_DEBUG_STREAM(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-      return;
+      return next_waypoint_number;
     }
 
     // check if the point is in front or back
@@ -260,25 +262,30 @@ void PurePursuit::getNextWaypoint()
       // this also handles the case when waypoint is set for the first time, current_pos_ and previous_pos_ are same
       prev_travelled_vector_ = (prev_travelled_vector_tmp.x() == 0 && prev_travelled_vector_tmp.y() == 0) ? prev_travelled_vector_ : prev_travelled_vector_tmp;
       previous_pose_ = current_pose_;
-      next_waypoint_number_ = i;
+      next_waypoint_number = i;
       ROS_DEBUG_STREAM(">> Following waypoint satisfied all: x: " << current_waypoints_.at(i).pose.pose.position.x 
                                               << ", y: " << current_waypoints_.at(i).pose.pose.position.y << ", speed: " << current_waypoints_.at(i).twist.twist.linear.x);
       ROS_DEBUG_STREAM(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-      return;
+      return next_waypoint_number;
     }
          
   }
   
   // if this program reaches here , it means we lost the waypoint!
-  next_waypoint_number_ = -1;
+  next_waypoint_number = -1;
   ROS_DEBUG_STREAM(">>>>>>>>>>>>>>>>>>>>>>>Lost the waypoint !>>>>>>>>>>>>>>>>>");
-  return;
+  return next_waypoint_number;
+}
+
+void PurePursuit::setNextWaypoint(int next_waypoint_number)
+{
+  next_waypoint_number_ = next_waypoint_number;
 }
 
 bool PurePursuit::canGetCurvature(double* output_kappa)
 {
   // search next waypoint
-  getNextWaypoint();
+  next_waypoint_number_ = getNextWaypointNumber();
   if (next_waypoint_number_ == -1)
   {
     ROS_INFO("lost next waypoint");

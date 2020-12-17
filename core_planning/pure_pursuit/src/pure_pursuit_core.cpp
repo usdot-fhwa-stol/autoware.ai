@@ -286,8 +286,7 @@ void PurePursuitNode::callbackFromCurrentVelocity(
 void PurePursuitNode::callbackFromWayPoints(
   const autoware_msgs::LaneConstPtr& msg)
 {
-  command_linear_velocity_ =
-    (!msg->waypoints.empty()) ? msg->waypoints.at(0).twist.twist.linear.x : 0;
+  
   if (add_virtual_end_waypoints_)
   {
     const LaneDirection solved_dir = getLaneDirection(*msg);
@@ -296,8 +295,6 @@ void PurePursuitNode::callbackFromWayPoints(
     expand_size_ = -expanded_lane.waypoints.size();
     connectVirtualLastWaypoints(&expanded_lane, direction_);
     expand_size_ += expanded_lane.waypoints.size();
-    std::cerr << "set waypoints with min_lookahead:" << minimum_lookahead_distance_ << std::endl;
-
     pp_.setCurrentWaypoints(expanded_lane.waypoints);
   }
   else
@@ -305,12 +302,9 @@ void PurePursuitNode::callbackFromWayPoints(
     pp_.setCurrentWaypoints(msg->waypoints);
   }
   is_waypoint_set_ = true;
-  std::cerr << "Printing current waypoints set!\n";
-  for (auto wp : pp_.getCurrentWaypoints())
-  {
-    std::cerr << wp.pose.pose.position.x << " ";
-  }
-  std::cerr << std::endl;
+  int next_waypoint_number = pp_.getNextWaypointNumber();
+  command_linear_velocity_ =
+    (!msg->waypoints.empty()) ? pp_.getCurrentWaypoints().at(next_waypoint_number).twist.twist.linear.x : 0;
 }
 
 void PurePursuitNode::connectVirtualLastWaypoints(
@@ -343,7 +337,8 @@ geometry_msgs::Point PurePursuitNode::getPoseOfNextWaypoint() const
 
 void PurePursuitNode::getNextWaypoint()
 {
-  pp_.getNextWaypoint();
+  int next_waypoint_number = pp_.getNextWaypointNumber();
+  pp_.setNextWaypoint(next_waypoint_number);
 }
 
 double convertCurvatureToSteeringAngle(

@@ -75,8 +75,6 @@ public:
   // for debug on ROS
   geometry_msgs::Point getPoseOfNextWaypoint() const
   {
-    std::cerr << ">next_waypoint_number_ used is " << next_waypoint_number_ << std::endl;
-    std::cerr << ">and that is " << current_waypoints_.at(next_waypoint_number_).pose.pose.position.x << std::endl;
     return current_waypoints_.at(next_waypoint_number_).pose.pose.position;
   }
   geometry_msgs::Point getPoseOfNextTarget() const
@@ -99,7 +97,8 @@ public:
   {
     return minimum_lookahead_distance_;
   }
-  void getNextWaypoint();
+  int getNextWaypointNumber();
+  void setNextWaypoint(int next_waypoint_number);
 
   // processing
   bool canGetCurvature(double* output_kappa);
