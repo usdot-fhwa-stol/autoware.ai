@@ -220,7 +220,7 @@ int PurePursuit::getNextWaypointNumber()
       ROS_DEBUG_STREAM(">> Search waypoint reached the last: x: " << current_waypoints_.at(i).pose.pose.position.x 
                                               << ", y: " << current_waypoints_.at(i).pose.pose.position.y << ", speed: " << current_waypoints_.at(i).twist.twist.linear.x * 2.23694 << "mph");
       next_waypoint_number = i;
-      std::cerr << ">> Search waypoint reached the last: x: " << current_waypoints_.at(i).pose.pose.position.x 
+      //std::cerr << ">> Search waypoint reached the last: x: " << current_waypoints_.at(i).pose.pose.position.x 
                                               << ", y: " << current_waypoints_.at(i).pose.pose.position.y << ", speed: " << current_waypoints_.at(i).twist.twist.linear.x * 2.23694 << "mph" <<std::endl;
       ROS_DEBUG_STREAM(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
       return next_waypoint_number;
@@ -252,17 +252,17 @@ int PurePursuit::getNextWaypointNumber()
     ROS_DEBUG_STREAM(">> Where next traj position is x: " << current_waypoints_.at(i ).pose.pose.position.x << ", y: " << current_waypoints_.at(i).pose.pose.position.y);
     ROS_DEBUG_STREAM(">> Angle degrees: "  << std::abs(tf::tfAngle(curr_vector, traj_vector) / M_PI * 180));
 
-    std::cerr << ">> Would have picked wp at following: x: " << current_waypoints_.at(i - 1).pose.pose.position.x 
+    //std::cerr << ">> Would have picked wp at following: x: " << current_waypoints_.at(i - 1).pose.pose.position.x 
                                             << ", y: " << current_waypoints_.at(i - 1).pose.pose.position.y << ", speed: " << current_waypoints_.at(i - 1).twist.twist.linear.x * 2.23694 << "mph" <<std::endl;
-    std::cerr << ">> Where current position is x: " << current_pose_.position.x << ", y: " << current_pose_.position.y <<std::endl;
-    std::cerr << ">> Where next traj position is x: " << current_waypoints_.at(i).pose.pose.position.x << ", y: " << current_waypoints_.at(i).pose.pose.position.y << std::endl;
-    std::cerr << ">> Angle degrees: "  << std::abs(tf::tfAngle(curr_vector, traj_vector) / M_PI * 180) <<std::endl;
+    //std::cerr << ">> Where current position is x: " << current_pose_.position.x << ", y: " << current_pose_.position.y <<std::endl;
+    //std::cerr << ">> Where next traj position is x: " << current_waypoints_.at(i).pose.pose.position.x << ", y: " << current_waypoints_.at(i).pose.pose.position.y << std::endl;
+    //std::cerr << ">> Angle degrees: "  << std::abs(tf::tfAngle(curr_vector, traj_vector) / M_PI * 180) <<std::endl;
 
     // if degree between curr_vector and the direction of the trajectory is more than 90 degrees, we know last point is behind us.
     if (std::abs(tf::tfAngle(curr_vector, traj_vector)) > M_PI / 2)
     {
       ROS_DEBUG_STREAM(">>>>>!!!! Did not satisfy angle requirement!" << std::abs(tf::tfAngle(curr_vector, traj_vector) / M_PI * 180));
-      std::cerr << ">>>>>!!!! Did not satisfy angle requirement!" << std::abs(tf::tfAngle(curr_vector, traj_vector) / M_PI * 180) <<std::endl;
+      //std::cerr << ">>>>>!!!! Did not satisfy angle requirement!" << std::abs(tf::tfAngle(curr_vector, traj_vector) / M_PI * 180) <<std::endl;
       
       closest_distance = current_distance;
       continue;
@@ -271,9 +271,9 @@ int PurePursuit::getNextWaypointNumber()
     ROS_DEBUG_STREAM(">> ***** Following waypoint satisfied all: x: " << current_waypoints_.at(i - 1).pose.pose.position.x 
                                             << ", y: " << current_waypoints_.at(i - 1).pose.pose.position.y << ", speed: " << current_waypoints_.at(i - 1).twist.twist.linear.x * 2.23694 << "mph");
     ROS_DEBUG_STREAM(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-    std::cerr << ">> ***** Following waypoint satisfied all: x: " << current_waypoints_.at(i - 1).pose.pose.position.x 
+    //std::cerr << ">> ***** Following waypoint satisfied all: x: " << current_waypoints_.at(i - 1).pose.pose.position.x 
                                             << ", y: " << current_waypoints_.at(i - 1).pose.pose.position.y << ", speed: " << current_waypoints_.at(i - 1).twist.twist.linear.x * 2.23694 << "mph" <<std::endl;
-    std::cerr << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"<<std::endl;
+    //std::cerr << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"<<std::endl;
     return next_waypoint_number;
   }
   
