@@ -55,6 +55,15 @@ public:
   {
     current_waypoints_ = wps;
   }
+  void initializeUsingNextWaypoint(int next_waypoint_number)
+  {
+    tf::Vector3 curr_vector(current_waypoints_.at(next_waypoint_number + 1).pose.pose.position.x - current_pose_.position.x, 
+                    current_waypoints_.at(next_waypoint_number + 1).pose.pose.position.y - current_pose_.position.y, 
+                    current_waypoints_.at(next_waypoint_number + 1).pose.pose.position.z - current_pose_.position.z);
+    previous_pose_ = current_pose_;
+    curr_vector.setZ(0);
+    prev_travelled_vector_ = curr_vector;
+  }
   void setCurrentPose(const geometry_msgs::PoseStampedConstPtr& msg)
   {
     current_pose_ = msg->pose;

@@ -307,12 +307,7 @@ void PurePursuitNode::callbackFromWayPoints(
   // we skip 0 because it is our current position
   if (next_waypoint_number != -1 && next_waypoint_number + 1 < pp_.getCurrentWaypoints().size())
   {
-    tf::Vector3 curr_vector(current_waypoints_.at(next_waypoint_number + 1).pose.pose.position.x - current_pose_.position.x, 
-                    current_waypoints_.at(next_waypoint_number + 1).pose.pose.position.y - current_pose_.position.y, 
-                    current_waypoints_.at(next_waypoint_number + 1).pose.pose.position.z - current_pose_.position.z);
-    previous_pose_ = current_pose_;
-    curr_vector.setZ(0);
-    prev_travelled_vector_ = curr_vector;
+    pp_.initializeUsingNextWaypoint(next_waypoint_number);
     command_linear_velocity_ =
       (!msg->waypoints.empty()) ? pp_.getCurrentWaypoints().at(next_waypoint_number).twist.twist.linear.x : 0;
   }
