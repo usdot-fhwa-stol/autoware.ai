@@ -305,7 +305,9 @@ void PurePursuitNode::callbackFromWayPoints(
   int next_waypoint_number = pp_.getNextWaypointNumber();
   command_linear_velocity_ =
     (!msg->waypoints.empty()) ? pp_.getCurrentWaypoints().at(next_waypoint_number).twist.twist.linear.x : 0;
+  ROS_DEBUG_STREAM("||||||||| Set actual command_linear_velocity_: " << command_linear_velocity_ * 2.23694 << "mph");
 }
+
 
 void PurePursuitNode::connectVirtualLastWaypoints(
   autoware_msgs::Lane* lane, LaneDirection direction)

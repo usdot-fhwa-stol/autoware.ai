@@ -263,8 +263,8 @@ int PurePursuit::getNextWaypointNumber()
       prev_travelled_vector_ = (prev_travelled_vector_tmp.x() == 0 && prev_travelled_vector_tmp.y() == 0) ? prev_travelled_vector_ : prev_travelled_vector_tmp;
       previous_pose_ = current_pose_;
       next_waypoint_number = i;
-      ROS_DEBUG_STREAM(">> Following waypoint satisfied all: x: " << current_waypoints_.at(i).pose.pose.position.x 
-                                              << ", y: " << current_waypoints_.at(i).pose.pose.position.y << ", speed: " << current_waypoints_.at(i).twist.twist.linear.x);
+      ROS_DEBUG_STREAM(">> ***** Following waypoint satisfied all: x: " << current_waypoints_.at(i).pose.pose.position.x 
+                                              << ", y: " << current_waypoints_.at(i).pose.pose.position.y << ", speed: " << current_waypoints_.at(i).twist.twist.linear.x * 2.23694 << "mph");
       ROS_DEBUG_STREAM(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
       return next_waypoint_number;
     }
