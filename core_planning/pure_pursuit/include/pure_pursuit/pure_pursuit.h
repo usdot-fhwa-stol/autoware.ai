@@ -100,6 +100,7 @@ public:
   }
   int getNextWaypointNumber();
   void setNextWaypoint(int next_waypoint_number);
+  int getNextWaypointNumberForSpeed();
 
   // processing
   bool canGetCurvature(double* output_kappa);

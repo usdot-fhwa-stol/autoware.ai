@@ -302,7 +302,7 @@ void PurePursuitNode::callbackFromWayPoints(
     pp_.setCurrentWaypoints(msg->waypoints);
   }
   is_waypoint_set_ = true;
-  int next_waypoint_number = pp_.getNextWaypointNumber();
+  int next_waypoint_number = pp_.getNextWaypointNumberForSpeed();
   if (next_waypoint_number != -1)
   {
     command_linear_velocity_ =
