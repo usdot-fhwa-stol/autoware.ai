@@ -345,7 +345,7 @@ geometry_msgs::Point PurePursuitNode::getPoseOfNextWaypoint() const
   return pp_.getPoseOfNextWaypoint();
 }
 
-void PurePursuitNode::getNextWaypoint()
+void PurePursuitNode::calculateNextWaypoint()
 {
   int next_waypoint_number = pp_.getNextWaypointNumber();
   pp_.setNextWaypoint(next_waypoint_number);

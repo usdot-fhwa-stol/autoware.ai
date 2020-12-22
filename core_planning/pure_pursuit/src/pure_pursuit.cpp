@@ -213,8 +213,6 @@ int PurePursuit::getNextWaypointNumber(bool use_lookahead_distance)
   // look for the next waypoint.
   for (int i = 1; i < path_size; i++)
   {
-    bool min_lookahead_satisfied = false;
-    bool in_front = false;
     // if search waypoint is the last
     if (i == (path_size - 1))
     {
@@ -231,10 +229,15 @@ int PurePursuit::getNextWaypointNumber(bool use_lookahead_distance)
     // waypoint distances first decrease and increase back again, which helps find the closest point   
     if (use_lookahead_distance)
     {
-      // loop through until we hit the closest and effective point
-      if (current_distance < closest_distance || closest_distance < lookahead_distance_)
+      // loop through until we hit the closest point
+      if (current_distance <= closest_distance) 
       {
         closest_distance = current_distance;
+        continue;
+      }
+      // loop through until we hit the closest and effective point
+      if (current_distance < lookahead_distance_)
+      {
         continue;
       }
     }
@@ -258,11 +261,10 @@ int PurePursuit::getNextWaypointNumber(bool use_lookahead_distance)
                       current_waypoints_.at(i).pose.pose.position.y - current_waypoints_.at(i - 1).pose.pose.position.y, 
                       current_waypoints_.at(i).pose.pose.position.z - current_waypoints_.at(i - 1).pose.pose.position.z);
     traj_vector.setZ(0);
-    double angle_in_rad = std::abs(tf::tfAngle(curr_vector, traj_vector));
+    double angle_in_rad = std::fabs(tf::tfAngle(curr_vector, traj_vector));
     // if degree between curr_vector and the direction of the trajectory is more than 90 degrees, we know last point is behind us and unsatisfactory
     if (std::isnan(angle_in_rad) || angle_in_rad > M_PI / 2)
     {
-      closest_distance = current_distance;
       continue;
     }
     next_waypoint_number = i - 1;

@@ -64,9 +64,9 @@ public:
   {
     obj_->callbackFromCurrentPose(msg);
   }
-  void ppgetNextWaypoint()
+  void ppcalculateNextWaypoint()
   {
-    obj_->getNextWaypoint();
+    obj_->calculateNextWaypoint();
   }
   geometry_msgs::Point ppGetPoseOfNextWaypoint() const
   {
@@ -77,7 +77,7 @@ public:
     geometry_msgs::PoseStamped pose = waypoint_follower::generateCurrentPose(curr_pose_x, curr_pose_y, 0);
     geometry_msgs::PoseStampedConstPtr pose_ptr = boost::make_shared<const geometry_msgs::PoseStamped>(pose);
     ppcallbackFromCurrentPose(pose_ptr);
-    ppgetNextWaypoint();
+    ppcalculateNextWaypoint();
     auto next_wp_pose_calculated = ppGetPoseOfNextWaypoint();
     ASSERT_NEAR(next_wp_pose_calculated.x, next_wp_pose_x, 0.0001);
     ASSERT_NEAR(next_wp_pose_calculated.y, next_wp_pose_y, 0.0001);
@@ -88,7 +88,7 @@ public:
     geometry_msgs::PoseStamped pose = waypoint_follower::generateCurrentPose(curr_pose_x, curr_pose_y, 0);
     geometry_msgs::PoseStampedConstPtr pose_ptr = boost::make_shared<const geometry_msgs::PoseStamped>(pose);
     ppcallbackFromCurrentPose(pose_ptr);
-    ppgetNextWaypoint();
+    ppcalculateNextWaypoint();
     auto next_wp_pose_calculated = ppGetPoseOfNextWaypoint();
     ASSERT_FALSE(std::abs(next_wp_pose_calculated.x - next_wp_pose_x) < 0.001);
   }
@@ -194,7 +194,7 @@ TEST_F(PurePursuitNodeTestSuite, checkWaypointIsAheadOrBehind)
   const autoware_msgs::LaneConstPtr
     lp(boost::make_shared<autoware_msgs::Lane>(original_lane));
   ppCallbackFromWayPoints(lp);
-  ppgetNextWaypoint();
+  ppcalculateNextWaypoint();
 
   // following simulates the car going straight on x coord, 1D
   // despite the waypoint being in 2D to test the angles

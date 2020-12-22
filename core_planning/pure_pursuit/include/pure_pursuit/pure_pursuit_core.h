@@ -119,7 +119,7 @@ private:
     autoware_msgs::Lane* expand_lane, LaneDirection direction);
   // debug
   geometry_msgs::Point getPoseOfNextWaypoint() const;
-  void getNextWaypoint();
+  void calculateNextWaypoint();
   
   int getSgn() const;
   double computeLookaheadDistance() const;
