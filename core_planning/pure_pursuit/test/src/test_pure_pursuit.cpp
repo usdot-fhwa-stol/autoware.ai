@@ -79,8 +79,6 @@ public:
     ppcallbackFromCurrentPose(pose_ptr);
     ppgetNextWaypoint();
     auto next_wp_pose_calculated = ppGetPoseOfNextWaypoint();
-    std::cerr << "current point x:" << curr_pose_x << ",y :" << curr_pose_y <<std::endl;
-    std::cerr << "next point calculated x:" << next_wp_pose_calculated.x << ",y :" << next_wp_pose_calculated.y <<std::endl;
     ASSERT_NEAR(next_wp_pose_calculated.x, next_wp_pose_x, 0.0001);
     ASSERT_NEAR(next_wp_pose_calculated.y, next_wp_pose_y, 0.0001);
   }
@@ -93,7 +91,6 @@ public:
     ppgetNextWaypoint();
     auto next_wp_pose_calculated = ppGetPoseOfNextWaypoint();
     ASSERT_FALSE(std::abs(next_wp_pose_calculated.x - next_wp_pose_x) < 0.001);
-    ASSERT_FALSE(std::abs(next_wp_pose_calculated.y - next_wp_pose_y) < 0.001);
   }
 };
 
@@ -172,7 +169,7 @@ TEST_F(PurePursuitNodeTestSuite, checkWaypointIsAheadOrBehind)
   */
   
   autoware_msgs::Lane original_lane;
-  original_lane.waypoints.resize(8, autoware_msgs::Waypoint());
+  original_lane.waypoints.resize(4, autoware_msgs::Waypoint());
   original_lane.waypoints[0].pose.pose.position.x = 0;
   original_lane.waypoints[1].pose.pose.position.x = 1;
   original_lane.waypoints[2].pose.pose.position.x = 3; 
@@ -205,15 +202,13 @@ TEST_F(PurePursuitNodeTestSuite, checkWaypointIsAheadOrBehind)
 
   ASSERT_NEAR_NEXT_WP_POSE_USING_CURR_POSE(0.95, 0, 1, 0); // closest next waypoint is 1. (<1,0> 0 degrees ahead): qualified
 
-  ASSERT_NEAR_NEXT_WP_POSE_USING_CURR_POSE(2.95, 0, 5, 0); // closest next waypoint is 2. (<3,3> little less than 90 degrees ahead): qualified
+  ASSERT_NEAR_NEXT_WP_POSE_USING_CURR_POSE(2.95, 0, 5, 0); // closest next waypoint is 2. (<3,3> angle is 123.69): disqualified
+                                                                                    // so picked 3. (<5,0> 0 degrees ahead): qualified
+  ASSERT_NEAR_NEXT_WP_POSE_USING_CURR_POSE(3.15, 0, 5, 0); // closest next waypoint is 3. qualified
 
-  ASSERT_NEAR_NEXT_WP_POSE_USING_CURR_POSE(3.15, 0, 5, 0); // closest next waypoint is 2. (<3,3> little more than 90 degrees ahead): disqualified
-                                                                                    // so picked 3. (<7,0> 0 degrees ahead): qualified
+  ASSERT_NEAR_NEXT_WP_POSE_USING_CURR_POSE(6.95, 0, 7, 0); // closest next waypoint is 4. (<7,0> 0 degrees ahead): qualified
 
-  ASSERT_NEAR_NEXT_WP_POSE_USING_CURR_POSE(6.95, 0, 7, 0); // closest next waypoint is 3. (<7,0> 0 degrees ahead): qualified
-
-  ASSERT_NOT_NEAR_NEXT_WP_POSE_USING_CURR_POSE(7.95, 0, 7, 0); //  closest next waypoint is 3. (<7,0> 180 degrees ahead): disqualified
-  ASSERT_NOT_NEAR_NEXT_WP_POSE_USING_CURR_POSE(7.95, 0, 5, 0); //  another next waypoint is 4. (<5,0> 180 degrees ahead): disqualified
+  ASSERT_NOT_NEAR_NEXT_WP_POSE_USING_CURR_POSE(7.95, 0, 7, 0); //  closest next waypoint is 5 (auto generated), not 4
 }
 
 }  // namespace waypoint_follower

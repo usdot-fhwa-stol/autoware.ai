@@ -221,9 +221,6 @@ int PurePursuit::getNextWaypointNumber(bool use_lookahead_distance)
       ROS_INFO_STREAM(">> Search waypoint reached the last: x: " << current_waypoints_.at(i).pose.pose.position.x 
                                               << ", y: " << current_waypoints_.at(i).pose.pose.position.y << ", speed: " << current_waypoints_.at(i).twist.twist.linear.x * 2.23694 << "mph");
       next_waypoint_number = i;
-      std::cerr << ">> Search waypoint reached the last: x: " << current_waypoints_.at(i).pose.pose.position.x 
-                                              << ", y: " << current_waypoints_.at(i).pose.pose.position.y << ", speed: " << current_waypoints_.at(i).twist.twist.linear.x * 2.23694 << "mph" << std::endl;
-
       return next_waypoint_number;
     }
 
@@ -262,16 +259,12 @@ int PurePursuit::getNextWaypointNumber(bool use_lookahead_distance)
                       current_waypoints_.at(i).pose.pose.position.z - current_waypoints_.at(i - 1).pose.pose.position.z);
     traj_vector.setZ(0);
     double angle_in_rad = std::abs(tf::tfAngle(curr_vector, traj_vector));
-    std::cerr << "curr x:" << current_waypoints_.at(i).pose.pose.position.x << ",y:" << current_waypoints_.at(i).pose.pose.position.y << std::endl;
-    std::cerr << ">> Angle degrees: "  << angle_in_rad / M_PI * 180 <<std::endl;
     // if degree between curr_vector and the direction of the trajectory is more than 90 degrees, we know last point is behind us and unsatisfactory
     if (std::isnan(angle_in_rad) || angle_in_rad > M_PI / 2)
     {
-      std::cerr << ">> We are not passing: degrees: "  << angle_in_rad / M_PI * 180 <<std::endl;
       closest_distance = current_distance;
       continue;
     }
-    std::cerr << ">> We are passing: degrees: "  << angle_in_rad / M_PI * 180 <<std::endl;
     next_waypoint_number = i - 1;
     return next_waypoint_number;
   }
