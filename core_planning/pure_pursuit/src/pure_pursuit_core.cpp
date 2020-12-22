@@ -302,7 +302,7 @@ void PurePursuitNode::callbackFromWayPoints(
     pp_.setCurrentWaypoints(msg->waypoints);
   }
   is_waypoint_set_ = true;
-  // lookahead distance is not needed as we are checking waypoint that is at immediate front of the vehicle.
+  // lookahead distance is not needed as we are checking waypoint that is at immediately front of the vehicle.
   int next_waypoint_number = pp_.getNextWaypointNumber(false);
   if (next_waypoint_number != -1)
   {
