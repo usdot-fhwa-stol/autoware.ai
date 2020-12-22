@@ -79,6 +79,8 @@ public:
     ppcallbackFromCurrentPose(pose_ptr);
     ppgetNextWaypoint();
     auto next_wp_pose_calculated = ppGetPoseOfNextWaypoint();
+    std::cerr << "current point x:" << curr_pose_x << ",y :" << curr_pose_y <<std::endl;
+    std::cerr << "next point calculated x:" << next_wp_pose_calculated.x << ",y :" << next_wp_pose_calculated.y <<std::endl;
     ASSERT_NEAR(next_wp_pose_calculated.x, next_wp_pose_x, 0.0001);
     ASSERT_NEAR(next_wp_pose_calculated.y, next_wp_pose_y, 0.0001);
   }
@@ -157,16 +159,14 @@ TEST_F(PurePursuitNodeTestSuite, inputNormalLane)
     << "Fail to expand waypoints";
 }
 
-// Waypoints are constantly reset whenever new one is received.
-// On new update, and new car's position, a point already travelled can be selected as next waypoint
-// We simulate that by inserting previously checked point again.
+
 TEST_F(PurePursuitNodeTestSuite, checkWaypointIsAheadOrBehind)
 {  
   /*
   *           2.             |3  x. > x-th waypoint coordinate 
   *                          |2  
   *                          |1
-  *  0. 1.          4.    3. |0
+  *  0. 1.          3.    4. |0
   * ------------------------ y 
   *x 0  1  2  3  4  5  6  7   
   */
@@ -177,8 +177,8 @@ TEST_F(PurePursuitNodeTestSuite, checkWaypointIsAheadOrBehind)
   original_lane.waypoints[1].pose.pose.position.x = 1;
   original_lane.waypoints[2].pose.pose.position.x = 3; 
   original_lane.waypoints[2].pose.pose.position.y = 3; 
-  original_lane.waypoints[3].pose.pose.position.x = 7; 
-  original_lane.waypoints[4].pose.pose.position.x = 5; // forcing invalid trajectory that essentially means U turnsssssss
+  original_lane.waypoints[3].pose.pose.position.x = 5;
+  original_lane.waypoints[4].pose.pose.position.x = 7;  
   original_lane.waypoints[0].pose.pose.orientation =
       tf::createQuaternionMsgFromYaw(0.0);
   original_lane.waypoints[1].pose.pose.orientation =
@@ -199,15 +199,15 @@ TEST_F(PurePursuitNodeTestSuite, checkWaypointIsAheadOrBehind)
   ppCallbackFromWayPoints(lp);
   ppgetNextWaypoint();
 
-  // following simulates the car going straight on x coord
+  // following simulates the car going straight on x coord, 1D
   // despite the waypoint being in 2D to test the angles
   ASSERT_NEAR(ppGetPoseOfNextWaypoint().x, 0, 0.001);
 
   ASSERT_NEAR_NEXT_WP_POSE_USING_CURR_POSE(0.95, 0, 1, 0); // closest next waypoint is 1. (<1,0> 0 degrees ahead): qualified
 
-  ASSERT_NEAR_NEXT_WP_POSE_USING_CURR_POSE(2.95, 0, 3, 3); // closest next waypoint is 2. (<3,3> little less than 90 degrees ahead): qualified
+  ASSERT_NEAR_NEXT_WP_POSE_USING_CURR_POSE(2.95, 0, 5, 0); // closest next waypoint is 2. (<3,3> little less than 90 degrees ahead): qualified
 
-  ASSERT_NEAR_NEXT_WP_POSE_USING_CURR_POSE(3.15, 0, 7, 0); // closest next waypoint is 2. (<3,3> little more than 90 degrees ahead): disqualified
+  ASSERT_NEAR_NEXT_WP_POSE_USING_CURR_POSE(3.15, 0, 5, 0); // closest next waypoint is 2. (<3,3> little more than 90 degrees ahead): disqualified
                                                                                     // so picked 3. (<7,0> 0 degrees ahead): qualified
 
   ASSERT_NEAR_NEXT_WP_POSE_USING_CURR_POSE(6.95, 0, 7, 0); // closest next waypoint is 3. (<7,0> 0 degrees ahead): qualified

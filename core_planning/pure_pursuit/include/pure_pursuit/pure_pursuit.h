@@ -55,15 +55,6 @@ public:
   {
     current_waypoints_ = wps;
   }
-  void initializeUsingNextWaypoint(int next_waypoint_number)
-  {
-    tf::Vector3 curr_vector(current_waypoints_.at(next_waypoint_number + 1).pose.pose.position.x - current_pose_.position.x, 
-                    current_waypoints_.at(next_waypoint_number + 1).pose.pose.position.y - current_pose_.position.y, 
-                    current_waypoints_.at(next_waypoint_number + 1).pose.pose.position.z - current_pose_.position.z);
-    previous_pose_ = current_pose_;
-    curr_vector.setZ(0);
-    prev_travelled_vector_ = curr_vector;
-  }
   void setCurrentPose(const geometry_msgs::PoseStampedConstPtr& msg)
   {
     current_pose_ = msg->pose;
@@ -98,10 +89,17 @@ public:
   {
     return minimum_lookahead_distance_;
   }
-  int getNextWaypointNumber();
+  /**
+   * \brief Returns the idx number of next waypoint that is in front of the vehicle.
+   * \param use_lookahead_distance true to use dynamic lookahead, false to ignore 
+   * \return idx number of waypoint
+   */
+  int getNextWaypointNumber(bool use_lookahead_distance = true);
+  /**
+   * \brief Sets the next waypoint's idx number. Debug purpose only
+   * \return idx number of waypoint
+   */
   void setNextWaypoint(int next_waypoint_number);
-  int getNextWaypointNumberForSpeed();
-
   // processing
   bool canGetCurvature(double* output_kappa);
 
@@ -116,16 +114,14 @@ private:
   geometry_msgs::Point next_target_position_;
   double lookahead_distance_;
   double minimum_lookahead_distance_;
-  geometry_msgs::Pose current_pose_, previous_pose_;
+  geometry_msgs::Pose current_pose_;
   double current_linear_velocity_;
-  tf::Vector3 prev_travelled_vector_;
   std::vector<autoware_msgs::Waypoint> current_waypoints_;
 
   // functions
   double calcCurvature(geometry_msgs::Point target) const;
   bool interpolateNextTarget(
     int next_waypoint, geometry_msgs::Point* next_target) const;
-  
 };
 }  // namespace waypoint_follower
 

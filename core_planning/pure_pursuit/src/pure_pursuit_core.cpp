@@ -302,7 +302,8 @@ void PurePursuitNode::callbackFromWayPoints(
     pp_.setCurrentWaypoints(msg->waypoints);
   }
   is_waypoint_set_ = true;
-  int next_waypoint_number = pp_.getNextWaypointNumberForSpeed();
+  // lookahead distance is not needed as we are checking waypoint that is at immediate front of the vehicle.
+  int next_waypoint_number = pp_.getNextWaypointNumber(false);
   if (next_waypoint_number != -1)
   {
     command_linear_velocity_ =
@@ -310,12 +311,9 @@ void PurePursuitNode::callbackFromWayPoints(
   }
   else
   {
-    ROS_ERROR_STREAM("We are putting 0 speed because next_waypoint did not satisfy!!!");
-    ROS_ERROR_STREAM("next wp:" << next_waypoint_number << " wp size: "<< pp_.getCurrentWaypoints().size());
+    ROS_WARN_STREAM("Pure pursuit is applying 0mph speed because it could not find satisfactory next_waypoint");
     command_linear_velocity_ = 0;
   }
-  
-  ROS_DEBUG_STREAM("||||||||| Set actual command_linear_velocity_: " << command_linear_velocity_ * 2.23694 << "mph");
 }
 
 
