@@ -1,15 +1,16 @@
-#include <iostream>
-#include "io_handlers/OsmHandler.h"
-
 #include <lanelet2_core/geometry/LineString.h>
 #include <lanelet2_core/geometry/Polygon.h>
+
 #include <boost/geometry/algorithms/is_valid.hpp>
 #include <fstream>
+#include <iostream>
 #include <pugixml.hpp>
 #include <sstream>
-#include "Exceptions.h"
-#include "io_handlers/Factory.h"
-#include "io_handlers/OsmFile.h"
+
+#include "lanelet2_io/Exceptions.h"
+#include "lanelet2_io/io_handlers/Factory.h"
+#include "lanelet2_io/io_handlers/OsmFile.h"
+#include "lanelet2_io/io_handlers/OsmHandler.h"
 
 using namespace std::string_literals;
 
@@ -43,7 +44,7 @@ RegulatoryElementPtr getDummy<RegulatoryElementPtr>(Id id) {
   return std::make_shared<GenericRegulatoryElement>(std::make_shared<RegulatoryElementData>(id));
 }
 
-Errors buildErrorMessage(const std::string& errorIntro, Errors errors) {
+Errors buildErrorMessage(const std::string& errorIntro, const Errors& errors) {
   if (errors.empty()) {
     return {};
   }
@@ -225,7 +226,7 @@ class FromFileLoader {  // NOLINT
     return attr != relation.attributes.end() && attr->second == Type;
   }
 
-  lanelet::AttributeMap getAttributes(const lanelet::osm::Attributes& osmAttributes) {
+  static lanelet::AttributeMap getAttributes(const lanelet::osm::Attributes& osmAttributes) {
     lanelet::AttributeMap attributes;
     for (const auto& osmAttr : osmAttributes) {
       attributes.insert(std::make_pair(osmAttr.first, lanelet::Attribute(osmAttr.second)));
@@ -405,6 +406,17 @@ void registerIds(const MapT& map) {
     utils::registerId(map.rbegin()->first);
   }
 }
+
+void testAndPrintLocaleWarning(ErrorMessages& errors) {
+  auto* decimalPoint = std::localeconv()->decimal_point;
+  if (decimalPoint == nullptr || *decimalPoint != '.') {
+    std::stringstream ss;
+    ss << "Warning: Current decimal point of the C locale is set to \""
+       << (decimalPoint == nullptr ? ' ' : *decimalPoint) << "\". The loaded map will have wrong coordinates!\n";
+    errors.emplace_back(ss.str());
+    std::cerr << errors.back();
+  }
+}
 }  // namespace
 
 std::unique_ptr<LaneletMap> OsmParser::parse(const std::string& filename, ErrorMessages& errors) const {
@@ -415,6 +427,7 @@ std::unique_ptr<LaneletMap> OsmParser::parse(const std::string& filename, ErrorM
     throw lanelet::ParseError("Errors occured while parsing osm file: "s + result.description());
   }
   osm::Errors osmReadErrors;
+  testAndPrintLocaleWarning(osmReadErrors);
   auto file = lanelet::osm::read(doc, &osmReadErrors);
   auto map = fromOsmFile(file, errors);
   // make sure ids in the file are known to Lanelet2 id management.

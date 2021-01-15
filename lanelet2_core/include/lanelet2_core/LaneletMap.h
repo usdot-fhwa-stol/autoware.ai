@@ -1,12 +1,13 @@
 #pragma once
 
 #include <unordered_map>
-#include "Forward.h"
-#include "primitives/Area.h"
-#include "primitives/BoundingBox.h"
-#include "primitives/Lanelet.h"
-#include "primitives/RegulatoryElement.h"
-#include "utility/Utilities.h"
+
+#include "lanelet2_core/Forward.h"
+#include "lanelet2_core/primitives/Area.h"
+#include "lanelet2_core/primitives/BoundingBox.h"
+#include "lanelet2_core/primitives/Lanelet.h"
+#include "lanelet2_core/primitives/RegulatoryElement.h"
+#include "lanelet2_core/utility/Utilities.h"
 
 namespace lanelet {
 namespace internal {
@@ -562,8 +563,9 @@ using LayerPrimitiveType = typename LayerPrimitive<T>::Type;
 namespace geometry {
 /**
  * @brief returns the nearest n primitives to a point.
- * @return vector of the n closest primitives together with their distance in
+ * @return vector of the n closest primitives together with their distance in 2D space in
  * ascending order.
+ * @see findWithin2d, findWithin3d
  *
  * Other than than LaneletLayer::nearest, this returns the actually closest
  * primitives, not only the closest bounding boxes.
@@ -580,11 +582,12 @@ std::vector<std::pair<double, traits::ConstPrimitiveType<PrimT>>> findNearest(co
                                                                               const BasicPoint2d& pt, unsigned count);
 
 #ifndef LANELET_LAYER_DEFINITION
-#define EXTERN_FIND_NEAREST(PRIM) \
-  extern template std::vector<std::pair<double, PRIM>> findNearest(PrimitiveLayer<PRIM>&, const BasicPoint2d&, unsigned)
-#define EXTERN_CONST_FIND_NEAREST(PRIM)                                                         \
-  extern template std::vector<std::pair<double, traits::ConstPrimitiveType<PRIM>>> findNearest( \
-      const PrimitiveLayer<PRIM>&, const BasicPoint2d&, unsigned)
+// clang-format off
+// NOLINTNEXTLINE
+#define EXTERN_FIND_NEAREST(PRIM) extern template std::vector<std::pair<double, PRIM>> findNearest(PrimitiveLayer<PRIM>&, const BasicPoint2d&, unsigned)
+// NOLINTNEXTLINE
+#define EXTERN_CONST_FIND_NEAREST(PRIM) extern template std::vector<std::pair<double, traits::ConstPrimitiveType<PRIM>>> findNearest(const PrimitiveLayer<PRIM>&, const BasicPoint2d&, unsigned)
+// clang-format on
 EXTERN_FIND_NEAREST(Area);
 EXTERN_FIND_NEAREST(Polygon3d);
 EXTERN_FIND_NEAREST(Lanelet);

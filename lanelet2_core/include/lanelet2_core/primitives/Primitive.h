@@ -4,9 +4,10 @@
 #pragma once
 #include <limits>
 #include <utility>
-#include "../Attribute.h"
-#include "../Exceptions.h"
-#include "Traits.h"
+
+#include "lanelet2_core/Attribute.h"
+#include "lanelet2_core/Exceptions.h"
+#include "lanelet2_core/primitives/Traits.h"
 
 namespace lanelet {
 //! @defgroup DataObjects lanelet data management
@@ -29,7 +30,7 @@ namespace lanelet {
  */
 class PrimitiveData {
  public:
-  PrimitiveData() noexcept : id{InvalId} {}
+  PrimitiveData() noexcept = default;
   PrimitiveData(PrimitiveData&& rhs) noexcept = default;
   PrimitiveData& operator=(PrimitiveData&& rhs) noexcept = default;
   PrimitiveData(const PrimitiveData& rhs) = default;
@@ -40,7 +41,7 @@ class PrimitiveData {
    */
   explicit PrimitiveData(Id id, AttributeMap attributes = AttributeMap()) : id{id}, attributes{std::move(attributes)} {}
 
-  Id id;                    //!< Id of this primitive (unique across one map)
+  Id id{InvalId};           //!< Id of this primitive (unique across one map)
   AttributeMap attributes;  //!< attributes of this primitive
  protected:
   ~PrimitiveData() = default;
@@ -318,7 +319,7 @@ bool isLaneletPrimitiveHelper(NotPrimitive* /*unused*/, long /*unused*/) {  // N
 
 template <typename PrimitiveT>
 constexpr bool isLaneletPrimitive() {
-  PrimitiveT* v;
+  PrimitiveT* v = nullptr;
   return IsLaneletPrimitiveHelper(v, 0);
 }
 }  // namespace traits

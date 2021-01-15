@@ -2,15 +2,59 @@
 #include <lanelet2_core/Forward.h>
 #include <lanelet2_core/LaneletMap.h>
 #include <lanelet2_core/primitives/Lanelet.h>
+#include <lanelet2_core/primitives/LaneletOrArea.h>
 #include <lanelet2_core/utility/Optional.h>
+
 #include <map>
-#include "Forward.h"
-#include "LaneletPath.h"
-#include "RoutingCost.h"
-#include "Types.h"
+
+#include "lanelet2_routing/Forward.h"
+#include "lanelet2_routing/LaneletPath.h"
+#include "lanelet2_routing/RoutingCost.h"
+#include "lanelet2_routing/Types.h"
 
 namespace lanelet {
 namespace routing {
+
+/**
+ * @brief Controls the behaviour of the different possible path algorithms in RoutingGraph
+ *
+ * Consider the following graph (- or \ connects followers, | is a lane change):
+ * ```
+ * 1-2-3-4-5
+ *  \   /
+ *   6-7
+ *   | |
+ *   8-9
+ * ```
+ * Assuming we are using lanelet 1 as start of the search you can get the following results:
+ * - routingCostLimit=50 (and the rest the default): Will give you all optimal paths that are at least 50
+ * long (wrt to routing cost module zero, i.e. the first routing cost object from the "routingCosts"
+ * parameter that the routing graph was crated with), does not include lane changes. The paths end
+ * with the first lanelet that exceeds the 50 cost limit. Depending on the costs, the returned paths
+ * might be only the path 1-2-3 (assuming 1-6-7 is too short).
+ * - routingCostLimit=70: Will give you only 1-2-3-4, because 1-6-7-4 is a suboptimal path and 1-6-7 is too short.
+ * - routingCostLimit=70, includeShorterPaths=True: Will give you 1-2-3-4 and 1-6-7. 1-6-7-4 is not included because the
+ * path to 4 is suboptimal
+ * - elementLimit=3: Will give you all optimal paths with exactly 3 lanelets (excluding lane changes). The result
+ * will be 1-2-3 and 1-6-7
+ * - elementLimit=4: Will give you only 1-2-3-4, also because 1-6-7-4 is suboptimal
+ * - elementLimit=5, includeShorterPaths=true, includeLaneChanges=true: Will give you all optimal paths that
+ * are at most 5 lanelets/areas long, including lane changes. The result might be 1-2-3-4-5, 1-6-7,
+ * 1-8-9.
+ * - routingCostLimit=50, elementLimit=3, includeLaneChanges=true:  Will give you all optimal paths (including lane
+ * changes) where the last lanelet/area exceeds the 50 cost limit or that are 3 lanelets/areas long (whatever occurs
+ * first). The result might be 1-2-3, 1-6-7 and 1-8-9
+ * - routingCostLimit=70, elementLimit=4, includeShorterPaths=true: Will give you all optimal paths as above but also
+ * include shorter/cheaper paths. Result: 1-2-3-4, 1-6-7, 1-8-9.
+ */
+struct PossiblePathsParams {
+  Optional<double> routingCostLimit;  //!< cost limit for every path. Either that or maxElements must be valid.
+  Optional<uint32_t> elementLimit;    //!< element limit for every path. Effect depends on includeShorterPaths
+  RoutingCostId routingCostId{};      //!< the routing cost module to be used for the costs
+  bool includeLaneChanges{false};     //!< if true, returned paths will include lane changes
+  bool includeShorterPaths{false};    //!< also return paths that do not reach the limits
+};
+
 /** @brief Main class of the routing module that holds routing information and can be queried.
  *  The RoutingGraph class is the central object of this module and is initialized with a LaneletMap, TrafficRules and
  * RoutingCost.
@@ -89,6 +133,19 @@ class RoutingGraph {
   Optional<LaneletPath> shortestPath(const ConstLanelet& from, const ConstLanelet& to, RoutingCostId routingCostId = {},
                                      bool withLaneChanges = true) const;
 
+  /** @brief Retrieve a shortest path between 'start' and 'end' that may contain Areas.
+   *
+   *  Will find a shortest path using Djikstra's shortest path algorithm and the routing cost calculated by the
+   * routing cost module with the respective ID. Be aware that the shortest path may contain lane changes,
+   * i.e. lanelets that are parallel and not only adjacent.
+   *  @param from Start lanelet or area to find a shortest path
+   *  @param to End lanelet or area to find a shortest path to
+   *  @param routingCostId ID of RoutingCost module to determine shortest path
+   *  @param withLaneChanges if false, the shortest path will not contain lane changes */
+  Optional<LaneletOrAreaPath> shortestPathIncludingAreas(const ConstLaneletOrArea& from, const ConstLaneletOrArea& to,
+                                                         RoutingCostId routingCostId = {},
+                                                         bool withLaneChanges = true) const;
+
   /** @brief Retrieve a shortest path between 'start' and 'end' using intermediate points.
    *  Will find a shortest path using Djikstra's shortest path algorithm and the routing cost calculated by the
    * routing cost module with the respective ID. Be aware that the shortest path may contain lane changes,
@@ -101,6 +158,22 @@ class RoutingGraph {
    *  @see shortestPath */
   Optional<LaneletPath> shortestPathVia(const ConstLanelet& start, const ConstLanelets& via, const ConstLanelet& end,
                                         RoutingCostId routingCostId = {}, bool withLaneChanges = true) const;
+
+  /** @brief Retrieve a shortest path between 'start' and 'end' using intermediate points.
+   *  Will find a shortest path using Djikstra's shortest path algorithm and the routing cost calculated by the
+   * routing cost module with the respective ID. Be aware that the shortest path may contain lane changes,
+   * i.e. lanelets that are parallel and not only adjacent.
+   *  @param start Start lanelet or area to find a shortest path
+   *  @param via Intermediate lanelets or areas that have to be passed
+   *  @param end End lanelet or area to find a shortest path
+   *  @param routingCostId ID of RoutingCost module to determine shortest path
+   *  @param withLaneChanges if false, the shortest path will not contain lane changes
+   *  @see shortestPath */
+  Optional<LaneletOrAreaPath> shortestPathIncludingAreasVia(const ConstLaneletOrArea& start,
+                                                            const ConstLaneletOrAreas& via,
+                                                            const ConstLaneletOrArea& end,
+                                                            RoutingCostId routingCostId = {},
+                                                            bool withLaneChanges = true) const;
 
   /** @brief Determines the relation between two lanelets
    *  @param from Start lanelet
@@ -141,68 +214,90 @@ class RoutingGraph {
 
   /** @brief Retrieve all reachable left and right lanelets
    *  @param lanelet Start lanelet
+   *  @param routingCostId the routing cost module to be used. Can make a difference if one allows a lane change but the
+   * other one doesn't.
    *  @return All left and right lanelets that can be reached, including lanelet, ordered left to right. */
-  ConstLanelets besides(const ConstLanelet& lanelet) const;
+  ConstLanelets besides(const ConstLanelet& lanelet, RoutingCostId routingCostId = {}) const;
 
   /** @brief Get left (routable) lanelet of a given lanelet if it exists.
    *  @param lanelet Start lanelet
+   *  @param routingCostId the routing cost module to be used. Can make a difference if one allows a lane change but the
+   * other one doesn't.
    *  @return Left lanelet if it exists. Nothing if it doesn't.
    *  @see adjacentLeft, lefts, adjacentLefts */
-  Optional<ConstLanelet> left(const ConstLanelet& lanelet) const;
+  Optional<ConstLanelet> left(const ConstLanelet& lanelet, RoutingCostId routingCostId = {}) const;
 
   /** @brief Get adjacent left (non-routable) lanelet of a given lanelet if it exists.
    *  @param lanelet Start lanelet
+   *  @param routingCostId the routing cost module to be used. Can make a difference if one allows a lane change but the
+   * other one doesn't.
    *  @return Adjacent left lanelet if it exists. Nothing if it doesn't.
    *  @see left, lefts, adjacentLefts */
-  Optional<ConstLanelet> adjacentLeft(const ConstLanelet& lanelet) const;
+  Optional<ConstLanelet> adjacentLeft(const ConstLanelet& lanelet, RoutingCostId routingCostId = {}) const;
 
   /** @brief Get right (routable) lanelet of a given lanelet if it exists.
    *  @param lanelet Start lanelet
+   *  @param routingCostId the routing cost module to be used. Can make a difference if one allows a lane change but the
+   * other one doesn't.
    *  @return Right lanelet if it exists. Nothing if it doesn't.
    *  @see adjacentRight, rights, adjacentRights */
-  Optional<ConstLanelet> right(const ConstLanelet& lanelet) const;
+  Optional<ConstLanelet> right(const ConstLanelet& lanelet, RoutingCostId routingCostId = {}) const;
 
   /** @brief Get adjacent right (non-routable) lanelet of a given lanelet if it exists.
    *  @param lanelet Start lanelet
+   *  @param routingCostId the routing cost module to be used. Can make a difference if one allows a lane change but the
+   * other one doesn't.
    *  @return Adjacent right lanelet if it exists. Nothing if it doesn't.
    *  @see right, rights, adjacentRights */
-  Optional<ConstLanelet> adjacentRight(const ConstLanelet& lanelet) const;
+  Optional<ConstLanelet> adjacentRight(const ConstLanelet& lanelet, RoutingCostId routingCostId = {}) const;
 
   /** @brief Get all left (routable) lanelets of a given lanelet if they exist.
    *  @param lanelet Start lanelet
+   *  @param routingCostId the routing cost module to be used. Can make a difference if one allows a lane change but the
+   * other one doesn't.
    *  @return Left lanelets if they exists. Empty if they don't.
    *  @see adjacentLeft, left, adjacentLefts */
-  ConstLanelets lefts(const ConstLanelet& lanelet) const;
+  ConstLanelets lefts(const ConstLanelet& lanelet, RoutingCostId routingCostId = {}) const;
 
   /** @brief Get all adjacent left (non-routable) lanelets of a given lanelet if they exist.
    *  @param lanelet Start lanelet
+   *  @param routingCostId the routing cost module to be used. Can make a difference if one allows a lane change but the
+   * other one doesn't.
    *  @return Adjacent left lanelets if they exists. Empty if they don't.
    *  @see adjacentLeft, left, lefts */
-  ConstLanelets adjacentLefts(const ConstLanelet& lanelet) const;
+  ConstLanelets adjacentLefts(const ConstLanelet& lanelet, RoutingCostId routingCostId = {}) const;
 
   /** @brief Retrieve all lanelets and relations left of a given lanelet.
    *  @param lanelet Start lanelet
+   *  @param routingCostId the routing cost module to be used. Can make a difference if one allows a lane change but the
+   * other one doesn't.
    *  @return All lanelets and relations left of a given lanelet.
    *  @see lefts, adjacentLefts */
-  LaneletRelations leftRelations(const ConstLanelet& lanelet) const;
+  LaneletRelations leftRelations(const ConstLanelet& lanelet, RoutingCostId routingCostId = {}) const;
 
   /** @brief Get all right (routable) lanelets of a given lanelet if they exist.
    *  @param lanelet Start lanelet
+   *  @param routingCostId the routing cost module to be used. Can make a difference if one allows a lane change but the
+   * other one doesn't.
    *  @return Right lanelets if they exists. Empty if they don't.
    *  @see adjacentRight, right, adjacentRights */
-  ConstLanelets rights(const ConstLanelet& lanelet) const;
+  ConstLanelets rights(const ConstLanelet& lanelet, RoutingCostId routingCostId = {}) const;
 
   /** @brief Get all adjacent right (non-routable) lanelets of a given lanelet if they exist.
    *  @param lanelet Start lanelet
+   *  @param routingCostId the routing cost module to be used. Can make a difference if one allows a lane change but the
+   * other one doesn't.
    *  @return Adjacent right lanelets if they exists. Empty if they don't.
    *  @see adjacentRight, right, rights */
-  ConstLanelets adjacentRights(const ConstLanelet& lanelet) const;
+  ConstLanelets adjacentRights(const ConstLanelet& lanelet, RoutingCostId routingCostId = {}) const;
 
   /** @brief Retrieve all lanelets and relations right of a given lanelet.
    *  @param lanelet Start lanelet
+   *  @param routingCostId the routing cost module to be used. Can make a difference if one allows a lane change but the
+   * other one doesn't.
    *  @return All lanelets and relations right of a given lanelet.
    *  @see rights, adjacentRights */
-  LaneletRelations rightRelations(const ConstLanelet& lanelet) const;
+  LaneletRelations rightRelations(const ConstLanelet& lanelet, RoutingCostId routingCostId = {}) const;
 
   /** @brief Retrieve all lanelets that are conflicting with the given lanelet.
    *
@@ -238,53 +333,59 @@ class RoutingGraph {
   ConstLanelets reachableSetTowards(const ConstLanelet& lanelet, double maxRoutingCost,
                                     RoutingCostId routingCostId = {}, bool allowLaneChanges = true) const;
 
+  /**
+   * @brief Determines possible routes from a given start lanelet that satisfy the configuration in PossiblePathsParams
+   * @param startPoint Start lanelet
+   * @param params Parameters that configure the behaviour of the algorithm; see doc on PossiblePathsParams for details.
+   * @return all valid possible paths. If a lanelet can be reached
+   * using different paths, only the one is included that requires the least number of lane changes and has minimum
+   * routing costs. "startPoint" itself is always included if it is in the routing graph.
+   * @throws InvalidInputError if neither elementLimit nor costLimit is valid in params
+   */
+  LaneletPaths possiblePaths(const ConstLanelet& startPoint, const PossiblePathsParams& params) const;
+
   /** @brief Determines possible routes from a given start lanelet that are "minRoutingCost"-long.
    *
-   *  @return possible paths that are at least as long as specified in 'minRoutingCost'. If a lanelet can be reached
-   * using different paths, only the one is included that requires the least number of lane changes and has minimum
-   * routing costs. "lanelet" itself is always included.
-   *  @param startPoint Start lanelet
-   *  @param minRoutingCost Costs that must be reached by a route.
-   *  @param routingCostId ID of the routing cost module used
-   *  @param allowLaneChanges Allow or forbid lane changes */
+   * This behaves exactly as the PossiblePathsParams version with params.costLimit=minRoutingCost,
+   * params.includeLaneChanges=allowLaneChanges and params.routingCostId=routingCostId (and the rest as default).
+   */
   LaneletPaths possiblePaths(const ConstLanelet& startPoint, double minRoutingCost, RoutingCostId routingCostId = {},
                              bool allowLaneChanges = false) const;
 
-  /** @brief Determines possible paths from a given start lanelet that are "minLanelets"-long.   *
-   *  @return possible paths that are at least as long as specified number of lanelets. If a lanelet can be reached
-   * using different paths, only the one is included that requires the least number of lane changes and has minimum
-   * routing costs. "lanelet" itself is always included.
-   *  @param startPoint Start lanelet
-   *  @param minLanelets Number of lanelets a route must be long
-   *  @param allowLaneChanges Allow or forbid lane changes. Note that "lane changes" from a lanelet to an area do not
-   * count.
-   *  @param routingCostId ID of the routing cost module used. This is important in cases where some of routing cost
-   * modules retuned an invalid edge weight and some not.
+  /** @brief Determines possible paths from a given start lanelet that are "minLanelets"-long.
+   *
+   * This behaves exactly as the PossiblePathsParams version with params.elementLimit=minLanelets,
+   * params.includeLaneChanges=allowLaneChanges and params.routingCostId=routingCostId (and the rest as default).
    */
   LaneletPaths possiblePaths(const ConstLanelet& startPoint, uint32_t minLanelets, bool allowLaneChanges = false,
                              RoutingCostId routingCostId = {}) const;
 
+  /**
+   * @brief Determines possible routes to reach the given lanelet which satisfy the configuration in PossiblePathsParams
+   * @return possible paths that are at least as long as specified in 'minRoutingCost'. "targetLanelet" itself is
+   * always included if it is in the routing graph.
+   * @param targetLanelet Destination lanelet
+   * @param params Parameters that configure the behaviour of the algorithm; see doc on PossiblePathsParams for details.
+   * @throws InvalidInputError if neither elementLimit nor costLimit is valid in params */
+  LaneletPaths possiblePathsTowards(const ConstLanelet& targetLanelet, const PossiblePathsParams& params) const;
+
   /** @brief Determines possible routes that reach the given lanelet and are "minRoutingCost" long.
-   *  @return possible paths that are at least as long as specified in 'minRoutingCost'. "lanelet" itself is always
-   * included.
-   *  @param targetLanelet Start lanelet
-   *  @param minRoutingCost Costs that must be reached by a route.
-   *  @param routingCostId ID of the routing cost module used
-   *  @param allowLaneChanges Allow or forbid lane changes */
+   *
+   * This behaves exactly as the PossiblePathsParams version with params.costLimit=minRoutingCost,
+   * params.includeLaneChanges=allowLaneChanges and params.routingCostId=routingCostId (and the rest as default). */
   LaneletPaths possiblePathsTowards(const ConstLanelet& targetLanelet, double minRoutingCost,
                                     RoutingCostId routingCostId = {}, bool allowLaneChanges = false) const;
 
   /** @brief Determines possible paths towards a destination lanelet that are "minLanelets"-long.
-   *  @return possible routes that are at least as long as specified number of lanelets. The last lanelet will aways be
-   * "targetLanelet" (or nothing if it is not part of the graph).
-   *  @param targetLanelet target lanelet
-   *  @param minLanelets Number of lanelets a route must be long
-   *  @param allowLaneChanges Allow or forbid lane changes. Note that "lane changes" from a lanelet to an area do not
-   * count.
-   *  @param routingCostId ID of the routing cost module used. This is important in cases where some of routing cost
-   * modules retuned an invalid edge weight and some not. */
+   *
+   * This behaves exactly as the PossiblePathsParams version with params.elementLimit=minLanelets,
+   * params.includeLaneChanges=allowLaneChanges and params.routingCostId=routingCostId (and the rest as default). */
   LaneletPaths possiblePathsTowards(const ConstLanelet& targetLanelet, uint32_t minLanelets,
                                     bool allowLaneChanges = false, RoutingCostId routingCostId = {}) const;
+
+  //! Similar to RoutingGraph::possiblePaths, but also considers areas.
+  LaneletOrAreaPaths possiblePathsIncludingAreas(const ConstLaneletOrArea& startPoint,
+                                                 const PossiblePathsParams& params) const;
 
   //! Similar to RoutingGraph::possiblePaths, but also considers areas.
   LaneletOrAreaPaths possiblePathsIncludingAreas(const ConstLaneletOrArea& startPoint, double minRoutingCost,
@@ -385,7 +486,7 @@ class RoutingGraph {
   Errors checkValidity(bool throwOnError = true) const;
 
   /**
-   * Constructs the routing graph. Don't call this directly, use RoutingGraph::make instead.
+   * Constructs the routing graph. Don't call this directly, use RoutingGraph::build instead.
    */
   RoutingGraph(std::unique_ptr<internal::RoutingGraphGraph>&& graph, lanelet::LaneletSubmapConstPtr&& passableMap);
 

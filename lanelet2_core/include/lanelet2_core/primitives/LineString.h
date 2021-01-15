@@ -1,12 +1,13 @@
 #pragma once
 #include <utility>
-#include "../Forward.h"
-#include "../utility/ReverseAndForwardIterator.h"
-#include "../utility/TransformIterator.h"
-#include "../utility/Utilities.h"
-#include "BoundingBox.h"
-#include "Point.h"
-#include "Primitive.h"
+
+#include "lanelet2_core/Forward.h"
+#include "lanelet2_core/primitives/BoundingBox.h"
+#include "lanelet2_core/primitives/Point.h"
+#include "lanelet2_core/primitives/Primitive.h"
+#include "lanelet2_core/utility/ReverseAndForwardIterator.h"
+#include "lanelet2_core/utility/TransformIterator.h"
+#include "lanelet2_core/utility/Utilities.h"
 
 namespace lanelet {
 
@@ -63,7 +64,12 @@ struct LineStringTraits<Segment<PointT>> : public PrimitiveTraits<Segment<PointT
   using PointType = PointT;
   using HybridType = Segment<traits::BasicPointT<PointT>>;
 };
-
+template <>
+inline BasicLineString2d to2D<BasicLineString3d>(const BasicLineString3d& primitive) {
+  BasicLineString2d ls2d(primitive.size());
+  std::transform(primitive.begin(), primitive.end(), ls2d.begin(), utils::to2D<BasicPoint3d>);
+  return ls2d;
+}
 }  // namespace traits
 
 namespace internal {
@@ -754,6 +760,9 @@ constexpr auto toHybrid(const LineStringT ls) {
 template <typename T, typename RetT>
 using IfLS = std::enable_if_t<traits::isLinestringT<T>(), RetT>;
 
+template <typename T1, typename T2, typename RetT>
+using IfLS2 = std::enable_if_t<traits::isLinestringT<T1>() && traits::isLinestringT<T2>(), RetT>;
+
 namespace utils {
 using traits::toHybrid;
 
@@ -785,4 +794,8 @@ template <>
 struct hash<lanelet::LineString2d> : public lanelet::HashBase<lanelet::LineString2d> {};
 template <>
 struct hash<lanelet::ConstLineString2d> : public lanelet::HashBase<lanelet::ConstLineString2d> {};
+template <>
+struct hash<lanelet::ConstHybridLineString2d> : public lanelet::HashBase<lanelet::ConstHybridLineString2d> {};
+template <>
+struct hash<lanelet::ConstHybridLineString3d> : public lanelet::HashBase<lanelet::ConstHybridLineString3d> {};
 }  // namespace std

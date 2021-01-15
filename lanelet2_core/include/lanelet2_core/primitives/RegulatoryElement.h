@@ -2,14 +2,15 @@
 
 #include <boost/variant.hpp>
 #include <utility>
-#include "../Forward.h"
-#include "../utility/HybridMap.h"
-#include "Area.h"
-#include "Lanelet.h"
-#include "LineString.h"
-#include "Point.h"
-#include "Polygon.h"
-#include "Primitive.h"
+
+#include "lanelet2_core/Forward.h"
+#include "lanelet2_core/primitives/Area.h"
+#include "lanelet2_core/primitives/Lanelet.h"
+#include "lanelet2_core/primitives/LineString.h"
+#include "lanelet2_core/primitives/Point.h"
+#include "lanelet2_core/primitives/Polygon.h"
+#include "lanelet2_core/primitives/Primitive.h"
+#include "lanelet2_core/utility/HybridMap.h"
 
 namespace lanelet {
 //! @defgroup RegulatoryElementPrimitives Regulatory Element
@@ -433,7 +434,7 @@ template <>
 inline boost::optional<ConstLanelet> RegulatoryElement::find<ConstLanelet>(Id id) const {
   for (const auto& params : parameters()) {
     for (const auto& elem : params.second) {
-      auto telem = boost::get<WeakLanelet>(&elem);
+      const auto* telem = boost::get<WeakLanelet>(&elem);
       if (telem != nullptr && !telem->expired() && telem->lock().id() == id) {
         return telem->lock();
       }
@@ -446,7 +447,7 @@ template <>
 inline boost::optional<ConstArea> RegulatoryElement::find<ConstArea>(Id id) const {
   for (const auto& params : parameters()) {
     for (const auto& elem : params.second) {
-      auto telem = boost::get<WeakArea>(&elem);
+      const auto* telem = boost::get<WeakArea>(&elem);
       if (telem != nullptr && !telem->expired() && telem->lock().id() == id) {
         return telem->lock();
       }
@@ -507,3 +508,9 @@ template <typename T, typename RetT>
 using IfRE = std::enable_if_t<traits::isRegulatoryElementT<T>(), RetT>;
 
 }  // namespace lanelet
+
+// Hash function for usage in containers
+namespace std {
+template <>
+struct hash<lanelet::RegulatoryElement> : public lanelet::HashBase<lanelet::RegulatoryElement> {};
+}  // namespace std

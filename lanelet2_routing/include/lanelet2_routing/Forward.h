@@ -1,6 +1,7 @@
 #pragma once
 
 #include <lanelet2_core/Forward.h>
+
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -114,7 +115,6 @@ inline std::string relationToColor(RelationType type) {
     case RelationType::Conflicting:
       return "red";
     case RelationType::AdjacentLeft:
-      return "black";
     case RelationType::AdjacentRight:
       return "black";
     case RelationType::Area:

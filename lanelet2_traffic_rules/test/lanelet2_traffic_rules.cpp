@@ -1,9 +1,10 @@
 #include <lanelet2_core/primitives/BasicRegulatoryElements.h>
 #include <lanelet2_core/primitives/Lanelet.h>
 #include <lanelet2_core/utility/Units.h>
-#include "TrafficRules.h"
-#include "TrafficRulesFactory.h"
+
 #include "gtest/gtest.h"
+#include "lanelet2_traffic_rules/TrafficRules.h"
+#include "lanelet2_traffic_rules/TrafficRulesFactory.h"
 
 using Attr = lanelet::AttributeName;
 using AttrStr = lanelet::AttributeNamesString;
@@ -12,7 +13,9 @@ using lanelet::Participants;
 
 lanelet::RegulatoryElementPtr getSpeedLimit(const std::string& type, const lanelet::AttributeMap& attributes = {}) {
   using namespace lanelet;
-  Point3d p1{10, 0, -1}, p2{11, 0, -2};
+  Point3d p1{10, 0, -1};
+
+  Point3d p2{11, 0, -2};
   LineString3d sign{7, {p1, p2}};
   return SpeedLimit::make(5, attributes, {{sign}, type});
 }
@@ -20,7 +23,7 @@ lanelet::RegulatoryElementPtr getSpeedLimit(const std::string& type, const lanel
 lanelet::traffic_rules::TrafficRulesPtr germanVehicleRules() {
   using namespace lanelet;
   return traffic_rules::TrafficRulesFactory::create(Locations::Germany, Participants::Vehicle, {});
-};
+}
 
 lanelet::traffic_rules::TrafficRulesPtr germanBikeRules() {
   using namespace lanelet;

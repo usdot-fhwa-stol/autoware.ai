@@ -1,9 +1,11 @@
-#include "GenericTrafficRules.h"
+#include "lanelet2_traffic_rules/GenericTrafficRules.h"
+
 #include <lanelet2_core/geometry/Area.h>
 #include <lanelet2_core/geometry/Lanelet.h>
 #include <lanelet2_core/primitives/RegulatoryElement.h>
 #include <lanelet2_core/utility/Units.h>
-#include "Exceptions.h"
+
+#include "lanelet2_traffic_rules/Exceptions.h"
 
 namespace lanelet {
 namespace traffic_rules {

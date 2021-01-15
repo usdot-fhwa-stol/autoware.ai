@@ -1,7 +1,8 @@
 #pragma once
 #include <memory>
-#include "../Configuration.h"
-#include "../Projection.h"
+
+#include "lanelet2_io/Configuration.h"
+#include "lanelet2_io/Projection.h"
 
 namespace lanelet {
 using ErrorMessages = std::vector<std::string>;
@@ -37,7 +38,7 @@ class IOHandler {  // NOLINT
     return *projector_;
   }
 
-  const io::Configuration config() { return *config_; }
+  io::Configuration config() { return *config_; }
 
  protected:
   IOHandler() = default;  // workaround for gcc5 bug

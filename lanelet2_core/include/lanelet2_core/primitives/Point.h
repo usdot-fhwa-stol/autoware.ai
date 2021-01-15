@@ -7,11 +7,12 @@
 #include <Eigen/Core>
 #pragma GCC diagnostic pop
 #include <utility>
-#include "../Forward.h"
-#include "../utility/TransformIterator.h"
-#include "../utility/Utilities.h"
-#include "Primitive.h"
-#include "Traits.h"
+
+#include "lanelet2_core/Forward.h"
+#include "lanelet2_core/primitives/Primitive.h"
+#include "lanelet2_core/primitives/Traits.h"
+#include "lanelet2_core/utility/TransformIterator.h"
+#include "lanelet2_core/utility/Utilities.h"
 
 namespace lanelet {
 
@@ -104,7 +105,7 @@ struct ArcCoordinates {
 class PointData : public PrimitiveData {  // NOLINT
  public:
   PointData(Id id, BasicPoint3d point, const AttributeMap& attributes = AttributeMap())
-      : PrimitiveData(id, attributes), point(std::move(point)), point2d_{point.x(), point.y()} {}
+      : PrimitiveData(id, attributes), point(point), point2d_{point.x(), point.y()} {}
   PointData(const PointData&) = delete;
   PointData& operator=(const LineStringData&) = delete;
   PointData(PointData&&) = default;
@@ -117,7 +118,7 @@ class PointData : public PrimitiveData {  // NOLINT
     return point2d_;
   }
 
-  BasicPoint3d point;
+  BasicPoint3d point;  // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
 
  private:
   mutable BasicPoint2d point2d_;
@@ -159,7 +160,7 @@ class ConstPoint2d : public ConstPrimitive<PointData> {
   using ConstPrimitive::ConstPrimitive;
 
   //! @brief Construct from an id and a point
-  ConstPoint2d(Id id, BasicPoint3d point, AttributeMap attributes = AttributeMap())
+  ConstPoint2d(Id id, const BasicPoint3d& point, const AttributeMap& attributes = AttributeMap())
       : ConstPrimitive<PointData>{std::make_shared<PointData>(id, point, attributes)} {}  // NOLINT
 
   //! @brief Construct from an id and coordinates
@@ -168,7 +169,7 @@ class ConstPoint2d : public ConstPrimitive<PointData> {
    * point, where z matters.
    */
   explicit ConstPoint2d(Id id = InvalId, double x = 0., double y = 0., double z = 0.,
-                        AttributeMap attributes = AttributeMap())
+                        const AttributeMap& attributes = AttributeMap())
       : ConstPrimitive<PointData>{std::make_shared<PointData>(  // NOLINT
             id, BasicPoint3d(x, y, z), attributes)} {}
 

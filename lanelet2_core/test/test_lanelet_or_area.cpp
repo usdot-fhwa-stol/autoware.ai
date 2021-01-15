@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
-#include "primitives/LaneletOrArea.h"
+
+#include "lanelet2_core/primitives/LaneletOrArea.h"
 
 using namespace lanelet;
 
@@ -39,4 +40,17 @@ TEST_F(TestLaneletOrArea, getArea) {  // NOLINT
   EXPECT_EQ(ar.attributes(), area.attributes());
   EXPECT_EQ(ar, area);
   EXPECT_NE(ar, lanelet);
+}
+
+TEST_F(TestLaneletOrArea, boundingPolygon) {  // NOLINT
+  auto poly = getArea().boundingPolygon();
+  ASSERT_EQ(poly.size(), area.outerBoundPolygon().size());
+  for (size_t i = 0; i < poly.size(); ++i) {
+    EXPECT_EQ(poly[i], area.outerBoundPolygon()[i]);
+  }
+  poly = getLanelet().boundingPolygon();
+  ASSERT_EQ(poly.size(), lanelet.polygon3d().size());
+  for (size_t i = 0; i < poly.size(); ++i) {
+    EXPECT_EQ(poly[i], lanelet.polygon3d()[i]);
+  }
 }
