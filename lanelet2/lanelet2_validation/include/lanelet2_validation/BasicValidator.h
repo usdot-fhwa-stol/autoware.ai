@@ -1,8 +1,10 @@
 #pragma once
 #include <lanelet2_core/Forward.h>
 #include <lanelet2_traffic_rules/TrafficRules.h>
+
 #include <memory>
-#include "Issue.h"
+
+#include "lanelet2_validation/Issue.h"
 
 namespace lanelet {
 namespace routing {

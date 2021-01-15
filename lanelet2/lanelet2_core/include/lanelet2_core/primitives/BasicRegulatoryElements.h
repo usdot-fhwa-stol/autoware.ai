@@ -1,10 +1,11 @@
 #pragma once
 
 #include <string>
-#include "../Forward.h"
-#include "LineString.h"
-#include "LineStringOrPolygon.h"
-#include "RegulatoryElement.h"
+
+#include "lanelet2_core/Forward.h"
+#include "lanelet2_core/primitives/LineString.h"
+#include "lanelet2_core/primitives/LineStringOrPolygon.h"
+#include "lanelet2_core/primitives/RegulatoryElement.h"
 
 namespace lanelet {
 
@@ -293,7 +294,7 @@ class TrafficSign : public RegulatoryElement {
   bool removeTrafficSign(const LineStringOrPolygon3d& sign);
 
   //! Add new cancelling traffic sign
-  void addCancellingTrafficSign(const TrafficSignsWithType& sign);
+  void addCancellingTrafficSign(const TrafficSignsWithType& signs);
 
   //! remove a cancelling traffic sign, returns true on success
   bool removeCancellingTrafficSign(const LineStringOrPolygon3d& sign);

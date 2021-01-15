@@ -5,12 +5,13 @@
 
 #include <memory>
 #include <utility>
-#include "../Forward.h"
-#include "../utility/Optional.h"
-#include "CompoundPolygon.h"
-#include "Point.h"
-#include "Polygon.h"
-#include "Primitive.h"
+
+#include "lanelet2_core/Forward.h"
+#include "lanelet2_core/primitives/CompoundPolygon.h"
+#include "lanelet2_core/primitives/Point.h"
+#include "lanelet2_core/primitives/Polygon.h"
+#include "lanelet2_core/primitives/Primitive.h"
+#include "lanelet2_core/utility/Optional.h"
 
 namespace lanelet {
 //! @defgroup AreaPrimitives Area
@@ -137,9 +138,9 @@ class ConstArea : public ConstPrimitive<AreaData> {
    *
    * This is the constructor that you most probably want to use.
    */
-  ConstArea(Id id, LineStrings3d outerBound, InnerBounds innerBounds = InnerBounds(),
-            AttributeMap attributes = AttributeMap(),
-            RegulatoryElementPtrs regulatoryElements = RegulatoryElementPtrs())
+  ConstArea(Id id, const LineStrings3d& outerBound, const InnerBounds& innerBounds = InnerBounds(),
+            const AttributeMap& attributes = AttributeMap(),
+            const RegulatoryElementPtrs& regulatoryElements = RegulatoryElementPtrs())
       : ConstPrimitive{std::make_shared<AreaData>(id, outerBound, innerBounds, attributes, regulatoryElements)} {}
 
   //! Constructor to construct from the data of a different Area

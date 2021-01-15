@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
-#include "Mercator.h"
+
+#include "lanelet2_projection/Mercator.h"
 
 TEST(Mercator, origin) {  // NOLINT
   lanelet::projection::Mercator mercatorProjection(lanelet::Origin{{45, 45, 0}});

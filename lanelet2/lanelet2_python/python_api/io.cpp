@@ -1,4 +1,5 @@
 #include <lanelet2_io/Io.h>
+
 #include <boost/python.hpp>
 
 namespace py = boost::python;
@@ -42,7 +43,7 @@ BOOST_PYTHON_MODULE(PYTHON_API_MODULE_NAME) {  // NOLINT
                              return std::make_shared<Origin>(GPSPoint{lat, lon, alt});
                            },
                            default_call_policies(), (arg("lat") = 0., arg("lon") = 0., arg("lon") = 0)))
-      .add_property("position", &Origin::position);
+      .def_readwrite("position", &Origin::position);
 
   def("load", loadProjectorWrapper, (arg("filename"), arg("projector") = DefaultProjector()));
   def("load", loadWrapper, (arg("filename"), arg("origin")));

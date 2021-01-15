@@ -1,10 +1,12 @@
 #include <gtest/gtest.h>
+
 #include <iostream>
-#include "geometry/Area.h"
-#include "geometry/Lanelet.h"
-#include "geometry/LineString.h"
-#include "geometry/Polygon.h"
-#include "primitives/Lanelet.h"
+
+#include "lanelet2_core/geometry/Area.h"
+#include "lanelet2_core/geometry/Lanelet.h"
+#include "lanelet2_core/geometry/LineString.h"
+#include "lanelet2_core/geometry/Polygon.h"
+#include "lanelet2_core/primitives/Lanelet.h"
 
 using namespace std::literals;
 using namespace lanelet;
@@ -247,6 +249,26 @@ TEST_F(LaneletTest, weakLanelet) {  // NOLINT
   EXPECT_EQ(wll.lock(), ritterLanelet);
 }
 
+TEST_F(LaneletTest, determineCommonLine) {  // NOLINT
+  Lanelet rightLL(++id, right, outside);
+  auto res = geometry::determineCommonLine(ritterLanelet, rightLL);
+  ASSERT_TRUE(!!res);
+  EXPECT_EQ(*res, right);
+  res = geometry::determineCommonLine(rightLL, ritterLanelet);
+  ASSERT_TRUE(!!res);
+  EXPECT_EQ(*res, right);
+  res = geometry::determineCommonLine(rightLL.invert(), ritterLanelet);
+  ASSERT_FALSE(!!res);
+  res = geometry::determineCommonLine(rightLL, ritterLanelet.invert());
+  ASSERT_FALSE(!!res);
+  res = geometry::determineCommonLine(rightLL.invert(), ritterLanelet, true);
+  ASSERT_TRUE(!!res);
+  EXPECT_EQ(*res, right.invert());
+  res = geometry::determineCommonLine(rightLL, ritterLanelet.invert(), true);
+  ASSERT_TRUE(!!res);
+  EXPECT_EQ(*res, right);
+}
+
 TEST(LaneletBasic, emptyLanelet) {  // NOLINT
   Lanelet empty;
   EXPECT_EQ(empty.polygon2d().size(), 0ul);
@@ -262,28 +284,26 @@ Lanelet buildComplexTestCase() {
    *  |___________|
    *
    */
-  Point3d p11, p12, p13, p14, p15, p21, p22, p23, p24;
-  LineString3d left, right;
-  Lanelet lanelet;
   Id id{1};
-  p11 = Point3d(++id, 1., 5.);
-  p12 = Point3d(++id, 2., 8.);
-  p13 = Point3d(++id, 3., 2.);
-  p14 = Point3d(++id, 4., 10.);
-  p15 = Point3d(++id, 5., 4.);
-  p21 = Point3d(++id, 0., 10.);
-  p22 = Point3d(++id, 0., 0.);
-  p23 = Point3d(++id, 6., 0.);
-  p24 = Point3d(++id, 6., 10.);
-  left = LineString3d(++id, Points3d{p11, p12, p13, p14, p15});
-  right = LineString3d(++id, Points3d{p21, p22, p23, p24});
-  lanelet = Lanelet(++id, left, right);
+  auto p11 = Point3d(++id, 1., 5.);
+  auto p12 = Point3d(++id, 2., 8.);
+  auto p13 = Point3d(++id, 3., 2.);
+  auto p14 = Point3d(++id, 4., 10.);
+  auto p15 = Point3d(++id, 5., 4.);
+  auto p21 = Point3d(++id, 0., 10.);
+  auto p22 = Point3d(++id, 0., 0.);
+  auto p23 = Point3d(++id, 6., 0.);
+  auto p24 = Point3d(++id, 6., 10.);
+  auto left = LineString3d(++id, Points3d{p11, p12, p13, p14, p15});
+  auto right = LineString3d(++id, Points3d{p21, p22, p23, p24});
+  auto lanelet = Lanelet(++id, left, right);
   return lanelet;
 }
 
 Lanelet buildLinearTestCase(size_t numPoints) {
   Id id{1};
-  LineString3d left(++id), right(++id);
+  LineString3d left(++id);
+  LineString3d right(++id);
   for (auto i = 0u; i < numPoints; i++) {
     left.push_back(Point3d(++id, i, 1, 0));
     right.push_back(Point3d(++id, i, 0, 0));

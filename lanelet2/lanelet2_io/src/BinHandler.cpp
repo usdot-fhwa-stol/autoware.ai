@@ -1,10 +1,12 @@
-#include "io_handlers/BinHandler.h"
+#include "lanelet2_io/io_handlers/BinHandler.h"
+
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <fstream>
-#include "Exceptions.h"
-#include "io_handlers/Factory.h"
-#include "io_handlers/Serialize.h"
+
+#include "lanelet2_io/Exceptions.h"
+#include "lanelet2_io/io_handlers/Factory.h"
+#include "lanelet2_io/io_handlers/Serialize.h"
 
 namespace lanelet {
 namespace io_handlers {
@@ -35,7 +37,7 @@ std::unique_ptr<LaneletMap> BinParser::parse(const std::string& filename, ErrorM
   std::unique_ptr<LaneletMap> laneletMap = std::make_unique<LaneletMap>();
   boost::archive::binary_iarchive ia(fs);
   ia >> *laneletMap;
-  Id idCounter;
+  Id idCounter = 0;
   ia >> idCounter;
   utils::registerId(idCounter);
   return laneletMap;

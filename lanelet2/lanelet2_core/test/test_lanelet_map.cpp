@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
+
 #include <future>
-#include "LaneletMap.h"
+
+#include "lanelet2_core/LaneletMap.h"
 #include "lanelet_map_test_case.h"
 
 using namespace lanelet;

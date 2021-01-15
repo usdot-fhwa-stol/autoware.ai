@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../Forward.h"
-#include "LineString.h"
+#include "lanelet2_core/Forward.h"
+#include "lanelet2_core/primitives/LineString.h"
 
 namespace lanelet {
 
@@ -386,6 +386,12 @@ struct PrimitiveTraits<BasicPolygon3d> {
   using ThreeDType = BasicPolygon3d;
   using Category = PolygonTag;
 };
+template <>
+inline BasicPolygon2d to2D<BasicPolygon3d>(const BasicPolygon3d& primitive) {
+  BasicPolygon2d p2d(primitive.size());
+  std::transform(primitive.begin(), primitive.end(), p2d.begin(), utils::to2D<BasicPoint3d>);
+  return p2d;
+}
 }  // namespace traits
 template <typename T, typename RetT>
 using IfPoly = std::enable_if_t<traits::isPolygonT<T>(), RetT>;

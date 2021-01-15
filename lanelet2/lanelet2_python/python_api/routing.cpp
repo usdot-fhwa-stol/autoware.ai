@@ -1,7 +1,10 @@
 #include <lanelet2_routing/Route.h>
 #include <lanelet2_routing/RoutingGraph.h>
+
+#include <boost/make_shared.hpp>
 #include <boost/python.hpp>
-#include "converter.h"
+
+#include "lanelet2_python/internal/converter.h"
 
 using namespace boost::python;
 using namespace lanelet;
@@ -38,6 +41,16 @@ routing::RoutingGraphPtr makeRoutingGraphSubmap(LaneletSubmap& laneletMap,
                                                 const traffic_rules::TrafficRules& trafficRules,
                                                 const routing::RoutingCostPtrs& routingCosts) {
   return routing::RoutingGraph::build(laneletMap, trafficRules, routingCosts);
+}
+
+template <typename T>
+object optionalToObject(const Optional<T>& v) {
+  return v ? object(*v) : object();
+}
+
+template <typename T>
+Optional<T> objectToOptional(const object& o) {
+  return o == object() ? Optional<T>{} : Optional<T>{extract<T>(o)()};
 }
 
 BOOST_PYTHON_MODULE(PYTHON_API_MODULE_NAME) {  // NOLINT
@@ -80,11 +93,16 @@ BOOST_PYTHON_MODULE(PYTHON_API_MODULE_NAME) {  // NOLINT
       &RoutingGraph::possiblePaths);
   auto possPLen = static_cast<LaneletPaths (RoutingGraph::*)(const ConstLanelet&, uint32_t, bool, RoutingCostId) const>(
       &RoutingGraph::possiblePaths);
+  auto possPParam = static_cast<LaneletPaths (RoutingGraph::*)(const ConstLanelet&, const PossiblePathsParams&) const>(
+      &RoutingGraph::possiblePaths);
   auto possPToCost =
       static_cast<LaneletPaths (RoutingGraph::*)(const ConstLanelet&, double, RoutingCostId, bool) const>(
           &RoutingGraph::possiblePathsTowards);
   auto possPToLen =
       static_cast<LaneletPaths (RoutingGraph::*)(const ConstLanelet&, uint32_t, bool, RoutingCostId) const>(
+          &RoutingGraph::possiblePathsTowards);
+  auto possPToParam =
+      static_cast<LaneletPaths (RoutingGraph::*)(const ConstLanelet&, const PossiblePathsParams&) const>(
           &RoutingGraph::possiblePathsTowards);
 
   class_<LaneletPath>("LaneletPath",
@@ -94,34 +112,65 @@ BOOST_PYTHON_MODULE(PYTHON_API_MODULE_NAME) {  // NOLINT
       .def("__iter__", iterator<LaneletPath>())
       .def("__len__", &LaneletPath::size)
       .def("__getitem__", wrappers::getItem<LaneletPath>, return_internal_reference<>())
-      .def("getRemainingLane", +[](const LaneletPath& self, ConstLanelet llt) { return self.getRemainingLane(llt); },
-           "get the sequence of remaining lanelets without a lane change")
+      .def(
+          "getRemainingLane",
+          +[](const LaneletPath& self, const ConstLanelet& llt) { return self.getRemainingLane(llt); },
+          "get the sequence of remaining lanelets without a lane change")
       .def(self == self)   // NOLINT
       .def(self != self);  // NOLINT
 
   class_<LaneletVisitInformation>("LaneletVisitInformation",
                                   "Object passed as input for the forEachSuccessor function of the routing graph")
-      .add_property("lanelet", &LaneletVisitInformation::lanelet, "the currently visited lanelet")
-      .add_property("predecessor", &LaneletVisitInformation::predecessor, "the predecessor within the shortest path")
-      .add_property("length", &LaneletVisitInformation::length,
-                    "The length of the shortest path to this lanelet (including lanelet")
-      .add_property("cost", &LaneletVisitInformation::cost, "The cost along the shortest path")
-      .add_property("numLaneChanges", &LaneletVisitInformation::numLaneChanges,
-                    "The number of lane changes necessary along the shortest path");
+      .def_readwrite("lanelet", &LaneletVisitInformation::lanelet, "the currently visited lanelet")
+      .def_readwrite("predecessor", &LaneletVisitInformation::predecessor, "the predecessor within the shortest path")
+      .def_readwrite("length", &LaneletVisitInformation::length,
+                     "The length of the shortest path to this lanelet (including lanelet")
+      .def_readwrite("cost", &LaneletVisitInformation::cost, "The cost along the shortest path")
+      .def_readwrite("numLaneChanges", &LaneletVisitInformation::numLaneChanges,
+                     "The number of lane changes necessary along the shortest path");
 
   class_<LaneletOrAreaVisitInformation>(
       "LaneletOrAreaVisitInformation",
       "Object passed as input for the forEachSuccessorIncludingAreas function of the routing graph")
-      .add_property("laneletOrArea", &LaneletOrAreaVisitInformation::laneletOrArea,
-                    "the currently visited lanelet/area")
-      .add_property("predecessor", &LaneletOrAreaVisitInformation::predecessor,
-                    "the predecessor within the shortest path")
-      .add_property("length", &LaneletOrAreaVisitInformation::length,
-                    "The length of the shortest path to this lanelet (including lanelet")
-      .add_property("cost", &LaneletOrAreaVisitInformation::cost, "The cost along the shortest path")
-      .add_property("numLaneChanges", &LaneletOrAreaVisitInformation::numLaneChanges,
-                    "The number of lane changes necessary along the shortest path");
+      .def_readwrite("laneletOrArea", &LaneletOrAreaVisitInformation::laneletOrArea,
+                     "the currently visited lanelet/area")
+      .def_readwrite("predecessor", &LaneletOrAreaVisitInformation::predecessor,
+                     "the predecessor within the shortest path")
+      .def_readwrite("length", &LaneletOrAreaVisitInformation::length,
+                     "The length of the shortest path to this lanelet (including lanelet")
+      .def_readwrite("cost", &LaneletOrAreaVisitInformation::cost, "The cost along the shortest path")
+      .def_readwrite("numLaneChanges", &LaneletOrAreaVisitInformation::numLaneChanges,
+                     "The number of lane changes necessary along the shortest path");
 
+  class_<PossiblePathsParams>(
+      "PossiblePathsParams", "Parameters for configuring the behaviour of the possible path algorithms of RoutingGraph")
+      .def("__init__",
+           make_constructor(
+               +[](const object& costLimit, const object& elemLimit, RoutingCostId costId, bool includeLc,
+                   bool includeShorter) {
+                 return boost::make_shared<PossiblePathsParams>(PossiblePathsParams{
+                     objectToOptional<double>(costLimit), objectToOptional<std::uint32_t>(elemLimit), costId, includeLc,
+                     includeShorter});
+               },
+               default_call_policies{},
+               (arg("routingCostLimit") = object(), arg("elementLimit") = object(), arg("routingCostId") = 0,
+                arg("includeLaneChanges") = false, arg("includeShorterPaths") = false)))
+      .add_property(
+          "routingCostLimit", +[](const PossiblePathsParams& self) { return optionalToObject(self.routingCostLimit); },
+          +[](PossiblePathsParams& self, const object& value) {
+            self.routingCostLimit = objectToOptional<double>(value);
+          })
+      .add_property(
+          "elementLimit", +[](const PossiblePathsParams& self) { return optionalToObject(self.elementLimit); },
+          +[](PossiblePathsParams& self, const object& value) {
+            self.elementLimit = objectToOptional<std::uint32_t>(value);
+          })
+      .def_readwrite("routingCostId", &PossiblePathsParams::routingCostId)
+      .def_readwrite("includeLaneChanges", &PossiblePathsParams::includeLaneChanges)
+      .def_readwrite("includeShorterPaths", &PossiblePathsParams::includeShorterPaths);
+
+  auto lltAndLc = (arg("lanelet"), arg("withLaneChanges") = false);
+  auto lltAndRoutingCost = (arg("lanelet"), arg("routingCostId") = 0);
   class_<RoutingGraph, boost::noncopyable, RoutingGraphPtr>(
       "RoutingGraph",
       "Main class of the routing module that holds routing information and can "
@@ -137,37 +186,33 @@ BOOST_PYTHON_MODULE(PYTHON_API_MODULE_NAME) {  // NOLINT
            "Initialization from a submap")
       .def("getRoute", getRouteWrapper, "driving route from 'start' to 'end' lanelet",
            (arg("from"), arg("to"), arg("routingCostId") = 0, arg("withLaneChanges") = true))
-      .def("getRouteVia", getRouteWrapper, "driving route from 'start' to 'end' lanelet using the 'via' lanelets",
+      .def("getRouteVia", getRouteViaWrapper, "driving route from 'start' to 'end' lanelet using the 'via' lanelets",
            (arg("from"), arg("via"), arg("to"), arg("routingCostId") = 0, arg("withLaneChanges") = true))
       .def("shortestPath", &RoutingGraph::shortestPath, "shortest path between 'start' and 'end'",
-           (arg("from"), arg("to"), arg("routingCostId") = 0))
+           (arg("from"), arg("to"), arg("routingCostId") = 0, arg("withLaneChanges") = true))
       .def("shortestPathWithVia", &RoutingGraph::shortestPathVia,
            "shortest path between 'start' and 'end' using intermediate points",
-           (arg("start"), arg("via"), arg("end"), arg("routingCostId") = 0))
+           (arg("start"), arg("via"), arg("end"), arg("routingCostId") = 0, arg("withLaneChanges") = true))
       .def("routingRelation", &RoutingGraph::routingRelation, "relation between two lanelets excluding 'conflicting'",
            (arg("from"), arg("to")))
-      .def("following", &RoutingGraph::following, "lanelets that can be reached from this lanelet",
-           (arg("lanelet"), arg("withLaneChanges") = false))
-      .def("followingRelations", &RoutingGraph::followingRelations, "relations to following lanelets",
-           (arg("lanelet"), arg("withLaneChanges") = false))
-      .def("previous", &RoutingGraph::previous, "previous lanelets of this lanelet",
-           (arg("lanelet"), arg("withLaneChanges") = false))
-      .def("previousRelations", &RoutingGraph::previousRelations, "relations to preceding lanelets",
-           (arg("lanelet"), arg("withLaneChanges") = false))
+      .def("following", &RoutingGraph::following, "lanelets that can be reached from this lanelet", lltAndLc)
+      .def("followingRelations", &RoutingGraph::followingRelations, "relations to following lanelets", lltAndLc)
+      .def("previous", &RoutingGraph::previous, "previous lanelets of this lanelet", lltAndLc)
+      .def("previousRelations", &RoutingGraph::previousRelations, "relations to preceding lanelets", lltAndLc)
       .def("besides", &RoutingGraph::besides,
            "all reachable left and right lanelets, including lanelet, from "
            "left to right",
-           (arg("lanelet")))
-      .def("left", &RoutingGraph::left, "left (routable)lanelet, if exists", (arg("lanelet")))
-      .def("right", &RoutingGraph::right, "right (routable)lanelet, if it exists", (arg("lanelet")))
-      .def("adjacentLeft", &RoutingGraph::adjacentLeft, "left non-routable lanelet", arg("lanelet"))
-      .def("adjacentRight", &RoutingGraph::adjacentRight, "right non-routable lanelet", arg("lanelet"))
-      .def("lefts", &RoutingGraph::lefts, "all left (routable) lanelets", arg("lanelet"))
-      .def("rights", &RoutingGraph::rights, "all right (routable) lanelets", arg("lanelet"))
-      .def("adjacentLefts", &RoutingGraph::adjacentLefts, "all left (non-routable) lanelets", arg("lanelet"))
-      .def("adjacentRights", &RoutingGraph::adjacentRights, "all right (non-routable) lanelets", arg("lanelet"))
-      .def("leftRelations", &RoutingGraph::leftRelations, "relations to left lanelets", arg("lanelet"))
-      .def("rightRelations", &RoutingGraph::rightRelations, "relations to right lanelets", arg("lanelet"))
+           lltAndRoutingCost)
+      .def("left", &RoutingGraph::left, "left (routable)lanelet, if exists", lltAndRoutingCost)
+      .def("right", &RoutingGraph::right, "right (routable)lanelet, if it exists", lltAndRoutingCost)
+      .def("adjacentLeft", &RoutingGraph::adjacentLeft, "left non-routable lanelet", lltAndRoutingCost)
+      .def("adjacentRight", &RoutingGraph::adjacentRight, "right non-routable lanelet", lltAndRoutingCost)
+      .def("lefts", &RoutingGraph::lefts, "all left (routable) lanelets", lltAndRoutingCost)
+      .def("rights", &RoutingGraph::rights, "all right (routable) lanelets", lltAndRoutingCost)
+      .def("adjacentLefts", &RoutingGraph::adjacentLefts, "all left (non-routable) lanelets", lltAndRoutingCost)
+      .def("adjacentRights", &RoutingGraph::adjacentRights, "all right (non-routable) lanelets", lltAndRoutingCost)
+      .def("leftRelations", &RoutingGraph::leftRelations, "relations to left lanelets", lltAndRoutingCost)
+      .def("rightRelations", &RoutingGraph::rightRelations, "relations to right lanelets", lltAndRoutingCost)
       .def("conflicting", &RoutingGraph::conflicting, "Conflicting lanelets", arg("lanelet"))
       .def("reachableSet", &RoutingGraph::reachableSet, "set of lanelets that can be reached from a given lanelet",
            (arg("lanelet"), arg("maxRoutingCost"), arg("RoutingCostId") = 0, arg("allowLaneChanges") = true))
@@ -176,47 +221,57 @@ BOOST_PYTHON_MODULE(PYTHON_API_MODULE_NAME) {  // NOLINT
       .def("possiblePaths", possPCost, "possible paths from a given start lanelet that are 'minRoutingCost'-long",
            (arg("lanelet"), arg("minRoutingCost"), arg("RoutingCostId") = 0, arg("allowLaneChanges") = false,
             arg("routingCostId") = 0))
+      .def("possiblePaths", possPParam, "possible paths from a given start lanelet as configured in parameters",
+           (arg("lanelet"), arg("parameters")))
       .def("possiblePathsTowards", possPToCost,
            "possible paths to a given start lanelet that are 'minRoutingCost'-long",
            (arg("lanelet"), arg("minRoutingCost"), arg("RoutingCostId") = 0, arg("allowLaneChanges") = false,
             arg("routingCostId") = 0))
+      .def("possiblePathsTowards", possPToParam, "possible paths to a given lanelet as configured in parameters",
+           (arg("lanelet"), arg("parameters")))
       .def("possiblePathsMinLen", possPLen, "possible routes from a given start lanelet that are 'minLanelets'-long",
            (arg("lanelet"), arg("minLanelets"), arg("allowLaneChanges") = false, arg("routingCostId") = 0))
       .def("possiblePathsTowardsMinLen", possPToLen,
            "possible routes from a given start lanelet that are 'minLanelets'-long",
            (arg("lanelet"), arg("minLanelets"), arg("allowLaneChanges") = false, arg("routingCostId") = 0))
-      .def("forEachSuccessor",
-           +[](RoutingGraph& self, const ConstLanelet& from, object func, bool lc, RoutingCostId costId) {
-             self.forEachSuccessor(from, func, lc, costId);
-           },
-           "calls a function on each successor of lanelet with increasing cost. The function must receives a "
-           "LaneletVisitInformation object as input and must return a bool whether followers of the current lanelet "
-           "should be visited as well. The function can raise an exception if an early exit is desired",
-           (arg("lanelet"), arg("func"), arg("allowLaneChanges") = true, arg("routingCostId") = 0))
-      .def("forEachSuccessorIncludingAreas",
-           +[](RoutingGraph& self, const ConstLaneletOrArea& from, object func, bool lc, RoutingCostId costId) {
-             self.forEachSuccessorIncludingAreas(from, func, lc, costId);
-           },
-           "similar to forEachSuccessor but also includes areas into the search",
-           (arg("lanelet"), arg("func"), arg("allowLaneChanges") = true, arg("routingCostId") = 0))
-      .def("forEachPredecessor",
-           +[](RoutingGraph& self, const ConstLanelet& from, object func, bool lc, RoutingCostId costId) {
-             self.forEachPredecessor(from, func, lc, costId);
-           },
-           "similar to forEachSuccessor but instead goes backwards along the routing graph",
-           (arg("lanelet"), arg("func"), arg("allowLaneChanges") = true, arg("routingCostId") = 0))
-      .def("forEachPredecessorIncludingAreas",
-           +[](RoutingGraph& self, const ConstLaneletOrArea& from, object func, bool lc, RoutingCostId costId) {
-             self.forEachPredecessorIncludingAreas(from, func, lc, costId);
-           },
-           "calls a function on each successor of lanelet. The function must receives a LaneletVisitInformation object "
-           "as input and must return a bool whether followers of the current lanelet should be visited as well. The "
-           "function can throw an exception if an early exit is desired",
-           (arg("lanelet"), arg("func"), arg("allowLaneChanges") = true, arg("routingCostId") = 0))
-      .def("exportGraphML", +[](RoutingGraph& self, const std::string& path) { self.exportGraphML(path); },
-           "Export the internal graph to graphML (xml-based) file format")
-      .def("exportGraphViz", +[](RoutingGraph& self, const std::string& path) { self.exportGraphViz(path); },
-           "Export the internal graph to graphViz (DOT) file format")
+      .def(
+          "forEachSuccessor",
+          +[](RoutingGraph& self, const ConstLanelet& from, object func, bool lc, RoutingCostId costId) {
+            self.forEachSuccessor(from, std::move(func), lc, costId);
+          },
+          "calls a function on each successor of lanelet with increasing cost. The function must receives a "
+          "LaneletVisitInformation object as input and must return a bool whether followers of the current lanelet "
+          "should be visited as well. The function can raise an exception if an early exit is desired",
+          (arg("lanelet"), arg("func"), arg("allowLaneChanges") = true, arg("routingCostId") = 0))
+      .def(
+          "forEachSuccessorIncludingAreas",
+          +[](RoutingGraph& self, const ConstLaneletOrArea& from, object func, bool lc, RoutingCostId costId) {
+            self.forEachSuccessorIncludingAreas(from, std::move(func), lc, costId);
+          },
+          "similar to forEachSuccessor but also includes areas into the search",
+          (arg("lanelet"), arg("func"), arg("allowLaneChanges") = true, arg("routingCostId") = 0))
+      .def(
+          "forEachPredecessor",
+          +[](RoutingGraph& self, const ConstLanelet& from, object func, bool lc, RoutingCostId costId) {
+            self.forEachPredecessor(from, std::move(func), lc, costId);
+          },
+          "similar to forEachSuccessor but instead goes backwards along the routing graph",
+          (arg("lanelet"), arg("func"), arg("allowLaneChanges") = true, arg("routingCostId") = 0))
+      .def(
+          "forEachPredecessorIncludingAreas",
+          +[](RoutingGraph& self, const ConstLaneletOrArea& from, object func, bool lc, RoutingCostId costId) {
+            self.forEachPredecessorIncludingAreas(from, std::move(func), lc, costId);
+          },
+          "calls a function on each successor of lanelet. The function must receives a LaneletVisitInformation object "
+          "as input and must return a bool whether followers of the current lanelet should be visited as well. The "
+          "function can throw an exception if an early exit is desired",
+          (arg("lanelet"), arg("func"), arg("allowLaneChanges") = true, arg("routingCostId") = 0))
+      .def(
+          "exportGraphML", +[](RoutingGraph& self, const std::string& path) { self.exportGraphML(path); },
+          "Export the internal graph to graphML (xml-based) file format")
+      .def(
+          "exportGraphViz", +[](RoutingGraph& self, const std::string& path) { self.exportGraphViz(path); },
+          "Export the internal graph to graphViz (DOT) file format")
       .def("getDebugLaneletMap", &RoutingGraph::getDebugLaneletMap,
            "abstract lanelet map holding the information of the routing graph",
            (arg("routingCostId") = 0, arg("includeAdjacent") = false, arg("includeConflicting") = false))
@@ -225,8 +280,8 @@ BOOST_PYTHON_MODULE(PYTHON_API_MODULE_NAME) {  // NOLINT
            (arg("throwOnError") = true));
 
   class_<LaneletRelation>("LaneletRelation")
-      .add_property("lanelet", &LaneletRelation::lanelet)
-      .add_property("relationType", &LaneletRelation::relationType);
+      .def_readwrite("lanelet", &LaneletRelation::lanelet)
+      .def_readwrite("relationType", &LaneletRelation::relationType);
 
   enum_<RelationType>("RelationType")
       .value("Successor", RelationType::Successor)
@@ -249,8 +304,9 @@ BOOST_PYTHON_MODULE(PYTHON_API_MODULE_NAME) {  // NOLINT
            "Returns all lanelets on the shortest path that follow the input lanelet")
       .def("length2d", &Route::length2d, "2d length of shortest path")
       .def("numLanes", &Route::numLanes, "Number of inidividual lanes")
-      .def("laneletSubmap", +[](const Route& r) { return std::const_pointer_cast<LaneletSubmap>(r.laneletSubmap()); },
-           "laneletSubmap with all lanelets that are part of the route")
+      .def(
+          "laneletSubmap", +[](const Route& r) { return std::const_pointer_cast<LaneletSubmap>(r.laneletSubmap()); },
+          "laneletSubmap with all lanelets that are part of the route")
       .def("getDebugLaneletMap", &Route::getDebugLaneletMap,
            "laneletMap that represents the Lanelets of the Route and their relationship")
       .def("size", &Route::size, "Number of lanelets")
@@ -265,15 +321,17 @@ BOOST_PYTHON_MODULE(PYTHON_API_MODULE_NAME) {  // NOLINT
            "conflicting lanelets of a lanelet within all passable lanelets in the laneletMap")
       .def("allConflictingInMap", &Route::allConflictingInMap,
            "all lanelets in the map that conflict with any lanelet in the route")
-      .def("forEachSuccessor",
-           +[](Route& self, const ConstLanelet& from, object func) { self.forEachSuccessor(from, func); },
-           "calls a function on each successor of lanelet with increasing cost. The function must receives a "
-           "LaneletVisitInformation object as input and must return a bool whether followers of the current lanelet "
-           "should be visited as well. The function can raise an exception if an early exit is desired",
-           (arg("lanelet"), arg("func")))
-      .def("forEachPredecessor",
-           +[](Route& self, const ConstLanelet& from, object func) { self.forEachPredecessor(from, func); },
-           "similar to forEachSuccessor but instead goes backwards along the routing graph",
-           (arg("lanelet"), arg("func")))
+      .def(
+          "forEachSuccessor",
+          +[](Route& self, const ConstLanelet& from, object func) { self.forEachSuccessor(from, std::move(func)); },
+          "calls a function on each successor of lanelet with increasing cost. The function must receives a "
+          "LaneletVisitInformation object as input and must return a bool whether followers of the current lanelet "
+          "should be visited as well. The function can raise an exception if an early exit is desired",
+          (arg("lanelet"), arg("func")))
+      .def(
+          "forEachPredecessor",
+          +[](Route& self, const ConstLanelet& from, object func) { self.forEachPredecessor(from, std::move(func)); },
+          "similar to forEachSuccessor but instead goes backwards along the routing graph",
+          (arg("lanelet"), arg("func")))
       .def("checkValidity", &Route::checkValidity, "perform sanity check on the route");
 }

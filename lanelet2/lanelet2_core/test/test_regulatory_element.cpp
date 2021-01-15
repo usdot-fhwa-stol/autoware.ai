@@ -1,7 +1,10 @@
 #include <gtest/gtest.h>
-#include <utility/Utilities.h>
-#include "geometry/RegulatoryElement.h"
-#include "primitives/BasicRegulatoryElements.h"
+
+#include <boost/optional/optional_io.hpp>
+
+#include "lanelet2_core/geometry/RegulatoryElement.h"
+#include "lanelet2_core/primitives/BasicRegulatoryElements.h"
+#include "lanelet2_core/utility/Utilities.h"
 
 using namespace lanelet;
 

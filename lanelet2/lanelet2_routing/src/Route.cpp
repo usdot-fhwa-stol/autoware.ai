@@ -1,14 +1,17 @@
-#include "Route.h"
+#include "lanelet2_routing/Route.h"
+
 #include <lanelet2_core/LaneletMap.h>
 #include <lanelet2_core/geometry/Lanelet.h>
 #include <lanelet2_core/primitives/Lanelet.h>
 #include <lanelet2_core/utility/Utilities.h>
+
 #include <boost/graph/reverse_graph.hpp>
 #include <unordered_map>
-#include "Exceptions.h"
-#include "internal/Graph.h"
-#include "internal/GraphUtils.h"
-#include "internal/ShortestPath.h"
+
+#include "lanelet2_routing/Exceptions.h"
+#include "lanelet2_routing/internal/Graph.h"
+#include "lanelet2_routing/internal/GraphUtils.h"
+#include "lanelet2_routing/internal/ShortestPath.h"
 
 namespace lanelet {
 namespace routing {
@@ -371,7 +374,7 @@ Route::Errors Route::checkValidity(bool throwOnError) const {
   std::for_each(edges.first, edges.second, [&](internal::RouteGraph::Edge e) {
     // get reverse edge
     decltype(e) eRev;
-    bool exists;
+    bool exists = false;
     std::tie(eRev, exists) = boost::edge(boost::target(e, g), boost::source(e, g), g);
     auto sourceId = g[boost::source(e, g)].lanelet.id();
     auto targetId = g[boost::target(e, g)].lanelet.id();

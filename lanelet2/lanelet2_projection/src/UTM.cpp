@@ -1,4 +1,5 @@
-#include "UTM.h"
+#include "lanelet2_projection/UTM.h"
+
 #include <GeographicLib/UTMUPS.hpp>
 
 namespace lanelet {
@@ -6,7 +7,8 @@ namespace projection {
 
 UtmProjector::UtmProjector(Origin origin, const bool useOffset, const bool throwInPaddingArea)
     : Projector(origin), useOffset_{useOffset}, throwInPaddingArea_{throwInPaddingArea} {
-  double x, y;
+  double x = 0;
+  double y = 0;
   GeographicLib::UTMUPS::Forward(this->origin().position.lat, this->origin().position.lon, zone_,
                                  isInNorthernHemisphere_, x, y);
   if (useOffset_) {
@@ -30,8 +32,9 @@ BasicPoint3d UtmProjector::forward(const GPSPoint& gps) const {
       throw ForwardProjectionError("You have left the UTM zone or changed the hemisphere!");
     }
     // try to transfer to the desired zone
-    double xAfterTransfer, yAfterTransfer;
-    int zoneAfterTransfer;
+    double xAfterTransfer = 0;
+    double yAfterTransfer = 0;
+    int zoneAfterTransfer = 0;
     try {
       GeographicLib::UTMUPS::Transfer(zone, northp, utm.x(), utm.y(), zone_, isInNorthernHemisphere_, xAfterTransfer,
                                       yAfterTransfer, zoneAfterTransfer);

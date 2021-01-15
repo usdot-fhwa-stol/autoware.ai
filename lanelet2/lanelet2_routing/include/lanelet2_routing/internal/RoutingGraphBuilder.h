@@ -1,7 +1,8 @@
 #pragma once
 #include <lanelet2_core/LaneletMap.h>
-#include "Graph.h"
-#include "RoutingGraph.h"
+
+#include "lanelet2_routing/RoutingGraph.h"
+#include "lanelet2_routing/internal/Graph.h"
 
 namespace lanelet {
 class LaneletLayer;
@@ -23,8 +24,9 @@ class RoutingGraphBuilder {
   using PointsLaneletMapIt = PointsLaneletMap::iterator;
   using PointsLaneletMapResult = std::pair<PointsLaneletMapIt, PointsLaneletMapIt>;
 
-  ConstLanelets getPassableLanelets(const LaneletLayer& lanelets, const traffic_rules::TrafficRules& trafficRules);
-  ConstAreas getPassableAreas(const AreaLayer& areas, const traffic_rules::TrafficRules& trafficRules);
+  static ConstLanelets getPassableLanelets(const LaneletLayer& lanelets,
+                                           const traffic_rules::TrafficRules& trafficRules);
+  static ConstAreas getPassableAreas(const AreaLayer& areas, const traffic_rules::TrafficRules& trafficRules);
   void appendBidirectionalLanelets(ConstLanelets& llts);
   void addLaneletsToGraph(ConstLanelets& llts);
   void addAreasToGraph(ConstAreas& areas);
@@ -44,7 +46,7 @@ class RoutingGraphBuilder {
   //! Adds the first and last points of a lanelet to the search index
   void addPointsToSearchIndex(const ConstLanelet& ll);
   bool hasEdge(const ConstLanelet& from, const ConstLanelet& to);
-  void assignLaneChangeCosts(const ConstLanelets& froms, const ConstLanelets& tos, const RelationType& relation);
+  void assignLaneChangeCosts(ConstLanelets froms, ConstLanelets tos, const RelationType& relation);
 
   /** @brief Assigns routing costs of each routing cost module to a relation between two lanelets
    *  @param from Start lanelet

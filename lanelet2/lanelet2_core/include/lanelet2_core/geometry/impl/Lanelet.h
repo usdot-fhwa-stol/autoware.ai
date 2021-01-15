@@ -2,13 +2,14 @@
 #include <boost/version.hpp>
 #if BOOST_VERSION > 105800
 #include <string.h>  // NOLINT
+
 #include <boost/geometry/algorithms/relate.hpp>
 #else
 #include <boost/geometry/algorithms/detail/relate/relate.hpp>
 #endif
-#include "../../primitives/Lanelet.h"
-#include "../../primitives/LineString.h"
-#include "../Polygon.h"
+#include "lanelet2_core/geometry/Polygon.h"
+#include "lanelet2_core/primitives/Lanelet.h"
+#include "lanelet2_core/primitives/LineString.h"
 
 namespace lanelet {
 namespace geometry {
@@ -142,6 +143,27 @@ IfLL<Lanelet1T, IfLL<Lanelet2T, bool>> follows(const Lanelet1T& prev, const Lane
          prev.rightBound().back() == next.rightBound().front();
 }
 
+template <typename Lanelet1T, typename Lanelet2T>
+IfLL<Lanelet1T, IfLL<Lanelet2T, Optional<ConstLineString3d>>> determineCommonLine(const Lanelet1T& ll,
+                                                                                  const Lanelet2T& other,
+                                                                                  bool allowInverted) {
+  if (leftOf(other, ll)) {
+    return ll.leftBound();
+  }
+  if (rightOf(other, ll)) {
+    return ll.rightBound();
+  }
+  if (allowInverted) {
+    if (leftOf(other.invert(), ll)) {
+      return ll.leftBound();
+    }
+    if (rightOf(other.invert(), ll)) {
+      return ll.rightBound();
+    }
+  }
+  return {};
+}
+
 template <typename LaneletT>
 Velocity maxCurveSpeed(const LaneletT& /*lanelet*/, const BasicPoint2d& /*position*/,
                        const Acceleration& /*maxLateralAcceleration*/) {
@@ -153,8 +175,8 @@ template <typename LaneletT>
 double approximatedLength2d(const LaneletT& lanelet) {
   double length = 0.;
   auto line = lanelet.leftBound2d();
-  auto step = std::max(1ul, line.size() / 10);
-  for (auto i1 = 0ul, i2 = step; i2 < line.size(); i1 += step, i2 += step) {
+  auto step = std::max(size_t{1}, line.size() / 10);
+  for (auto i1 = size_t{}, i2 = step; i2 < line.size(); i1 += step, i2 += step) {
     length += distance(line[i1], line[i2]);
     if (i2 + step >= line.size()) {
       length += distance(line[i2], line[line.size() - 1]);

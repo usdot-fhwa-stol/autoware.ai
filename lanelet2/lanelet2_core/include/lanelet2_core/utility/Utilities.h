@@ -8,8 +8,9 @@
 #include <numeric>
 #include <type_traits>
 #include <vector>
-#include "../Forward.h"
-#include "Optional.h"
+
+#include "lanelet2_core/Forward.h"
+#include "lanelet2_core/utility/Optional.h"
 
 namespace lanelet {
 
@@ -316,7 +317,7 @@ std::vector<T> getVariant(const std::vector<Variant>& v) {
   std::vector<T> s;
   s.reserve(v.size());
   for (const auto& e : v) {
-    auto t = boost::get<typename T::MutableType>(&e);
+    const auto* t = boost::get<typename T::MutableType>(&e);
     if (t) {
       s.push_back(*t);
     }

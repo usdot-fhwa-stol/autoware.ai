@@ -6,10 +6,11 @@
 #include <functional>
 #include <memory>
 #include <utility>
-#include "../Forward.h"
-#include "../utility/Optional.h"
-#include "LineString.h"
-#include "Primitive.h"
+
+#include "lanelet2_core/Forward.h"
+#include "lanelet2_core/primitives/LineString.h"
+#include "lanelet2_core/primitives/Primitive.h"
+#include "lanelet2_core/utility/Optional.h"
 
 namespace lanelet {
 enum class LaneletType { OneWay, Bidirectional };
@@ -140,8 +141,9 @@ class ConstLanelet : public ConstPrimitive<LaneletData> {
       : ConstLanelet(std::make_shared<LaneletData>(id, LineString3d(), LineString3d()), false) {}
 
   //! Constructs a lanelet from id, attributes, regulatoryElements and bounds.
-  ConstLanelet(Id id, LineString3d leftBound, LineString3d rightBound, AttributeMap attributes = AttributeMap(),
-               RegulatoryElementPtrs regulatoryElements = RegulatoryElementPtrs())
+  ConstLanelet(Id id, const LineString3d& leftBound, const LineString3d& rightBound,
+               const AttributeMap& attributes = AttributeMap(),
+               const RegulatoryElementPtrs& regulatoryElements = RegulatoryElementPtrs())
       : ConstPrimitive{std::make_shared<LaneletData>(id, leftBound, rightBound, attributes, regulatoryElements)} {}
 
   //! Construct from the data of a different Lanelet
