@@ -33,7 +33,7 @@ autoware_src="$(realpath .)"
 autoware_build_args=""
 use_catkin=false
 # The list of packages which are required by carma from autoware
-# AUTOWARE_PACKAGE_SELECTION="map_tools lidar_localizer map_file deadreckoner points_downsampler points_preprocessor lane_planner waypoint_maker autoware_msgs autoware_config_msgs as waypoint_planner pure_pursuit twist_filter twist_gate lanelet2_extension vision_darknet_detect vision_beyond_track lidar_euclidean_cluster_detect range_vision_fusion imm_ukf_pda_track naive_motion_predict ekf_localizer detected_objects_visualizer calibration_publisher mpc_follower autoware_camera_lidar_calibrator multi_lidar_calibrator runtime_manager"
+AUTOWARE_PACKAGE_SELECTION="map_tools lidar_localizer map_file deadreckoner points_downsampler points_preprocessor lane_planner waypoint_maker autoware_msgs autoware_config_msgs as waypoint_planner pure_pursuit twist_filter twist_gate lanelet2_extension vision_darknet_detect vision_beyond_track lidar_euclidean_cluster_detect range_vision_fusion imm_ukf_pda_track naive_motion_predict ekf_localizer detected_objects_visualizer calibration_publisher mpc_follower autoware_camera_lidar_calibrator multi_lidar_calibrator runtime_manager"
 
 # GOOD: map_tools deadreckoner autoware_msgs autoware_config_msgs as pure_pursuit twist_filter
 # twist_gate range_vision_fusion ekf_localizer calibration_publisher mpc_follower 
@@ -44,8 +44,7 @@ use_catkin=false
 # vision_darknet_detect vision_beyond_track lidar_euclidean_cluster_detect imm_ukf_pda_track
 # naive_motion_predict detected_objects_visualizer autoware_camera_lidar_calibrator
 
-# AUTOWARE_PACKAGE_SELECTION="map_tools deadreckoner autoware_msgs autoware_config_msgs as pure_pursuit twist_filter twist_gate range_vision_fusion ekf_localizer calibration_publisher mpc_follower multi_lidar_calibrator runtime_manager"
-AUTOWARE_PACKAGE_SELECTION="lidar_localizer"
+# AUTOWARE_PACKAGE_SELECTION="autoware_camera_lidar_calibrator"
 
 
 # Read Options
