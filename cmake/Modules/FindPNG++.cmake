@@ -1,4 +1,4 @@
-# - Find the PNG++ includes 
+# - Find the PNG++ includes
 #
 # This module searches libpng++, the library for working with PNG images.
 #
@@ -24,26 +24,23 @@
 #  License text for the above reference.)
 
 if(PNG_FIND_QUIETLY)
-  set(_FIND_ZLIB_ARG QUIET)
+    set(_FIND_ZLIB_ARG QUIET)
 endif()
 find_package(ZLIB ${_FIND_ZLIB_ARG})
+find_package(PNG REQUIRED)
 
 if(ZLIB_FOUND)
-  find_path(
-    PNG++_INCLUDE_DIR 
-    png.hpp
-    /usr/local/include/png++
-    /usr/include/png++
-  )
-  if (PNG++_INCLUDE_DIR)
-      set(PNG++_INCLUDE_DIRS ${PNG++_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR} )
-      unset(PNG++_INCLUDE_DIR)
-  endif ()
+    find_path(PNG++_INCLUDE_DIR png.hpp /usr/local/include/png++ /usr/include/png++)
+
+    set(PNG++_LIBRARIES ${PNG_LIBRARIES})
+
+    if(PNG++_INCLUDE_DIR)
+        set(PNG++_INCLUDE_DIRS ${PNG++_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR})
+        unset(PNG++_INCLUDE_DIR)
+    endif()
 endif()
 
 # handle the QUIETLY and REQUIRED arguments and set PNG_FOUND to TRUE if
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(PNG++ REQUIRED_VARS PNG++_INCLUDE_DIRS)
 mark_as_advanced(PNG++_INCLUDE_DIRS)
-
-
