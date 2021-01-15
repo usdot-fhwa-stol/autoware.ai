@@ -42,9 +42,8 @@ use_catkin=false
 # NEED TO BE RETRIED: lane_planner waypoint_maker waypoint_planner lanelet2_extension imm_ukf_pda_track naive_motion_predict"
 
 # BAD: lidar_localizer points_downsampler 
-# points_preprocessor lane_planner waypoint_maker waypoint_planner lanelet2_extension
-# vision_darknet_detect vision_beyond_track lidar_euclidean_cluster_detect imm_ukf_pda_track
-# naive_motion_predict detected_objects_visualizer autoware_camera_lidar_calibrator
+# points_preprocessor vision_darknet_detect vision_beyond_track lidar_euclidean_cluster_detect
+# detected_objects_visualizer autoware_camera_lidar_calibrator
 
 AUTOWARE_PACKAGE_SELECTION="lane_planner"
 
