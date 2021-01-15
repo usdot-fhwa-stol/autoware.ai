@@ -3,9 +3,9 @@ project(lidar_localizer)
 
 find_package(PCL REQUIRED)
 
-if(NOT (PCL_VERSION VERSION_LESS "1.7.2"))
-  SET(PCL_OPENMP_PACKAGES pcl_omp_registration)
-endif()
+# if(NOT (PCL_VERSION VERSION_LESS "1.7.2"))
+#   SET(PCL_OPENMP_PACKAGES pcl_omp_registration)
+# endif()
 
 find_package(OpenMP)
 if(OPENMP_FOUND)
