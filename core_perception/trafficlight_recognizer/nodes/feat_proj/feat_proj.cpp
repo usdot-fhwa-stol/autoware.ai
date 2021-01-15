@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 sujiwo
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -46,6 +46,8 @@ static constexpr uint32_t SUBSCRIBE_QUEUE_SIZE = 1000;
 
 static int adjust_proj_x = 0;
 static int adjust_proj_y = 0;
+static float near_plane_ = 0.0;
+static float far_plane_ = 0.0;
 
 typedef struct
 {
@@ -220,15 +222,13 @@ Point3 transform(const Point3& psrc, const tf::StampedTransform& tfsource)
  */
 bool project2(const Point3& pt, int* u, int* v, bool useOpenGLCoord = false)
 {
-  float nearPlane = 1.0;
-  float farPlane = 200.0;
   Point3 _pt = transform(pt, trf);
   float _u = _pt.x() * fx / _pt.z() + cx;
   float _v = _pt.y() * fy / _pt.z() + cy;
 
   *u = static_cast<int>(_u);
   *v = static_cast<int>(_v);
-  if (*u < 0 || imageWidth < *u || *v < 0 || imageHeight < *v || _pt.z() < nearPlane || farPlane < _pt.z())
+  if (*u < 0 || imageWidth < *u || *v < 0 || imageHeight < *v || _pt.z() < near_plane_ || far_plane_ < _pt.z())
   {
     *u = -1, *v = -1;
     return false;
@@ -320,7 +320,6 @@ void echoSignals2(const ros::Publisher& pub, bool useOpenGLCoord = false)
     if (project2(signalcenter, &u, &v, useOpenGLCoord) == true)
     {
       countPoint++;
-      // std::cout << u << ", " << v << ", " << std::endl;
 
       int radius;
       int ux, vx;
@@ -354,7 +353,7 @@ void echoSignals2(const ros::Publisher& pub, bool useOpenGLCoord = false)
   signalsInFrame.header.stamp = ros::Time::now();
   pub.publish(signalsInFrame);
 
-  std::cout << "There are " << signalsInFrame.Signals.size() << " signals in range" << std::endl;
+  ROS_DEBUG("There are %lu signals in range", signalsInFrame.Signals.size());
 }
 
 void interrupt(int s)
@@ -370,6 +369,8 @@ int main(int argc, char* argv[])
   ros::NodeHandle private_nh("~");
   std::string cameraInfo_topic_name;
   private_nh.param<std::string>("camera_info_topic", cameraInfo_topic_name, "/camera_info");
+  private_nh.param<float>("roi_search_min_distance", near_plane_, 1.0);
+  private_nh.param<float>("roi_search_max_distance", far_plane_, 200.0);
 
   /* get camera ID */
   camera_id_str = cameraInfo_topic_name;
@@ -393,24 +394,19 @@ int main(int argc, char* argv[])
       rosnode.subscribe("vector_map_info/vector", SUBSCRIBE_QUEUE_SIZE, &VectorMap::load_vectors, &vmap);
   ros::Subscriber sub_signal =
       rosnode.subscribe("vector_map_info/signal", SUBSCRIBE_QUEUE_SIZE, &VectorMap::load_signals, &vmap);
-  ros::Subscriber sub_whiteline =
-      rosnode.subscribe("vector_map_info/white_line", SUBSCRIBE_QUEUE_SIZE, &VectorMap::load_whitelines, &vmap);
-  ros::Subscriber sub_dtlane =
-      rosnode.subscribe("vector_map_info/dtlane", SUBSCRIBE_QUEUE_SIZE, &VectorMap::load_dtlanes, &vmap);
 
   /* wait until loading all vector map is completed */
-  ros::Rate wait_rate(100);
-  std::cout << "Loading Vector Map. Please wait";
-  while (vmap.points.empty() || vmap.lines.empty() || vmap.whitelines.empty() || vmap.lanes.empty() ||
-         vmap.dtlanes.empty() || vmap.vectors.empty() || vmap.signals.empty())
+  ros::Rate wait_rate(10);
+  while (vmap.points.empty() || vmap.lines.empty() || vmap.lanes.empty() || vmap.vectors.empty()
+    || vmap.signals.empty())
   {
     ros::spinOnce();
-    std::cout << ".";
+    ROS_INFO_THROTTLE(2, "Waiting for Vector Map");
     wait_rate.sleep();
   }
 
   vmap.loaded = true;
-  std::cout << "Loaded." << std::endl;
+  ROS_INFO("Vector Map loaded.");
 
   ros::Subscriber cameraInfoSubscriber = rosnode.subscribe(cameraInfo_topic_name, 100, cameraInfoCallback);
   ros::Subscriber cameraImage = rosnode.subscribe(cameraInfo_topic_name, 100, cameraInfoCallback);
