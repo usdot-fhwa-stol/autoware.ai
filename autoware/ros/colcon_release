@@ -24,4 +24,4 @@ fi
 COLCON_OPTS="--cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_LIBRARY_PATH=/usr/local/cuda/lib64/stubs -DCMAKE_CXX_FLAGS=-Wall -DCMAKE_C_FLAGS=-Wall"
 
 export LIBRARY_PATH=/usr/lib/OpenNI2/Drivers:$LIBRARY_PATH
-colcon build $COLCON_OPTS $@
+AUTOWARE_COMPILE_WITH_CUDA=1 colcon build $COLCON_OPTS $@

@@ -75,7 +75,7 @@ else
     catkin_make_isolated --source . --install --install-space ./ros/install -j1 --only-pkg-with-deps "${AUTOWARE_PACKAGE_SELECTION}" --cmake-args "${autoware_build_args}"
   else
     echo "Building with CMake args: ${autoware_build_args}"
-    colcon build --cmake-args "${autoware_build_args}" --executor sequential --install-base ./ros/install --packages-up-to ${AUTOWARE_PACKAGE_SELECTION}
+    AUTOWARE_COMPILE_WITH_CUDA=1 colcon build --cmake-args "${autoware_build_args}" --executor sequential --install-base ./ros/install --packages-up-to ${AUTOWARE_PACKAGE_SELECTION}
   fi
 fi
 
