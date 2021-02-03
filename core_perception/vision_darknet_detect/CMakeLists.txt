@@ -35,7 +35,7 @@ set(CMAKE_CXX_FLAGS "-O3 -g -Wall ${CMAKE_CXX_FLAGS}")
 
 AW_CHECK_CUDA()
 
-if (USE_CUDA)
+# if (USE_CUDA)
     list(APPEND CUDA_NVCC_FLAGS "--std=c++11 -I$${PROJECT_SOURCE_DIR}/darknet/src -I${PROJECT_SOURCE_DIR}/src -DGPU")
     SET(CUDA_PROPAGATE_HOST_FLAGS OFF)
 
@@ -165,10 +165,10 @@ if (USE_CUDA)
             RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
             )
 
-ELSE()
+# ELSE()
     message(WARNING "Building vision_darknet_detect without CUDA")
 	
-    add_library(vision_darknet_detect_lib SHARED
+    add_library(vision_darknet_detect_lib_NONE_CUDA SHARED
             darknet/src/gemm.c
             darknet/src/utils.c
             darknet/src/cuda.c
@@ -214,7 +214,7 @@ ELSE()
             darknet/src/yolo_layer.c
             )
 
-    target_include_directories(vision_darknet_detect_lib PRIVATE
+    target_include_directories(vision_darknet_detect_lib_NONE_CUDA PRIVATE
             ${OpenCV_INCLUDE_DIR}
             ${catkin_INCLUDE_DIRS}
             ${Boost_INCLUDE_DIRS}
@@ -223,7 +223,7 @@ ELSE()
             ${PROJECT_SOURCE_DIR}/src
             )
 
-    target_link_libraries(vision_darknet_detect_lib
+    target_link_libraries(vision_darknet_detect_lib_NONE_CUDA
             ${OpenCV_LIBRARIES}
             ${catkin_LIBRARIES}
             ${PCL_LIBRARIES}
@@ -232,39 +232,39 @@ ELSE()
             pthread
             )
 
-    add_dependencies(vision_darknet_detect_lib
+    add_dependencies(vision_darknet_detect_lib_NONE_CUDA
             ${catkin_EXPORTED_TARGETS}
             )
 
     #ros node
-    add_executable(vision_darknet_detect
+    add_executable(vision_darknet_detect_NONE_CUDA
             src/vision_darknet_detect_node.cpp
             src/vision_darknet_detect.cpp
             src/vision_darknet_detect.h
             )
 
-    target_include_directories(vision_darknet_detect PRIVATE
+    target_include_directories(vision_darknet_detect_NONE_CUDA PRIVATE
             ${catkin_INCLUDE_DIRS}
             ${PROJECT_SOURCE_DIR}/darknet
             ${PROJECT_SOURCE_DIR}/darknet/src
             ${PROJECT_SOURCE_DIR}/src
             )
 
-    target_link_libraries(vision_darknet_detect
+    target_link_libraries(vision_darknet_detect_NONE_CUDA
             ${catkin_LIBRARIES}
             ${OpenCV_LIBS}
-            vision_darknet_detect_lib
+            vision_darknet_detect_lib_NONE_CUDA
             )
-    add_dependencies(vision_darknet_detect
+    add_dependencies(vision_darknet_detect_NONE_CUDA
             ${catkin_EXPORTED_TARGETS}
             )
-    install(TARGETS vision_darknet_detect_lib vision_darknet_detect
+    install(TARGETS vision_darknet_detect_lib_NONE_CUDA vision_darknet_detect_NONE_CUDA
             ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
             LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
             RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
             )
     
-ENDIF ()
+# ENDIF ()
 
 install(DIRECTORY launch/
         DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
@@ -273,3 +273,4 @@ install(DIRECTORY launch/
 install(DIRECTORY darknet/cfg/
         DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/darknet/cfg/
         PATTERN ".svn" EXCLUDE)
+
