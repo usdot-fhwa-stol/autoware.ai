@@ -35,7 +35,7 @@ set(CMAKE_CXX_FLAGS "-O3 -g -Wall ${CMAKE_CXX_FLAGS}")
 
 AW_CHECK_CUDA()
 
-# if (USE_CUDA)
+if (USE_CUDA)
     list(APPEND CUDA_NVCC_FLAGS "--std=c++11 -I$${PROJECT_SOURCE_DIR}/darknet/src -I${PROJECT_SOURCE_DIR}/src -DGPU")
     SET(CUDA_PROPAGATE_HOST_FLAGS OFF)
 
@@ -164,7 +164,7 @@ AW_CHECK_CUDA()
             LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
             RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
             )
-
+ENDIF ()
 # ELSE()
     message(WARNING "Building vision_darknet_detect without CUDA")
 	
