@@ -45,9 +45,9 @@ public:
 
   /**
    * [LocalFrameProjector::projectECEF projects between WGS-84 ECEF and local map]
-   * @param  ecef_point             [point with x,y,z in ecef information]
-   * @param  proj_dir               [1 for forward -1 for reverse]
-   * @return                        [projected point in local map coordinate]
+   * @param  3dpoint                [point with x,y,z in either ecef or local map]
+   * @param  proj_dir               [1 for forward (get ECEF points) -1 for reverse (get local points)]
+   * @return                        [projected point in local or ECEF map coordinate]
    * @throw  std::invalid_argument  [if direction is neither of 1 (forward) or -1 (reverse)]
    */
   BasicPoint3d projectECEF(const BasicPoint3d& p, const int& proj_dir) const;
