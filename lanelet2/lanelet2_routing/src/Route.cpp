@@ -135,13 +135,9 @@ Route::Route(Route&& other) noexcept = default;
 Route::Route(LaneletPath shortestPath, std::unique_ptr<RouteGraph> graph, LaneletSubmapConstPtr laneletSubmap) noexcept
     : graph_{std::move(graph)}, shortestPath_{std::move(shortestPath)}, laneletSubmap_{std::move(laneletSubmap)} {
     
-    if (shortestPath_.size() != 0 && shortestPath_.back().leftBound3d().size() != 0 && shortestPath_.back().rightBound3d().size() != 0)
+    if (shortestPath_.size() != 0 && shortestPath_.back().centerline().size() != 0)
     {      
-      auto left_pt_last = shortestPath_.back().leftBound3d().back();
-      auto right_pt_last = shortestPath_.back().rightBound3d().back();
-      
-      lanelet::Point3d end_point {lanelet::utils::getId(), (left_pt_last.x() + right_pt_last.x())/2, (left_pt_last.y() + right_pt_last.y())/2,(left_pt_last.z() + right_pt_last.z())/2};
-      setEndPoint(end_point);
+      setEndPoint(shortestPath_.back().centerline().back());
     }
     }
 
@@ -428,18 +424,17 @@ Route::Errors Route::checkValidity(bool throwOnError) const {
   return errors;
 }
 
-void Route::setEndPoint(lanelet::Point3d end_point)
+void Route::setEndPoint(lanelet::ConstPoint3d end_point)
 {
-  if (!boost::geometry::covered_by(end_point.basicPoint2d(), shortestPath_.back().polygon2d()))
+  if (lanelet::geometry::distance(end_point.basicPoint2d(),shortestPath_.back().polygon2d()) > 1) // more than 1 meter away allowing room for error
   {
-    std::cerr << "Given end_point is not inside the last lanelet of the route" << std::endl;
-    return;
+    throw std::invalid_argument("Given end_point is not inside the last lanelet of the route");
   }
   
   end_point_ = end_point;
 }
 
-lanelet::Point3d Route::getEndPoint() const
+lanelet::ConstPoint3d Route::getEndPoint() const
 {
   return end_point_;
 }

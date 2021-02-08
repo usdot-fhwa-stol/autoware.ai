@@ -225,7 +225,7 @@ TEST_F(Route4, EndPoint) {                                           // NOLINT
   EXPECT_EQ(route.getEndPoint().z(), default_end_point.z());
 
   lanelet::Point3d invalid_end_point {lanelet::utils::getId(), 0, 0, 0};
-  route.setEndPoint(invalid_end_point);
+  EXPECT_THROW(route.setEndPoint(invalid_end_point), std::invalid_argument);
   EXPECT_EQ(route.getEndPoint().x(), default_end_point.x());
   EXPECT_EQ(route.getEndPoint().y(), default_end_point.y());
   EXPECT_EQ(route.getEndPoint().z(), default_end_point.z());
