@@ -1,5 +1,3 @@
-
-
 <launch>
   <!-- Primary launch file for the points map loader. Allows the user to load maps using three different methods defined by the arg load_type -->
   <arg name="load_type" default="noupdate" doc="Enum of the map loading approach to use. Can be 'download', 'noupdate', or 'arealist'"/> 

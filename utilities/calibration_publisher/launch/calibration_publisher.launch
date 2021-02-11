@@ -1,5 +1,3 @@
-
-
 <launch>
   <arg name="register_lidar2camera_tf" default="true" />
   <arg name="publish_extrinsic_mat" default="true"/>
