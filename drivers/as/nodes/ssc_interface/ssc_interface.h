@@ -42,6 +42,8 @@
 #include <autoware_msgs/VehicleCmd.h>
 #include <autoware_msgs/VehicleStatus.h>
 
+#include <cav_msgs/GuidanceState.h>
+
 static const std::string BASE_FRAME_ID = "base_link";
 
 class SSCInterface
@@ -64,6 +66,7 @@ private:
   ros::NodeHandle private_nh_;
 
   // subscribers
+  ros::Subscriber guidance_state_sub_;
   ros::Subscriber vehicle_cmd_sub_;
   ros::Subscriber engage_sub_;
   ros::Subscriber module_states_sub_;
@@ -108,11 +111,16 @@ private:
   bool command_initialized_;
   double adaptive_gear_ratio_;
   ros::Time command_time_;
+  cav_msgs::GuidanceState guidance_state_;
   autoware_msgs::VehicleCmd vehicle_cmd_;
   automotive_navigation_msgs::ModuleState module_states_;
   ros::Rate* rate_;
 
+  // bool flag indicates the ssc should set the vehicle shifter to park
+  bool shift_to_park_;
+
   // callbacks
+  void callbackFromGuidanceState(const cav_msgs::GuidanceStatePtr& msg);
   void callbackFromVehicleCmd(const autoware_msgs::VehicleCmdConstPtr& msg);
   void callbackFromEngage(const std_msgs::BoolConstPtr& msg);
   void callbackFromSSCModuleStates(const automotive_navigation_msgs::ModuleStateConstPtr& msg);

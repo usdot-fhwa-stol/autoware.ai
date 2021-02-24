@@ -35,6 +35,9 @@ SSCInterface::SSCInterface() : nh_(), private_nh_("~"), engage_(false), command_
 
   rate_ = new ros::Rate(loop_rate_);
 
+  // subscribers from CARMA
+  guidance_state_sub_ = nh_.subscribe("state", 1, &SSCInterface::callbackFromGuidanceState, this);
+
   // subscribers from autoware
   vehicle_cmd_sub_ = nh_.subscribe("vehicle_cmd", 1, &SSCInterface::callbackFromVehicleCmd, this);
   engage_sub_ = nh_.subscribe("vehicle/engage", 1, &SSCInterface::callbackFromEngage, this);
@@ -94,6 +97,20 @@ void SSCInterface::run()
     publishCommand();
 
     rate_->sleep();
+  }
+}
+
+void SSCInterface::callbackFromGuidanceState(const cav_msgs::GuidanceStatePtr& msg)
+{
+  guidance_state_ = msg->state;
+
+  if (guidance_state_ == cav_msgs::GuidanceState::ENGAGE)
+  {
+    shift_to_park_ = false;
+  }
+  else if (guidance_state == cav_msgs::GuidanceState::ENTER_PARK)
+  {
+    shift_to_park_ = true;
   }
 }
 
@@ -213,7 +230,23 @@ void SSCInterface::publishCommand()
   double desired_curvature = std::tan(desired_steering_angle) / wheel_base_;
 
   // Gear (TODO: Use vehicle_cmd.gear)
-  unsigned char desired_gear = engage_ ? automotive_platform_msgs::Gear::DRIVE : automotive_platform_msgs::Gear::NONE;
+  unsigned char desired_gear = automotive_platform_msgs::Gear:NONE;
+
+  if (engage_) 
+  {
+    if (guidance_state_ == cav_msgs::GuidanceState::ENTER_PARK || shift_to_park_) 
+    {
+      desired_gear_ = automotive_platform_msgs::Gear::PARK;
+    }
+    else if (guidance_state_ == cav_msgs:GuidanceState::ENGAGE || !shift_to_park_)
+    {
+      desired_gear_ = automotive_platform_msgs::Gear::DRIVE;
+    }
+  }
+  else
+  {
+    desired_gear_ = automotive_platform_msgs::Gear::NONE;
+  }
 
   // Turn signal
   unsigned char desired_turn_signal = automotive_platform_msgs::TurnSignalCommand::NONE;
