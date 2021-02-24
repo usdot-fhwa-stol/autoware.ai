@@ -116,8 +116,8 @@ private:
   automotive_navigation_msgs::ModuleState module_states_;
   ros::Rate* rate_;
 
-  // bool flag indicates the ssc should set the vehicle shifter to park
-  bool shift_to_park_;
+  // Flag to indicate whether the ssc should shift the vehicle to park
+  bool shift_to_park_{false};
 
   // callbacks
   void callbackFromGuidanceState(const cav_msgs::GuidanceStatePtr& msg);

@@ -234,11 +234,11 @@ void SSCInterface::publishCommand()
 
   if (engage_) 
   {
-    if (guidance_state_ == cav_msgs::GuidanceState::ENTER_PARK || shift_to_park_) 
+    if (shift_to_park_) 
     {
       desired_gear_ = automotive_platform_msgs::Gear::PARK;
     }
-    else if (guidance_state_ == cav_msgs:GuidanceState::ENGAGE || !shift_to_park_)
+    else
     {
       desired_gear_ = automotive_platform_msgs::Gear::DRIVE;
     }
