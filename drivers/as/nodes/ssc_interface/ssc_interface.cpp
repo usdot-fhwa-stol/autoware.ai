@@ -100,7 +100,7 @@ void SSCInterface::run()
   }
 }
 
-void SSCInterface::callbackFromGuidanceState(const cav_msgs::GuidanceStatePtr& msg)
+void SSCInterface::callbackFromGuidanceState(const cav_msgs::GuidanceStateConstPtr& msg)
 {
   guidance_state_ = msg->state;
 

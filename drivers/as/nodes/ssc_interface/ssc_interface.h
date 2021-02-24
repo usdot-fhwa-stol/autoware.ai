@@ -120,7 +120,7 @@ private:
   bool shift_to_park_{false};
 
   // callbacks
-  void callbackFromGuidanceState(const cav_msgs::GuidanceStatePtr& msg);
+  void callbackFromGuidanceState(const cav_msgs::GuidanceStateConstPtr& msg);
   void callbackFromVehicleCmd(const autoware_msgs::VehicleCmdConstPtr& msg);
   void callbackFromEngage(const std_msgs::BoolConstPtr& msg);
   void callbackFromSSCModuleStates(const automotive_navigation_msgs::ModuleStateConstPtr& msg);
