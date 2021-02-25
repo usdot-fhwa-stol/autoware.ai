@@ -102,13 +102,11 @@ void SSCInterface::run()
 
 void SSCInterface::callbackFromGuidanceState(const cav_msgs::GuidanceStateConstPtr& msg)
 {
-  guidance_state_ = msg->state;
-
-  if (guidance_state_ == cav_msgs::GuidanceState::ENGAGE)
+  if (msg->state == cav_msgs::GuidanceState::ENGAGED)
   {
     shift_to_park_ = false;
   }
-  else if (guidance_state == cav_msgs::GuidanceState::ENTER_PARK)
+  else if (msg->state == cav_msgs::GuidanceState::ENTER_PARK)
   {
     shift_to_park_ = true;
   }
@@ -230,22 +228,22 @@ void SSCInterface::publishCommand()
   double desired_curvature = std::tan(desired_steering_angle) / wheel_base_;
 
   // Gear (TODO: Use vehicle_cmd.gear)
-  unsigned char desired_gear = automotive_platform_msgs::Gear:NONE;
+  unsigned char desired_gear = automotive_platform_msgs::Gear::NONE;
 
   if (engage_) 
   {
     if (shift_to_park_) 
     {
-      desired_gear_ = automotive_platform_msgs::Gear::PARK;
+      desired_gear = automotive_platform_msgs::Gear::PARK;
     }
     else
     {
-      desired_gear_ = automotive_platform_msgs::Gear::DRIVE;
+      desired_gear = automotive_platform_msgs::Gear::DRIVE;
     }
   }
   else
   {
-    desired_gear_ = automotive_platform_msgs::Gear::NONE;
+    desired_gear = automotive_platform_msgs::Gear::NONE;
   }
 
   // Turn signal

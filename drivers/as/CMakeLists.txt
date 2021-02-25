@@ -3,6 +3,7 @@ project(as)
 
 find_package(
   catkin REQUIRED COMPONENTS
+  cav_msgs
   autoware_build_flags
   roscpp
   message_filters
@@ -23,6 +24,7 @@ catkin_package(
   automotive_platform_msgs
   automotive_navigation_msgs
   autoware_msgs
+  cav_msgs
 )
 
 include_directories(

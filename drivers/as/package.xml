@@ -19,4 +19,5 @@
   <depend>roscpp</depend>
   <depend>std_msgs</depend>
   <depend>ros_observer</depend>  
+  <depend>cav_msgs</depend>
 </package>
