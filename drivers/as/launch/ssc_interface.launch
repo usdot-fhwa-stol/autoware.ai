@@ -19,6 +19,8 @@
 		<param name="acceleration_limit" value="$(arg acceleration_limit)" />
 		<param name="deceleration_limit" value="$(arg deceleration_limit)" />
 		<param name="max_curvature_rate" value="$(arg max_curvature_rate)" />
+
+		<remap from="/guidance_state" to="guidance_state" />
 	</node>
 
 </launch>
