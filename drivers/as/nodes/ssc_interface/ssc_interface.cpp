@@ -36,7 +36,7 @@ SSCInterface::SSCInterface() : nh_(), private_nh_("~"), engage_(false), command_
   rate_ = new ros::Rate(loop_rate_);
 
   // subscribers from CARMA
-  guidance_state_sub_ = nh_.subscribe("state", 1, &SSCInterface::callbackFromGuidanceState, this);
+  guidance_state_sub_ = nh_.subscribe("/state", 1, &SSCInterface::callbackFromGuidanceState, this);
 
   // subscribers from autoware
   vehicle_cmd_sub_ = nh_.subscribe("vehicle_cmd", 1, &SSCInterface::callbackFromVehicleCmd, this);
