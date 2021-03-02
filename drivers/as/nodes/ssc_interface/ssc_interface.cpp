@@ -148,6 +148,9 @@ void SSCInterface::callbackFromSSCFeedbacks(const automotive_platform_msgs::Velo
                          (msg_curvature->curvature) :
                          std::tan(msg_steering_wheel->steering_wheel_angle/ adaptive_gear_ratio_) / wheel_base_;
 
+  // Set current_velocity_ variable [km/s]
+  double current_velocity_ = msg_velocity->velocity;
+
   // as_current_velocity (geometry_msgs::TwistStamped)
   geometry_msgs::TwistStamped twist;
   twist.header.frame_id = BASE_FRAME_ID;
@@ -234,7 +237,9 @@ void SSCInterface::publishCommand()
   {
     if (shift_to_park_) 
     {
-      desired_gear = automotive_platform_msgs::Gear::PARK;
+      if (current_velocity_ < epsilon_){
+        desired_gear = automotive_platform_msgs::Gear::PARK;
+      }
     }
     else
     {

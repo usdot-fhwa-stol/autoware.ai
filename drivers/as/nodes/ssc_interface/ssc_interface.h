@@ -109,6 +109,7 @@ private:
   // variables
   bool engage_;
   bool command_initialized_;
+  double current_velocity_;
   double adaptive_gear_ratio_;
   ros::Time command_time_;
   cav_msgs::GuidanceState guidance_state_;
@@ -118,6 +119,9 @@ private:
 
   // Flag to indicate whether the ssc should shift the vehicle to park
   bool shift_to_park_{false};
+
+  //A small static value for comparing doubles
+  static constexpr double epsilon_ = 0.001;
 
   // callbacks
   void callbackFromGuidanceState(const cav_msgs::GuidanceStateConstPtr& msg);
