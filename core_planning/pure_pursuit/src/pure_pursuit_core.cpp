@@ -239,10 +239,7 @@ void PurePursuitNode::callbackFromConfig(
   const autoware_config_msgs::ConfigWaypointFollowerConstPtr& config)
 {
   velocity_source_ = config->param_flag;
-  const_lookahead_distance_ = config->lookahead_distance;
   const_velocity_ = config->velocity;
-  lookahead_distance_ratio_ = config->lookahead_ratio;
-  minimum_lookahead_distance_ = config->minimum_lookahead_distance;
 }
 
 void PurePursuitNode::publishDeviationCurrentPosition(
