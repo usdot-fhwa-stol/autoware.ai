@@ -76,7 +76,7 @@ private:
     pub11_, pub12_, pub13_, pub14_, pub15_, pub16_, pub17_, pub18_;
 
   // subscriber
-  ros::Subscriber sub1_, sub2_, sub3_, sub4_;
+  ros::Subscriber sub1_, sub2_, sub3_;
 
   // constant
   const int LOOP_RATE_;  // processing frequency

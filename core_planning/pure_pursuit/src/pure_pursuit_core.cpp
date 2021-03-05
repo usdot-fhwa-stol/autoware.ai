@@ -68,9 +68,7 @@ void PurePursuitNode::initForROS()
     &PurePursuitNode::callbackFromWayPoints, this);
   sub2_ = nh_.subscribe("current_pose", 10,
     &PurePursuitNode::callbackFromCurrentPose, this);
-  sub3_ = nh_.subscribe("config/waypoint_follower", 10,
-    &PurePursuitNode::callbackFromConfig, this);
-  sub4_ = nh_.subscribe("current_velocity", 10,
+  sub3_ = nh_.subscribe("current_velocity", 10,
     &PurePursuitNode::callbackFromCurrentVelocity, this);
 
   // setup publisher
