@@ -21,5 +21,6 @@
     <param name="lookahead_ratio" value="$(arg lookahead_ratio)"/>
     <param name="minimum_lookahead_distance" value="$(arg minimum_lookahead_distance)"/>
     <param name="velocity_source" value="$(arg velocity_source)"/>
+    <param name="vehicle_wheel_base" value="$(arg vehicle_wheel_base)"/>
   </node>
 </launch>
