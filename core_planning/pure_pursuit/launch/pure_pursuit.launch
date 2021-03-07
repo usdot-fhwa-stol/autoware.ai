@@ -7,7 +7,8 @@
   <arg name="const_velocity" default="5.0"/>
   <arg name="lookahead_ratio" default="2.0"/>
   <arg name="minimum_lookahead_distance" default="6.0"/>
-
+  <arg name="vehicle_wheel_base" default="2.79"/>
+  
   <!-- 0 = waypoints, 1 = provided constant velocity -->
   <arg name="velocity_source" default="0"/>
 
