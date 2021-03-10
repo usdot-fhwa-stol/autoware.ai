@@ -196,10 +196,22 @@ class Route {
    *  @return Vector of errors if no-throw is chosen and errors are found */
   Errors checkValidity(bool throwOnError = false) const;
 
+  /** @brief Returns the endpoint location at the end of the route.
+   *         Guaranteed to be on the last lanelet of the route. Set to the last point of the centerline by default
+   *         Can be changed later by setEndPoint() 
+   *  @return Endpoint location at the end of the route. */
+  lanelet::ConstPoint3d getEndPoint() const;
+
+  /** @brief Set the endpoint location at the end of the route.
+   *  @throw Throws invalid_argument if the point is not within the last lanelet's boundary 
+   *  @param end_point that is within the last lanelet of the route */
+  void setEndPoint(lanelet::ConstPoint3d end_point);
+
  private:
   std::unique_ptr<internal::RouteGraph> graph_;  ///< The internal graph
   LaneletPath shortestPath_;                     ///< The underlying shortest path used to create the route
   LaneletSubmapConstPtr laneletSubmap_;          ///< LaneletSubmap with all lanelets that are part of the route
+  lanelet::ConstPoint3d end_point_;              ///< Endpoint of route
 };
 };  // namespace routing
 };  // namespace lanelet

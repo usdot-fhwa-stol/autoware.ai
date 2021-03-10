@@ -76,10 +76,12 @@ private:
     pub11_, pub12_, pub13_, pub14_, pub15_, pub16_, pub17_, pub18_;
 
   // subscriber
-  ros::Subscriber sub1_, sub2_, sub3_, sub4_;
+  ros::Subscriber sub1_, sub2_, sub3_;
 
   // constant
   const int LOOP_RATE_;  // processing frequency
+  const int DEFAULT_VELOCITY_SOURCE_ = 0;
+  const double DEFAULT_CONST_VELOCITY_ = 5.0;
 
   // variables
   bool is_linear_interpolation_, publishes_for_steering_robot_,
@@ -97,8 +99,6 @@ private:
   double minimum_lookahead_distance_;
 
   // callbacks
-  void callbackFromConfig(
-    const autoware_config_msgs::ConfigWaypointFollowerConstPtr& config);
   void callbackFromCurrentPose(const geometry_msgs::PoseStampedConstPtr& msg);
   void callbackFromCurrentVelocity(
     const geometry_msgs::TwistStampedConstPtr& msg);

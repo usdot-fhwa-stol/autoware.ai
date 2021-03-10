@@ -214,6 +214,33 @@ TEST_F(Route4, CreateRoute4) {                                           // NOLI
   EXPECT_EQ(route.laneletSubmap()->laneletLayer.size(), route.size());  // NOLINT
 }
 
+TEST_F(Route4, EndPoint) {                                           // NOLINT
+  EXPECT_EQ(route.size(), 15ul);                                         // NOLINT
+  
+  lanelet::BasicPoint3d default_end_point {(route.shortestPath().back().leftBound3d().back().x() + route.shortestPath().back().rightBound3d().back().x())/2,
+                                            (route.shortestPath().back().leftBound3d().back().y() + route.shortestPath().back().rightBound3d().back().y())/2,
+                                            (route.shortestPath().back().leftBound3d().back().z() + route.shortestPath().back().rightBound3d().back().z())/2};
+  EXPECT_EQ(route.getEndPoint().x(), default_end_point.x());
+  EXPECT_EQ(route.getEndPoint().y(), default_end_point.y());
+  EXPECT_EQ(route.getEndPoint().z(), default_end_point.z());
+
+  lanelet::Point3d invalid_end_point {lanelet::utils::getId(), 0, 0, 0};
+  EXPECT_THROW(route.setEndPoint(invalid_end_point), std::invalid_argument);
+  EXPECT_EQ(route.getEndPoint().x(), default_end_point.x());
+  EXPECT_EQ(route.getEndPoint().y(), default_end_point.y());
+  EXPECT_EQ(route.getEndPoint().z(), default_end_point.z());
+
+  lanelet::Point3d new_end_point {lanelet::utils::getId(), (route.shortestPath().back().leftBound3d().back().x() + route.shortestPath().back().rightBound3d().front().x())/2, 
+            (route.shortestPath().back().leftBound3d().back().y() + route.shortestPath().back().rightBound3d().front().y())/2,
+             (route.shortestPath().back().leftBound3d().back().z() + route.shortestPath().back().rightBound3d().front().z())/2};
+  
+  EXPECT_NO_THROW(route.setEndPoint(new_end_point));
+  EXPECT_EQ(route.getEndPoint().x(), new_end_point.x());
+  EXPECT_EQ(route.getEndPoint().y(), new_end_point.y());
+  EXPECT_EQ(route.getEndPoint().z(), new_end_point.z());
+
+}
+
 TEST_F(RouteMaxHoseLeftRight, CreateRouteMaxHose1) {                     // NOLINT
   EXPECT_EQ(route.size(), 5ul);                                          // NOLINT
   EXPECT_EQ(route.shortestPath(), *graph->shortestPath(start, end, 0));  // NOLINT
@@ -374,3 +401,4 @@ TEST_F(RouteCircularNoLc, Circularity) {  // NOLINT
   EXPECT_EQ(route.remainingShortestPath(lanelets.at(2036)).size(), 7ul);
   EXPECT_EQ(route.remainingLane(lanelets.at(2067)).size(), 7ul);
 }
+

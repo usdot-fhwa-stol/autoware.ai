@@ -9,6 +9,7 @@
 #include "internal/Graph.h"
 #include "internal/GraphUtils.h"
 #include "internal/ShortestPath.h"
+#include <iostream>
 
 namespace lanelet {
 namespace routing {
@@ -132,7 +133,13 @@ Route::~Route() noexcept = default;
 Route& Route::operator=(Route&& other) noexcept = default;
 Route::Route(Route&& other) noexcept = default;
 Route::Route(LaneletPath shortestPath, std::unique_ptr<RouteGraph> graph, LaneletSubmapConstPtr laneletSubmap) noexcept
-    : graph_{std::move(graph)}, shortestPath_{std::move(shortestPath)}, laneletSubmap_{std::move(laneletSubmap)} {}
+    : graph_{std::move(graph)}, shortestPath_{std::move(shortestPath)}, laneletSubmap_{std::move(laneletSubmap)} {
+    
+    if (shortestPath_.size() != 0 && shortestPath_.back().centerline().size() != 0)
+    {      
+      setEndPoint(shortestPath_.back().centerline().back());
+    }
+    }
 
 LaneletPath Route::remainingShortestPath(const ConstLanelet& ll) const {
   auto iter = std::find(shortestPath_.begin(), shortestPath_.end(), ll);
@@ -416,6 +423,22 @@ Route::Errors Route::checkValidity(bool throwOnError) const {
   }
   return errors;
 }
+
+void Route::setEndPoint(lanelet::ConstPoint3d end_point)
+{
+  if (lanelet::geometry::distance(end_point.basicPoint2d(),shortestPath_.back().polygon2d()) > 1) // more than 1 meter away allowing room for error
+  {
+    throw std::invalid_argument("Given end_point is not inside the last lanelet of the route");
+  }
+  
+  end_point_ = end_point;
+}
+
+lanelet::ConstPoint3d Route::getEndPoint() const
+{
+  return end_point_;
+}
+
 
 }  // namespace routing
 }  // namespace lanelet

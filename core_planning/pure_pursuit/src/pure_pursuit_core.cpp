@@ -30,9 +30,9 @@ PurePursuitNode::PurePursuitNode()
   , current_linear_velocity_(0)
   , command_linear_velocity_(0)
   , direction_(LaneDirection::Forward)
-  , velocity_source_(-1)
+  , velocity_source_(DEFAULT_VELOCITY_SOURCE_)
   , const_lookahead_distance_(4.0)
-  , const_velocity_(5.0)
+  , const_velocity_(DEFAULT_CONST_VELOCITY_)
   , lookahead_distance_ratio_(2.0)
   , minimum_lookahead_distance_(6.0)
 {
@@ -52,27 +52,23 @@ PurePursuitNode::~PurePursuitNode()
 void PurePursuitNode::initForROS()
 {
   // ros parameter settings
-  private_nh_.param("velocity_source", velocity_source_, 0);
   private_nh_.param("is_linear_interpolation", is_linear_interpolation_, true);
   private_nh_.param(
     "publishes_for_steering_robot", publishes_for_steering_robot_, false);
   private_nh_.param(
     "add_virtual_end_waypoints", add_virtual_end_waypoints_, false);
   private_nh_.param("const_lookahead_distance", const_lookahead_distance_, 4.0);
-  private_nh_.param("const_velocity", const_velocity_, 5.0);
   private_nh_.param("lookahead_ratio", lookahead_distance_ratio_, 2.0);
   private_nh_.param(
     "minimum_lookahead_distance", minimum_lookahead_distance_, 6.0);
-  nh_.param("vehicle_info/wheel_base", wheel_base_, 2.7);
+  private_nh_.param("vehicle_wheel_base", wheel_base_, 2.7);
 
   // setup subscriber
   sub1_ = nh_.subscribe("final_waypoints", 10,
     &PurePursuitNode::callbackFromWayPoints, this);
   sub2_ = nh_.subscribe("current_pose", 10,
     &PurePursuitNode::callbackFromCurrentPose, this);
-  sub3_ = nh_.subscribe("config/waypoint_follower", 10,
-    &PurePursuitNode::callbackFromConfig, this);
-  sub4_ = nh_.subscribe("current_velocity", 10,
+  sub3_ = nh_.subscribe("current_velocity", 10,
     &PurePursuitNode::callbackFromCurrentVelocity, this);
 
   // setup publisher
@@ -235,15 +231,6 @@ double PurePursuitNode::computeAngularGravity(
   return (velocity * velocity) / (1.0 / kappa * gravity);
 }
 
-void PurePursuitNode::callbackFromConfig(
-  const autoware_config_msgs::ConfigWaypointFollowerConstPtr& config)
-{
-  velocity_source_ = config->param_flag;
-  const_lookahead_distance_ = config->lookahead_distance;
-  const_velocity_ = config->velocity;
-  lookahead_distance_ratio_ = config->lookahead_ratio;
-  minimum_lookahead_distance_ = config->minimum_lookahead_distance;
-}
 
 void PurePursuitNode::publishDeviationCurrentPosition(
   const geometry_msgs::Point& point,
