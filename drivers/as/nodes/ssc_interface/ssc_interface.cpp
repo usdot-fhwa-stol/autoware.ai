@@ -148,7 +148,7 @@ void SSCInterface::callbackFromSSCFeedbacks(const automotive_platform_msgs::Velo
                          (msg_curvature->curvature) :
                          std::tan(msg_steering_wheel->steering_wheel_angle/ adaptive_gear_ratio_) / wheel_base_;
 
-  // Set current_velocity_ variable [km/s]
+  // Set current_velocity_ variable [m/s]
   current_velocity_ = msg_velocity->velocity;
 
   // as_current_velocity (geometry_msgs::TwistStamped)
