@@ -46,7 +46,7 @@ jobs:
           name: Pull Deps
           command: |
             source ${INIT_ENV}
-            ./autoware.ai/docker/checkout.bash ${PWD}
+            ./autoware.ai/docker/checkout.bash -r ${PWD}
       - run:
           name: Build autoware.ai
           command: |
