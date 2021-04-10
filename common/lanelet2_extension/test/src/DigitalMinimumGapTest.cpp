@@ -16,8 +16,9 @@
 
 #include <gmock/gmock.h>
 #include <iostream>
-#include <lanelet2_extension/regulatory_elements/RegionAccessRule.h>
+#include <lanelet2_extension/regulatory_elements/DigitalMinimumGap.h>
 #include <lanelet2_core/geometry/LineString.h>
+#include <lanelet2_core/utility/Units.h>
 #include <lanelet2_traffic_rules/TrafficRulesFactory.h>
 #include <lanelet2_core/Attribute.h>
 #include "TestHelpers.h"
@@ -31,8 +32,9 @@ using ::testing::ReturnArg;
 
 namespace lanelet
 {
+using namespace lanelet::units::literals;
 
-TEST(RegionAccessRuleTest, regionAccessRule)
+TEST(DigitalMinimumGap, digitalMinimumGap)
 {
   auto pl1 = carma_wm::getPoint(0, 0, 0);
   auto pl2 = carma_wm::getPoint(0, 1, 0);
@@ -52,27 +54,28 @@ TEST(RegionAccessRuleTest, regionAccessRule)
   std::vector<lanelet::Point3d> right_2 = { pr2, pr3 };
   auto ll_2 = carma_wm::getLanelet(left_2, right_2);
 
-    // Add an area
+  // Add an area
   lanelet::LineString3d area_loop(lanelet::utils::getId(), { pl3, p4, p5, pr3 });
-  
+
   area_loop.attributes()[lanelet::AttributeName::Type] = lanelet::AttributeValueString::LineThin;
   area_loop.attributes()[lanelet::AttributeName::Subtype] = lanelet::AttributeValueString::Dashed;
 
-  lanelet::Area area(lanelet::utils::getId(), {area_loop});
+  lanelet::Area area(lanelet::utils::getId(), { area_loop });
 
   area.attributes()[lanelet::AttributeName::Type] = lanelet::AttributeValueString::Multipolygon;
   area.attributes()[lanelet::AttributeName::Subtype] = lanelet::AttributeValueString::Road;
   area.attributes()[lanelet::AttributeName::Location] = lanelet::AttributeValueString::Urban;
   area.attributes()[lanelet::AttributeNamesString::ParticipantVehicle] = "yes";
-  const std::string& reason = "Move over law";
-  RegionAccessRule rar(RegionAccessRule::buildData(lanelet::utils::getId(), {ll_1, ll_2}, {area}, {lanelet::Participants::VehicleCar}, reason));
 
-  ASSERT_EQ(2, rar.getLanelets().size());
-  ASSERT_EQ(1, rar.getAreas().size());
-  ASSERT_EQ("Move over law", rar.getReason());
-  ASSERT_FALSE(rar.accessable(lanelet::Participants::Vehicle));
-  ASSERT_TRUE(rar.accessable(lanelet::Participants::VehicleCar));
-  ASSERT_TRUE(rar.accessable(lanelet::Participants::VehicleCarElectric)); // Test acceptance of sub type
+  DigitalSpeedLimit dsl(DigitalMinimumGap::buildData(lanelet::utils::getId(), 11, { ll_1, ll_2 }, { area },
+                                                     { lanelet::Participants::VehicleCar }));
+
+  ASSERT_EQ(2, dsl.getLanelets().size());
+  ASSERT_EQ(1, dsl.getAreas().size());
+  ASSERT_EQ(11, dsl.getMinimumGap());
+  ASSERT_FALSE(dsl.appliesTo(lanelet::Participants::Vehicle));
+  ASSERT_TRUE(dsl.appliesTo(lanelet::Participants::VehicleCar));
+  ASSERT_TRUE(dsl.appliesTo(lanelet::Participants::VehicleCarElectric));  // Test acceptance of sub type
 
 }
 

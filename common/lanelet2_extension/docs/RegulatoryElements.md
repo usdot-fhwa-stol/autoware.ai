@@ -2,6 +2,53 @@
 
 To better support dynamic updates and complex situations, CARMA expands on the standard Lanelet2 regulatory element set. The new regulatory element class definitions can be found [here](../include/lanelet2_extension/regulatory_elements) along with a new TrafficRules object which interprets them in place of the Lanelet2 tagging specification.
 
+## Digital Minimum Gap
+
+Minimum Gap can be set dynamically either through a V2V or V2X communications service. It helps to keep a safety following distance between ADS vehicles within an active geofence.
+
+### Parameters
+| **Role** | **Possible Type** | **description**                |
+|-------------|--------------|----------------------------------|
+| **refers**    | **Lanelet, Area**    | The region of the roadway this minimum gap applies to |
+
+### Custom Attributes
+
+| **Key** | **Value Type** | **description**                |
+|-------------|--------------|----------------------------------|
+| **subtype** | **digital_minimun_gap**    | Subtype name |
+| **mingap** | **double**    | The minimum gap to set. In an osm file units must be one of the following m/s, mps, km/h, kmh, m/h, mph |
+| **participant:XXX** | **yes/no**    | The participant type this applies to |
+
+#### Note on participant tags
+
+To support multiple types of participants a new attribute should be added for each desired type and the value field set to "yes". So a minimum gap which applied to vehicles will have participant:vehicle set to yes. There is no need to explicitally mark participants as no, this will be implied. The lanelet2 participant heirarchy found [here](https://github.com/fzi-forschungszentrum-informatik/Lanelet2/blob/master/lanelet2_core/doc/LaneletAndAreaTagging.md#overriding) is supported.
+
+### OSM XML Example
+
+```(xml)
+<!-- Lanelet -->
+<relation id="1349" visible="true" version="1">
+  <member type="way" ref="1347" role="left" />
+  <member type="way" ref="1348" role="right" />
+  <tag k="location" v="urban" />
+  <tag k="subtype" v="road" />
+  <tag k="type" v="lanelet" />
+
+  <!-- Minimum gap -->
+  <member type='relation' ref='45217' role='regulatory_element' />
+</relation>
+
+<!-- Regulatory Minimum gap -->
+<relation id='45217' visible='true' version='1'>
+  <member type='lanelet' ref='1349' role='refers' />
+  <tag k='mingap' v='13' /> <!-- Minimum gap value is of unit meter-->
+  <tag k='subtype' v='digital_minimun_gap' />
+  <tag k='type' v='regulatory_element' />
+  <tag k='participant:vehicle' v='yes' />
+</relation>
+
+```
+
 ## Digital Speed Limit
 
 Represents a speed limit which can be set dynamically either through a V2X communications service or other mechanism. In a standard use case a digital speed limit would be expected to have precedence over a speed limit from a traffic sign which is still a supported speed limit mechanism.

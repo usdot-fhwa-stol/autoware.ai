@@ -35,8 +35,9 @@ class RegionAccessRule : public RegulatoryElement
 {
 public:
   static constexpr char RuleName[] = "region_access_rule";
+  static constexpr char Reason[] = "reason";
   std::unordered_set<std::string> participants_;
-
+  std::string reason_ = "NA";
   /**
    * @brief Returns the lanelets this rule applies to
    *
@@ -50,6 +51,13 @@ public:
    * @return The areas affected by this rule
    */
   ConstAreas getAreas() const;
+
+ /**
+   * @brief Returns the reason for this rule
+   *
+   * @return The reason for this rule
+   */
+  std::string getReason();
 
   /**
    * @brief Returns true if the provided participant can access lanelets or areas affected by this regulation
@@ -76,7 +84,7 @@ public:
    * @return RegulatoryElementData containing all the necessary information to construct a region access rule object
    */
   static std::unique_ptr<lanelet::RegulatoryElementData> buildData(Id id, Lanelets lanelets, Areas areas,
-                                                     std::vector<std::string> participants);
+                                                     std::vector<std::string> participants, const std::string& reason="NA");
 
 protected:
   // the following lines are required so that lanelet2 can create this object when loading a map with this regulatory
