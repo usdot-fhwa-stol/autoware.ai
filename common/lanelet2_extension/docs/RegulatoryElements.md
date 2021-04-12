@@ -16,7 +16,7 @@ Minimum Gap can be set dynamically either through a V2V or V2X communications se
 | **Key** | **Value Type** | **description**                |
 |-------------|--------------|----------------------------------|
 | **subtype** | **digital_minimun_gap**    | Subtype name |
-| **mingap** | **double**    | The minimum gap to set. In an osm file units must be one of the following m/s, mps, km/h, kmh, m/h, mph |
+| **mingap** | **double**    | The minimum gap to set. In an osm file units must be meters |
 | **participant:XXX** | **yes/no**    | The participant type this applies to |
 
 #### Note on participant tags
