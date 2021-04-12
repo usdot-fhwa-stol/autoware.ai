@@ -74,7 +74,7 @@ public:
    * affected participants
    *
    * @param id The lanelet::Id of this object
-   * @param min_gap The double which will be treated as the minimum gap  in this region
+   * @param min_gap The double which will be treated as the minimum gap (unit of meters) in this region
    * @param lanelets The lanelets this minimum gap  applies to
    * @param areas The areas this minimum gap  applies to
    * @param participants The set of participants which this minimum gap  will apply to
