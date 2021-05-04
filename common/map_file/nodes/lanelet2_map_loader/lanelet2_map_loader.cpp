@@ -105,7 +105,9 @@ int main(int argc, char** argv)
   map_bin_msg.header.stamp = ros::Time::now();
   map_bin_msg.header.frame_id = "map";
   map_bin_msg.format_version = format_version;
-  map_bin_msg.map_version = map_version;
+  if (!map_version.empty()) {
+    map_bin_msg.map_version = stoi(map_version); // CARMA Uses monotonically increasing map version numbers in carma_wm
+  }
   lanelet::utils::conversion::toBinMsg(map, &map_bin_msg);
 
   map_bin_pub.publish(map_bin_msg);
