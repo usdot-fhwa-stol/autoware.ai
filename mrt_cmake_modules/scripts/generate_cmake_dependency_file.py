@@ -18,7 +18,7 @@ from __future__ import print_function
 import os
 import sys
 import subprocess
-import platform
+import distro as dist
 import xml.etree.ElementTree as ET
 import yaml
 from catkin_pkg.packages import find_packages
@@ -119,7 +119,7 @@ def readPackageCMakeData(rosDebYamlFileName):
     """
     # load ros dep yaml file
     f = open(rosDebYamlFileName, "r")
-    rosDebYamlData = yaml.load(f)
+    rosDebYamlData = yaml.safe_load(f)
 
     # dictionary for storing cmake dependencies
     # e.g. { "<package name 1>" -> PackageCMakeData, "<package name 2>" -> PackageCMakeData ... }
@@ -129,7 +129,7 @@ def readPackageCMakeData(rosDebYamlFileName):
         # cmake part (only ubuntu, etc.)
         if "cmake" in packageCMakeData:
             # find out which distribution
-            distro = platform.dist()[2]
+            distro = dist.linux_distribution()[2]
             if 'ROS_OS_OVERRIDE' in os.environ:
                 ros_os_override = os.environ['ROS_OS_OVERRIDE'].split(':')
                 if len(ros_os_override) == 2:

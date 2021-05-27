@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #-*- coding: utf-8 -*-
 
 import sys
@@ -144,9 +144,9 @@ if __name__ == "__main__":
                 graph0.add_edge(sub, n0, lhead=cname)
 
   # output
-  print "# output", args.output
-  print "# format", args.format
+  print("# output", args.output)
+  print("# format", args.format)
   graph0.draw(path=args.output, format=args.format, prog='dot')
-  #print "## ", reduce(lambda a,b: a + "\n### " + b, sorted(graph.nodes()))
-  print "# total file#=%d node#=%d topic#=%d" % \
-    (graph_nr, node_nr, len(set(reduce(lambda m,n:m.keys()+n.keys(), topics))))
+  #print("## ", reduce(lambda a,b: a + "\n### " + b, sorted(graph.nodes())))
+  print("# total file#=%d node#=%d topic#=%d" % \
+    (graph_nr, node_nr, len(set(reduce(lambda m,n:m.keys()+n.keys(), topics)))))

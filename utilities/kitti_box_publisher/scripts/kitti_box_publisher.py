@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys
 import glob
@@ -236,7 +236,7 @@ def run():
 	pub_points_clusters = rospy.Publisher('points_cluster', PointCloud2, queue_size=1)
 	#projection_publisher = rospy.Publisher('projection_matrix', projection_matrix, queue_size=1, latch=True)
 	#rospy.Subscriber("/kitti_player/hdl64e", PointCloud2, callback)
-        rospy.Subscriber("/points_raw", PointCloud2, callback)
+	rospy.Subscriber("/points_raw", PointCloud2, callback)
 	
 	rospy.spin()
 
@@ -250,6 +250,6 @@ if __name__ == "__main__":
 		run()
 
 	else :
-		print "[Usage] image.py tracklet_labels.xml"
+		print("[Usage] image.py tracklet_labels.xml")
 
 

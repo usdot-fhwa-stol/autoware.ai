@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import sys
 import rospy
 import numpy as np
@@ -28,7 +28,7 @@ class DepthConverter(object):
             if 'ImageSize' in line:
                 width=int(line[line.index('[')+1:line.index(',')])
                 height=int(line[line.index(',')+1:line.index(']')])
-        print "Image Size: [",width,",",height,"]"
+        print("Image Size: [",width,",",height,"]")
         self.width = width
         self.height = height
         self.index = 0
@@ -98,7 +98,7 @@ class DepthConverter(object):
                 d_mat[i_y,i_x]=i_z
 
         t1 = time.time()
-        print "Projection Time: ", t1-t0
+        print("Projection Time: ", t1-t0)
 
         self.to_distance_image(d_mat,curr_image)
         self.in_callback = False
@@ -108,7 +108,7 @@ class DepthConverter(object):
         self.index += 1
         h = self.height
         w = self.width
-        print img_mat[np.isnan(img_mat)].shape, "nan"
+        print(img_mat[np.isnan(img_mat)].shape, "nan")
         # print(np.nanmax(img_mat))
         # print(np.nanmin(img_mat))
 
@@ -135,18 +135,18 @@ class DepthConverter(object):
         #        sub_mat.fill(avg)
         #        new_mat[y:y+self.sub_mat_size*self.mat_ratio,x:x+self.sub_mat_size]=sub_mat
         # t1 = time.time()
-        # print "Interpolation time: ", t1-t0
+        # print("Interpolation time: ", t1-t0)
 
         new_mat[np.isnan(new_mat)] = 0
 
-        print new_mat.max()
+        print(new_mat.max())
 
 
         d_img = PIL.Image.fromarray(plt.cm.jet_r(new_mat, bytes=True))
         # rgba_img=PIL.Image.fromarray(curr_image).convert("RGBA")
         # overlay_img = PIL.Image.blend(rgba_img,d_img, 0.5)
-        # print new_mat.max(), new_mat.min()
-        # print plt.cm.jet_r(new_mat, bytes=True).max(), plt.cm.jet_r(new_mat, bytes=True).min()
+        # print(new_mat.max(), new_mat.min())
+        # print(plt.cm.jet_r(new_mat, bytes=True).max(), plt.cm.jet_r(new_mat, bytes=True).min())
 
         timestamp = time.time()
         d_img.save(self.save_path + '/depth_img_%08d.jpg' % self.index)
@@ -187,7 +187,7 @@ def pc2_to_depth_image():
         calibration_path = sys.argv[2]
         image = sys.argv[3]
         pointcloud = sys.argv[4]
-    except Exception, e:
+    except Exception as e:
         sys.exit("Please specify the save path. Example: rosbag_data_extract_unsync.py /media/0/output/")
 
     dc = DepthConverter(calibration_path, save_path)

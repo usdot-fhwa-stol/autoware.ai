@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #
 # Copyright 2018-2019 Autoware Foundation
 #
@@ -105,6 +105,6 @@ if __name__ == "__main__":
 
   try:
     change_frame_id(args.i,args.o,args.f,args.t)
-  except Exception, e:
+  except Exception as e:
     import traceback
     traceback.print_exc()

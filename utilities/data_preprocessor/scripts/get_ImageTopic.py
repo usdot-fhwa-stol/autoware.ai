@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys
 import os
@@ -50,7 +50,7 @@ def rosbag_data_extract_sample():
         topic = sys.argv[2]
         output_type = "image"
         bagfile = "/home/katou01/.autoware/autoware-201701171120.bag"
-    except Exception, e:
+    except Exception as e:
         sys.exit("Please specify the save path. Example: rosbag_data_extract_unsync.py /media/0/output/")
 
     image_saver = ImageSaver(save_path, output_type, bagfile, topic)

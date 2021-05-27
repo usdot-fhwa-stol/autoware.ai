@@ -114,7 +114,7 @@ public:
 				0	,1	,0	,_dt	,
 				0	,0	,1	,0	,
 				0	,0	,0	,1	);
-#elif (CV_MAJOR_VERSION == 3)
+#elif (CV_MAJOR_VERSION >= 3)
 		m_filter.transitionMatrix = (cv::Mat_<float>(nStates, nStates) << 1	,0	,_dt	,0  ,
 				0	,1	,0	,_dt	,
 				0	,0	,1	,0	,
@@ -147,7 +147,7 @@ public:
 				0	,1	,0	,_dt	,
 				0	,0	,1	,0	,
 				0	,0	,0	,1	);
-#elif (CV_MAJOR_VERSION == 3)
+#elif (CV_MAJOR_VERSION >= 3)
 		m_filter.transitionMatrix = (cv::Mat_<float>(nStates, nStates) << 1	,0	,_dt	,0  ,
 				0	,1	,0	,_dt	,
 				0	,0	,1	,0	,
@@ -257,7 +257,7 @@ public:
 				0	,1	,0	,_dt	,
 				0	,0	,1	,0	,
 				0	,0	,0	,1	);
-#elif (CV_MAJOR_VERSION == 3)
+#elif (CV_MAJOR_VERSION >= 3)
 		m_filter.transitionMatrix = (cv::Mat_<float>(nStates, nStates) << 1	,0	,_dt	,0  ,
 				0	,1	,0	,_dt	,
 				0	,0	,1	,0	,

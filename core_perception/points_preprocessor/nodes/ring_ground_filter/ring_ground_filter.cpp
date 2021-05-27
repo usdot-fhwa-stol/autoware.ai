@@ -10,8 +10,8 @@
 #include <pcl_ros/point_cloud.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/point_types.h>
-#include <velodyne_pointcloud/point_types.h>
-#include <opencv/cv.h>
+#include <velodyne_pcl/point_types.h>
+#include <opencv2/opencv.hpp>
 
 enum Label
 {
@@ -59,10 +59,10 @@ private:
 	void InitLabelArray(int in_model);
 	void InitRadiusTable(int in_model);
 	void InitDepthMap(int in_width);
-	void VelodyneCallback(const pcl::PointCloud<velodyne_pointcloud::PointXYZIR>::ConstPtr &in_cloud_msg);
-	void FilterGround(const pcl::PointCloud<velodyne_pointcloud::PointXYZIR>::ConstPtr &in_cloud_msg,
-				pcl::PointCloud<velodyne_pointcloud::PointXYZIR> &out_groundless_points,
-				pcl::PointCloud<velodyne_pointcloud::PointXYZIR> &out_ground_points);
+	void VelodyneCallback(const pcl::PointCloud<velodyne_pcl::PointXYZIRT>::ConstPtr &in_cloud_msg);
+	void FilterGround(const pcl::PointCloud<velodyne_pcl::PointXYZIRT>::ConstPtr &in_cloud_msg,
+				pcl::PointCloud<velodyne_pcl::PointXYZIRT> &out_groundless_points,
+				pcl::PointCloud<velodyne_pcl::PointXYZIRT> &out_ground_points);
 
 };
 
@@ -195,12 +195,12 @@ void GroundFilter::InitDepthMap(int in_width)
 	index_map_ = cv::Mat_<int>(vertical_res_, in_width, mOne);
 }
 
-void GroundFilter::FilterGround(const pcl::PointCloud<velodyne_pointcloud::PointXYZIR>::ConstPtr &in_cloud_msg,
-			pcl::PointCloud<velodyne_pointcloud::PointXYZIR> &out_groundless_points,
-			pcl::PointCloud<velodyne_pointcloud::PointXYZIR> &out_ground_points)
+void GroundFilter::FilterGround(const pcl::PointCloud<velodyne_pcl::PointXYZIRT>::ConstPtr &in_cloud_msg,
+			pcl::PointCloud<velodyne_pcl::PointXYZIRT> &out_groundless_points,
+			pcl::PointCloud<velodyne_pcl::PointXYZIRT> &out_ground_points)
 {
 
-	velodyne_pointcloud::PointXYZIR point;
+	velodyne_pcl::PointXYZIRT point;
 	InitDepthMap(horizontal_res_);
 
 	for (size_t i = 0; i < in_cloud_msg->points.size(); i++)
@@ -314,12 +314,12 @@ void GroundFilter::FilterGround(const pcl::PointCloud<velodyne_pointcloud::Point
 	}
 }
 
-void GroundFilter::VelodyneCallback(const pcl::PointCloud<velodyne_pointcloud::PointXYZIR>::ConstPtr &in_cloud_msg)
+void GroundFilter::VelodyneCallback(const pcl::PointCloud<velodyne_pcl::PointXYZIRT>::ConstPtr &in_cloud_msg)
 {
 
 	//t1_ = ros::Time().now();
-	pcl::PointCloud<velodyne_pointcloud::PointXYZIR> vertical_points;
-	pcl::PointCloud<velodyne_pointcloud::PointXYZIR> ground_points;
+	pcl::PointCloud<velodyne_pcl::PointXYZIRT> vertical_points;
+	pcl::PointCloud<velodyne_pcl::PointXYZIRT> ground_points;
 	vertical_points.header = in_cloud_msg->header;
 	ground_points.header = in_cloud_msg->header;
 	vertical_points.clear();

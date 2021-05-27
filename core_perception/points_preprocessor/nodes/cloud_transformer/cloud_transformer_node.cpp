@@ -21,7 +21,7 @@
 #include <pcl_ros/point_cloud.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/point_types.h>
-#include <velodyne_pointcloud/point_types.h>
+#include <velodyne_pcl/point_types.h>
 #include <tf/transform_listener.h>
 #include <pcl_ros/transforms.h>
 
@@ -42,13 +42,13 @@ private:
 	bool                transform_ok_;
 
 	void publish_cloud(const ros::Publisher& in_publisher,
-	                   const pcl::PointCloud<velodyne_pointcloud::PointXYZIR>::ConstPtr &in_cloud_msg)
+	                   const pcl::PointCloud<velodyne_pcl::PointXYZIRT>::ConstPtr &in_cloud_msg)
 	{
 		in_publisher.publish(in_cloud_msg);
 	}
 
-	void transformXYZIRCloud(const pcl::PointCloud<velodyne_pointcloud::PointXYZIR>& in_cloud,
-	                         pcl::PointCloud<velodyne_pointcloud::PointXYZIR>& out_cloud,
+	void transformXYZIRCloud(const pcl::PointCloud<velodyne_pcl::PointXYZIRT>& in_cloud,
+	                         pcl::PointCloud<velodyne_pcl::PointXYZIRT>& out_cloud,
 	                         const tf::StampedTransform& in_tf_stamped_transform)
 	{
 		Eigen::Matrix4f transform;
@@ -112,9 +112,9 @@ private:
 		}
 	}
 
-	void CloudCallback(const pcl::PointCloud<velodyne_pointcloud::PointXYZIR>::ConstPtr &in_sensor_cloud)
+	void CloudCallback(const pcl::PointCloud<velodyne_pcl::PointXYZIRT>::ConstPtr &in_sensor_cloud)
 	{
-		pcl::PointCloud<velodyne_pointcloud::PointXYZIR>::Ptr transformed_cloud_ptr (new pcl::PointCloud<velodyne_pointcloud::PointXYZIR>);
+		pcl::PointCloud<velodyne_pcl::PointXYZIRT>::Ptr transformed_cloud_ptr (new pcl::PointCloud<velodyne_pcl::PointXYZIRT>);
 
 		bool do_transform = false;
 		tf::StampedTransform transform;

@@ -33,7 +33,7 @@
 #include <sensor_msgs/PointCloud2.h>
 #include <std_msgs/Bool.h>
 #include <std_msgs/Float32.h>
-#include <velodyne_pointcloud/point_types.h>
+#include <velodyne_pcl/point_types.h>
 #include <velodyne_pointcloud/rawdata.h>
 
 #include <tf/transform_broadcaster.h>

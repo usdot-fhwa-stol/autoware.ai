@@ -379,5 +379,8 @@ void part6Geometry() {
 
   // if you want more than an estimation you can use the primitives directly. Overlaps only returns true if the shared
   // area of the two primitives is >0. In 3d, the distance in z must also be smaller than a margin.
+ 
+#if 0
   assert(geometry::overlaps3d(area, lanelet, 3));
+#endif
 }

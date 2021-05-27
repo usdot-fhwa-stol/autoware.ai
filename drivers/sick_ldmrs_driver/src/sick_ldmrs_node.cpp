@@ -368,13 +368,13 @@ void SickLDMRS::update_config(SickLDMRSDriverConfig &new_config, uint32_t level)
   switch (config_.scan_frequency)
   {
   case SickLDMRSDriver_ScanFreq1250:
-    expected_frequency_ = 12.5d;
+    expected_frequency_ = 12.5;
     break;
   case SickLDMRSDriver_ScanFreq2500:
-    expected_frequency_ = 25.0d;
+    expected_frequency_ = 25.0;
     break;
   case SickLDMRSDriver_ScanFreq5000:
-    expected_frequency_ = 50.0d;
+    expected_frequency_ = 50.0;
     break;
   default:
     ROS_ERROR("Unknown scan frequency: %i", config_.scan_frequency);

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #-*- coding: utf-8 -*-
 
 import wx
@@ -157,7 +157,7 @@ class MyFrame(wx.Frame):
       try:
         self.sock.connect("/tmp/autoware_proc_manager")
       except socket.error:
-        print "ERROR:[OnUpdateCont-01] cannot connect to proc_manager"
+        print("ERROR:[OnUpdateCont-01] cannot connect to proc_manager")
         return
 
       try:
@@ -166,7 +166,7 @@ class MyFrame(wx.Frame):
       except socket.error:
         self.sock.close()
         self.sock = None
-        print "ERROR:[OnUpdateCont-02] cannot send to proc_manager"
+        print("ERROR:[OnUpdateCont-02] cannot send to proc_manager")
         return
       # start ftrace
       self.sbtn.SetBackgroundColour("#CCFFCC")
@@ -318,7 +318,7 @@ class MyFrame(wx.Frame):
     try:
       nodenames = rosnode.get_node_names(None)
     except Exception as inst:
-      print "ERROR:[getROSNodes-01] ", inst
+      print("ERROR:[getROSNodes-01] ", inst)
       return nodes
 
     for nodename in nodenames:

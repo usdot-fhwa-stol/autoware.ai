@@ -32,7 +32,7 @@ def get_baginfo(file_path):
 if __name__ == '__main__':
     try:
         file_path = sys.argv[1]
-    except Exception, e:
+    except Exception as e:
         sys.exit("Please specify bag file. Example: get_rosbaginfo ex.bag")
     else:
         rostopic_list = get_rosbagtopics(file_path)

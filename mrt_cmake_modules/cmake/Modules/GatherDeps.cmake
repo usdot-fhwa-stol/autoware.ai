@@ -11,11 +11,11 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/package.xml" "${CMAKE_CURRENT_BINARY
 #so that rospack can find the packages in this workspace
 find_package(catkin REQUIRED)
 
-#gather dependencies from package.xml. The command runs in python with the ros environemnt
+#gather dependencies from package.xml. The command runs in python3 with the ros environemnt
 #variable set. This is used, because the python script is calling some ros tools to distinguish
 #between catkin and non catkin packages.
 execute_process(
-    COMMAND sh ${CATKIN_ENV} python ${MCM_ROOT}/scripts/generate_cmake_dependency_file.py "${CMAKE_CURRENT_SOURCE_DIR}/package.xml" "${MCM_ROOT}/yaml/base.yaml" "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/auto_dep_vars.cmake"
+    COMMAND sh ${CATKIN_ENV} /usr/bin/python3 ${MCM_ROOT}/scripts/generate_cmake_dependency_file.py "${CMAKE_CURRENT_SOURCE_DIR}/package.xml" "${MCM_ROOT}/yaml/base.yaml" "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/auto_dep_vars.cmake"
     RESULT_VARIABLE _GEN_DEPS_RES_ ERROR_VARIABLE _GEN_DEPS_ERROR_)
 
 if (NOT _GEN_DEPS_RES_ EQUAL 0)

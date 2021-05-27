@@ -53,7 +53,7 @@ lastmod = subprocess.Popen(gitcmd, stdout=subprocess.PIPE).communicate()[0]
 dochash = subprocess.Popen('git log -n1 --pretty=format:%H'.split(),
                            stdout=subprocess.PIPE).communicate()[0]
 
-print "dochash=", dochash
+print("dochash=", dochash)
 copyright = u'MRT -- ' + ' Version ' + dochash + ", " + ' '.join(lastmod.split(' ')[:4])
 
 # The version info for the project you're documenting, acts as replacement for
@@ -195,8 +195,8 @@ htmlhelp_basename = 'catkin-cmakedoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('generated_cmake_api', 'api.tex', ur'CMAKE API',
-   ur'Fabian Poggenhans', 'manual'),
+  ('generated_cmake_api', 'api.tex', r'CMAKE API',
+   r'Fabian Poggenhans', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

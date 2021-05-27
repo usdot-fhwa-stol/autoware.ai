@@ -20,6 +20,8 @@
 
 #include <algorithm>
 #include <vector>
+#include <opencv2/imgproc/types_c.h>
+#include <opencv2/imgproc/imgproc_c.h>
 
 #define BLACK CV_RGB(0, 0, 0)
 #define WHITE CV_RGB(255, 255, 255)

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os
 import sys
@@ -44,7 +44,7 @@ class ProcManager:
 		self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		self.sock.bind(SOCK_PATH)
 		self.sock.listen(10)
-		os.chmod(SOCK_PATH, 0777)
+		os.chmod(SOCK_PATH, 0o777)
 
 	def set_nice(self, pid, value):
 		try:
@@ -161,7 +161,7 @@ class ProcManager:
 		self._set_sched_switch(False)
 		self._ftrace(0)
 		et = time.time() - st # for *debug*
-		print "* ftrace", et, "sec" # for *debug*
+		print("* ftrace", et, "sec") # for *debug*
 		return ret
 
 	def get_ftrace_cont(self, conn, interval, pids):
@@ -199,7 +199,7 @@ class ProcManager:
 				while slen < len(dat):
 					slen += conn.send(dat[slen:])
 			except socket.error:
-				print "ftrace disconnected"
+				print("ftrace disconnected")
 				break
 		f.close()
 		self._set_ftrace(False)
@@ -245,16 +245,16 @@ class ProcManager:
 				#dat = yaml.dump(ret) ## too slow!
 				dat = pickle.dumps(ret)
 				tt = time.time() - st # for *debug*
-				print "** dump", tt, "sec"
+				print("** dump", tt, "sec")
 				slen = 0
 				try:
 					while slen < len(dat):
 						slen += conn.send(dat[slen:])
 				except socket.error:
-					print 'socket failed'
+					print('socket failed')
 				tt = time.time() - st # for *debug*
-				print "** sent", tt, "sec, size", len(dat)
-				#print "** md5", hashlib.md5(dat).hexdigest()
+				print("** sent", tt, "sec, size", len(dat))
+				#print("** md5", hashlib.md5(dat).hexdigest())
 			conn.close()
 
 def cap_last_cap():

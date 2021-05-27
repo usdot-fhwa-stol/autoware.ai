@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import sys
 import os
 import rospy
@@ -32,7 +32,7 @@ def rosbag_data_extract_sample():
     global save_path
     try:
         save_path = sys.argv[1]
-    except Exception, e:
+    except Exception as e:
         #sys.exit("Please specify the save path. Example: rosbag_data_extract_unsync.py /media/0/output/")
         save_path = './sample'
 

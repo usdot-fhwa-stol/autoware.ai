@@ -1,5 +1,6 @@
 #include "draw_points.h"
 #include <opencv2/opencv.hpp>
+#include <opencv2/imgproc/imgproc_c.h>
 
 namespace integrated_viewer
 {

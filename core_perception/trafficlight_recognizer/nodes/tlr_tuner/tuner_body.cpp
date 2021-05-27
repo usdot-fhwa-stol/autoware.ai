@@ -27,6 +27,8 @@
 #else
 #define CV cv::internal
 #endif
+#include <opencv2/core/persistence.hpp>
+#include <opencv2/core/types_c.h>
 
 static constexpr int32_t ADVERTISE_QUEUE_SIZE = 10;
 static constexpr bool ADVERTISE_LATCH = true;
@@ -387,51 +389,51 @@ void TunerBody::saveResult(std::string fileName)
   }
 
   /* open file strage */
-  cv::FileStorage cvfs(fileName, CV_STORAGE_WRITE);
+  cv::FileStorage cvfs(fileName, cv::FileStorage::WRITE);
 
   /* write data to file */
   {
-    CV::WriteStructContext st_red(cvfs, "RED", CV_NODE_MAP);
+    cv::internal::WriteStructContext st_red(cvfs, "RED", cv::FileNode::MAP);
     // cv::internal::WriteStructContext st_red(cvfs, "RED", CV_NODE_MAP);
     {
-      CV::WriteStructContext st_hue(cvfs, "Hue", CV_NODE_MAP);
+      cv::internal::WriteStructContext st_hue(cvfs, "Hue", cv::FileNode::MAP);
       // cv::internal::WriteStructContext st_hue(cvfs, "Hue", CV_NODE_MAP);
       cv::write(cvfs, "center", Red_set.hue.center);
       cv::write(cvfs, "range", Red_set.hue.range);
     }
 
     {
-      CV::WriteStructContext st_hue(cvfs, "Saturation", CV_NODE_MAP);
+      cv::internal::WriteStructContext st_hue(cvfs, "Saturation", cv::FileNode::MAP);
       cv::write(cvfs, "center", Red_set.sat.center);
       cv::write(cvfs, "range", Red_set.sat.range);
     }
 
     {
-      CV::WriteStructContext st_hue(cvfs, "Value", CV_NODE_MAP);
+      cv::internal::WriteStructContext st_hue(cvfs, "Value", cv::FileNode::MAP);
       cv::write(cvfs, "center", Red_set.val.center);
       cv::write(cvfs, "range", Red_set.val.range);
     }
   }
 
   {
-    CV::WriteStructContext st_yellow(cvfs, "YELLOW", CV_NODE_MAP);
+    cv::internal::WriteStructContext st_yellow(cvfs, "YELLOW", cv::FileNode::MAP);
     // CV::WriteStructContext st_yellow(cvfs, "YELLOW", CV_NODE_MAP);
     {
-      CV::WriteStructContext st_hue(cvfs, "Hue", CV_NODE_MAP);
+      cv::internal::WriteStructContext st_hue(cvfs, "Hue", cv::FileNode::MAP);
       // CV::WriteStructContext st_hue(cvfs, "Hue", CV_NODE_MAP);
       cv::write(cvfs, "center", Yellow_set.hue.center);
       cv::write(cvfs, "range", Yellow_set.hue.range);
     }
 
     {
-      CV::WriteStructContext st_hue(cvfs, "Saturation", CV_NODE_MAP);
+      cv::internal::WriteStructContext st_hue(cvfs, "Saturation", cv::FileNode::MAP);
       // CV::WriteStructContext st_hue(cvfs, "Saturation", CV_NODE_MAP);
       cv::write(cvfs, "center", Yellow_set.sat.center);
       cv::write(cvfs, "range", Yellow_set.sat.range);
     }
 
     {
-      CV::WriteStructContext st_hue(cvfs, "Value", CV_NODE_MAP);
+      cv::internal::WriteStructContext st_hue(cvfs, "Value", cv::FileNode::MAP);
       // CV::WriteStructContext st_hue(cvfs, "Value", CV_NODE_MAP);
       cv::write(cvfs, "center", Yellow_set.val.center);
       cv::write(cvfs, "range", Yellow_set.val.range);
@@ -439,21 +441,21 @@ void TunerBody::saveResult(std::string fileName)
   }
 
   {
-    CV::WriteStructContext st_green(cvfs, "GREEN", CV_NODE_MAP);
+    cv::internal::WriteStructContext st_green(cvfs, "GREEN", cv::FileNode::MAP);
     {
-      CV::WriteStructContext st_hue(cvfs, "Hue", CV_NODE_MAP);
+      cv::internal::WriteStructContext st_hue(cvfs, "Hue", cv::FileNode::MAP);
       cv::write(cvfs, "center", Green_set.hue.center);
       cv::write(cvfs, "range", Green_set.hue.range);
     }
 
     {
-      CV::WriteStructContext st_hue(cvfs, "Saturation", CV_NODE_MAP);
+      cv::internal::WriteStructContext st_hue(cvfs, "Saturation", cv::FileNode::MAP);
       cv::write(cvfs, "center", Green_set.sat.center);
       cv::write(cvfs, "range", Green_set.sat.range);
     }
 
     {
-      CV::WriteStructContext st_hue(cvfs, "Value", CV_NODE_MAP);
+      cv::internal::WriteStructContext st_hue(cvfs, "Value", cv::FileNode::MAP);
       cv::write(cvfs, "center", Green_set.val.center);
       cv::write(cvfs, "range", Green_set.val.range);
     }
@@ -463,10 +465,10 @@ void TunerBody::saveResult(std::string fileName)
 void TunerBody::openSetting(std::string fileName)
 {
   /* open file strage */
-  cv::FileStorage cvfs(fileName, CV_STORAGE_READ);
+  cv::FileStorage cvfs(fileName, cv::FileStorage::READ); // CV_STORAGE_READ);
 
   /* read data from file */
-  cv::FileNode topNode(cvfs.fs, NULL);
+  cv::FileNode topNode = cvfs.getFirstTopLevelNode();
   {
     cv::FileNode nd_red = topNode[std::string("RED")];
     {

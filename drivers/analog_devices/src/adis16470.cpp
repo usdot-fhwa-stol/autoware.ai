@@ -196,7 +196,7 @@ int Adis16470::get_product_id(int16_t& pid)
  * - Adress is the first byte of actual address
  * - Actual data at the adress will be returned by next call.
  */
-int Adis16470::read_register(char address, int16_t& data)
+int Adis16470::read_register(unsigned char address, int16_t& data)
 {
   unsigned char buff[3] = {0x61, address, 0x00};
   int size = write(fd_, buff, 3);

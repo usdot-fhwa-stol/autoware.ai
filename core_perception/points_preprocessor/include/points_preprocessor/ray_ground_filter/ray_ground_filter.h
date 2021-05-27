@@ -31,7 +31,7 @@
 #include <pcl/features/normal_3d.h>
 #include <pcl/features/normal_3d_omp.h>
 #include <pcl/filters/extract_indices.h>
-#include <velodyne_pointcloud/point_types.h>
+#include <velodyne_pcl/point_types.h>
 #include "autoware_config_msgs/ConfigRayGroundFilter.h"
 
 #include <tf2/transform_datatypes.h>
@@ -42,7 +42,7 @@
 #include <autoware_health_checker/health_checker/health_checker.h>
 
 #include <opencv2/core/version.hpp>
-#if (CV_MAJOR_VERSION == 3)
+#if (CV_MAJOR_VERSION >= 3)
 #include "gencolors.cpp"
 #else
 #include <opencv2/contrib/contrib.hpp>

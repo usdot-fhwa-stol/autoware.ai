@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys
 import os
@@ -23,7 +23,7 @@ def addr_v(addr):
 	return struct.unpack('!i', socket.inet_aton(addr))[0]
 
 if len(sys.argv) < 2:
-	print "Usage: {} <ipaddr|hostname|->".format(sys.argv[0])
+	print("Usage: {} <ipaddr|hostname|->".format(sys.argv[0]))
 	sys.exit(0)
 
 targ = sys.argv[1]
@@ -37,7 +37,7 @@ if targ == '-': # read 'host' file
 try:
 	targ = socket.gethostbyname(targ)
 except socket.gaierror:
-	print >> sys.stderr, "%s: cannot convert to ip address" % (targ)
+	print("%s: cannot convert to ip address" % (targ), file=sys.stderr)
 	sys.exit(2)
 targ_v = addr_v(targ)
 
@@ -50,6 +50,6 @@ for (addr, mask_s) in lst:
 	v = addr_v(addr)
 	mask = addr_v(mask_s)
 	if (v & mask) == (targ_v & mask):
-		print addr
+		print(addr)
 		sys.exit(0)
 sys.exit(1)

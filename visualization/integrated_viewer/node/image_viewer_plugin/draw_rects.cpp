@@ -5,9 +5,10 @@
 
 #include <opencv2/core/version.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc_c.h>
 #include "draw_rects.h"
 
-#if (CV_MAJOR_VERSION == 3)
+#if (CV_MAJOR_VERSION >= 3)
 
 #include "gencolors.cpp"
 
@@ -24,7 +25,7 @@ namespace integrated_viewer
     DrawRects::DrawRects(void)
     {
         // Generate color map to represent tracked object
-#if (CV_MAJOR_VERSION == 3)
+#if (CV_MAJOR_VERSION >= 3)
         generateColors(color_map_, 10);
 #else
         cv::generateColors(color_map_, 10);

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright 2015-2019 Autoware Foundation
 #
@@ -24,7 +24,7 @@ if __name__ == "__main__":
 	pub = rospy.Publisher('to_rtmgr', std_msgs.msg.String, queue_size=10)
 	r = rospy.Rate(10)
 	r.sleep()
-        pub.publish(s)
+	pub.publish(s)
 	r.sleep()
 
 # EOF

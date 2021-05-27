@@ -30,6 +30,10 @@
 #include <autoware_msgs/TrafficLightResultArray.h>
 #include <autoware_msgs/TunedResult.h>
 #include <cv_bridge/cv_bridge.h>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/imgproc/imgproc_c.h>
+#include <opencv2/core/types_c.h>
+#include <opencv2/highgui/highgui_c.h>
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <sensor_msgs/Image.h>
@@ -114,8 +118,8 @@ static void putResult_inText(cv::Mat* image, const std::vector<Context>& context
   const float fontScale = 0.8f;
   const int fontThickness = 1;
   int baseline = 0;
-  CvPoint textOrg;
-  CvScalar textColor;
+  cv::Point textOrg;
+  cv::Scalar textColor;
 
   for (unsigned int i = 0; i < contexts.size(); i++)
   {

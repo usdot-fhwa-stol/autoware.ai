@@ -327,7 +327,7 @@ struct SNAV1Msg{
   unsigned short BITStatus;
 };
 
-bool MsgToNav1(const unsigned char* data, SNAV1Msg &sMsg) {
+void MsgToNav1(const unsigned char* data, SNAV1Msg &sMsg) {
   sMsg.dRollAngle  = MKShort(data+0)*2.0*M_PI/(256*256);
   sMsg.dPitchAngle = MKShort(data+2)*2.0*M_PI/(256*256);
   sMsg.dYawAngle   = MKShort(data+4)*2.0*M_PI/(256*256);

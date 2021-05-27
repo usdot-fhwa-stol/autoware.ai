@@ -3,11 +3,12 @@
 
 #ifndef Q_MOC_RUN
 #include <ros/ros.h>
-#include <opencv/cv.h>
-#include <opencv/highgui.h>
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
 #include <rviz/panel.h>
 #include <string>
 #include <map>
+#include <deque>
 
 #include <QStringList>
 #include <QWidget>

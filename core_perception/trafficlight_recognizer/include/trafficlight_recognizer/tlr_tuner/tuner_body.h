@@ -24,6 +24,7 @@
 
 #include <ros/ros.h>
 #include <cv_bridge/cv_bridge.h>
+#include <opencv2/core/types_c.h>
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/image_encodings.h>
 

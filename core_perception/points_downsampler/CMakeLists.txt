@@ -10,7 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
         pcl_ros
         sensor_msgs
         pcl_conversions
-        velodyne_pointcloud
+        velodyne_pcl
         message_generation
         autoware_config_msgs
         )
@@ -31,7 +31,7 @@ catkin_package(
         pcl_ros
         sensor_msgs
         pcl_conversions
-        velodyne_pointcloud
+        velodyne_pcl
         message_runtime
         autoware_config_msgs
 )

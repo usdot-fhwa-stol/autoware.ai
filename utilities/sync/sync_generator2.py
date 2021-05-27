@@ -8,9 +8,9 @@ text = ""
 
 if __name__ == "__main__":
     if (argc != 3):
-        print '%python sync_generator.py argv[1] argv[2]'
-        print '\t' + 'argv[1]: input *.yaml file'
-        print '\t' + 'argv[2]: output *.cpp file'
+        print('%python sync_generator.py argv[1] argv[2]')
+        print('\t' + 'argv[1]: input *.yaml file')
+        print('\t' + 'argv[2]: output *.cpp file')
         quit()
     f_config = open(argvs[1], 'r')
     f_generate = open(argvs[2], 'w')
@@ -200,7 +200,7 @@ if __name__ == "__main__":
             text += '            p_%s_buf = &(%s_ringbuf.back());\n' % (data['sub1'].split('/')[-1], data['sub1'].split('/')[-1])
             text += '        }\n'
         else :
-            print "failed: sched_policy 2, short_rate unmatched sub1 or sub2"
+            print("failed: sched_policy 2, short_rate unmatched sub1 or sub2")
 
     text += '        publish_msg(p_%s_buf, p_%s_buf);\n' % (data['sub1'].split('/')[-1], data['sub2'].split('/')[-1])
     text += '        if (%s_flag == true){\n' % data['sync_sub'].split('/')[-1]
@@ -382,7 +382,7 @@ if __name__ == "__main__":
             text += '        %s_buf = %s_ringbuf.back();\n' % (data['sub1'].split('/')[-1], data['sub1'].split('/')[-1])
             text += '    }\n'
         else :
-            print "failed: sched_policy 2, short_rate unmatched sub1 or sub2"
+            print("failed: sched_policy 2, short_rate unmatched sub1 or sub2")
 
     text += '    pthread_mutex_unlock(&mutex);\n'
     text += '}\n\n'
@@ -493,7 +493,7 @@ if __name__ == "__main__":
             text += '        %s_buf = %s_ringbuf.back();\n' % (data['sub1'].split('/')[-1], data['sub1'].split('/')[-1])
             text += '    }\n'
         else :
-            print "failed: sched_policy 2, short_rate unmatched sub1 or sub2"
+            print("failed: sched_policy 2, short_rate unmatched sub1 or sub2")
 
     text += '    pthread_mutex_unlock(&mutex);\n'
     text += '}\n\n'
@@ -580,4 +580,4 @@ if __name__ == "__main__":
     f_config.close()
     f_generate.close()
 
-    print "generate "
+    print("generate ")

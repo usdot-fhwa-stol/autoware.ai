@@ -17,6 +17,8 @@
  *  v1.0: amc-nu (abrahammonrroy@yahoo.com)
  */
 
+#include <opencv2/imgproc/imgproc_c.h>
+
 #include "visualize_rects.h"
 
 VisualizeRects::VisualizeRects()

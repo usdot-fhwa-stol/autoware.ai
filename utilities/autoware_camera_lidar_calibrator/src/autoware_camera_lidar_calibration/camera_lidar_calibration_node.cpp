@@ -30,8 +30,9 @@
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/calib3d/calib3d.hpp"
 
-#if (CV_MAJOR_VERSION == 3)
+#if (CV_MAJOR_VERSION >= 3)
 	#include <opencv2/imgcodecs.hpp>
+	#include <opencv2/calib3d/calib3d_c.h>
 #else
 	#include <opencv2/contrib/contrib.hpp>
 #endif

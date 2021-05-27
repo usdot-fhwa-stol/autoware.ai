@@ -46,6 +46,7 @@ find_package(catkin REQUIRED COMPONENTS
         sensor_msgs
         pcl_conversions
         velodyne_pointcloud
+        velodyne_pcl
         ndt_tku
         ndt_cpu
         autoware_health_checker
@@ -62,6 +63,7 @@ catkin_package(
         CATKIN_DEPENDS
         std_msgs
         velodyne_pointcloud
+        velodyne_pcl
         autoware_msgs
         autoware_config_msgs
         autoware_health_checker

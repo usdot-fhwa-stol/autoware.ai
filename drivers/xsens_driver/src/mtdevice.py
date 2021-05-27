@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import serial
 import struct
 
@@ -21,8 +21,7 @@ class MTDevice(object):
 		"""Open device."""
 #		self.device = serial.Serial(port, baudrate, timeout=timeout,
 #				writeTimeout=timeout)
-                self.device = serial.Serial(port, baudrate, timeout=timeout,
-                                           writeTimeout=timeout, rtscts=True, dsrdtr=True)
+		self.device = serial.Serial(port, baudrate, timeout=timeout, writeTimeout=timeout, rtscts=True, dsrdtr=True)
 		self.device.flushInput()	# flush to make sure the port is ready TODO
 		self.device.flushOutput()	# flush to make sure the port is ready TODO
 		## timeout for communication
@@ -62,8 +61,8 @@ class MTDevice(object):
 			pass
 		self.device.write(msg)
 		if verbose:
-			print "MT: Write message id 0x%02X (%s) with %d data bytes: [%s]"%(mid, getMIDName(mid), length,
-							' '.join("%02X"% v for v in data))
+			print("MT: Write message id 0x%02X (%s) with %d data bytes: [%s]"%(mid, getMIDName(mid), length,
+							' '.join("%02X"% v for v in data)))
 	## Low-level message sending function for MK4
 	def write_msg_mk4(self, mid, data=[]):
 		"""Low-level message sending function."""
@@ -74,16 +73,16 @@ class MTDevice(object):
 			lendat = [length]
 		packet = [0xFA, 0xFF, mid] + lendat + list(data)
 		packet.append(0xFF&(-(sum(packet[1:]))))
-		print packet
+		print(packet)
 		msg = struct.pack('%dB'%len(packet), *packet)
 		start = time.time()
 		while (time.time()-start)<self.timeout and self.device.read():
-			print "configured!.",
+			print("configured!.")
 			pass
 		self.device.write(msg)
 		if verbose:
-			print "MT: Write message id 0x%02X (%s) with %d data bytes: [%s]"%(mid, getMIDName(mid), length,
-							' '.join("%02X"% v for v in data))
+			print("MT: Write message id 0x%02X (%s) with %d data bytes: [%s]"%(mid, getMIDName(mid), length,
+							' '.join("%02X"% v for v in data)))
 		
 	## Low-level MTData receiving function.
 	# Take advantage of known message length.
@@ -140,11 +139,11 @@ class MTDevice(object):
 				c = self.device.read()
 			if not c:
 				raise MTException("timeout waiting for message.")
-			if ord(c)<>0xFA:
+			if ord(c) != 0xFA:
 				continue
 			# second part of preamble
 			waitfor(3)
-			if ord(self.device.read())<>0xFF:	# we assume no timeout anymore
+			if ord(self.device.read()) != 0xFF:	# we assume no timeout anymore
 				continue
 			# read message id and length of message
 			#msg = self.device.read(2)
@@ -166,8 +165,8 @@ class MTDevice(object):
 				sys.stderr.write("MT error 0x%02X: %s."%(data[0],
 						MID.ErrorCodes[data[0]]))
 			if verbose:
-				print "MT: Got message id 0x%02X (%s) with %d data bytes: [%s]"%(mid, getMIDName(mid), length,
-								' '.join("%02X"% v for v in data))
+				print("MT: Got message id 0x%02X (%s) with %d data bytes: [%s]"%(mid, getMIDName(mid), length,
+								' '.join("%02X"% v for v in data)))
 			if 0xFF&sum(data, 0xFF+mid+length+checksum):
 				sys.stderr.write("invalid checksum; discarding data and "\
 						"waiting for next message.\n")
@@ -373,7 +372,7 @@ class MTDevice(object):
 		validateSc = availableSc == str(scenario_id)
 		if validateSc.any():
 			self.write_ack(MID.SetCurrentScenario, (0x00, scenario_id&0xFF))
-			print "Set to scenario:%2d"%scenario_id
+			print("Set to scenario:%2d"%scenario_id)
 		else:
 			raise MTException("not an available XKF scenario")
 
@@ -387,7 +386,7 @@ class MTDevice(object):
 		"""Configure the mode and settings of the MTMk4 device."""
 		self.GoToConfig()
 		self.timeout = math.pow(mtiSampleRate,-1)+MID.additionalTimeOutOffset  # additional 5ms leeway
-		print "Timeout changed to %1.3fs based on current settings."%(self.timeout)
+		print("Timeout changed to %1.3fs based on current settings."%(self.timeout))
 		mid = MID.SetOutputConfiguration
 		midReqDID = MID.ReqDID
 		dataReqDID = (0x00, 0x00)
@@ -449,67 +448,67 @@ class MTDevice(object):
 		
 		# Output configuration set based on the product ID and user specification	
 		if (deviceIDProductMask[2] == XDIProductMask.MTi100Series) & (deviceTypeMask[2] == XDIProductMask.MTi700Device):
-			print "MTi-G-700/710 (GNSS/INS) device detected."
+			print("MTi-G-700/710 (GNSS/INS) device detected.")
 			if mtiMode == 1:
-				print "Enabled publishing all sensor data"
+				print("Enabled publishing all sensor data")
 				data = mStf+mImuDq+mImuDv+mImuMag+mImuP+mGnssPvt+mGnssSat+mSw+mOrientationQuat
 			elif mtiMode == 2:
-				print "Enabled publishing all sensor data (rate quantities)"
+				print("Enabled publishing all sensor data (rate quantities)")
 				data = mStf+mImuGyr+mImuAcc+mImuMag+mImuP+mGnssPvt+mGnssSat+mSw+mOrientationQuat
 			elif mtiMode == 3:
-				print "Enabled publishing all filter estimates"
+				print("Enabled publishing all filter estimates")
 				data = mStf+mSw+mOrientation+mVelocity+mPosition+mHeight
 			else:
 				raise MTException("unknown mtiMode: (%d)."%	(mtiMode))			
 		elif deviceIDProductMask[2] == XDIProductMask.MTi100Series:
-			print "MTi-100/200/300 device detected."
+			print("MTi-100/200/300 device detected.")
 			if mtiMode == 1:
-				print "Enabled publishing all sensor data"
+				print("Enabled publishing all sensor data")
 				data = mStf+mImuDq+mImuDv+mImuMag+mImuP+mSw+mOrientationQuat
 			elif mtiMode == 2:
-				print "Enabled publishing all sensor data (rate quantities)"
+				print("Enabled publishing all sensor data (rate quantities)")
 				data = mStf+mImuGyr+mImuAcc+mImuMag+mImuP+mSw+mOrientationQuat
 			elif mtiMode == 3:
-				print "Enabled publishing all filter estimates"
+				print("Enabled publishing all filter estimates")
 				data = mStf+mSw+mOrientation
 			else:
 				raise MTException("unknown mtiMode: (%d)."%	(mtiMode))
 		elif deviceIDProductMask[2] == XDIProductMask.MTi10Series:
-			print "MTi-10/20/30 device detected"
+			print("MTi-10/20/30 device detected")
 			if mtiMode == 1:
-				print "Enabled publishing all sensor data"
+				print("Enabled publishing all sensor data")
 				data = mStf+mImuDq+mImuDv+mImuMag+mSw+mOrientationQuat
 			elif mtiMode == 2:
-				print "Enabled publishing all sensor data (rate quantities)"
+				print("Enabled publishing all sensor data (rate quantities)")
 				data = mStf+mImuGyr+mImuAcc+mImuMag+mSw+mOrientationQuat
 			elif mtiMode == 3:
-				print "Enabled publishing all filter estimates"
+				print("Enabled publishing all filter estimates")
 				data = mStf+mSw+mOrientation
 			else:
 				raise MTException("unknown mtiMode: (%d)."%	(mtiMode))
 		elif deviceIDProductMask[2] == XDIProductMask.MTi1Series:
-			print "MTi-1/2/3 device detected"
+			print("MTi-1/2/3 device detected")
 			if mtiMode == 1:
-				print "Enabled publishing all sensor data"
+				print("Enabled publishing all sensor data")
 				data = mStf+mImuDq+mImuDv+mImuMag+mSw+mOrientationQuat
 			elif mtiMode == 2:
-				print "Enabled publishing all sensor data (rate quantities)"
+				print("Enabled publishing all sensor data (rate quantities)")
 				data = mStf+mImuGyr+mImuAcc+mImuMag+mSw+mOrientationQuat
 			elif mtiMode == 3:
-				print "Enabled publishing all filter estimates"
+				print("Enabled publishing all filter estimates")
 				data = mStf+mSw+mOrientation
 			else:
 				raise MTException("unknown mtiMode: (%d)."%	(mtiMode))
 		elif deviceIDProductMask[2] == XDIProductMask.FMT1000Series:
-			print "FMT-1010/1020/1030 device detected"
+			print("FMT-1010/1020/1030 device detected")
 			if mtiMode == 1:
-				print "Enabled publishing all sensor data"
+				print("Enabled publishing all sensor data")
 				data = mStf+mImuDq+mImuDv+mImuMag+mSw+mOrientationQuat
 			elif mtiMode == 2:
-				print "Enabled publishing all sensor data (rate quantities)"
+				print("Enabled publishing all sensor data (rate quantities)")
 				data = mStf+mImuGyr+mImuAcc+mImuMag+mSw+mOrientationQuat
 			elif mtiMode == 3:
-				print "Enabled publishing all filter estimates"
+				print("Enabled publishing all filter estimates")
 				data = mStf+mSw+mOrientation
 			else:
 				raise MTException("unknown mtiMode: (%d)."%	(mtiMode))	
@@ -521,7 +520,7 @@ class MTDevice(object):
 		dataAck = self.write_ack(MID.SetBaudrate, ())
 		bridAck = struct.unpack('!B',dataAck)
 		brSettings = Baudrates.get_BR(bridAck[0])
-		print "Device configured at %1.0f bps"%(brSettings)
+		print("Device configured at %1.0f bps"%(brSettings))
 		self.GoToMeasurement()
 		
 	def getMtiConfigBytes(self, dataMessage, dataFs):
@@ -540,10 +539,10 @@ class MTDevice(object):
 		if Config.any():
 			configuredMtiFs = numpy.max(Config[Config[:,1]!=65535,1])
 			self.timeout = math.pow(configuredMtiFs,-1)+MID.additionalTimeOutOffset  # additional 5ms leeway
-			print "Timeout defaults to %1.3fs based on output settings."%(self.timeout)
+			print("Timeout defaults to %1.3fs based on output settings."%(self.timeout))
 		else:
 			self.timeout = 1+MID.additionalTimeOutOffset 
-			print "Timeout defaults to %1.3fs based on output settings."%(self.timeout)
+			print("Timeout defaults to %1.3fs based on output settings."%(self.timeout))
 		self.GoToMeasurement()
 		return self.timeout
 		
@@ -775,7 +774,7 @@ class MTDevice(object):
 					output['Status'] = parse_status(data_id, content, ffmt)
 				else:
 					raise MTException("unknown XDI group: 0x%04X."%group)
-			except struct.error, e:
+			except (struct.error, e):
 				raise MTException("couldn't parse MTData2 message.")
 		return output
 
@@ -788,10 +787,10 @@ class MTDevice(object):
 		bridAck = self.SetBaudrate(brid)
 		if bridAck: # Testing if the BR was set correctly
 			self.device.baudrate=baudrate
-			print "Baudrate set to %d bps"%baudrate
+			print("Baudrate set to %d bps"%baudrate)
 			time.sleep(0.01)
 		else:
-			print "NOK:Baudrate not configured."
+			print("NOK:Baudrate not configured.")
 
 
 
@@ -833,7 +832,7 @@ def find_baudrate(port):
 # Documentation for stand alone usage
 ################################################################
 def usage():
-		print """MT device driver.
+		print("""MT device driver.
 Usage:
 	./mtdevice.py [commands] [opts]
 
@@ -873,7 +872,7 @@ Options:
 			115200/(PERIOD * (SKIPFACTOR + 1))
 		If the value is 0xffff, no data is send unless a ReqData request
 		is made.		
-"""
+""")
 ################################################################
 # Main function
 ################################################################
@@ -886,8 +885,8 @@ def main():
 	try:
 		opts, args = getopt.gnu_getopt(sys.argv[1:], shopts, lopts)
 		#pdb.set_trace()
-	except getopt.GetoptError, e:
-		print e
+	except (getopt.GetoptError, e):
+		print(e)
 		usage()
 		return 1
 	# default values
@@ -912,7 +911,7 @@ def main():
 			try:
 				new_baudrate = int(a)
 			except ValueError:
-				print "change-baudrate argument must be integer."
+				print("change-baudrate argument must be integer.")
 				return 1
 			actions.append('change-baudrate')
 		if o in ('-e', '--echo'):
@@ -923,7 +922,7 @@ def main():
 			try:
 				new_xkf = int(a)
 			except ValueError:
-				print "xkf-scenario argument must be integer."
+				print("xkf-scenario argument must be integer.")
 				return 1
 			actions.append('xkf-scenario')
 		if o in ('-d', '--device'):
@@ -932,27 +931,27 @@ def main():
 			try:
 				baudrate = int(a)
 			except ValueError:
-				print "Baudrate argument must be integer."
+				print("Baudrate argument must be integer.")
 				return 1		
 		if o in ('-s', '--skip-factor'):
 			try:
 				skipfactor = int(a)
 			except ValueError:
-				print "skip-factor argument must be integer."
+				print("skip-factor argument must be integer.")
 				return 1
 		if o in ('-f', '--mti-odr'):
 			try:
 				sampleRate = int(a)
 				actions.append('setMtiOutputConfiguration')
 			except ValueError:
-				print "MTi sample rate argument must be integer."
+				print("MTi sample rate argument must be integer.")
 				return 1	
 		if o in ('-m','--mti-mode'):
 			try:
 				mode = int(a)
 				actions.append('setMtiOutputConfiguration')
 			except ValueError:
-				print "MTi mode argument must be integer."
+				print("MTi mode argument must be integer.")
 				return 1	
 										
 				
@@ -963,18 +962,18 @@ def main():
 		if device=='auto':
 			devs = find_devices()
 			if devs:
-				print "Detected devices:","".join('\n\t%s @ %d'%(d,p) for d,p in
-						devs)
-				print "Using %s @ %d"%devs[0]
+				print("Detected devices:","".join('\n\t%s @ %d'%(d,p) for d,p in
+						devs))
+				print("Using %s @ %d"%devs[0])
 				device, baudrate = devs[0]
 			else:
-				print "No suitable device found."
+				print("No suitable device found.")
 				return 1
 		# find baudrate
 		if not baudrate:
 			baudrate = find_baudrate(device)
 		if not baudrate:
-			print "No suitable baudrate found."
+			print("No suitable baudrate found.")
 			return 1
 		# open device
 		try:
@@ -984,41 +983,41 @@ def main():
 		# execute actions
 		if 'inspect' in actions:
 			mt.GoToConfig()
-			print "Device: %s at %d bps:"%(device, baudrate)
-			print "General configuration:", mt.ReqConfiguration()
-			print "Available scenarios:", mt.ReqAvailableScenarios()
-			print "Current scenario: %s (id: %d)"%mt.ReqCurrentScenario()[::-1]
+			print("Device: %s at %d bps:"%(device, baudrate))
+			print("General configuration:", mt.ReqConfiguration())
+			print("Available scenarios:", mt.ReqAvailableScenarios())
+			print("Current scenario: %s (id: %d)"%mt.ReqCurrentScenario()[::-1])
 			mt.GoToMeasurement()
 		if 'change-baudrate' in actions:
-			print "Changing baudrate from %d to %d bps\n"%(baudrate, new_baudrate),
+			print("Changing baudrate from %d to %d bps\n"%(baudrate, new_baudrate))
 			sys.stdout.flush()
 			mt.ChangeBaudrate(new_baudrate)
 		if 'reset' in actions:
-			print "Restoring factory defaults",
+			print("Restoring factory defaults")
 			sys.stdout.flush()
 			mt.RestoreFactoryDefaults()
-			print " Ok"		# should we test it was actually ok?
+			print(" Ok")		# should we test it was actually ok?
 		if 'xkf-scenario' in actions:
-			print "Changing XKF scenario..."
+			print("Changing XKF scenario...")
 			sys.stdout.flush()
 			mt.GoToConfig()
 			mt.SetCurrentScenario(new_xkf)
 			mt.GoToMeasurement()
-			print "Ok"
+			print("Ok")
 		if 'setMtiOutputConfiguration' in actions:
 			sys.stdout.flush()
 			mt.GoToConfig()
-			print "Device intiated at %d Hz"%(sampleRate)
+			print("Device intiated at %d Hz"%(sampleRate))
 			mt.configureMti(sampleRate,mode)
 		if 'echo' in actions:
 			try:
 				while True:
-					print mt.read_measurement(mode, settings)
+					print(mt.read_measurement(mode, settings))
 			except KeyboardInterrupt:
 				pass
 	except MTException as e:
 		#traceback.print_tb(sys.exc_info()[2])
-		print e
+		print(e)
 
 
 

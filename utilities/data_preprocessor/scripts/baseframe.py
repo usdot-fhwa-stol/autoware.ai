@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
 import wx
@@ -20,47 +20,47 @@ class BaseFrame(wx.Frame):
 		pass
 
 	def OnLaunchKill(self, event):  # wxGlade: MyFrame.<event_handler>
-		print "Event handler 'OnLaunchKill' not implemented!"
+		print("Event handler 'OnLaunchKill' not implemented!")
 		event.Skip()
 
 	def OnSetupLocalizer(self, event):  # wxGlade: MyFrame.<event_handler>
-		print "Event handler 'OnSetupLocalizer' not implemented!"
+		print("Event handler 'OnSetupLocalizer' not implemented!")
 		event.Skip()
 
 	def OnCalibrationPublisher(self, event):  # wxGlade: MyFrame.<event_handler>
-		print "Event handler 'OnCalibrationPublisher' not implemented!"
+		print("Event handler 'OnCalibrationPublisher' not implemented!")
 		event.Skip()
 
 	def OnLamp(self, event):  # wxGlade: MyFrame.<event_handler>
-		print "Event handler 'OnLamp' not implemented!"
+		print("Event handler 'OnLamp' not implemented!")
 		event.Skip()
 
 	def OnIndi(self, event):  # wxGlade: MyFrame.<event_handler>
-		print "Event handler 'OnIndi' not implemented!"
+		print("Event handler 'OnIndi' not implemented!")
 		event.Skip()
 
 	def OnGear(self, event):  # wxGlade: MyFrame.<event_handler>
-		print "Event handler 'OnGear' not implemented!"
+		print("Event handler 'OnGear' not implemented!")
 		event.Skip()
 
 	def OnQuery(self, event):  # wxGlade: MyFrame.<event_handler>
-		print "Event handler 'OnQuery' not implemented!"
+		print("Event handler 'OnQuery' not implemented!")
 		event.Skip()
 
 	def OnROSbagPlay(self, event):  # wxGlade: MyFrame.<event_handler>
-		print "Event handler 'OnROSbagPlay' not implemented!"
+		print("Event handler 'OnROSbagPlay' not implemented!")
 		event.Skip()
 
 	def OnFtrace(self, event):  # wxGlade: MyFrame.<event_handler>
-		print "Event handler 'OnFtrace' not implemented!"
+		print("Event handler 'OnFtrace' not implemented!")
 		event.Skip()
 
 	def OnEcho(self, event):  # wxGlade: MyFrame.<event_handler>
-		print "Event handler 'OnEcho' not implemented!"
+		print("Event handler 'OnEcho' not implemented!")
 		event.Skip()
 
 	def OnRefreshTopics(self, event):  # wxGlade: MyFrame.<event_handler>
-		print "Event handler 'OnRefreshTopics' not implemented!"
+		print("Event handler 'OnRefreshTopics' not implemented!")
 		event.Skip()
 
 class MyApp(wx.App):

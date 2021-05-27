@@ -31,7 +31,7 @@ public:
   {
     assert(hz >= 1);
     float microsec = 1e6 / static_cast<float>(hz);
-    sleeptime = pt::microseconds(microsec);
+    sleeptime = pt::microseconds(static_cast<int>(microsec));
     lastUpdate = pt::microsec_clock::local_time();
   }
 

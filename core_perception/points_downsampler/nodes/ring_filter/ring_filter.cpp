@@ -21,7 +21,7 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/filters/voxel_grid.h>
 
-#include <velodyne_pointcloud/point_types.h>
+#include <velodyne_pcl/point_types.h>
 
 #include "autoware_config_msgs/ConfigRingFilter.h"
 
@@ -61,7 +61,7 @@ static void config_callback(const autoware_config_msgs::ConfigRingFilter::ConstP
 static void scan_callback(const sensor_msgs::PointCloud2::ConstPtr& input)
 {
   pcl::PointCloud<pcl::PointXYZI> scan;
-  pcl::PointCloud<velodyne_pointcloud::PointXYZIR> tmp;
+  pcl::PointCloud<velodyne_pcl::PointXYZIRT> tmp;
   sensor_msgs::PointCloud2 filtered_msg;
 
   pcl::fromROSMsg(*input, scan);
@@ -73,7 +73,7 @@ static void scan_callback(const sensor_msgs::PointCloud2::ConstPtr& input)
 
   double square_measurement_range = measurement_range*measurement_range;
 
-  for (pcl::PointCloud<velodyne_pointcloud::PointXYZIR>::const_iterator item = tmp.begin(); item != tmp.end(); item++)
+  for (pcl::PointCloud<velodyne_pcl::PointXYZIRT>::const_iterator item = tmp.begin(); item != tmp.end(); item++)
   {
     pcl::PointXYZI p;
     p.x = item->x;

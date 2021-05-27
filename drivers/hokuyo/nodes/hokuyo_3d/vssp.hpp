@@ -94,7 +94,7 @@ public:
             cbConnect = cb;
             boost::asio::ip::tcp::endpoint endpoint(
 				boost::asio::ip::address::from_string(ip), port);
-            timer.expires_from_now(boost::posix_time::seconds(timeout));
+            timer.expires_from_now(boost::posix_time::seconds(static_cast<long>(timeout)));
             timer.async_wait(boost::bind(&vsspDriver::on_timeout_connect, this,
                                          boost::asio::placeholders::error));
             socket.async_connect(endpoint,
@@ -149,7 +149,7 @@ public:
 	void receivePackets()
         {
             timer.cancel();
-            timer.expires_from_now(boost::posix_time::seconds(timeout));
+            timer.expires_from_now(boost::posix_time::seconds(static_cast<long>(timeout)));
             timer.async_wait(boost::bind(&vsspDriver::on_timeout, this,
                                          boost::asio::placeholders::error));
             boost::asio::async_read(

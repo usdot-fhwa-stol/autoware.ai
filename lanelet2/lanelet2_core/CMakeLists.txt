@@ -86,6 +86,10 @@ mrt_add_library(${PROJECT_NAME}
     SOURCES ${PROJECT_SOURCE_FILES_SRC}
     )
 
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    CXX_STANDARD 14
+    )
+
 #############
 ## Install ##
 #############

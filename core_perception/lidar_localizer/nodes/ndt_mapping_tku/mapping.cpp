@@ -14,13 +14,12 @@
 #include "sensor_msgs/PointCloud2.h"
 #include "std_msgs/String.h"
 #include "tf/message_filter.h"
-#include "velodyne_pointcloud/point_types.h"
+#include "velodyne_pcl/point_types.h"
 #include "velodyne_pointcloud/rawdata.h"
 
 #include <message_filters/subscriber.h>
 #include <message_filters/time_synchronizer.h>
 
-pcl::PointCloud<velodyne_pointcloud::PointXYZIR> map;
 tf::TransformListener *tf_listener;
 ros::Publisher velodyne_pub;
 
