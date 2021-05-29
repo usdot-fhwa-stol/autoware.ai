@@ -8,6 +8,7 @@
  * http://www.apache.org/licenses/LICENSE-2.0
  */
 
+#include <memory>
 #include <gtest/gtest.h>
 #include <ros/ros.h>
 #include <geometry_msgs/TwistStamped.h>
