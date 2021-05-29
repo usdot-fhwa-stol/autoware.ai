@@ -32,6 +32,7 @@
 #include <ros_observer/lib_ros_observer.h>
 
 #include <chrono>
+#include <memory>
 #include <string>
 #include <autoware_system_msgs/DiagnosticStatus.h>
 
