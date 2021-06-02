@@ -34,7 +34,6 @@ autoware_build_args=""
 use_catkin=false
 # The list of packages which are required by carma from autoware
 AUTOWARE_PACKAGE_SELECTION="map_tools lidar_localizer map_file deadreckoner points_downsampler points_preprocessor lane_planner waypoint_maker autoware_msgs autoware_config_msgs as waypoint_planner pure_pursuit twist_filter twist_gate lanelet2_extension vision_darknet_detect vision_beyond_track lidar_euclidean_cluster_detect range_vision_fusion imm_ukf_pda_track naive_motion_predict ekf_localizer detected_objects_visualizer calibration_publisher mpc_follower autoware_camera_lidar_calibrator multi_lidar_calibrator runtime_manager"
-
 # Read Options
 while getopts a:kthb: option
 do
@@ -61,25 +60,26 @@ echo "Building Autoware required packages ${AUTOWARE_PACKAGE_SELECTION}"
 
 cd ${autoware_src}
 
-if [[ -z ${autoware_build_args} ]]; then
-  if [[ "${use_catkin}" = true ]]; then
-    echo "Building release with catkin_make_isolated. NOTE: Formal releases should use colcon"
-    catkin_make_isolated --source . --install --install-space ./ros/install -j1 --only-pkg-with-deps "${AUTOWARE_PACKAGE_SELECTION}"
-  else
-    # Default Build Behavior
-    ./autoware/ros/colcon_release --executor sequential --install-base ./ros/install --packages-up-to ${AUTOWARE_PACKAGE_SELECTION}
-  fi
-else
-  if [[ "${use_catkin}" = true ]]; then
-    echo "Building with CMake args: ${autoware_build_args} and with catkin_make_isolated. NOTE: Formal releases should use colcon"
-    catkin_make_isolated --source . --install --install-space ./ros/install -j1 --only-pkg-with-deps "${AUTOWARE_PACKAGE_SELECTION}" --cmake-args "${autoware_build_args}"
-  else
-    echo "Building with CMake args: ${autoware_build_args}"
-    echo "Build with CUDA"
-    AUTOWARE_COMPILE_WITH_CUDA=1 colcon build --cmake-args "${autoware_build_args}" --executor sequential --install-base ./ros/install --packages-up-to ${AUTOWARE_PACKAGE_SELECTION}
-  fi
-fi
+# if [[ -z ${autoware_build_args} ]]; then
+#   if [[ "${use_catkin}" = true ]]; then
+#     echo "Building release with catkin_make_isolated. NOTE: Formal releases should use colcon"
+#     catkin_make_isolated --source . --install --install-space ./ros/install -j1 --only-pkg-with-deps "${AUTOWARE_PACKAGE_SELECTION}"
+#   else
+#     # Default Build Behavior
+#     ./autoware/ros/colcon_release --executor sequential --install-base ./ros/install --packages-up-to ${AUTOWARE_PACKAGE_SELECTION}
+#   fi
+# else
+#   if [[ "${use_catkin}" = true ]]; then
+#     echo "Building with CMake args: ${autoware_build_args} and with catkin_make_isolated. NOTE: Formal releases should use colcon"
+#     catkin_make_isolated --source . --install --install-space ./ros/install -j1 --only-pkg-with-deps "${AUTOWARE_PACKAGE_SELECTION}" --cmake-args "${autoware_build_args}"
+#   else
+#     echo "Building with CMake args: ${autoware_build_args}"
+#     echo "Build with CUDA"
+#     AUTOWARE_COMPILE_WITH_CUDA=0 colcon build --cmake-args "${autoware_build_args}" --executor sequential --install-base ./ros/install --packages-up-to ${AUTOWARE_PACKAGE_SELECTION}
+#   fi
+# fi
 
+AUTOWARE_COMPILE_WITH_CUDA=0 colcon build  --executor sequential --install-base ./ros/install --packages-up-to ${AUTOWARE_PACKAGE_SELECTION}
 
 source ./ros/install/setup.bash
 echo "Autoware built successfuly. Binaries sourced from $(realpath ./ros/install/setup.bash)"

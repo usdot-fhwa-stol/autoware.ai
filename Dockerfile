@@ -1,10 +1,12 @@
-FROM usdotfhwastoldev/carma-base:develop as build
-
+FROM usdotfhwastol/carma-base:latest as build
+#FROM usdotfhwastoldev/carma-base:latest as build
+RUN sudo apt-get install -y ros-noetic-velodyne-pointcloud ros-noetic-velodyne-pcl ros-noetic-velodyne-msgs
 COPY --chown=carma . /home/carma/autoware.ai
 RUN /home/carma/autoware.ai/docker/checkout.bash
 RUN ./home/carma/autoware.ai/docker/install.sh
 
-FROM usdotfhwastoldev/carma-base:develop
+# FROM usdotfhwastoldev/carma-base:latest
+FROM usdotfhwastol/carma-base:latest
 
 ARG BUILD_DATE="NULL"
 ARG VCS_REF="NULL"
