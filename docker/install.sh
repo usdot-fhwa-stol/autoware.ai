@@ -19,11 +19,11 @@ autoware_src="/home/carma/autoware.ai"
 cd ${autoware_src}
 
 # build autoware messages first (noetic has it's own version)
-colcon build --packages-up-to autoware_msgs --cmake-args "-DCMAKE_BUILD_TYPE=Debug" --executor sequential --install-base ./ros/install
-source ./ros/install/setup.bash
+#colcon build --packages-up-to autoware_msgs --cmake-args "-DCMAKE_BUILD_TYPE=Debug" --executor sequential --install-base ./ros/install
+#source ./ros/install/setup.bash
 
 # create colcon ignore file 
-touch messages/autoware_msgs/COLCON_IGNORE
+# touch messages/autoware_msgs/COLCON_IGNORE
 
 #build the rest of autoware
 ./autoware/ros/carma_autoware_build -a ${autoware_src}
