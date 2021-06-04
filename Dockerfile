@@ -1,8 +1,6 @@
 FROM usdotfhwastol/carma-base:latest as build
 #FROM usdotfhwastoldev/carma-base:latest as build
 RUN sudo apt-get install -y ros-noetic-velodyne-pcl
-# remove autoware 
-RUN sudo apt-get -y remove ros-noetic-autoware-* && sudo apt-get autoremove
 COPY --chown=carma . /home/carma/autoware.ai
 RUN /home/carma/autoware.ai/docker/checkout.bash
 RUN ./home/carma/autoware.ai/docker/install.sh
