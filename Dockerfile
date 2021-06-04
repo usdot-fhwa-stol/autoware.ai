@@ -1,11 +1,10 @@
 FROM usdotfhwastol/carma-base:latest as build
-#FROM usdotfhwastoldev/carma-base:latest as build
+
 RUN sudo apt-get install -y ros-noetic-velodyne-pcl
 COPY --chown=carma . /home/carma/autoware.ai
 RUN /home/carma/autoware.ai/docker/checkout.bash
 RUN ./home/carma/autoware.ai/docker/install.sh
 
-# FROM usdotfhwastoldev/carma-base:latest
 FROM usdotfhwastol/carma-base:latest
 
 ARG BUILD_DATE="NULL"
