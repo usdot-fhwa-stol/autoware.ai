@@ -1,4 +1,4 @@
-FROM usdotfhwastol/carma-base:latest as build
+FROM usdotfhwastol/carma-base:develop as build
 
 RUN sudo apt-get install -y ros-noetic-velodyne-pcl
 COPY --chown=carma . /home/carma/autoware.ai
