@@ -17,6 +17,7 @@
 #include <wayarea2grid_lanelet2/wayarea2grid_lanelet2.h>
 
 #include <string>
+#include <memory>
 #include <vector>
 
 namespace object_map

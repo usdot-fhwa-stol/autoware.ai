@@ -17,7 +17,7 @@
  */
 
 #include "lanelet_aisan_converter/lanelet2aisan_converter/lanelet2aisan_converter.h"
-
+#include <memory>
 #include "lanelet_aisan_converter/lanelet_helper/lanelet_helper.h"
 
 namespace lanelet2aisan_converter

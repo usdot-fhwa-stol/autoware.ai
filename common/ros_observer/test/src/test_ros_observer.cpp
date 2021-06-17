@@ -18,6 +18,7 @@
 #include <ros/ros.h>
 #include <string>
 #include <gtest/gtest.h>
+#include <memory>
 #include <ros_observer/lib_ros_observer.h>
 
 using boost::interprocess::managed_shared_memory;

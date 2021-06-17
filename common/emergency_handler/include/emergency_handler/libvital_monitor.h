@@ -20,6 +20,7 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <memory>
 #include <algorithm>
 #include <autoware_system_msgs/SystemStatus.h>
 
