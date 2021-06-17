@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 #include <emergency_handler/libsystem_status_filter.h>
+#include <memory>
 
 class SimpleHardwareFilter : public SystemStatusFilter
 {

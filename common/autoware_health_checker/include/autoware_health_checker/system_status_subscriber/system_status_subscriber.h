@@ -30,6 +30,7 @@
 #include <functional>
 #include <mutex>
 #include <vector>
+#include <memory>
 
 namespace autoware_health_checker
 {

@@ -16,6 +16,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <memory>
 #include <emergency_handler/libsystem_status_filter.h>
 
 void FactorStatusArray::add(const DiagnosticStatus& status)

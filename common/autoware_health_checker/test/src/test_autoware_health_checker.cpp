@@ -21,6 +21,7 @@
 #include <ros/ros.h>
 #include <vector>
 #include <utility>
+#include <memory>
 
 using AwDiagStatus = autoware_system_msgs::DiagnosticStatus;
 using ErrorLevel = autoware_health_checker::ErrorLevel;

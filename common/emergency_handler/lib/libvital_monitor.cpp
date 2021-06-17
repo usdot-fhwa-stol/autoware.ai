@@ -16,6 +16,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <memory>
 #include <emergency_handler/libvital_monitor.h>
 
 const std::map<std::string, int>& VitalMonitor::getDeadNodes()

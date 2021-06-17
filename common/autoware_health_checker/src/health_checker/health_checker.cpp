@@ -19,6 +19,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 #include <autoware_health_checker/health_checker/health_checker.h>
 
 namespace autoware_health_checker

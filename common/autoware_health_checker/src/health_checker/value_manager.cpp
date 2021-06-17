@@ -18,6 +18,7 @@
  */
 
 #include <string>
+#include <utility>
 #include <autoware_health_checker/health_checker/value_manager.h>
 namespace autoware_health_checker
 {
