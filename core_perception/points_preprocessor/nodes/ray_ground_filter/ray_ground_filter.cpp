@@ -30,6 +30,7 @@
 #include <pcl/filters/extract_indices.h>
 #include <velodyne_pcl/point_types.h>
 #include "autoware_config_msgs/ConfigRayGroundFilter.h"
+#include <memory>
 
 #include <opencv2/core/version.hpp>
 #if (CV_MAJOR_VERSION == 3)

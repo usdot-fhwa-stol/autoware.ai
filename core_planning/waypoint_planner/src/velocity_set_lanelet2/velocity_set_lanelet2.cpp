@@ -33,6 +33,7 @@
 #include <limits>
 #include <string>
 #include <vector>
+#include <memory>
 
 #include <waypoint_planner/velocity_set/libvelocity_set.h>
 #include <waypoint_planner/velocity_set/velocity_set_info.h>
