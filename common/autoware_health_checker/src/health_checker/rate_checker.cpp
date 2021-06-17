@@ -19,6 +19,7 @@
 
 #include <string>
 #include <vector>
+#include <utility>
 #include <autoware_health_checker/health_checker/rate_checker.h>
 
 namespace autoware_health_checker

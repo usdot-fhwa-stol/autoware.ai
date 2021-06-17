@@ -16,6 +16,7 @@
 
 #include <emergency_handler/emergency_handler.h>
 #include <emergency_handler/system_status_filter.h>
+#include <memory>
 
 static constexpr int DIAG_ERROR = autoware_system_msgs::DiagnosticStatus::ERROR;
 

@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <functional>
 #include <utility>
+#include <memory>
 #include <emergency_handler/emergency_handler.h>
 #include <emergency_handler/emergency_stop_planner.h>
 #include <emergency_handler/system_status_filter.h>

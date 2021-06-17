@@ -21,6 +21,7 @@
 #include <vector>
 #include <set>
 #include <mutex>
+#include <memory>
 #include <autoware_system_msgs/SystemStatus.h>
 #include <emergency_handler/libvital_monitor.h>
 

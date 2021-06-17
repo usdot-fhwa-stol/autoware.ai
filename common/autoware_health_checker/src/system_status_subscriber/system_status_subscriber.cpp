@@ -17,6 +17,7 @@
  * v1.0 Masaya Kataoka
  */
 
+#include <memory>
 #include <autoware_health_checker/system_status_subscriber/system_status_subscriber.h>
 
 namespace autoware_health_checker

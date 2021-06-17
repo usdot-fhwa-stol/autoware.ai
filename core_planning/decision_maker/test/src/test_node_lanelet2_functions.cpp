@@ -26,6 +26,7 @@
 #include <lanelet2_core/primitives/Lanelet.h>
 
 #include <string>
+#include <memory>
 
 #include "decision_maker_node.hpp"
 #include "test_class.hpp"
