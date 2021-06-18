@@ -35,7 +35,7 @@ done
 cd ${dir}/autoware.ai
 
 if [[ "$BRANCH" = "carma-develop" ]]; then
-      git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-msgs.git --branch develop
+      git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-msgs.git --branch noetic/develop
 else
-      git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-msgs.git --branch develop
+      git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-msgs.git --branch noetic/release
 fi
