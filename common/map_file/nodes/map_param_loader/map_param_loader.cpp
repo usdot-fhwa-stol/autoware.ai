@@ -78,16 +78,21 @@ int main(int argc, char **argv)
   int projector_type = 1; // default value
   std::string target_frame, lanelet2_filename;
   private_nh.param<std::string>("file_name", lanelet2_filename, "");
+  
+  bool broadcast_earth_frame = false;
+  private_nh.param<bool>("broadcast_earth_frame", broadcast_earth_frame, broadcast_earth_frame);
 
   
   // Parse geo reference info from the lanelet map (.osm)
   lanelet::io_handlers::AutowareOsmParser::parseMapParams(lanelet2_filename, &projector_type, &target_frame);
 
-  // Get the transform to ecef (when parsed target_frame is map_frame)
-  tf2::Transform tf = map_param_loader::getTransform(target_frame);
+  if (broadcast_earth_frame) {
+    // Get the transform to ecef (when parsed target_frame is map_frame)
+    tf2::Transform tf = map_param_loader::getTransform(target_frame);
 
-  // Broadcast the transform
-  map_param_loader::broadcastTransform(tf);
+    // Broadcast the transform
+    map_param_loader::broadcastTransform(tf);
+  }
 
   // Broadcast the georeference
   ros::Publisher georef_pub = private_nh.advertise<std_msgs::String>("georeference", 1, true);

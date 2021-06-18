@@ -13,7 +13,12 @@ the License.
 
 <launch>
  <arg name="file_name"/>	
+ <arg name="broadcast_earth_frame" default="false"
+  doc="If true this node will attempt to compute a homogenious transformation matrix between earth and the map frame origin. 
+       NOTE: Not all projections can be linearly described in this way and such a transformation may be inaccurate."/>
+
  <node pkg="map_file" type="map_param_loader" name="map_param_loader">  
   <param name = "file_name" value = "$(arg file_name)"/>
+  <param name = "broadcast_earth_frame" value = "$(arg broadcast_earth_frame)"/>
  </node>
 </launch>
