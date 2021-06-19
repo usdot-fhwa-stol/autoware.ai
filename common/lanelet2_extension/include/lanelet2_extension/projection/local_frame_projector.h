@@ -46,7 +46,7 @@ public:
   /**
    * [LocalFrameProjector::projectECEF projects between WGS-84 ECEF and local map]
    * @param  ecef_point             [point with x,y,z in ecef information]
-   * @param  proj_dir               [1 for forward -1 for reverse]
+   * @param  proj_dir               [1 for forward (output is in ecef) -1 for reverse (output is in map)]
    * @return                        [projected point in local map coordinate]
    * @throw  std::invalid_argument  [if direction is neither of 1 (forward) or -1 (reverse)]
    */
@@ -59,14 +59,15 @@ public:
    */
   GPSPoint reverse(const BasicPoint3d& p) const override;
 
+  // The PROJ string used to define a WGS-84 ECEF frame
+  static constexpr char ECEF_PROJ_STR[] = "+proj=geocent +ellps=WGS84 +datum=WGS84 +units=m +no_defs";
+
 private:
   
   PJ *P_;
 
   const std::string map_proj_string_;
 
-  // The PROJ string used to define a WGS-84 ECEF frame
-  static constexpr char ECEF_PROJ_STR[] = "+proj=geocent +ellps=WGS84 +datum=WGS84 +units=m +no_defs";
 };
 
 }  // namespace projection
