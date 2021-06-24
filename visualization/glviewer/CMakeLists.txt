@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(glviewer)
 
+# Set OpenGL_GL_PREFERENCE to GLVND
+cmake_policy(SET CMP0072 NEW)
+
 include(FindPkgConfig)
 
 find_package(autoware_build_flags REQUIRED)

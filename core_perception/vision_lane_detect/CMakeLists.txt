@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(vision_lane_detect)
 
+# Set OpenGL_GL_PREFERENCE to GLVND
+cmake_policy(SET CMP0072 NEW)
 
 find_package(autoware_msgs REQUIRED)
 find_package(catkin REQUIRED COMPONENTS

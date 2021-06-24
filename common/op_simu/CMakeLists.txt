@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(op_simu)
 
+# Set OpenGL_GL_PREFERENCE to GLVND
+cmake_policy(SET CMP0072 NEW)
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 find_package(autoware_build_flags REQUIRED)
