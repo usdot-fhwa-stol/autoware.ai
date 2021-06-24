@@ -33,7 +33,7 @@ catkin_package(
     std_msgs
 )
 
-set(ROSLINT_CPP_OPTS "--filter=-build/c++11")
+set(ROSLINT_CPP_OPTS "--filter=-build/c++14")
 roslint_cpp()
 
 SET(CMAKE_CXX_FLAGS "-O2 -g -Wall ${CMAKE_CXX_FLAGS}")

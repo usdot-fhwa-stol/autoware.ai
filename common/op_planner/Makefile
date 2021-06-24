@@ -2,8 +2,8 @@ CC = g++
 DEBUG = -g
 CFLAGS = -Iinclude -I../op_utility/include -Wall $(DEBUG)
 #For GPS enabled conversion ! 
-#LFLAGS = -Lbin -Llibs -lutilityh -lproj $(DEBUG) -std=c++11
-LFLAGS = -L../op_utility/libs -Llibs -lutility $(DEBUG) -std=c++11
+#LFLAGS = -Lbin -Llibs -lutilityh -lproj $(DEBUG) -std=c++14
+LFLAGS = -L../op_utility/libs -Llibs -lutility $(DEBUG) -std=c++14
 SRC = $(wildcard src/*.cpp)
 BIN = $(wildcard bin/*.o)
 INCLUDES = $(wildcard include/*.h)

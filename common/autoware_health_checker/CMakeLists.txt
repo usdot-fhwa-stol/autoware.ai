@@ -20,7 +20,7 @@ catkin_package(
   CATKIN_DEPENDS autoware_system_msgs rosgraph_msgs
 )
 
-set(ROSLINT_CPP_OPTS "--filter=-build/c++11")
+set(ROSLINT_CPP_OPTS "--filter=-build/c++14")
 roslint_cpp()
 
 include_directories(

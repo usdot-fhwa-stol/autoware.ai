@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.1)
 project(ros_observer)
 
-add_compile_options(-std=c++11)
+set(CMAKE_CXX_STANDARD 14)
 
 find_package(
   catkin REQUIRED COMPONENTS
@@ -13,7 +13,7 @@ find_package(Boost REQUIRED COMPONENTS
   thread
 )
 
-set(ROSLINT_CPP_OPTS "--filter=-build/c++11")
+set(ROSLINT_CPP_OPTS "--filter=-build/c++14")
 roslint_cpp()
 
 catkin_package(

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(emergency_handler)
 
-add_compile_options(-std=c++11)
+add_compile_options(-std=c++14)
 
 find_package(
   catkin REQUIRED COMPONENTS
@@ -14,7 +14,7 @@ find_package(
   roslint
 )
 
-set(ROSLINT_CPP_OPTS "--filter=-build/c++11")
+set(ROSLINT_CPP_OPTS "--filter=-build/c++14")
 roslint_cpp()
 
 catkin_package(

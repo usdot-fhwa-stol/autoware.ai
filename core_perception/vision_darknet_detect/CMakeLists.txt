@@ -36,7 +36,7 @@ set(CMAKE_CXX_FLAGS "-O3 -g -Wall ${CMAKE_CXX_FLAGS}")
 AW_CHECK_CUDA()
 
 if (USE_CUDA)
-    list(APPEND CUDA_NVCC_FLAGS "--std=c++11 -I$${PROJECT_SOURCE_DIR}/darknet/src -I${PROJECT_SOURCE_DIR}/src -DGPU")
+    list(APPEND CUDA_NVCC_FLAGS "--std=c++14 -I$${PROJECT_SOURCE_DIR}/darknet/src -I${PROJECT_SOURCE_DIR}/src -DGPU")
     SET(CUDA_PROPAGATE_HOST_FLAGS OFF)
 
     #darknet
