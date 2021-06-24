@@ -285,13 +285,10 @@ void RoutingGraphBuilder::addAreaEdge(const ConstArea& area, const LaneletLayer&
       continue;
     }
     auto maxHeight = participantHeight();
-#if 0
-    // TODO(mjeronimo): fix the overlaps2d/3d issue
     if ((maxHeight && geometry::overlaps3d(area, candidate, *maxHeight)) ||
         (!maxHeight && geometry::overlaps2d(area, candidate))) {
       assignCosts(candidate, area, RelationType::Conflicting);
     }
-#endif
   }
 }
 
@@ -305,14 +302,11 @@ void RoutingGraphBuilder::addAreaEdge(const ConstArea& area, const AreaLayer& pa
       assignCosts(area, candidate, RelationType::Area);
       continue;
     }
-#if 0
-    // TODO(mjeronimo): fix the overlaps2d/3d issue
     auto maxHeight = participantHeight();
     if ((maxHeight && geometry::overlaps3d(ConstArea(area), candidate, *maxHeight)) ||
         (!maxHeight && geometry::overlaps2d(ConstArea(area), candidate))) {
       assignCosts(candidate, area, RelationType::Conflicting);
     }
-#endif
   }
 }
 

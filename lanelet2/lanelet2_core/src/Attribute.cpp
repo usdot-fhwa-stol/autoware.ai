@@ -149,16 +149,6 @@ void Attribute::setValue(const std::string& value) {
   this->value_ = value;
 }
 
-#if 0
-#if __cplusplus == 201703L
-#error This is 2017
-#endif
-
-#if __cplusplus == 201402L
-#error This is 2014
-#endif
-#endif
-
 #if __cplusplus < 201703L
 // see https://regexr.com/3knio
 // lanelet types

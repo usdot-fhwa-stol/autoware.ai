@@ -19,4 +19,4 @@ autoware_src="/home/carma/autoware.ai"
 cd ${autoware_src}
 
 #build autoware
-./autoware/ros/carma_autoware_build -a ${autoware_src} -b "-DCMAKE_BUILD_TYPE=Debug"
+./autoware/ros/carma_autoware_build -a ${autoware_src} -b "-DCMAKE_BUILD_TYPE=Release"
