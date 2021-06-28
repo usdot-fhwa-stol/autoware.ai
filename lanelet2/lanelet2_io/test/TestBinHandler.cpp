@@ -1,11 +1,12 @@
-#include <io_handlers/Serialize.h>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <cstdio>
 #include <fstream>
-#include "Io.h"
+
 #include "TestSetup.h"
 #include "gtest/gtest.h"
+#include "lanelet2_io/Io.h"
+#include "lanelet2_io/io_handlers/Serialize.h"
 
 using namespace lanelet;
 
@@ -97,19 +98,19 @@ TEST_F(SerializeTest, LaneletMap) {  // NOLINT
 }
 
 TEST(BinHandler, extension) {  // NOLINT
-  std::string filename = std::tmpnam(nullptr) + std::string(".bin");
+  lanelet::test_setup::Tempfile t("file.bin");
   auto map = std::make_shared<lanelet::LaneletMap>();
-  lanelet::write(filename, *map);
+  lanelet::write(t.get().string(), *map);
 
-  auto mapLoad = lanelet::load(filename);
+  auto mapLoad = lanelet::load(t.get().string());
 }
 
 TEST(BinHandler, explicitIO) {  // NOLINT
-  std::string filename = std::tmpnam(nullptr) + std::string(".bin");
+  lanelet::test_setup::Tempfile t("file.bin");
   auto map = std::make_shared<lanelet::LaneletMap>();
-  lanelet::write(filename, *map, "bin_handler");
+  lanelet::write(t.get().string(), *map, "bin_handler");
 
-  auto mapLoad = lanelet::load(filename, "bin_handler");
+  auto mapLoad = lanelet::load(t.get().string(), "bin_handler");
 }
 
 TEST(BinHandler, fullMap) {

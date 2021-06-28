@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # this file is taken and converted from a bash script from catkin to correctly install python modules
 import os
 import sys

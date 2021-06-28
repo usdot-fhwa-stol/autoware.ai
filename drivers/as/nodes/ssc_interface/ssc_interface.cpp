@@ -179,26 +179,26 @@ void SSCInterface::callbackFromSSCFeedbacks(const automotive_platform_msgs::Velo
   // steering angle [rad]
   vehicle_status.angle = std::atan(curvature * wheel_base_);
 
-  // gearshift
+   // gearshift
   if (msg_gear->current_gear.gear == automotive_platform_msgs::Gear::NONE)
   {
-    vehicle_status.gearshift = 0;
+    vehicle_status.current_gear.gear = automotive_platform_msgs::Gear::NONE;
   }
   else if (msg_gear->current_gear.gear == automotive_platform_msgs::Gear::PARK)
   {
-    vehicle_status.gearshift = 3;
+    vehicle_status.current_gear.gear = automotive_platform_msgs::Gear::PARK;
   }
   else if (msg_gear->current_gear.gear == automotive_platform_msgs::Gear::REVERSE)
   {
-    vehicle_status.gearshift = 2;
+    vehicle_status.current_gear.gear= automotive_platform_msgs::Gear::REVERSE;
   }
   else if (msg_gear->current_gear.gear == automotive_platform_msgs::Gear::NEUTRAL)
   {
-    vehicle_status.gearshift = 4;
+    vehicle_status.current_gear.gear = automotive_platform_msgs::Gear::NEUTRAL;
   }
   else if (msg_gear->current_gear.gear == automotive_platform_msgs::Gear::DRIVE)
   {
-    vehicle_status.gearshift = 1;
+    vehicle_status.current_gear.gear = automotive_platform_msgs::Gear::DRIVE;
   }
 
   // lamp/light cannot be obtain from SSC

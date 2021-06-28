@@ -2,12 +2,14 @@
 #include <lanelet2_core/Forward.h>
 #include <lanelet2_core/LaneletMap.h>
 #include <lanelet2_core/primitives/LaneletSequence.h>
+
 #include <memory>
 #include <string>
 #include <vector>
-#include "Forward.h"
-#include "LaneletPath.h"
-#include "Types.h"
+
+#include "lanelet2_routing/Forward.h"
+#include "lanelet2_routing/LaneletPath.h"
+#include "lanelet2_routing/Types.h"
 
 namespace lanelet {
 namespace routing {
@@ -213,5 +215,5 @@ class Route {
   LaneletSubmapConstPtr laneletSubmap_;          ///< LaneletSubmap with all lanelets that are part of the route
   lanelet::ConstPoint3d end_point_;              ///< Endpoint of route
 };
-};  // namespace routing
-};  // namespace lanelet
+}  // namespace routing
+}  // namespace lanelet

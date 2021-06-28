@@ -1,9 +1,11 @@
-#include "GermanTrafficRules.h"
+#include "lanelet2_traffic_rules/GermanTrafficRules.h"
+
 #include <lanelet2_core/Forward.h>
 #include <lanelet2_core/primitives/BasicRegulatoryElements.h>
 #include <lanelet2_core/utility/Units.h>
-#include "Exceptions.h"
-#include "TrafficRulesFactory.h"
+
+#include "lanelet2_traffic_rules/Exceptions.h"
+#include "lanelet2_traffic_rules/TrafficRulesFactory.h"
 
 using namespace std::string_literals;
 
@@ -38,7 +40,7 @@ Velocity trafficSignToVelocity(const std::string& typeString) {
 }  // namespace
 
 Optional<SpeedLimitInformation> GermanVehicle::speedLimit(const RegulatoryElementConstPtrs& regelems) const {
-  for (auto& regelem : regelems) {
+  for (const auto& regelem : regelems) {
     auto speedLimit = std::dynamic_pointer_cast<const SpeedLimit>(regelem);
     if (!!speedLimit) {
       return SpeedLimitInformation{trafficSignToVelocity(speedLimit->type()), true};

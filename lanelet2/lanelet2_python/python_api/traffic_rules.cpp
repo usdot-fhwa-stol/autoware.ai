@@ -2,6 +2,7 @@
 #include <lanelet2_core/utility/Units.h>
 #include <lanelet2_traffic_rules/TrafficRules.h>
 #include <lanelet2_traffic_rules/TrafficRulesFactory.h>
+
 #include <boost/python.hpp>
 
 using namespace boost::python;
@@ -16,6 +17,12 @@ double getVelocity(const SpeedLimitInformation& self) { return units::KmHQuantit
 
 void setVelocity(SpeedLimitInformation& self, double velocityKmh) {
   self.speedLimit = Velocity(velocityKmh * units::KmH());
+}
+
+double getVelocityMPS(const SpeedLimitInformation& self) { return units::MPSQuantity(self.speedLimit).value(); }
+
+void setVelocityMPS(SpeedLimitInformation& self, double velocityMps) {
+  self.speedLimit = Velocity(velocityMps * units::MPS());
 }
 
 template <typename T>
@@ -51,8 +58,10 @@ BOOST_PYTHON_MODULE(PYTHON_API_MODULE_NAME) {  // NOLINT
            "Initialize from speed limit [m/s] and bool if speedlimit is "
            "mandatory")
       .add_property("speedLimit", getVelocity, setVelocity, "velocity in km/h")
-      .add_property("isMandatory", &SpeedLimitInformation::isMandatory,
-                    "True if speedlimit is not just a recommendation")
+      .add_property("speedLimitKmH", getVelocity, setVelocity, "velocity in km/h")
+      .add_property("speedLimitMPS", getVelocityMPS, setVelocityMPS, "velocity in m/s")
+      .def_readwrite("isMandatory", &SpeedLimitInformation::isMandatory,
+                     "True if speedlimit is not just a recommendation")
       .def(self_ns::str(self_ns::self));
 
   class_<TrafficRules, boost::noncopyable, std::shared_ptr<TrafficRules>>("TrafficRules", no_init)

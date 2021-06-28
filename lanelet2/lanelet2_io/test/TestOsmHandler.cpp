@@ -1,10 +1,12 @@
 #include <gtest/gtest.h>
 #include <lanelet2_core/LaneletMap.h>
 #include <lanelet2_core/primitives/BasicRegulatoryElements.h>
+
 #include <cstdio>
-#include "Io.h"
+
 #include "TestSetup.h"
-#include "io_handlers/OsmHandler.h"
+#include "lanelet2_io/Io.h"
+#include "lanelet2_io/io_handlers/OsmHandler.h"
 
 using namespace lanelet;
 
@@ -89,8 +91,8 @@ TEST(OsmHandler, writeMapWithIncompleteRegelem) {  // NOLINT
   auto regElem = test_setup::setUpRegulatoryElement(num);
   lanelet::LaneletMap map({}, {}, {{regElem->id(), regElem}}, {}, {}, {});
   ErrorMessages errsWrite;
-  io_handlers::OsmWriter parser(defaultProjection(Origin({0, 0, 0})));
-  auto file = parser.toOsmFile(map, errsWrite);
+  auto projector = defaultProjection(Origin({0, 0, 0}));
+  auto file = io_handlers::OsmWriter(projector).toOsmFile(map, errsWrite);
   EXPECT_GT(errsWrite.size(), 0ul);
 }
 
@@ -99,8 +101,8 @@ TEST(OsmHandler, writeMapWithIncompleteLanelet) {  // NOLINT
   auto llt = test_setup::setUpLanelet(num);
   lanelet::LaneletMap map({{llt.id(), llt}}, {}, {}, {}, {}, {});
   ErrorMessages errsWrite;
-  io_handlers::OsmWriter parser(defaultProjection(Origin({0, 0, 0})));
-  auto file = parser.toOsmFile(map, errsWrite);
+  auto projector = defaultProjection(Origin({0, 0, 0}));
+  auto file = io_handlers::OsmWriter(projector).toOsmFile(map, errsWrite);
   EXPECT_GT(errsWrite.size(), 0ul);
 }
 
@@ -111,8 +113,8 @@ TEST(OsmHandler, writeMapWithLaneletAndAreaToFile) {  // NOLINT
   auto ll = test_setup::setUpLanelet(num);
   map->add(ar);
   map->add(ll);
-  auto filename = std::string(std::tmpnam(nullptr)) + ".osm";  // NOLINT
+  lanelet::test_setup::Tempfile file("file.osm");
   Origin origin({49, 8.4, 0});
-  write(filename, *map, origin);
-  EXPECT_NO_THROW(load(filename, origin));  // NOLINT
+  write(file.get().string(), *map, origin);
+  EXPECT_NO_THROW(load(file.get().string(), origin));  // NOLINT
 }

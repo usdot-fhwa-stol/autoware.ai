@@ -1,15 +1,17 @@
 #define LANELET_LAYER_DEFINITION
-#include "LaneletMap.h"
+#include "lanelet2_core/LaneletMap.h"
+
 #include <atomic>
 #include <boost/geometry/index/rtree.hpp>
 #include <chrono>
 #include <random>
-#include "geometry/Area.h"
-#include "geometry/BoundingBox.h"
-#include "geometry/Lanelet.h"
-#include "geometry/LineString.h"
-#include "geometry/Polygon.h"
-#include "geometry/RegulatoryElement.h"
+
+#include "lanelet2_core/geometry/Area.h"
+#include "lanelet2_core/geometry/BoundingBox.h"
+#include "lanelet2_core/geometry/Lanelet.h"
+#include "lanelet2_core/geometry/LineString.h"
+#include "lanelet2_core/geometry/Polygon.h"
+#include "lanelet2_core/geometry/RegulatoryElement.h"
 
 // boost geometry stuff
 namespace bgi = boost::geometry::index;
@@ -1085,6 +1087,10 @@ LaneletMapUPtr createMap(const Lanelets& fromLanelets, const Areas& fromAreas) {
   for (auto ll : fromLanelets) {
     ls.push_back(ll.leftBound());
     ls.push_back(ll.rightBound());
+    if (ll.hasCustomCenterline()) {
+      auto center = ll.centerline();
+      ls.emplace_back(std::const_pointer_cast<LineStringData>(center.constData()), center.inverted());
+    }
   }
   auto appendMultiLs = [&ls](auto& lsappend) {
     std::for_each(lsappend.begin(), lsappend.end(), [&ls](auto& l) { ls.push_back(l); });
@@ -1098,11 +1104,11 @@ LaneletMapUPtr createMap(const Lanelets& fromLanelets, const Areas& fromAreas) {
 
   auto points = utils::concatenateRange(ls, [](auto ls) { return std::make_pair(ls.begin(), ls.end()); });
   auto regelems = utils::concatenateRange(fromLanelets, [](Lanelet llt) {
-    auto& regelems = llt.regulatoryElements();
+    const auto& regelems = llt.regulatoryElements();
     return std::make_pair(regelems.begin(), regelems.end());
   });
   auto areaRegelems = utils::concatenateRange(fromAreas, [](Area area) {
-    auto& regelems = area.regulatoryElements();
+    const auto& regelems = area.regulatoryElements();
     return std::make_pair(regelems.begin(), regelems.end());
   });
   auto map = std::make_unique<LaneletMap>(toMap(fromLanelets), toMap(fromAreas), RegulatoryElementLayer::Map(),
@@ -1166,10 +1172,10 @@ LaneletSubmapUPtr createSubmap(const Areas& fromAreas) { return createSubmap({},
 LaneletSubmapUPtr createSubmap(const Lanelets& fromLanelets, const Areas& fromAreas) {
   auto map = std::make_unique<LaneletSubmap>(toMap(fromLanelets), toMap(fromAreas), RegulatoryElementLayer::Map(),
                                              PolygonLayer::Map(), LineStringLayer::Map(), PointLayer::Map());
-  for (auto& ll : fromLanelets) {
+  for (const auto& ll : fromLanelets) {
     utils::forEach(ll.regulatoryElements(), [&](auto& regelem) { map->trackParameters(*regelem); });
   }
-  for (auto& ar : fromAreas) {
+  for (const auto& ar : fromAreas) {
     utils::forEach(ar.regulatoryElements(), [&](auto& regelem) { map->trackParameters(*regelem); });
   }
   return map;
@@ -1198,13 +1204,17 @@ class NSmallestElements {
     auto pos =
         std::lower_bound(values_.begin(), values_.end(), measure, [](auto& v1, double v2) { return v1.first < v2; });
     if (pos != values_.end() || values_.size() < n_) {
+      if (values_.size() >= n_) {
+        values_.pop_back();
+      }
       values_.emplace(pos, measure, value);
       return true;
     }
     return false;
   }
   const auto& values() const { return values_; }
-  bool full() const { return n_ <= values_.size(); }
+  auto moveValues() { return std::move(values_); }
+  bool full() const { return values_.size() >= n_; }
   bool empty() const { return values_.empty(); }
 
  private:
@@ -1229,7 +1239,7 @@ auto findNearestImpl(LayerT&& map, const BasicPoint2d& pt, unsigned count) {
     return false;
   };
   map.nearestUntil(pt, searchFunction);
-  return closest.values();
+  return closest.moveValues();
 }
 }  // namespace
 

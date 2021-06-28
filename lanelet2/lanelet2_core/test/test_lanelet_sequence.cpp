@@ -1,10 +1,12 @@
 #include <gtest/gtest.h>
-#include <utility/Utilities.h>
+
 #include <iostream>
-#include "geometry/LineString.h"
-#include "geometry/RegulatoryElement.h"
-#include "primitives/BasicRegulatoryElements.h"
-#include "primitives/LaneletSequence.h"
+
+#include "lanelet2_core/geometry/LineString.h"
+#include "lanelet2_core/geometry/RegulatoryElement.h"
+#include "lanelet2_core/primitives/BasicRegulatoryElements.h"
+#include "lanelet2_core/primitives/LaneletSequence.h"
+#include "lanelet2_core/utility/Utilities.h"
 
 using namespace std::literals;
 using namespace lanelet;
@@ -69,7 +71,8 @@ TEST_F(LaneletSequenceTest, LaneletsAreOk) {  // NOLINT
 }
 
 TEST_F(LaneletSequenceTest, ConstructFromLaneletSequences) {  // NOLINT
-  LaneletSequence cl1{{ll1}}, cl2{{ll2}};
+  LaneletSequence cl1{{ll1}};
+  LaneletSequence cl2{{ll2}};
   LaneletSequence ccl{{cl1, cl2}};
   EXPECT_EQ(ccl, cll);
 }

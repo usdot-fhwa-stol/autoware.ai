@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
-#include "geometry/LineString.h"
-#include "primitives/LineString.h"
+
+#include "lanelet2_core/geometry/LineString.h"
+#include "lanelet2_core/primitives/LineString.h"
 using namespace lanelet;
 
 class LineStringPoints : public ::testing::Test {
@@ -24,6 +25,22 @@ class LineStringPoints : public ::testing::Test {
   Point3d p21, p22, p23;
   Point3d p31, p32, p33;
   Point3d p43;
+};
+
+template <typename T>
+class Point2dTypeTest : public ::testing::Test {
+ protected:
+  using Point2dT = T;
+  void SetUp() override {
+    Id id{1};
+    p1 = Point2d(++id, 1., 0., 0.);
+    p2 = Point2d(++id, 0., 1., 0.);
+    p3 = Point2d(++id, -1., 0., 0.);
+    p4 = Point2d(++id, 0., 1., 0.);
+  }
+
+ public:
+  Point2dT p1, p2, p3, p4;
 };
 
 template <typename T>
@@ -112,7 +129,11 @@ template <typename T>
 class TwoDLineStringsTest : public LineStringTypeTest<T> {};
 
 template <typename T>
+class TwoDPointsTest : public Point2dTypeTest<T> {};
+
+template <typename T>
 class BasicLineStringsTest : public LineStringTypeTest<T> {};
+using TwoDPoints = testing::Types<BasicPoint2d, Point2d, ConstPoint2d>;
 using AllLineStrings = testing::Types<LineString2d, LineString3d, ConstLineString2d, ConstLineString3d,
                                       ConstHybridLineString2d, ConstHybridLineString3d, CompoundLineString2d,
                                       CompoundLineString3d, CompoundHybridLineString2d, CompoundHybridLineString3d>;
@@ -131,6 +152,7 @@ using HybridLineStrings = testing::Types<ConstHybridLineString2d, ConstHybridLin
 
 using BasicLineStrings = testing::Types<BasicLineString2d, BasicLineString3d>;
 
+TYPED_TEST_CASE(TwoDPointsTest, TwoDPoints);
 TYPED_TEST_CASE(AllLineStringsTest, AllLineStrings);
 TYPED_TEST_CASE(TwoDLineStringsTest, TwoDLineStrings);
 TYPED_TEST_CASE(ThreeDLineStringsTest, ThreeDLineStrings);
@@ -329,6 +351,11 @@ TYPED_TEST(AllLineStringsTest, segmentsInverse) {  // NOLINT
   EXPECT_EQ(segment.second, lsInv[1]);
 }
 
+TYPED_TEST(TwoDPointsTest, checkCurvature) {
+  EXPECT_DOUBLE_EQ(1., geometry::curvature2d(this->p1, this->p2, this->p3));
+  EXPECT_DOUBLE_EQ(std::numeric_limits<double>::infinity(), geometry::curvature2d(this->p1, this->p2, this->p4));
+}
+
 TYPED_TEST(TwoDLineStringsTest, signedDistance) {  // NOLINT
   auto isLeft = [this](const BasicPoint2d& p) { return geometry::signedDistance(this->ls2, p) > 0; };
   auto d = geometry::signedDistance(this->ls2, BasicPoint2d(2, -1));
@@ -480,15 +507,14 @@ TYPED_TEST(TwoDLineStringsTest, shiftLateral) {
  *   O   O
  */
 TEST(TwoDLineStringsTest, removeSelfIntersections) {
-  BasicPoint2d p1, p2, p3, p4, p5, p6, p7, p8;
-  p1 = BasicPoint2d(2, 0);
-  p2 = BasicPoint2d(2, 2);
-  p3 = BasicPoint2d(3, 1);
-  p4 = BasicPoint2d(0, 1);
-  p5 = BasicPoint2d(1, 2);
-  p6 = BasicPoint2d(1, 0);
-  p7 = BasicPoint2d(2, 1);
-  p8 = BasicPoint2d(1, 1);
+  auto p1 = BasicPoint2d(2, 0);
+  auto p2 = BasicPoint2d(2, 2);
+  auto p3 = BasicPoint2d(3, 1);
+  auto p4 = BasicPoint2d(0, 1);
+  auto p5 = BasicPoint2d(1, 2);
+  auto p6 = BasicPoint2d(1, 0);
+  auto p7 = BasicPoint2d(2, 1);
+  auto p8 = BasicPoint2d(1, 1);
   BasicLineString2d l1{p1, p2, p3, p4, p5, p6};
   BasicLineString2d l2{p1, p7, p8, p6};
   auto ret = geometry::internal::removeSelfIntersections(l1);
@@ -496,18 +522,17 @@ TEST(TwoDLineStringsTest, removeSelfIntersections) {
 }
 
 TEST(TwoDLineStringsTest, extractConvex) {
-  BasicPoint2d p1, p2, p3, p3a, p3b, p4, p5, p6, p7, p8, p9;
-  p1 = BasicPoint2d(1, 0);
-  p2 = BasicPoint2d(1, 1);
-  p3 = BasicPoint2d(0, 1);
-  p3a = BasicPoint2d(2, 1);
-  p3b = BasicPoint2d(0, 0);
-  p4 = BasicPoint2d(0.5, 0);
-  p5 = BasicPoint2d(0.5, 1);
-  p6 = BasicPoint2d(1, 0.5);
-  p7 = BasicPoint2d(0, 0.5);
-  p8 = BasicPoint2d(0.5, 1.5);
-  p9 = BasicPoint2d(2, 1.5);
+  auto p1 = BasicPoint2d(1, 0);
+  auto p2 = BasicPoint2d(1, 1);
+  auto p3 = BasicPoint2d(0, 1);
+  auto p3a = BasicPoint2d(2, 1);
+  auto p3b = BasicPoint2d(0, 0);
+  auto p4 = BasicPoint2d(0.5, 0);
+  auto p5 = BasicPoint2d(0.5, 1);
+  auto p6 = BasicPoint2d(1, 0.5);
+  auto p7 = BasicPoint2d(0, 0.5);
+  auto p8 = BasicPoint2d(0.5, 1.5);
+  auto p9 = BasicPoint2d(2, 1.5);
 
   BasicLineString2d l1{p1, p2, p3};
   BasicLineString2d l2{p1, p2, p3a};
@@ -536,14 +561,13 @@ TEST(TwoDLineStringsTest, extractConvex) {
  */
 
 TEST(TwoDLineStringsTest, checkInversion) {
-  BasicPoint2d p1, p2, p3, p4, p5;
-  p1 = BasicPoint2d(3, 3);
-  p2 = BasicPoint2d(3, 5);
-  p3 = BasicPoint2d(0, 5);
-  p4 = BasicPoint2d(0, 0);
-  p5 = BasicPoint2d(4, 0);
+  auto p1 = BasicPoint2d(3, 3);
+  auto p2 = BasicPoint2d(3, 5);
+  auto p3 = BasicPoint2d(0, 5);
+  auto p4 = BasicPoint2d(0, 0);
+  auto p5 = BasicPoint2d(4, 0);
 
   BasicLineString2d l1{p1, p2, p3, p4, p5};
   EXPECT_THROW(geometry::offset(l1, 2), GeometryError);  // NOLINT
-  EXPECT_NO_THROW(geometry::offset(l1, 1));
+  EXPECT_NO_THROW(geometry::offset(l1, 1));              // NOLINT
 }

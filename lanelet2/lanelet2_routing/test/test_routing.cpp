@@ -1,10 +1,11 @@
 #include <gtest/gtest.h>
 #include <lanelet2_core/primitives/LaneletSequence.h>
-#include <sched.h>
+
 #include <algorithm>
-#include "RoutingGraph.h"
-#include "internal/Graph.h"
-#include "internal/ShortestPath.h"
+
+#include "lanelet2_routing/RoutingGraph.h"
+#include "lanelet2_routing/internal/Graph.h"
+#include "lanelet2_routing/internal/ShortestPath.h"
 #include "test_routing_map.h"
 
 using namespace lanelet;
@@ -57,7 +58,7 @@ TEST(DijkstraSearch, onSimpleGraph) {
     return v.vertex != 4;
   });
   EXPECT_EQ(searcher.getMap().size(), boost::num_vertices(g));
-  for (auto& v : searcher.getMap()) {
+  for (const auto& v : searcher.getMap()) {
     EXPECT_EQ(v.second.predicate, v.first != 4) << v.first;
     EXPECT_EQ(v.second.isLeaf, v.first == 5 || v.first == 4) << v.first;
   }
@@ -67,9 +68,10 @@ TEST_F(GermanPedestrianGraph, NumberOfLanelets) {  // NOLINT
   EXPECT_EQ(graph->passableSubmap()->laneletLayer.size(), 5ul);
   EXPECT_TRUE(graph->passableSubmap()->laneletLayer.exists(2031));
   EXPECT_TRUE(graph->passableSubmap()->laneletLayer.exists(2050));
-  EXPECT_EQ(graph->passableSubmap()->areaLayer.size(), 2ul);
+  EXPECT_EQ(graph->passableSubmap()->areaLayer.size(), 3ul);
   EXPECT_TRUE(graph->passableSubmap()->areaLayer.exists(3000));
   EXPECT_TRUE(graph->passableSubmap()->areaLayer.exists(3001));
+  EXPECT_TRUE(graph->passableSubmap()->areaLayer.exists(3002));
 }
 
 TEST_F(GermanBicycleGraph, NumberOfLanelets) {  // NOLINT
@@ -237,21 +239,22 @@ TEST_F(GermanVehicleGraph, reachableSetInvalid) {                               
 
 TEST_F(GermanPedestrianGraph, reachableSetCrossingWithArea) {  // NOLINT
   auto reachable = graph->reachableSetIncludingAreas(lanelets.at(2050), 100);
-  EXPECT_EQ(reachable.size(), 5ul);
+  EXPECT_EQ(reachable.size(), 6ul);
   EXPECT_TRUE(containsLanelet(reachable, 2050));
   EXPECT_TRUE(containsLanelet(reachable, 2053));
   EXPECT_TRUE(containsLanelet(reachable, 2052));
   EXPECT_TRUE(containsLanelet(reachable, 3000));
   EXPECT_TRUE(containsLanelet(reachable, 3001));
+  EXPECT_TRUE(containsLanelet(reachable, 3002));
 }
 TEST_F(GermanPedestrianGraph, reachableSetStartingFromArea) {  // NOLINT
   auto reachable = graph->reachableSetIncludingAreas(areas.at(3000), 100);
-  EXPECT_EQ(reachable.size(), 4ul);
+  EXPECT_EQ(reachable.size(), 5ul);
 }
 TEST_F(GermanPedestrianGraph, reachableSetWithAreaFromTwoWayLanelet) {  // NOLINT
   auto reachable = graph->reachableSetIncludingAreas(lanelets.at(2053).invert(), 100);
   EXPECT_TRUE(containsLanelet(reachable, 2053));
-  EXPECT_EQ(reachable.size(), 5ul);
+  EXPECT_EQ(reachable.size(), 6ul);
 }
 TEST_F(GermanPedestrianGraph, reachableSetWithAreaFromUnconnectedLanelet) {  // NOLINT
   auto reachable = graph->reachableSetIncludingAreas(lanelets.at(2051), 100);
@@ -260,16 +263,18 @@ TEST_F(GermanPedestrianGraph, reachableSetWithAreaFromUnconnectedLanelet) {  // 
 
 TEST_F(GermanPedestrianGraph, possiblePathsWithAreaFromLanelet) {  // NOLINT
   auto reachable = graph->possiblePathsIncludingAreas(lanelets.at(2050), 10, 0, false);
-  ASSERT_EQ(reachable.size(), 2ul);
+  ASSERT_EQ(reachable.size(), 3ul);
   EXPECT_EQ(reachable[0].size(), 3ul);
   EXPECT_EQ(reachable[1].size(), 3ul);
+  EXPECT_EQ(reachable[2].size(), 3ul);
 }
 
 TEST_F(GermanPedestrianGraph, possiblePathsWithAreaFromUnconnectedLanelet) {  // NOLINT
   auto reachable = graph->possiblePathsIncludingAreas(lanelets.at(2050), 3, false);
-  ASSERT_EQ(reachable.size(), 2ul);
+  ASSERT_EQ(reachable.size(), 3ul);
   EXPECT_EQ(reachable[0].size(), 3ul);
   EXPECT_EQ(reachable[1].size(), 3ul);
+  EXPECT_EQ(reachable[2].size(), 3ul);
 }
 
 TEST_F(GermanVehicleGraph, possiblePathsMinRoutingCosts) {  // NOLINT
@@ -283,6 +288,50 @@ TEST_F(GermanVehicleGraph, possiblePathsMinRoutingCosts) {  // NOLINT
   auto& firstRoute = *routes.begin();
   EXPECT_EQ(firstRoute.size(), 3ul);
   EXPECT_TRUE(containsLanelet(firstRoute, 2006));
+}
+
+TEST_F(GermanVehicleGraph, possiblePathsIncludeShorterLc) {  // NOLINT
+  auto routes = graph->possiblePaths(lanelets.at(2041), PossiblePathsParams{1000, {}, 0, true, true});
+  EXPECT_EQ(routes.size(), 3);
+  auto lastLLts = utils::transform(routes, [](auto& route) { return route.back(); });
+  EXPECT_TRUE(has(lastLLts, lanelets.at(2062)));
+  EXPECT_TRUE(has(lastLLts, lanelets.at(2049)));
+  EXPECT_TRUE(has(lastLLts, lanelets.at(2048)));
+}
+
+TEST_F(GermanVehicleGraph, possiblePathsIncludeShorterAllLimitsLc) {  // NOLINT
+  auto routes = graph->possiblePaths(lanelets.at(2041), PossiblePathsParams{1000, 100, 0, true, true});
+  EXPECT_EQ(routes.size(), 3);
+  auto lastLLts = utils::transform(routes, [](auto& route) { return route.back(); });
+  EXPECT_TRUE(has(lastLLts, lanelets.at(2062)));
+  EXPECT_TRUE(has(lastLLts, lanelets.at(2049)));
+  EXPECT_TRUE(has(lastLLts, lanelets.at(2048)));
+}
+
+TEST_F(GermanVehicleGraph, possiblePathsIncludeShorterNoLc) {  // NOLINT
+  auto routes = graph->possiblePaths(lanelets.at(2041), PossiblePathsParams{1000, {}, 0, false, true});
+  EXPECT_EQ(routes.size(), 3);
+  auto lastLLts = utils::transform(routes, [](auto& route) { return route.back(); });
+  EXPECT_TRUE(has(lastLLts, lanelets.at(2063)));
+  EXPECT_TRUE(has(lastLLts, lanelets.at(2049)));
+  EXPECT_TRUE(has(lastLLts, lanelets.at(2047)));
+}
+
+TEST_F(GermanVehicleGraph, possiblePathsIncludeShorterAllLimitsNoLc) {  // NOLINT
+  auto routes = graph->possiblePaths(lanelets.at(2041), PossiblePathsParams{1000, 100, 0, false, true});
+  EXPECT_EQ(routes.size(), 3);
+  auto lastLLts = utils::transform(routes, [](auto& route) { return route.back(); });
+  EXPECT_TRUE(has(lastLLts, lanelets.at(2063)));
+  EXPECT_TRUE(has(lastLLts, lanelets.at(2049)));
+  EXPECT_TRUE(has(lastLLts, lanelets.at(2047)));
+}
+
+TEST_F(GermanVehicleGraph, possiblePathsLimitLengthNoLc) {  // NOLINT
+  auto routes = graph->possiblePaths(lanelets.at(2041), PossiblePathsParams{2.5, 3, 0, false, false});
+  EXPECT_TRUE(std::all_of(routes.begin(), routes.end(), [](auto& r) { return r.size() <= 3; }));
+  EXPECT_EQ(routes.size(), 3);
+  auto lastLLts = utils::transform(routes, [](auto& route) { return route.back(); });
+  EXPECT_TRUE(has(lastLLts, lanelets.at(2042)));
 }
 
 TEST_F(GermanVehicleGraph, possiblePathsMaxHose) {  // NOLINT
@@ -410,6 +459,28 @@ TEST_F(GermanVehicleGraph, forEachPredecessorReachesLanelet) {  // NOLINT
     return true;
   };
   EXPECT_THROW(graph->forEachPredecessor(lanelets.at(2007), throwIfTarget), TargetFound);  // NOLINT
+}
+
+TEST_F(GermanPedestrianGraph, shortestPathIncludingAreasFromArea) {  // NOLINT
+  auto path =
+      graph->shortestPathIncludingAreas(ConstLaneletOrArea(areas.at(3001)), ConstLaneletOrArea(lanelets.at(2053)));
+  ASSERT_TRUE(!!path);
+  EXPECT_EQ(path->size(), 2ul);
+}
+
+TEST_F(GermanPedestrianGraph, shortestPathIncludingAreasThroughAreas) {
+  auto path =
+      graph->shortestPathIncludingAreas(ConstLaneletOrArea(lanelets.at(2050)), ConstLaneletOrArea(lanelets.at(2053)));
+  ASSERT_TRUE(!!path);
+  EXPECT_EQ(path->size(), 4ul);
+}
+
+TEST_F(GermanPedestrianGraph, shortestPathIncludingAreasViaThroughAreas) {
+  auto path =
+      graph->shortestPathIncludingAreasVia(ConstLaneletOrArea(lanelets.at(2050)), {ConstLaneletOrArea(areas.at(3002))},
+                                           ConstLaneletOrArea(lanelets.at(2053)));
+  ASSERT_TRUE(!!path);
+  EXPECT_EQ(path->size(), 6ul);
 }
 
 TEST(RoutingCostInitialization, NegativeLaneChangeCost) {    // NOLINT

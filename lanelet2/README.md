@@ -20,6 +20,7 @@ Features:
 - **Python** bindings for the whole C++ interface
 - **Boost Geometry** support for all thinkable kinds of geometry calculations on map primitives
 - Released under the [**BSD 3-Clause license**](LICENSE)
+- Support for **ROS1, ROS2, Docker and Conan** (see instructions below)
 
 ![](lanelet2_core/doc/images/lanelet2_example_image.png)
 
@@ -35,6 +36,12 @@ You can find more documentation in the individual packages and in doxygen commen
 - To get more information on how to create valid maps, see [here](lanelet2_maps/README.md).
 
 ## Installation
+
+### Within ROS
+Lanelet2 has been released for ROS. Just install `ros-[distribution]-lanelet2`, e.g.:
+```
+sudo apt install ros-noetic-lanelet2
+```
 
 ### Using Docker
 
@@ -52,9 +59,9 @@ The docker image contains a link to your local lanelet2, so you can work and see
 
 In case you want to build it in your own way (without the above Docker image) use these instructions.
 
-Lanelet2 uses [Catkin](https://catkin-tools.readthedocs.io/en/latest/index.html) for building and is targeted towards Linux.
+Lanelet2 relies mainly on [Catkin](https://catkin-tools.readthedocs.io/en/latest/index.html) for building and is targeted towards Linux.
 
-At least C++14 is required.
+At least **C++14** is required.
 
 ### Dependencies
 Besides [Catkin](https://catkin-tools.readthedocs.io/en/latest/index.html), the dependencies are
@@ -67,11 +74,17 @@ Besides [Catkin](https://catkin-tools.readthedocs.io/en/latest/index.html), the 
 * `rosbash` (for lanelet2_examples)
 
 For Ubuntu, the steps are the following:
-* [Set up ROS](http://wiki.ros.org/ROS/Installation), and install at least `rospack` and `catkin` (e.g. `ros-melodic-rospack` and `ros-melodic-catkin`).
+* [Set up ROS](http://wiki.ros.org/ROS/Installation), and install at least `rospack`, `catkin` and `mrt_cmake_modules` (e.g. `ros-melodic-rospack`, `ros-melodic-catkin`, `ros-melodic-mrt-cmake-modules`):
+```
+sudo apt-get install ros-melodic-rospack ros-melodic-catkin ros-melodic-mrt-cmake-modules
+```
+
 * Install the dependencies above:
 ```bash
 sudo apt-get install libboost-dev libeigen3-dev libgeographic-dev libpugixml-dev libpython-dev libboost-python-dev python-catkin-tools
 ```
+
+**On 16.04 and below**, `mrt_cmake_modules` is not available in ROS and you have to clone it into your workspace (`git clone https://github.com/KIT-MRT/mrt_cmake_modules.git`).
 
 ### Building
 As usual with Catkin, after you have sourced the ros installation, you have to create a workspace and clone all required packages there. Then you can build.
@@ -81,13 +94,37 @@ mkdir catkin_ws && cd catkin_ws && mkdir src
 catkin init
 catkin config --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo # build in release mode (or whatever you prefer)
 cd src
-git clone https://github.com/KIT-MRT/mrt_cmake_modules.git
 git clone https://github.com/fzi-forschungszentrum-informatik/lanelet2.git
 cd ..
 catkin build
 ```
 
 If unsure, see the [Dockerfile](Dockerfile) or the [travis build log](https://travis-ci.org/fzi-forschungszentrum-informatik/Lanelet2). It shows the the full installation process, with subsequent build and test based on a docker image with a clean ubuntu installation.
+
+### Manual, experimental installation using conan
+For non-catkin users, we also offer a conan based install proces. Its experimental and might not work on all platforms, expecially Windows.
+Since conan handles installing all C++ dependencies, all you need is a cloned repository, conan itself and a few python dependencies:
+```bash
+pip install conan catkin_pkg numpy
+conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan # requried for python bindings
+git clone https://github.com/fzi-forschungszentrum-informatik/lanelet2.git
+cd lanelet2
+```
+
+From here, just use the default conan build/install procedure, e.g.:
+```bash
+conan source .
+conan create . lanelet2/stable --build=missing
+```
+Different from the conan defaults, we build lanelet2 and boost as shared libraries, because otherwise the lanelet2's plugin mechanisms as well as boost::python will fail. E.g. loading maps will not be possible and the python API will not be usable.
+
+To be able to use the python bindings, you have to make conan export the PYTHONPATH for lanelet2:
+```bash
+conan install lanelet2/0.0.0@lanelet2/stable --build=missing -g virtualenv # replace 0.0.0 with the version shown by conan
+source activate.sh
+python -c "import lanelet2" # or whatever you want to do
+source deactivate.sh
+```
 
 ### Python3
 
@@ -108,6 +145,7 @@ Examples and common use cases in both C++ and Python can be found [here](lanelet
 * **lanelet2_projection** for projecting maps from WGS84 (lat/lon) to local metric coordinates
 * **lanelet2_routing** implements the routing graph for routing or reachable set or queries as well as collision checking
 * **lanelet2_maps** provides example maps and functionality to visualize and modify them easily in JOSM
+* **lanelet2_matching** provides functions to determine in which lanelet an object is/could be currently located
 * **lanelet2_python** implements the python interface for lanelet2
 * **lanelet2_validation** provides checks to ensure a valid lanelet2 map
 * **lanelet2_examples** contains tutorials for working with Lanelet2 in C++ and Python

@@ -1,10 +1,12 @@
-#include "Validation.h"
+#include "lanelet2_validation/Validation.h"
+
 #include <lanelet2_core/primitives/GPSPoint.h>
 #include <lanelet2_io/Io.h>
 #include <lanelet2_projection/UTM.h>
 #include <lanelet2_routing/RoutingGraph.h>
 #include <lanelet2_traffic_rules/TrafficRulesFactory.h>
-#include "ValidatorFactory.h"
+
+#include "lanelet2_validation/ValidatorFactory.h"
 
 namespace lanelet {
 namespace validation {
@@ -59,7 +61,7 @@ void runRoutingGraphValidators(std::vector<DetectedIssues>& issues, const Regexe
   if (routingGraphValidators.empty()) {
     return;
   }
-  for (auto& rule : rules) {
+  for (const auto& rule : rules) {
     routing::RoutingGraphPtr routingGraph;
     try {
       routingGraph = routing::RoutingGraph::build(map, *rule);
@@ -77,7 +79,7 @@ void runRoutingGraphValidators(std::vector<DetectedIssues>& issues, const Regexe
 
 Issues DetectedIssues::errors() const {
   Issues errors;
-  for (auto& issue : issues) {
+  for (const auto& issue : issues) {
     if (issue.severity == Severity::Error) {
       errors.push_back(issue);
     }
@@ -87,7 +89,7 @@ Issues DetectedIssues::errors() const {
 
 Issues DetectedIssues::warnings() const {
   Issues warning;
-  for (auto& issue : issues) {
+  for (const auto& issue : issues) {
     if (issue.severity == Severity::Warning) {
       warning.push_back(issue);
     }
@@ -102,7 +104,7 @@ Strings availabeChecks(const std::string& filterString) {
 IssueReport buildReport(std::vector<DetectedIssues> issues) {
   IssueReport report;
   for (auto& issue : issues) {
-    auto buildReports = [& check = issue.checkName](auto& issue) { return issue.buildReport() + " [" + check + "]"; };
+    auto buildReports = [&check = issue.checkName](auto& issue) { return issue.buildReport() + " [" + check + "]"; };
     auto errorsFromCheck = utils::transform(issue.errors(), buildReports);
     if (!errorsFromCheck.empty()) {
       report.errors.insert(report.errors.end(), errorsFromCheck.begin(), errorsFromCheck.end());

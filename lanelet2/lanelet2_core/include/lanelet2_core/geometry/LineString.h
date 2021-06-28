@@ -3,12 +3,13 @@
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/geometries/register/linestring.hpp>
 #include <boost/geometry/geometries/register/segment.hpp>
-#include "../Forward.h"
-#include "../primitives/CompoundLineString.h"
-#include "../primitives/LineString.h"
-#include "BoundingBox.h"
-#include "GeometryHelper.h"
-#include "Point.h"
+
+#include "lanelet2_core/Forward.h"
+#include "lanelet2_core/geometry/BoundingBox.h"
+#include "lanelet2_core/geometry/GeometryHelper.h"
+#include "lanelet2_core/geometry/Point.h"
+#include "lanelet2_core/primitives/CompoundLineString.h"
+#include "lanelet2_core/primitives/LineString.h"
 
 /***********************************************************************
  *                   BOOST GEOMETRY REGISTRATIONS                      *
@@ -26,7 +27,7 @@ BOOST_GEOMETRY_REGISTER_LINESTRING(lanelet::CompoundLineString2d)
 BOOST_GEOMETRY_REGISTER_LINESTRING(lanelet::CompoundLineString3d)
 BOOST_GEOMETRY_REGISTER_LINESTRING(lanelet::CompoundHybridLineString2d)
 BOOST_GEOMETRY_REGISTER_LINESTRING(lanelet::CompoundHybridLineString3d)
-BOOST_GEOMETRY_REGISTER_SEGMENT_TEMPLATIZED(lanelet::Segment, first, second);
+BOOST_GEOMETRY_REGISTER_SEGMENT_TEMPLATIZED(lanelet::Segment, first, second)
 
 namespace lanelet {
 namespace geometry {
@@ -96,6 +97,18 @@ double signedDistance(const LineString3dT& lineString, const BasicPoint3d& p);
  */
 template <typename LineString2dT>
 double signedDistance(const LineString2dT& lineString, const BasicPoint2d& p);
+
+/**
+ * Calculate the curvature value given 3 consecutive points.
+ * The curvature value is always positive.
+ *
+ * @param p1, p2, p3 are the points
+ * @return curvature value.
+ *
+ * If any 2 of the 3 points duplicate, return infinity.
+ */
+template <typename Point2dT>
+double curvature2d(const Point2dT& p1, const Point2dT& p2, const Point2dT& p3);
 
 /**
  *

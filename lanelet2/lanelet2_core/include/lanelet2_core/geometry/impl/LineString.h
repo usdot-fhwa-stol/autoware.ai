@@ -1,9 +1,10 @@
 #pragma once
 #include <boost/geometry/algorithms/intersection.hpp>
-#include "../../primitives/LineString.h"
-#include "../../primitives/Traits.h"
-#include "../GeometryHelper.h"
-#include "../Point.h"
+
+#include "lanelet2_core/geometry/GeometryHelper.h"
+#include "lanelet2_core/geometry/Point.h"
+#include "lanelet2_core/primitives/LineString.h"
+#include "lanelet2_core/primitives/Traits.h"
 
 namespace lanelet {
 namespace geometry {
@@ -34,6 +35,10 @@ struct GetGeometry<T, IfLS<T, void>> {
 
 inline auto crossProd(const BasicPoint3d& p1, const BasicPoint3d& p2) { return p1.cross(p2).eval(); }
 inline auto crossProd(const BasicPoint2d& p1, const BasicPoint2d& p2) {
+  return BasicPoint3d(p1.x(), p1.y(), 0.).cross(BasicPoint3d(p2.x(), p2.y(), 0.)).eval();
+}
+// required for Polygon triangulation
+inline auto crossProd(const Eigen::Matrix<double, 2, 1>& p1, const Eigen::Matrix<double, 2, 1>& p2) {
   return BasicPoint3d(p1.x(), p1.y(), 0.).cross(BasicPoint3d(p2.x(), p2.y(), 0.)).eval();
 }
 
@@ -96,6 +101,18 @@ std::pair<BasicPoint3d, BasicPoint3d> projectedPoint3d(const ConstHybridLineStri
 
 std::pair<BasicPoint3d, BasicPoint3d> projectedPoint3d(const CompoundHybridLineString3d& l1,
                                                        const CompoundHybridLineString3d& l2);
+
+std::pair<BasicPoint3d, BasicPoint3d> projectedPoint3d(const ConstHybridLineString3d& l1,
+                                                       const CompoundHybridLineString3d& l2);
+
+std::pair<BasicPoint3d, BasicPoint3d> projectedPoint3d(const CompoundHybridLineString3d& l1,
+                                                       const ConstHybridLineString3d& l2);
+
+std::pair<BasicPoint3d, BasicPoint3d> projectedPoint3d(const ConstHybridLineString3d& l1, const BasicLineString3d& l2);
+
+std::pair<BasicPoint3d, BasicPoint3d> projectedPoint3d(const BasicLineString3d& l1, const ConstHybridLineString3d& l2);
+
+std::pair<BasicPoint3d, BasicPoint3d> projectedPoint3d(const BasicLineString3d& l1, const BasicLineString3d& l2);
 
 template <typename HybridLineStringT>
 BasicPoint2d fromArcCoords(const HybridLineStringT& hLineString, const BasicPoint2d& projStart, const size_t startIdx,
@@ -608,8 +625,8 @@ traits::BasicPointT<traits::PointType<LineStringT>> interpolatedPointAtDistance(
   double currentCumulativeLength = 0.0;
   for (auto first = lineString.begin(), second = std::next(lineString.begin()); second != lineString.end();
        ++first, ++second) {
-    const auto p1 = traits::toBasicPoint(*first);
-    const auto p2 = traits::toBasicPoint(*second);
+    auto p1 = traits::toBasicPoint(*first);
+    auto p2 = traits::toBasicPoint(*second);
     double currentLength = distance(p1, p2);
     currentCumulativeLength += currentLength;
     if (currentCumulativeLength >= dist) {
@@ -659,6 +676,20 @@ template <typename LineString2dT>
 double signedDistance(const LineString2dT& lineString, const BasicPoint2d& p) {
   static_assert(traits::is2D<LineString2dT>(), "Please call this function with a 2D type!");
   return internal::signedDistanceImpl(lineString, p).first;
+}
+
+template <typename Point2dT>
+double curvature2d(const Point2dT& p1, const Point2dT& p2, const Point2dT& p3) {
+  // see https://en.wikipedia.org/wiki/Menger_curvature#Definition
+  const double area = 0.5 * ((p2.x() - p1.x()) * (p3.y() - p1.y()) - (p2.y() - p1.y()) * (p3.x() - p1.x()));
+  const double side1 = distance(p1, p2);
+  const double side2 = distance(p1, p3);
+  const double side3 = distance(p2, p3);
+  const double product = side1 * side2 * side3;
+  if (product < 1e-20) {
+    return std::numeric_limits<double>::infinity();
+  }
+  return std::fabs(4 * area / product);
 }
 
 template <typename LineString2dT>
@@ -734,11 +765,12 @@ IfLS<LineString3dT, bool> intersects3d(const LineString3dT& linestring, const Li
 template <typename LineString3dT>
 IfLS<LineString3dT, std::pair<BasicPoint3d, BasicPoint3d>> projectedPoint3d(const LineString3dT& l1,
                                                                             const LineString3dT& l2) {
+  static_assert(traits::is3D<LineString3dT>(), "Please call this function with a 3D type!");
   return internal::projectedPoint3d(traits::toHybrid(l1), traits::toHybrid(l2));
 }
 
 template <typename LineString3d1T, typename LineString3d2T>
-IfLS<LineString3d1T, double> distance3d(const LineString3d1T& l1, const LineString3d2T& l2) {
+IfLS2<LineString3d1T, LineString3d2T, double> distance3d(const LineString3d1T& l1, const LineString3d2T& l2) {
   auto projPoint = internal::projectedPoint3d(traits::toHybrid(traits::to3D(l1)), traits::toHybrid(traits::to3D(l2)));
   return (projPoint.first - projPoint.second).norm();
 }
@@ -774,7 +806,8 @@ BasicPoint2d fromArcCoordinates(const LineString2dT& lineString, const ArcCoordi
   auto hLineString = utils::toHybrid(lineString);
   auto ratios = accumulatedLengthRatios(lineString);
   const auto llength = length(lineString);
-  size_t startIdx{}, endIdx{};
+  size_t startIdx{};
+  size_t endIdx{};
   for (size_t i = 0; i < ratios.size(); ++i) {
     if (ratios.at(i) * llength > arcCoords.length) {
       startIdx = i;

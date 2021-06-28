@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 import lanelet2
 import tempfile
 import os
@@ -7,6 +7,10 @@ from lanelet2.core import AttributeMap, TrafficLight, Lanelet, LineString3d, Poi
 from lanelet2.projection import UtmProjector
 
 example_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../lanelet2_maps/res/mapping_example.osm")
+if not os.path.exists(example_file):
+    # location after installing
+    example_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                "../../share/lanelet2_maps/res/mapping_example.osm")
 
 
 def tutorial():
@@ -131,7 +135,7 @@ def part6routing():
 
 
 def hasPathFromTo(graph, start, target):
-    class TargetFound(Exception):
+    class TargetFound(BaseException):
         pass
 
     def raiseIfDestination(visitInformation):

@@ -25,7 +25,6 @@
 #include <fstream>
 #include <vector>
 #include <std_msgs/Bool.h>
-#include <std_msgs/String.h>
 #include <tf/transform_datatypes.h>
 #include <unordered_map>
 
@@ -70,7 +69,6 @@ private:
   // publisher & subscriber
   ros::Publisher lane_pub_;
   ros::Subscriber config_sub_;
-  ros::Subscriber route_selection_sub_;
 
   // variables
   std::string multi_lane_csv_;
@@ -93,9 +91,6 @@ private:
   void loadWaypointsForVer3(const char* filename, std::vector<autoware_msgs::Waypoint>* wps);
   void parseWaypointForVer3(const std::string& line, const std::vector<std::string>& contents,
                             autoware_msgs::Waypoint* wp);
-  
-  // callback for setting waypoint file path
-  void routeSelectionCb(const std_msgs::String::ConstPtr& msg);
 };
 
 const std::string addFileSuffix(std::string file_path, std::string suffix);

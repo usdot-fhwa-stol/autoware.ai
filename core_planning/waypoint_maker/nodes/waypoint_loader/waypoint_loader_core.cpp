@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-/*
- * Modifications:
- *  - Modified waypoint_loader node to allow reloading a new route csv file using the file path provided by the rostopic
- *    - 6/24/2019
- *    - Shuwei Qiang
- */
-
 #include "waypoint_loader_core.h"
 
 namespace waypoint_maker
@@ -41,8 +34,6 @@ void WaypointLoaderNode::initPubSub()
   private_nh_.param<std::string>("multi_lane_csv", multi_lane_csv_, "/tmp/driving_lane.csv");
   // setup publisher
   lane_pub_ = nh_.advertise<autoware_msgs::LaneArray>("/based/lane_waypoints_raw", 10, true);
-  // setup subscriber
-  route_selection_sub_ = nh_.subscribe("selected_route_path", 1, &WaypointLoaderNode::routeSelectionCb, this);
 }
 
 void WaypointLoaderNode::run()
@@ -287,17 +278,6 @@ bool WaypointLoaderNode::verifyFileConsistency(const char* filename)
     }
   }
   return true;
-}
-
-void WaypointLoaderNode::routeSelectionCb(const std_msgs::String::ConstPtr& msg)
-{
-  multi_lane_csv_ = msg->data.c_str();
-  multi_file_path_.clear();
-  parseColumns(multi_lane_csv_, &multi_file_path_);
-  autoware_msgs::LaneArray lane_array;
-  createLaneArray(multi_file_path_, &lane_array);
-  lane_pub_.publish(lane_array);
-  output_lane_array_ = lane_array;
 }
 
 void parseColumns(const std::string& line, std::vector<std::string>* columns)

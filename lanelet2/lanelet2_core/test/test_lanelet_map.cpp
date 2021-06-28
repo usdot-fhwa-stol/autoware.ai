@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
+
 #include <future>
-#include "LaneletMap.h"
+
+#include "lanelet2_core/LaneletMap.h"
 #include "lanelet_map_test_case.h"
 
 using namespace lanelet;
@@ -280,6 +282,12 @@ TEST_F(LaneletMapTest, findUsagesInPolygon) {  // NOLINT
     polys = map->polygonLayer.findUsages(p9);
     EXPECT_TRUE(polys.empty());
   });
+}
+
+TEST_F(LaneletMapTest, createMapWithCustomCenterline) {  // NOLINT
+  ll1.setCenterline(front);
+  auto map = utils::createConstMap(ConstLanelets{ll1}, {});
+  EXPECT_TRUE(map->lineStringLayer.exists(front.id()));
 }
 
 TEST_F(LaneletMapTest, createConstMap) {  // NOLINT

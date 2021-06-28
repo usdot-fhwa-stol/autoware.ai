@@ -1,8 +1,9 @@
 #pragma once
 #include <boost/variant.hpp>
-#include "LineString.h"
-#include "Polygon.h"
-#include "RegulatoryElement.h"
+
+#include "lanelet2_core/primitives/LineString.h"
+#include "lanelet2_core/primitives/Polygon.h"
+#include "lanelet2_core/primitives/RegulatoryElement.h"
 
 namespace lanelet {
 //! Base class for objects that can either refer to linestrings or polygons
@@ -57,14 +58,9 @@ class LineStringOrPolygonBase {
     return applyVisitor([](auto& elem) -> const AttributeMap& { return elem.attributes(); });
   }
 
-  template <typename T>
-  std::vector<std::shared_ptr<const T>> regulatoryElementsAs() const {
-    return applyVisitor([](auto& elem) { return elem.template regulatoryElementAs<T>(); });
-  }
-
   //! return the managed linestring
   Optional<LineStringT> lineString() const {
-    auto ls = boost::get<LineStringT>(&lsOrPoly_);
+    const auto* ls = boost::get<LineStringT>(&lsOrPoly_);
     if (ls != nullptr) {
       return *ls;
     }
@@ -73,7 +69,7 @@ class LineStringOrPolygonBase {
 
   //! get the managed polygon
   Optional<PolygonT> polygon() const {
-    auto poly = boost::get<PolygonT>(&lsOrPoly_);
+    const auto* poly = boost::get<PolygonT>(&lsOrPoly_);
     if (poly != nullptr) {
       return *poly;
     }

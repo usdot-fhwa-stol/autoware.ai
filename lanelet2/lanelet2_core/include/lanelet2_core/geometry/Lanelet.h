@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../primitives/Lanelet.h"
+#include "lanelet2_core/primitives/Lanelet.h"
 
 namespace lanelet {
 namespace geometry {
@@ -164,6 +164,18 @@ IfLL<Lanelet1T, IfLL<Lanelet2T, bool>> rightOf(const Lanelet1T& right, const Lan
  */
 template <typename Lanelet1T, typename Lanelet2T>
 IfLL<Lanelet1T, IfLL<Lanelet2T, bool>> follows(const Lanelet1T& prev, const Lanelet2T& next);
+
+/**
+ * @brief find a common line string in ll and other.
+ * @param ll Lanelet
+ * @param other Lanelet
+ * @param allowInverted if true, the orientation of the line strings is ignored
+ * @return line string in ll if it is shared with other
+ */
+template <typename Lanelet1T, typename Lanelet2T>
+IfLL<Lanelet1T, IfLL<Lanelet2T, Optional<ConstLineString3d>>> determineCommonLine(const Lanelet1T& ll,
+                                                                                  const Lanelet2T& other,
+                                                                                  bool allowInverted = false);
 
 /**
  * @brief calculates the maximum velocity without exceding a maximum lateral

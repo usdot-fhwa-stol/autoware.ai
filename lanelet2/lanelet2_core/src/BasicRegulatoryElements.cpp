@@ -1,10 +1,12 @@
-#include "primitives/BasicRegulatoryElements.h"
+#include "lanelet2_core/primitives/BasicRegulatoryElements.h"
+
 #include <vector>
-#include "Exceptions.h"
-#include "primitives/LineString.h"
-#include "primitives/Point.h"
-#include "primitives/RegulatoryElement.h"
-#include "utility/Utilities.h"
+
+#include "lanelet2_core/Exceptions.h"
+#include "lanelet2_core/primitives/LineString.h"
+#include "lanelet2_core/primitives/Point.h"
+#include "lanelet2_core/primitives/RegulatoryElement.h"
+#include "lanelet2_core/utility/Utilities.h"
 
 namespace std {
 bool operator==(const lanelet::LaneletDataConstWptr& lhs, const lanelet::LaneletDataConstWptr& rhs) {
@@ -56,12 +58,12 @@ LineStringsOrPolygons3d getLsOrPoly(const RuleParameterMap& paramsMap, RoleName 
   }
 
   LineStringsOrPolygons3d result;
-  for (auto& param : params->second) {
-    auto l = boost::get<LineString3d>(&param);
+  for (const auto& param : params->second) {
+    const auto* l = boost::get<LineString3d>(&param);
     if (l != nullptr) {
       result.push_back(*l);
     }
-    auto p = boost::get<Polygon3d>(&param);
+    const auto* p = boost::get<Polygon3d>(&param);
     if (p != nullptr) {
       result.push_back(*p);
     }
@@ -333,7 +335,7 @@ SpeedLimit::SpeedLimit(const RegulatoryElementDataPtr& data) : TrafficSign(data)
 
 void TrafficSign::addCancellingTrafficSign(const TrafficSignsWithType& signs) {
   updateTrafficSigns(signs);
-  for (auto& sign : signs.trafficSigns) {
+  for (const auto& sign : signs.trafficSigns) {
     parameters()[RoleName::Cancels].emplace_back(sign.asRuleParameter());
   }
 }
