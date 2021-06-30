@@ -148,7 +148,8 @@ static autoware_msgs::ICPStat icp_stat_msg;
 
 static double predict_pose_error = 0.0;
 
-static double _tf_x, _tf_y, _tf_z, _tf_roll, _tf_pitch, _tf_yaw;
+static float _tf_x, _tf_y, _tf_z, _tf_roll, _tf_pitch, _tf_yaw;
+static std::vector<float> _tf_baselink2primarylidar;
 static Eigen::Matrix4f tf_btol, tf_ltob;
 
 static std::string _localizer = "velodyne";
@@ -566,7 +567,7 @@ static void points_callback(const sensor_msgs::PointCloud2::ConstPtr& input)
     std::cout << "Sequence: " << input->header.seq << std::endl;
     std::cout << "Timestamp: " << input->header.stamp << std::endl;
     std::cout << "Frame ID: " << input->header.frame_id << std::endl;
-    //		std::cout << "Number of Scan Points: " << scan_ptr->size() << " points." << std::endl;
+    //    std::cout << "Number of Scan Points: " << scan_ptr->size() << " points." << std::endl;
     std::cout << "Number of Filtered Scan Points: " << scan_points_num << " points." << std::endl;
     std::cout << "ICP has converged: " << icp.hasConverged() << std::endl;
     std::cout << "Fitness Score: " << fitness_score << std::endl;
@@ -651,36 +652,24 @@ int main(int argc, char** argv)
     return 1;
   }
 
-  if (nh.getParam("tf_x", _tf_x) == false)
+  if (!nh.getParam("tf_baselink2primarylidar", _tf_baselink2primarylidar))
   {
-    std::cout << "tf_x is not set." << std::endl;
+    std::cout << "baselink to primary lidar transform is not set." << std::endl;
     return 1;
   }
-  if (nh.getParam("tf_y", _tf_y) == false)
-  {
-    std::cout << "tf_y is not set." << std::endl;
+
+  // translation x, y, z, yaw, pitch, and roll
+  if (_tf_baselink2primarylidar.size() != 6) {
+    std::cout << "baselink to primary lidar transform is not valid." << std::endl;
     return 1;
   }
-  if (nh.getParam("tf_z", _tf_z) == false)
-  {
-    std::cout << "tf_z is not set." << std::endl;
-    return 1;
-  }
-  if (nh.getParam("tf_roll", _tf_roll) == false)
-  {
-    std::cout << "tf_roll is not set." << std::endl;
-    return 1;
-  }
-  if (nh.getParam("tf_pitch", _tf_pitch) == false)
-  {
-    std::cout << "tf_pitch is not set." << std::endl;
-    return 1;
-  }
-  if (nh.getParam("tf_yaw", _tf_yaw) == false)
-  {
-    std::cout << "tf_yaw is not set." << std::endl;
-    return 1;
-  }
+
+  _tf_x = _tf_baselink2primarylidar[0];
+  _tf_y = _tf_baselink2primarylidar[1];
+  _tf_z = _tf_baselink2primarylidar[2];
+  _tf_yaw = _tf_baselink2primarylidar[3];
+  _tf_pitch = _tf_baselink2primarylidar[4];
+  _tf_roll = _tf_baselink2primarylidar[5];
 
   std::cout << "-----------------------------------------------------------------" << std::endl;
   std::cout << "Log file: " << filename << std::endl;

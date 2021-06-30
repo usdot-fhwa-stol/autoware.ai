@@ -27,6 +27,7 @@
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
   <depend>tf</depend>
+  <depend>tf_conversions</depend>
   <depend>velodyne_pointcloud</depend>
   <depend>velodyne_pcl</depend>
 

@@ -4,63 +4,64 @@ project(vector_map_server)
 find_package(autoware_build_flags REQUIRED)
 
 find_package(catkin REQUIRED COMPONENTS
-  roscpp
-  geometry_msgs
-  visualization_msgs
-  message_generation
-  vector_map
   autoware_msgs
+  geometry_msgs
+  message_generation
+  roscpp
+  roslint
+  vector_map
   vector_map_msgs
+  visualization_msgs
 )
 
 set(CMAKE_CXX_FLAGS "-O2 -Wall ${CMAKE_CXX_FLAGS}")
 
 add_service_files(
   FILES
-  GetDTLane.srv
-  GetNode.srv
-  GetLane.srv
-  GetWayArea.srv
-  GetRoadEdge.srv
-  GetGutter.srv
-  GetCurb.srv
-  GetWhiteLine.srv
-  GetStopLine.srv
-  GetZebraZone.srv
+  GetCrossRoad.srv
   GetCrossWalk.srv
+  GetCurb.srv
+  GetCurveMirror.srv
+  GetDTLane.srv
+  GetDriveOnPortion.srv
+  GetFence.srv
+  GetGuardRail.srv
+  GetGutter.srv
+  GetLane.srv
+  GetNode.srv
+  GetRailCrossing.srv
+  GetRoadEdge.srv
   GetRoadMark.srv
   GetRoadPole.srv
   GetRoadSign.srv
+  GetSideStrip.srv
+  GetSideWalk.srv
   GetSignal.srv
+  GetStopLine.srv
   GetStreetLight.srv
   GetUtilityPole.srv
-  GetGuardRail.srv
-  GetSideWalk.srv
-  GetDriveOnPortion.srv
-  GetCrossRoad.srv
-  GetSideStrip.srv
-  GetCurveMirror.srv
   GetWall.srv
-  GetFence.srv
-  GetRailCrossing.srv
+  GetWayArea.srv
+  GetWhiteLine.srv
+  GetZebraZone.srv
   PositionState.srv
 )
 
 generate_messages(
   DEPENDENCIES
-  geometry_msgs
-  autoware_msgs
-  vector_map_msgs
+    autoware_msgs
+    geometry_msgs
+    vector_map_msgs
 )
 
 catkin_package(
   CATKIN_DEPENDS 
-  message_runtime 
-  geometry_msgs 
-  autoware_msgs 
-  vector_map_msgs 
-  vector_map 
-  visualization_msgs
+    message_runtime 
+    geometry_msgs 
+    autoware_msgs 
+    vector_map_msgs 
+    vector_map 
+    visualization_msgs
 )
 
 include_directories(
@@ -93,8 +94,15 @@ add_dependencies(vector_map_client
   ${catkin_EXPORTED_TARGETS}
 )
 
+set(ROSLINT_CPP_OPTS "--filter=-build/c++14,-runtime/references,-whitespace/braces")
+roslint_cpp()
+
 install(TARGETS ${PROJECT_NAME} vector_map_client
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
+
+if(CATKIN_ENABLE_TESTING)
+  roslint_add_test()
+endif()

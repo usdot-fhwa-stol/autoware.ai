@@ -13,12 +13,23 @@ subs :
         param: gnss
         gui  :
           stat_topic : [ gnss ]
+          plane :
+            flags : [ nl ]
+          sim_mode :
+            depend : sim_mode
+            depend_bool : 'lambda v : v == 1'
       - name : nmea2tfpose
         desc : nmea2tfpose desc sample
         cmd  : roslaunch gnss_localizer nmea2tfpose.launch
         param: gnss
         gui  :
           stat_topic : [ gnss ]
+          plane :
+            depend : sim_mode
+            depend_bool : 'lambda v : v == 0'
+            flags : [ nl ]
+          sim_mode :
+            flags : [ nl ]
     - name : lidar_localizer
       desc : lidar_localizer desc sample
       subs :
@@ -1408,6 +1419,14 @@ params :
       cmd_param :
         dash        : ''
         delim       : ':='
+    - name    : sim_mode
+      desc    : Enable simulation mode - plane origin at (0°, 0°)
+      label   : 'Simulation Mode'
+      kind    : checkbox
+      v       : False
+      cmd_param:
+        dash     : ''
+        delim    : ':='
 
   - name  : ndt
     topic : /config/ndt
@@ -4304,14 +4323,6 @@ params :
       cmd_param :
         dash        : ''
         delim       : ':='
-    - name      : overwrite_vmax_mode
-      desc      : Enavle overwrite velocity max mode
-      label     : overwrite velocity max mode
-      kind      : checkbox
-      v         : false
-      cmd_param :
-        dash        : ''
-        delim       : ':='
     - name      : replan_endpoint_mode
       desc      : Enable replan endpoint mode
       label     : replan endpoint mode
@@ -4324,15 +4335,6 @@ params :
       desc      : All velocities are limited under Vmax [km/h]
       label     : Velocity Max Limit - Vmax [km/h]
       min       : 0.1
-      max       : 100.0
-      v         : 20.0
-      cmd_param :
-        dash        : ''
-        delim       : ':='
-    - name      : radius_thresh
-      desc      : When the estimated turning radius > Rth [m], the area is recognized as a curve
-      label     : Curve Recognize - Rth [m]
-      min       : 10.0
       max       : 100.0
       v         : 20.0
       cmd_param :
@@ -4374,30 +4376,12 @@ params :
       cmd_param :
         dash        : ''
         delim       : ':='
-    - name      : velocity_offset
-      desc      : Planned velocity offset for the response delay
-      label     : Velocity Offset
-      min       : 0
-      max       : 30
-      v         : 4
-      cmd_param :
-        dash        : ''
-        delim       : ':='
-    - name      : braking_distance
-      desc      : braking distance (v = vmin) for safe stopping
-      label     : Braking Distance
-      min       : 0
-      max       : 10
-      v         : 5
-      cmd_param :
-        dash        : ''
-        delim       : ':='
-    - name      : end_point_offset
-      desc      : Expanded end points (v = 0) for safe stopping
-      label     : End Point Offset
-      min       : 0
-      max       : 2
-      v         : 1
+    - name      : lateral_accel_limit
+      desc      : Maximum value of lateral acceleration
+      label     : Lateral acceleration limit [m/s^2]
+      min       : 0.0
+      max       : 3.0
+      v         : 2.0
       cmd_param :
         dash        : ''
         delim       : ':='
@@ -5406,7 +5390,7 @@ params :
       label   : 'clip_min_height (~sensor height)'
       min       : -5
       max       : 5
-      v       : -5
+      v       : -1.3
       cmd_param :
         dash        : ''
         delim       : ':='
@@ -6595,14 +6579,6 @@ params :
       min   : 0.01
       max   : 1.0
       v     : 0.05
-      cmd_param :
-        dash      : ''
-        delim     : ':='
-    - name      : enable_emergency_to_twist_gate
-      desc      : If a difference is detected, enter emergency state via twist_gate node
-      label     : enable_emergency_to_twist_gate
-      kind      : checkbox
-      v         : true
       cmd_param :
         dash      : ''
         delim     : ':='

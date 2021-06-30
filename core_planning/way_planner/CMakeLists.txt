@@ -20,19 +20,12 @@ find_package(
     std_msgs
     tf
     vector_map_msgs
+    roslint
 )
 
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES way_planner
-  CATKIN_DEPENDS
-    geometry_msgs
-    libwaypoint_follower
-    op_planner
-    op_simu
-    op_utility
-    std_msgs
-    vector_map_msgs
 )
 
 SET(CMAKE_CXX_FLAGS "-O2 -g -Wall -Wno-unused-result -DROS ${CMAKE_CXX_FLAGS}")
@@ -42,6 +35,8 @@ include_directories(
   include/plannerh
   ${catkin_INCLUDE_DIRS}
 )
+
+roslint_cpp()
 
 add_executable(
   way_planner
@@ -59,7 +54,7 @@ install(
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
-        
+
 install(
   DIRECTORY launch/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
