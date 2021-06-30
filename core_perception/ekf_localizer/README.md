@@ -124,6 +124,8 @@ The parameters are set in `launch/ekf_localizer.launch` .
 |tf_rate|double|Frqcuency for tf broadcasting [Hz]|10.0|
 |extend_state_step|int|Max delay step which can be dealt with in EKF. Large number increases computational cost. |50|
 |enable_yaw_bias_estimation| bool |Flag to enable yaw bias estimation|true|
+|pose_frame_id| string |TF base frame name|map|
+|child_frame_id| string |TF child frame name|base_link|
 
 ## For pose measurement
 

@@ -4,7 +4,8 @@
   <arg name="enable_yaw_bias_estimation" default="True"/>
   <arg name="predict_frequency" default="50.0"/>
   <arg name="extend_state_step" default="50"/>
-
+  <arg name="pose_frame_id" default="map"/>
+  <arg name="child_frame_id" default="base_link"/>
 
   <!-- for Pose measurement -->
   <arg name="use_pose_with_covariance" default="false"/>
@@ -47,10 +48,8 @@
     <remap if="$(arg use_twist_with_covariance)" from="in_twist" to="input_twist_UNUSED"/>
     <remap if="$(arg use_twist_with_covariance)" from="in_twist_with_covariance" to="$(arg input_twist_with_cov_name)"/>
 
-    <remap from="initialpose" to="/initialpose"/>
-
-    <param name="pose_frame_id" value="map"/>
-    <param name="output_frame_id" value="base_link"/>
+    <param name="pose_frame_id" value="$(arg pose_frame_id)"/>
+    <param name="child_frame_id" value="$(arg child_frame_id)"/>
 
     <param name="show_debug_info" value="$(arg show_debug_info)"/>
     <param name="enable_yaw_bias_estimation" value="$(arg enable_yaw_bias_estimation)"/>

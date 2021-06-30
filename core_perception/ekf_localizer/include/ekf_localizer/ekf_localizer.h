@@ -66,8 +66,8 @@ private:
   double ekf_rate_;                  //!< @brief  EKF predict rate
   double ekf_dt_;                    //!< @brief  = 1 / ekf_rate_
   bool enable_yaw_bias_estimation_;  //!< @brief  for LiDAR mount error. if true, publish /estimate_yaw_bias
-  std::string pose_frame_id_;
-  std::string output_frame_id_;
+  std::string pose_frame_id_;        //!< @brief  Parent frame for pose and tf output
+  std::string child_frame_id_;       //!< @brief  Child frame for pose and tf output
 
   int dim_x_;              //!< @brief  dimension of EKF state
   int extend_state_step_;  //!< @brief  for time delay compensation
