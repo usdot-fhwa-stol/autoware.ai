@@ -21,4 +21,4 @@ LABEL org.label-schema.vcs-url="https://github.com/usdot-fhwa-stol/autoware.ai"
 LABEL org.label-schema.vcs-ref=${VCS_REF}
 LABEL org.label-schema.build-date=${BUILD_DATE}
 
-COPY --chown=carma --from=build /home/carma/autoware.ai/ros/install /opt/autoware.ai/ros/install
+COPY --chown=carma --from=build /opt/autoware.ai/ros/install /opt/autoware.ai/ros/install
