@@ -28,7 +28,6 @@
 
 // headers in STL
 #include <functional>
-#include <mutex>
 #include <vector>
 #include <memory>
 

@@ -19,6 +19,7 @@
 #include <tf/transform_listener.h>
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
+#include <memory>
 
 #include <lanelet2_core/LaneletMap.h>
 #include <lanelet2_core/geometry/BoundingBox.h>

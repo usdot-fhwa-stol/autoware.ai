@@ -20,6 +20,7 @@
 #include <limits>
 #include <utility>
 #include <vector>
+#include <memory>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 

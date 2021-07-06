@@ -39,7 +39,6 @@
 
 // headers in STL
 #include <map>
-#include <mutex>
 #include <string>
 #include <vector>
 

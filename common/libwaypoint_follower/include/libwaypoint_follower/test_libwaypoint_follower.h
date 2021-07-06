@@ -18,6 +18,7 @@
 #define LIBWAYPOINT_FOLLOWER_TEST_LIBWAYPOINT_FOLLOWER_H
 
 #include <gtest/gtest.h>
+#include <utility>
 #include "libwaypoint_follower/libwaypoint_follower.h"
 
 enum class CoordinateResult

@@ -16,7 +16,6 @@
  */
 
 #include <csignal>
-#include <chrono>
 #include <iostream>
 #include <string>
 #include <algorithm>

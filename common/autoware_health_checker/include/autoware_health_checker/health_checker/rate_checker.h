@@ -23,7 +23,6 @@
 #include <ros/ros.h>
 
 // headers in STL
-#include <mutex>
 #include <vector>
 #include <string>
 #include <utility>

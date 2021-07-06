@@ -18,7 +18,6 @@
 
 #include <string>
 #include <map>
-#include <mutex>
 #include <ros/ros.h>
 #include <autoware_health_checker/constants.h>
 #include <autoware_system_msgs/NodeStatus.h>

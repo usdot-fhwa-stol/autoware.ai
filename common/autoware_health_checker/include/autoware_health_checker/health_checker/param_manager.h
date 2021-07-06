@@ -19,7 +19,6 @@
 
 #include <string>
 #include <set>
-#include <mutex>
 #include <ros/ros.h>
 #include <autoware_health_checker/constants.h>
 

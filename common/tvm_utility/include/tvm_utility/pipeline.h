@@ -21,6 +21,7 @@
 #include <tvm_vendor/tvm/runtime/packed_func.h>
 #include <tvm_vendor/tvm/runtime/registry.h>
 #include <fstream>
+#include <memory>
 #include <utility>
 #include <vector>
 
