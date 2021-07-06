@@ -14,9 +14,15 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
+# Source environment variables
 source /home/carma/.base-image/init-env.sh
-autoware_src="/home/carma/autoware.ai"
-cd ${autoware_src}
 
-#build autoware
-./autoware/ros/carma_autoware_build -a ${autoware_src} -b "-DCMAKE_BUILD_TYPE=Release"
+# Enter source directory
+cd /home/carma/autoware.ai
+
+# Build with CUDA
+echo "Build with CUDA"
+sudo mkdir /opt/autoware.ai # Create install directory
+sudo chown carma /opt/autoware.ai # Set owner to expose permissions for build
+sudo chgrp carma /opt/autoware.ai # Set group to expose permissions for build
+AUTOWARE_COMPILE_WITH_CUDA=1 colcon build --install-base /opt/autoware.ai/ros/install --executor sequential --cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_LIBRARY_PATH=/usr/local/cuda/lib64/stubs -DCMAKE_CXX_FLAGS=-Wall -DCMAKE_C_FLAGS=-Wall

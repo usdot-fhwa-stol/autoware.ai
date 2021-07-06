@@ -52,7 +52,9 @@ jobs:
           command: |
             source ${INIT_ENV}
             cd autoware.ai/
-            build-wrapper-linux-x86-64 --out-dir /opt/carma/bw-output ./autoware/ros/carma_autoware_build -k -b "-DCMAKE_CXX_FLAGS=${COVERAGE_FLAGS} -DCMAKE_C_FLAGS=${COVERAGE_FLAGS} -DCMAKE_BUILD_TYPE=Debug"
+            export ROS_PARALLEL_JOBS='-j2 -l2' # try to reduce memory consumption on build
+            export AUTOWARE_COMPILE_WITH_CUDA=1 
+            build-wrapper-linux-x86-64 --out-dir /opt/carma/bw-output colcon build --install-base ./ros/install --executor sequential --cmake-args -DCMAKE_BUILD_TYPE=Debug -DCMAKE_LIBRARY_PATH=/usr/local/cuda/lib64/stubs -DCMAKE_CXX_FLAGS=${COVERAGE_FLAGS} -DCMAKE_C_FLAGS=${COVERAGE_FLAGS}
       # The free version of Circle CI does not have enough memory to run tests in this repo
       # The following run statement can be used as a starting point for future implementation of automated unit tests
       # - run:
