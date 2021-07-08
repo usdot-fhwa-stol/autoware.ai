@@ -22,6 +22,7 @@ find_package(catkin REQUIRED COMPONENTS
   roslint
   tf
   tf2
+  tf2_geometry_msgs
 )
 
 set(CMAKE_CXX_FLAGS "-O2 -Wall ${CMAKE_CXX_FLAGS}")
@@ -33,6 +34,7 @@ catkin_package(
     autoware_msgs
     tf
     tf2
+    tf2_geometry_msgs
 )
 
 include_directories(
