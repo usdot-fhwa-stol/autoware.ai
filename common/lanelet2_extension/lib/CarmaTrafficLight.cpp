@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020-2021 LEIDOS.
+ * Copyright (C) 2021 LEIDOS.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -13,6 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+
 #include <lanelet2_extension/regulatory_elements/CarmaTrafficLight.h>
 #include "RegulatoryHelpers.h"
 
@@ -36,19 +37,14 @@ LineStrings3d CarmaTrafficLight::stopLine()
 CarmaTrafficLight::CarmaTrafficLight(const lanelet::RegulatoryElementDataPtr& data) : RegulatoryElement(data)
 {}
 
-std::unique_ptr<lanelet::RegulatoryElementData> CarmaTrafficLight::buildData(Id id, LineStrings3d stop_line, Lanelets lanelets,
-                                                                Areas areas)
+std::unique_ptr<lanelet::RegulatoryElementData> CarmaTrafficLight::buildData(Id id, LineString3d stop_line)
 {
-  for (auto ls : stop_line)
-  {
-    if (ls.empty()) throw lanelet::InvalidInputError("Empty linestring was passed into CarmaTrafficLight buildData function");
-  }
-  
+
+  if (stop_line.empty()) throw lanelet::InvalidInputError("Empty linestring was passed into CarmaTrafficLight buildData function");
   // Add parameters
   RuleParameterMap rules;
 
-  rules[lanelet::RoleNameString::RefLine].insert(rules[lanelet::RoleNameString::RefLine].end(), stop_line.begin(),
-                                                 stop_line.end());
+  rules[lanelet::RoleNameString::RefLine].insert(rules[lanelet::RoleNameString::RefLine].end(), stop_line);
 
   // Add attributes
   AttributeMap attribute_map({
@@ -59,16 +55,17 @@ std::unique_ptr<lanelet::RegulatoryElementData> CarmaTrafficLight::buildData(Id 
   return std::make_unique<RegulatoryElementData>(id, rules, attribute_map);
 }
 
-CarmaTrafficLightState CarmaTrafficLight::getState()
+boost::optional<CarmaTrafficLightState> CarmaTrafficLight::getState()
 {
   return predictState(ros::Time::now());
 }
 
-CarmaTrafficLightState CarmaTrafficLight::predictState(ros::Time time_stamp)
+boost::optional<CarmaTrafficLightState> CarmaTrafficLight::predictState(ros::Time time_stamp)
 {
   if (recorded_time_stamps.empty())
   {
-    throw::lanelet::InvalidObjectStateError("CarmaTrafficLight doesn't have any recorded states of traffic lights");
+    ROS_WARN_STREAM("CarmaTrafficLight doesn't have any recorded states of traffic lights");
+    return boost::none;
   }
   if (recorded_time_stamps.size() == 1) // if only 1 timestamp recorded, this signal doesn't change
   {
@@ -87,14 +84,14 @@ CarmaTrafficLightState CarmaTrafficLight::predictState(ros::Time time_stamp)
   }
   else
   {
-    while (recorded_time_stamps.front().first + accumulated_offset_duration < time_stamp)
+    while (recorded_time_stamps.back().first + accumulated_offset_duration < time_stamp)
     {
       accumulated_offset_duration += fixed_cycle_duration;
     }
   }
   
   // iterate through states in the cycle to get the signal
-  for (int i = 0; i < recorded_time_stamps.size(); i++)
+  for (size_t i = 0; i < recorded_time_stamps.size(); i++)
   {
     if (recorded_time_stamps[i].first.toSec() + offset_duration_dir * accumulated_offset_duration.toSec() >= time_stamp.toSec())
     { 
@@ -117,7 +114,7 @@ void CarmaTrafficLight::setStates(std::vector<std::pair<ros::Time, CarmaTrafficL
   if (input_time_steps.size() > 2)
   {
     int idx = 2;
-    while (idx + 1 < input_time_steps.size() && input_time_steps[idx] != input_time_steps[0] && input_time_steps[idx + 1] != input_time_steps[1])
+    while (idx + 1 < input_time_steps.size() && input_time_steps[idx].second != input_time_steps[0].second && input_time_steps[idx + 1].second != input_time_steps[1].second)
     {
       idx ++;
     }

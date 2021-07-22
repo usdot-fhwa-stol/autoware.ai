@@ -41,9 +41,9 @@ public:
   // TODO: sorts it automatically
   void setStates(std::vector<std::pair<ros::Time, CarmaTrafficLightState>> input_time_steps, int revision);
   // TODO: return current, ros::Time::now
-  CarmaTrafficLightState getState();
+  boost::optional<CarmaTrafficLightState> getState();
   // TODO: assumes sorted, fixed time, so guaranteed to give you one
-  CarmaTrafficLightState predictState(ros::Time time_stamp);
+  boost::optional<CarmaTrafficLightState> predictState(ros::Time time_stamp);
   ConstLineStrings3d stopLine() const;
   LineStrings3d stopLine();
 
@@ -52,12 +52,11 @@ public:
    * @brief TODO: Creating one is not directly usable unless setStates is called Static helper function that creates a stop line data object based on the provided inputs
    *
    * @param id The lanelet::Id of this element
-   * @param traffic_light The line strings which represent this regularoty elements geometry
+   * @param stop_line The line string which represent the stop line of the traffic light
    *
    * @return RegulatoryElementData containing all the necessary information to construct a stop rule
    */
-  static std::unique_ptr<lanelet::RegulatoryElementData> buildData(Id id, LineStrings3d stop_line, Lanelets lanelets,
-                                                                Areas areas);
+  static std::unique_ptr<lanelet::RegulatoryElementData> buildData(Id id, LineString3d stop_line);
 
 private:
   // the following lines are required so that lanelet2 can create this object
