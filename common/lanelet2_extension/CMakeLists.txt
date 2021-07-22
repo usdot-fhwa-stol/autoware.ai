@@ -77,6 +77,7 @@ add_library( lanelet2_extension_lib
   lib/utilities.cpp
   lib/visualization.cpp
   lib/CarmaUSTrafficRules.cpp
+  lib/CarmaTrafficLight.cpp
   lib/PassingControlLine.cpp
   lib/StopRule.cpp
   lib/DigitalSpeedLimit.cpp
@@ -144,6 +145,7 @@ if(CATKIN_ENABLE_TESTING)
   test/src/CarmaUSTrafficRulesTest.cpp
   test/src/MapLoadingTest.cpp
   test/src/test_local_projector.cpp
+  test/src/CarmaTrafficTest.cpp
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test # Add test directory as working directory for unit tests
  )
 
