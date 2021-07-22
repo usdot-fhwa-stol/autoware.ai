@@ -145,6 +145,7 @@ if(CATKIN_ENABLE_TESTING)
   test/src/CarmaUSTrafficRulesTest.cpp
   test/src/MapLoadingTest.cpp
   test/src/test_local_projector.cpp
+  test/src/CarmaTrafficTest.cpp
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test # Add test directory as working directory for unit tests
  )
 

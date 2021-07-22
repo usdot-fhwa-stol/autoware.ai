@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-/*
+
 #include <gmock/gmock.h>
 #include <iostream>
 #include <lanelet2_extension/regulatory_elements/StopRule.h>
@@ -21,7 +21,7 @@
 #include <lanelet2_traffic_rules/TrafficRulesFactory.h>
 #include <lanelet2_core/Attribute.h>
 #include "TestHelpers.h"
-#include <CarmaTrafficLight.h>
+#include <lanelet2_extension/regulatory_elements/CarmaTrafficLight.h>
 
 using ::testing::_;
 using ::testing::A;
@@ -47,20 +47,28 @@ TEST(CarmaTrafficLightTest, CarmaTrafficLight)
   lanelet::Id traffic_light_id = utils::getId();
   LineString3d virtual_stop_line(traffic_light_id, {pl2, pr2});
   // Creat passing control line for solid dashed line
-  std::shared_ptr<CarmaTrafficLight> traffic_light(new CarmaTrafficLight(CarmaTrafficLight::buildData(lanelet::utils::getId(), { virtual_stop_line }, {ll_1}, {})));
+  std::shared_ptr<CarmaTrafficLight> traffic_light(new CarmaTrafficLight(CarmaTrafficLight::buildData(lanelet::utils::getId(), { virtual_stop_line })));
   ll_1.addRegulatoryElement(traffic_light);
 
   std::vector<std::pair<ros::Time, CarmaTrafficLightState>> input_time_steps;
-  input_time_steps.push_back(make_pair(0,1));
-  //ll_1.setStates(std::vector<std::pair<ros::Time, CarmaTrafficLightState>> input_time_steps, int revision);
-  ll_1.setStates(input_time_steps, 0);
 
-  ASSERT_EQ(1,ll_1.recorded_time_stamps);
-  ASSERT_EQ(1,ll_1.fixed_cycle_duration);
-  ASSERT_EQ(1,ll_1.revision_);
-  ASSERT_EQ(1,ll_1.getState());
-  ASSERT_EQ(1,ll_1.predictState(0));
+  input_time_steps.push_back(std::make_pair(ros::Time(1),static_cast<lanelet::CarmaTrafficLightState>(0)));
+  input_time_steps.push_back(std::make_pair(ros::Time(2),static_cast<lanelet::CarmaTrafficLightState>(1)));
+  input_time_steps.push_back(std::make_pair(ros::Time(3),static_cast<lanelet::CarmaTrafficLightState>(2)));
+  input_time_steps.push_back(std::make_pair(ros::Time(4),static_cast<lanelet::CarmaTrafficLightState>(3)));
+  input_time_steps.push_back(std::make_pair(ros::Time(5),static_cast<lanelet::CarmaTrafficLightState>(4)));
+
+  traffic_light->setStates(input_time_steps,0);
+
+  ASSERT_EQ(5,traffic_light->recorded_time_stamps.size());
+  ASSERT_EQ(ros::Duration(4),traffic_light->fixed_cycle_duration);
+  ASSERT_EQ(0,traffic_light->revision_);
+  
+  ros::Time::init();
+  ros::Time::setNow(ros::Time(1.5));
+
+  ASSERT_EQ(static_cast<lanelet::CarmaTrafficLightState>(1),traffic_light->getState().get());
+  ASSERT_EQ(static_cast<lanelet::CarmaTrafficLightState>(0),traffic_light->predictState(ros::Time(1)).get());
 }
 
 } // namespace lanelet
-*/
