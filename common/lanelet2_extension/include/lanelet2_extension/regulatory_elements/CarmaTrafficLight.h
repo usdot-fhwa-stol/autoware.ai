@@ -23,7 +23,7 @@
 namespace lanelet
 {
 /**
- * @brief TODO: TrafficLight
+ * @brief: TrafficLight are divided into 9 states.They are UNAVAILABLE=0,DARK=1,STOP_THEN_PROCEED=2,STOP_AND_REMAIN=3,PRE_MOVEMENT=4,PERMISSIVE_MOVEMENT_ALLOWED=5,PROTECTED_MOVEMENT_ALLOWED=6,PERMISSIVE_CLEARANCE=7,PROTECTED_CLEARANCE=8,CAUTION_CONFLICTING_TRAFFIC=9
  *
  * @ingroup RegulatoryElementPrimitives
  * @ingroup Primitives
@@ -38,18 +38,30 @@ public:
   int revision_ = 0; //indicates when was this last modified
   ros::Duration fixed_cycle_duration;
   std::vector<std::pair<ros::Time, CarmaTrafficLightState>> recorded_time_stamps;
-  // TODO: sorts it automatically
+  /**
+   * @brief setStates function sorts states automatically
+   *
+   * @param data The data to initialize this regulation with
+   */
   void setStates(std::vector<std::pair<ros::Time, CarmaTrafficLightState>> input_time_steps, int revision);
-  // TODO: return current, ros::Time::now
+  /**
+   * @brief getState get the current state
+   *
+   * @return return current, ros::Time::now
+   */
   boost::optional<CarmaTrafficLightState> getState();
-  // TODO: assumes sorted, fixed time, so guaranteed to give you one
+  /**
+   * @brief prefictState assumes sorted, fixed time, so guaranteed to give you one final state
+   *
+   * @param time_stamp ros::Time of the event happening
+   */
   boost::optional<CarmaTrafficLightState> predictState(ros::Time time_stamp);
   ConstLineStrings3d stopLine() const;
   LineStrings3d stopLine();
 
   explicit CarmaTrafficLight(const lanelet::RegulatoryElementDataPtr& data);
   /**
-   * @brief TODO: Creating one is not directly usable unless setStates is called Static helper function that creates a stop line data object based on the provided inputs
+   * @brief: Creating one is not directly usable unless setStates is called Static helper function that creates a stop line data object based on the provided inputs
    *
    * @param id The lanelet::Id of this element
    * @param stop_line The line string which represent the stop line of the traffic light
