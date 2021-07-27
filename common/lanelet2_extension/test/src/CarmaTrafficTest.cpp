@@ -52,23 +52,25 @@ TEST(CarmaTrafficLightTest, CarmaTrafficLight)
 
   std::vector<std::pair<ros::Time, CarmaTrafficLightState>> input_time_steps;
 
-  input_time_steps.push_back(std::make_pair(ros::Time(1),static_cast<lanelet::CarmaTrafficLightState>(0)));
-  input_time_steps.push_back(std::make_pair(ros::Time(2),static_cast<lanelet::CarmaTrafficLightState>(1)));
-  input_time_steps.push_back(std::make_pair(ros::Time(3),static_cast<lanelet::CarmaTrafficLightState>(2)));
-  input_time_steps.push_back(std::make_pair(ros::Time(4),static_cast<lanelet::CarmaTrafficLightState>(3)));
-  input_time_steps.push_back(std::make_pair(ros::Time(5),static_cast<lanelet::CarmaTrafficLightState>(4)));
+  input_time_steps.push_back(std::make_pair(ros::Time(1001),static_cast<lanelet::CarmaTrafficLightState>(0)));
+  input_time_steps.push_back(std::make_pair(ros::Time(1002),static_cast<lanelet::CarmaTrafficLightState>(1)));
+  input_time_steps.push_back(std::make_pair(ros::Time(1003),static_cast<lanelet::CarmaTrafficLightState>(2)));
+  input_time_steps.push_back(std::make_pair(ros::Time(1004),static_cast<lanelet::CarmaTrafficLightState>(3)));
+  input_time_steps.push_back(std::make_pair(ros::Time(1005),static_cast<lanelet::CarmaTrafficLightState>(4)));
+  input_time_steps.push_back(std::make_pair(ros::Time(1006),static_cast<lanelet::CarmaTrafficLightState>(0)));
 
   traffic_light->setStates(input_time_steps,0);
 
-  ASSERT_EQ(5,traffic_light->recorded_time_stamps.size());
-  ASSERT_EQ(ros::Duration(4),traffic_light->fixed_cycle_duration);
+  ASSERT_EQ(6,traffic_light->recorded_time_stamps.size());
+  ASSERT_EQ(ros::Duration(5),traffic_light->fixed_cycle_duration);
   ASSERT_EQ(0,traffic_light->revision_);
   
   ros::Time::init();
   ros::Time::setNow(ros::Time(1.5));
 
   ASSERT_EQ(static_cast<lanelet::CarmaTrafficLightState>(1),traffic_light->getState().get());
-  ASSERT_EQ(static_cast<lanelet::CarmaTrafficLightState>(0),traffic_light->predictState(ros::Time(1)).get());
+  ASSERT_EQ(static_cast<lanelet::CarmaTrafficLightState>(1),traffic_light->predictState(ros::Time(6.5)).get());
+  ASSERT_EQ(static_cast<lanelet::CarmaTrafficLightState>(0),traffic_light->predictState(ros::Time(5.5)).get());
 }
 
 } // namespace lanelet

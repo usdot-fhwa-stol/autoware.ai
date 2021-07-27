@@ -75,6 +75,9 @@ boost::optional<CarmaTrafficLightState> CarmaTrafficLight::predictState(ros::Tim
   ros::Duration accumulated_offset_duration;
   double offset_duration_dir = recorded_time_stamps.front().first > time_stamp ? -1.0 : 1.0; // -1 if past, +1 if time_stamp is in future
 
+  int num_of_cycles = std::abs((recorded_time_stamps.front().first - time_stamp).toSec()/ fixed_cycle_duration.toSec());
+  accumulated_offset_duration = ros::Duration( num_of_cycles * fixed_cycle_duration.toSec());
+  
   if (offset_duration_dir < 0) 
   {
     while (recorded_time_stamps.front().first - accumulated_offset_duration > time_stamp)
@@ -82,14 +85,6 @@ boost::optional<CarmaTrafficLightState> CarmaTrafficLight::predictState(ros::Tim
       accumulated_offset_duration += fixed_cycle_duration;
     }
   }
-  else
-  {
-    while (recorded_time_stamps.back().first + accumulated_offset_duration < time_stamp)
-    {
-      accumulated_offset_duration += fixed_cycle_duration;
-    }
-  }
-  
   // iterate through states in the cycle to get the signal
   for (size_t i = 0; i < recorded_time_stamps.size(); i++)
   {
