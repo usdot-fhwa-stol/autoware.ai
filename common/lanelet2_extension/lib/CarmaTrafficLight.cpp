@@ -14,6 +14,7 @@
  * the License.
  */
 
+#include <ostream>
 #include <lanelet2_extension/regulatory_elements/CarmaTrafficLight.h>
 #include "RegulatoryHelpers.h"
 
@@ -23,6 +24,25 @@ namespace lanelet
 #if __cplusplus < 201703L
 constexpr char CarmaTrafficLight::RuleName[];  // instantiate string in cpp file
 #endif
+
+std::ostream& operator<<(std::ostream& os, CarmaTrafficLightState s)
+{
+  switch (s)
+  {  // clang-format off
+    case CarmaTrafficLightState::UNAVAILABLE   : os << "CarmaTrafficLightState::UNAVAILABLE"; break;
+    case CarmaTrafficLightState::DARK: os << "CarmaTrafficLightState::DARK"; break;
+    case CarmaTrafficLightState::STOP_THEN_PROCEED : os << "CarmaTrafficLightState::STOP_THEN_PROCEED"; break;
+    case CarmaTrafficLightState::STOP_AND_REMAIN  : os << "CarmaTrafficLightState::STOP_AND_REMAIN"; break;
+    case CarmaTrafficLightState::PRE_MOVEMENT  : os << "CarmaTrafficLightState::PRE_MOVEMENT"; break;
+    case CarmaTrafficLightState::PERMISSIVE_MOVEMENT_ALLOWED  : os << "CarmaTrafficLightState::PERMISSIVE_MOVEMENT_ALLOWED"; break;
+    case CarmaTrafficLightState::PROTECTED_MOVEMENT_ALLOWED  : os << "CarmaTrafficLightState::PROTECTED_MOVEMENT_ALLOWED"; break;
+    case CarmaTrafficLightState::PERMISSIVE_CLEARANCE  : os << "CarmaTrafficLightState::PERMISSIVE_CLEARANCE"; break;
+    case CarmaTrafficLightState::PROTECTED_CLEARANCE  : os << "CarmaTrafficLightState::PROTECTED_CLEARANCE"; break;
+    case CarmaTrafficLightState::CAUTION_CONFLICTING_TRAFFIC  : os << "CarmaTrafficLightState::CAUTION_CONFLICTING_TRAFFIC"; break;
+    default: os.setstate(std::ios_base::failbit);
+  }  // clang-format on
+  return os;
+}
 
 ConstLineStrings3d CarmaTrafficLight::stopLine() const
 {

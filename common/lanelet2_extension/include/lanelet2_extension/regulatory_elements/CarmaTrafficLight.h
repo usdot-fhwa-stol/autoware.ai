@@ -23,13 +23,46 @@
 namespace lanelet
 {
 /**
- * @brief: TrafficLight are divided into 9 states.They are UNAVAILABLE=0,DARK=1,STOP_THEN_PROCEED=2,STOP_AND_REMAIN=3,PRE_MOVEMENT=4,PERMISSIVE_MOVEMENT_ALLOWED=5,PROTECTED_MOVEMENT_ALLOWED=6,PERMISSIVE_CLEARANCE=7,PROTECTED_CLEARANCE=8,CAUTION_CONFLICTING_TRAFFIC=9
+ * @brief: Enum representing Traffic Light States. 
+ * These states match the SAE J2735 PhaseState definitions used for SPaT messages
+ * 
+ * UNAVAILABLE : No data available
+ * DARK : Light is non-functional
+ * STOP_THEN_PROCEED : Flashing Red
+ * STOP_AND_REMAIN : Solid Red
+ * PRE_MOVEMENT : Yellow to Red transition (Found only in the EU)
+ * PERMISSIVE_MOVEMENT_ALLOWED : Solid Green there could be conflict traffic
+ * PROTECTED_MOVEMENT_ALLOWED : Solid Green no chance of conflict traffic (normally used with arrows)
+ * PERMISSIVE_CLEARANCE : Yellow Solid there is a chance of conflicting traffic
+ * PROTECTED_CLEARANCE : Yellow Solid no chance of conflicting traffic (normally used with arrows)
+ * CAUTION_CONFLICTING_TRAFFIC : Yellow Flashing
  *
+ */
+enum class CarmaTrafficLightState {
+  UNAVAILABLE=0,
+  DARK=1,
+  STOP_THEN_PROCEED=2,
+  STOP_AND_REMAIN=3,
+  PRE_MOVEMENT=4,
+  PERMISSIVE_MOVEMENT_ALLOWED=5,
+  PROTECTED_MOVEMENT_ALLOWED=6,
+  PERMISSIVE_CLEARANCE=7,
+  PROTECTED_CLEARANCE=8,
+  CAUTION_CONFLICTING_TRAFFIC=9
+};
+
+/**
+ * \brief Stream operator for CarmaTrafficLightState enum.
+ */
+std::ostream& operator<<(std::ostream& os, CarmaTrafficLightState s);
+
+/**
+ * @brief: Class representing a known timing traffic light.
+ *         Normally the traffic light timing information is provided by SAE J2735 SPaT messages although alternative data sources can be supported
+ * 
  * @ingroup RegulatoryElementPrimitives
  * @ingroup Primitives
  */
-
-enum class CarmaTrafficLightState {UNAVAILABLE=0,DARK=1,STOP_THEN_PROCEED=2,STOP_AND_REMAIN=3,PRE_MOVEMENT=4,PERMISSIVE_MOVEMENT_ALLOWED=5,PROTECTED_MOVEMENT_ALLOWED=6,PERMISSIVE_CLEARANCE=7,PROTECTED_CLEARANCE=8,CAUTION_CONFLICTING_TRAFFIC=9};
 
 class CarmaTrafficLight : public lanelet::RegulatoryElement
 {
