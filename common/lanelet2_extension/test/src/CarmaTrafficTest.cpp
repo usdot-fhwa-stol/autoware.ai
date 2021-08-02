@@ -57,6 +57,9 @@ TEST(CarmaTrafficLightTest, CarmaTrafficLight)
   input_time_steps.push_back(std::make_pair(ros::Time(1003),static_cast<lanelet::CarmaTrafficLightState>(2)));
   input_time_steps.push_back(std::make_pair(ros::Time(1004),static_cast<lanelet::CarmaTrafficLightState>(3)));
   input_time_steps.push_back(std::make_pair(ros::Time(1005),static_cast<lanelet::CarmaTrafficLightState>(4)));
+
+  EXPECT_THROW(traffic_light->setStates(input_time_steps,0), lanelet::InvalidInputError);
+
   input_time_steps.push_back(std::make_pair(ros::Time(1006),static_cast<lanelet::CarmaTrafficLightState>(0)));
 
   traffic_light->setStates(input_time_steps,0);

@@ -115,7 +115,12 @@ void CarmaTrafficLight::setStates(std::vector<std::pair<ros::Time, CarmaTrafficL
     }
     input_time_steps.resize(idx + 1);
   }
-  
+  // throw where the duplicate phase is not provided
+  if (input_time_steps.back().second != input_time_steps.front().second)
+  {
+    throw lanelet::InvalidInputError("Duplicate phase is not provided. Unable to determine fixed cycle duration");
+  }
+
   recorded_time_stamps = input_time_steps;
   fixed_cycle_duration = recorded_time_stamps.back().first - recorded_time_stamps.front().first; // it is okay if size is only 1, case is handled in predictState
   revision_ = revision;
