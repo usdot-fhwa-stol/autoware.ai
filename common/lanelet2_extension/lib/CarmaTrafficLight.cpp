@@ -14,6 +14,7 @@
  * the License.
  */
 
+#include <ostream>
 #include <lanelet2_extension/regulatory_elements/CarmaTrafficLight.h>
 #include "RegulatoryHelpers.h"
 
@@ -23,6 +24,25 @@ namespace lanelet
 #if __cplusplus < 201703L
 constexpr char CarmaTrafficLight::RuleName[];  // instantiate string in cpp file
 #endif
+
+std::ostream& operator<<(std::ostream& os, CarmaTrafficLightState s)
+{
+  switch (s)
+  {  // clang-format off
+    case CarmaTrafficLightState::UNAVAILABLE   : os << "CarmaTrafficLightState::UNAVAILABLE"; break;
+    case CarmaTrafficLightState::DARK: os << "CarmaTrafficLightState::DARK"; break;
+    case CarmaTrafficLightState::STOP_THEN_PROCEED : os << "CarmaTrafficLightState::STOP_THEN_PROCEED"; break;
+    case CarmaTrafficLightState::STOP_AND_REMAIN  : os << "CarmaTrafficLightState::STOP_AND_REMAIN"; break;
+    case CarmaTrafficLightState::PRE_MOVEMENT  : os << "CarmaTrafficLightState::PRE_MOVEMENT"; break;
+    case CarmaTrafficLightState::PERMISSIVE_MOVEMENT_ALLOWED  : os << "CarmaTrafficLightState::PERMISSIVE_MOVEMENT_ALLOWED"; break;
+    case CarmaTrafficLightState::PROTECTED_MOVEMENT_ALLOWED  : os << "CarmaTrafficLightState::PROTECTED_MOVEMENT_ALLOWED"; break;
+    case CarmaTrafficLightState::PERMISSIVE_CLEARANCE  : os << "CarmaTrafficLightState::PERMISSIVE_CLEARANCE"; break;
+    case CarmaTrafficLightState::PROTECTED_CLEARANCE  : os << "CarmaTrafficLightState::PROTECTED_CLEARANCE"; break;
+    case CarmaTrafficLightState::CAUTION_CONFLICTING_TRAFFIC  : os << "CarmaTrafficLightState::CAUTION_CONFLICTING_TRAFFIC"; break;
+    default: os.setstate(std::ios_base::failbit);
+  }  // clang-format on
+  return os;
+}
 
 ConstLineStrings3d CarmaTrafficLight::stopLine() const
 {
@@ -37,13 +57,14 @@ LineStrings3d CarmaTrafficLight::stopLine()
 CarmaTrafficLight::CarmaTrafficLight(const lanelet::RegulatoryElementDataPtr& data) : RegulatoryElement(data)
 {}
 
-std::unique_ptr<lanelet::RegulatoryElementData> CarmaTrafficLight::buildData(Id id, LineString3d stop_line)
+std::unique_ptr<lanelet::RegulatoryElementData> CarmaTrafficLight::buildData(Id id, LineString3d stop_line, Lanelets lanelets)
 {
 
   if (stop_line.empty()) throw lanelet::InvalidInputError("Empty linestring was passed into CarmaTrafficLight buildData function");
   // Add parameters
   RuleParameterMap rules;
-
+  rules[lanelet::RoleNameString::Refers].insert(rules[lanelet::RoleNameString::Refers].end(), lanelets.begin(),
+                                                lanelets.end());
   rules[lanelet::RoleNameString::RefLine].insert(rules[lanelet::RoleNameString::RefLine].end(), stop_line);
 
   // Add attributes
@@ -94,6 +115,11 @@ boost::optional<CarmaTrafficLightState> CarmaTrafficLight::predictState(ros::Tim
     }
   }
 }
+
+lanelet::ConstLanelets CarmaTrafficLight::getControlledLanelets() const
+{
+  return getParameters<lanelet::ConstLanelet>(RoleName::Refers);
+} 
 
 void CarmaTrafficLight::setStates(std::vector<std::pair<ros::Time, CarmaTrafficLightState>> input_time_steps, int revision)
 {

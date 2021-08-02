@@ -43,11 +43,15 @@ TEST(CarmaTrafficLightTest, CarmaTrafficLight)
   auto pr3 = carma_wm::getPoint(1, 2, 0);
   std::vector<lanelet::Point3d> left_1 = { pl1, pl2, pl3 };
   std::vector<lanelet::Point3d> right_1 = { pr1, pr2, pr3 };
+  std::vector<lanelet::Point3d> left_2 = { pl1, pl2, pl3 };
+  std::vector<lanelet::Point3d> right_2 = { pr1, pr2, pr3 };
   auto ll_1 = carma_wm::getLanelet(left_1, right_1, lanelet::AttributeValueString::SolidDashed,lanelet::AttributeValueString::Dashed);
+  auto ll_2 = carma_wm::getLanelet(left_1, right_1, lanelet::AttributeValueString::SolidDashed,lanelet::AttributeValueString::Dashed);
+  
   lanelet::Id traffic_light_id = utils::getId();
   LineString3d virtual_stop_line(traffic_light_id, {pl2, pr2});
   // Creat passing control line for solid dashed line
-  std::shared_ptr<CarmaTrafficLight> traffic_light(new CarmaTrafficLight(CarmaTrafficLight::buildData(lanelet::utils::getId(), { virtual_stop_line })));
+  std::shared_ptr<CarmaTrafficLight> traffic_light(new CarmaTrafficLight(CarmaTrafficLight::buildData(lanelet::utils::getId(), { virtual_stop_line }, {ll_1, ll_2})));
   ll_1.addRegulatoryElement(traffic_light);
 
   std::vector<std::pair<ros::Time, CarmaTrafficLightState>> input_time_steps;
@@ -72,8 +76,10 @@ TEST(CarmaTrafficLightTest, CarmaTrafficLight)
   ros::Time::setNow(ros::Time(1.5));
 
   ASSERT_EQ(static_cast<lanelet::CarmaTrafficLightState>(1),traffic_light->getState().get());
-  ASSERT_EQ(static_cast<lanelet::CarmaTrafficLightState>(1),traffic_light->predictState(ros::Time(6.5)).get());
-  ASSERT_EQ(static_cast<lanelet::CarmaTrafficLightState>(0),traffic_light->predictState(ros::Time(5.5)).get());
+  ASSERT_EQ(static_cast<lanelet::CarmaTrafficLightState>(0),traffic_light->predictState(ros::Time(1)).get());
+  ASSERT_EQ(traffic_light->getControlledLanelets().size(), 2);
+  ASSERT_EQ(traffic_light->getControlledLanelets().back().id(), ll_2.id());
+  
 }
 
 } // namespace lanelet
