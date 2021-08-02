@@ -114,6 +114,8 @@ boost::optional<CarmaTrafficLightState> CarmaTrafficLight::predictState(ros::Tim
       return recorded_time_stamps[i].second;
     }
   }
+
+  throw lanelet::InvalidInputError("Reached unreachable code block. Implies duplicate phase is not provided. Unable to determine fixed cycle duration");
 }
 
 lanelet::ConstLanelets CarmaTrafficLight::getControlledLanelets() const
