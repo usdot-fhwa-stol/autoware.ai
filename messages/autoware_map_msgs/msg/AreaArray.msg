@@ -1,4 +1,4 @@
 # This consists of multiple areas in a map with reference coordinate frame. 
 
-Header header
+std_msgs/Header header
 Area[] data

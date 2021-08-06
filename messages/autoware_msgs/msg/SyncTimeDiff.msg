@@ -1,4 +1,4 @@
-Header header
+std_msgs/Header header
 float64 time_diff
-time camera
-time lidar
+builtin_interfaces/Time camera
+builtin_interfaces/Time lidar

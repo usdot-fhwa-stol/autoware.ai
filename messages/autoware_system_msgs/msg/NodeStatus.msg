@@ -1,4 +1,4 @@
-Header header
+std_msgs/Header header
 string node_name
 bool node_activated
 autoware_system_msgs/DiagnosticStatusArray[] status

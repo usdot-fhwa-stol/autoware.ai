@@ -1,88 +1,75 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 project(autoware_msgs)
 
-find_package(catkin REQUIRED COMPONENTS
-  geometry_msgs
-  jsk_recognition_msgs
-  message_generation
-  sensor_msgs
-  std_msgs
+find_package(rosidl_default_generators REQUIRED)
+find_package(ament_cmake REQUIRED)
+find_package(geometry_msgs REQUIRED)
+# find_package(jsk_recognition_msgs REQUIRED) does not exist in ros2
+find_package(sensor_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
+set(CMAKE_CXX_STANDARD 1 4)
+
+rosidl_generate_interfaces(
+    ${PROJECT_NAME}
+        srv/RecognizeLightState.srv
+        msg/DetectedObject.msg
+        msg/ColorSet.msg
+        msg/ICPStat.msg
+        msg/TunedResult.msg
+        msg/VehicleLocation.msg
+        msg/LaneArray.msg
+        msg/ValueSet.msg
+        msg/GeometricRectangle.msg
+        msg/ObjPose.msg
+        msg/Waypoint.msg
+        msg/IndicatorCmd.msg
+        msg/VehicleCmd.msg
+        msg/DTLane.msg
+        msg/NDTStat.msg
+        msg/ImageRect.msg
+        msg/SteerCmd.msg
+        msg/VehicleStatus.msg
+        msg/StateCmd.msg
+        msg/SyncTimeDiff.msg
+        msg/AdjustXY.msg
+        msg/ScanImage.msg
+        msg/PointsImage.msg
+        msg/Gear.msg
+        msg/ImageLaneObjects.msg
+        msg/ImageObjTracked.msg
+        msg/ImageObjects.msg
+        msg/ControlCommand.msg
+        msg/Lane.msg
+        # msg/CloudClusterArray.msg depends on jsk_recognition_msgs
+        msg/ImageObjRanged.msg
+        msg/AccelCmd.msg
+        msg/ObjLabel.msg
+        msg/SyncTimeMonitor.msg
+        msg/ControlCommandStamped.msg
+        msg/DetectedObjectArray.msg
+        msg/LampCmd.msg
+        msg/Signals.msg
+        # msg/CloudCluster.msg depends on jsk_recognition_msgs
+        msg/ExtractedPosition.msg
+        msg/VscanTrackedArray.msg
+        msg/TrafficLightResult.msg
+        msg/TrafficLightResultArray.msg
+        msg/ImageObj.msg
+        msg/RemoteCmd.msg
+        msg/BrakeCmd.msg
+        msg/TrafficLight.msg
+        msg/ImageRectRanged.msg
+        msg/VscanTracked.msg
+        msg/State.msg
+        msg/CameraExtrinsic.msg
+        msg/ProjectionMatrix.msg
+        msg/Centroids.msg
+        msg/WaypointState.msg
+    DEPENDENCIES
+        sensor_msgs
+        geometry_msgs
+        # jsk_recognition_msgs does not exist in ros2
+        std_msgs
 )
 
-add_message_files(
-  DIRECTORY msg
-  FILES
-    AccelCmd.msg
-    AdjustXY.msg
-    BrakeCmd.msg
-    Centroids.msg
-    CloudCluster.msg
-    CloudClusterArray.msg
-    ColorSet.msg
-    ControlCommand.msg
-    ControlCommandStamped.msg
-    DTLane.msg
-    DetectedObject.msg
-    DetectedObjectArray.msg
-    ExtractedPosition.msg
-    Gear.msg
-    GeometricRectangle.msg
-    ICPStat.msg
-    ImageLaneObjects.msg
-    ImageObj.msg
-    ImageObjRanged.msg
-    ImageObjTracked.msg
-    ImageObjects.msg
-    ImageRect.msg
-    ImageRectRanged.msg
-    IndicatorCmd.msg
-    LampCmd.msg
-    Lane.msg
-    LaneArray.msg
-    NDTStat.msg
-    ObjLabel.msg
-    ObjPose.msg
-    PointsImage.msg
-    ProjectionMatrix.msg
-    RemoteCmd.msg
-    ScanImage.msg
-    Signals.msg
-    State.msg
-    StateCmd.msg
-    SteerCmd.msg
-    SyncTimeDiff.msg
-    SyncTimeMonitor.msg
-    TrafficLight.msg
-    TrafficLightResult.msg
-    TrafficLightResultArray.msg
-    TunedResult.msg
-    ValueSet.msg
-    VehicleCmd.msg
-    VehicleLocation.msg
-    VehicleStatus.msg
-    VscanTracked.msg
-    VscanTrackedArray.msg
-    Waypoint.msg
-    WaypointState.msg
-)
-
-add_service_files(
-  FILES RecognizeLightState.srv
-)
-
-generate_messages(
-  DEPENDENCIES
-    geometry_msgs
-    jsk_recognition_msgs
-    sensor_msgs
-    std_msgs
-)
-
-catkin_package(
-  CATKIN_DEPENDS
-    geometry_msgs
-    jsk_recognition_msgs
-    message_runtime
-    sensor_msgs
-    std_msgs
-)
+ament_package()

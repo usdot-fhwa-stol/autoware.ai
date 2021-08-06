@@ -1,52 +1,44 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 project(autoware_map_msgs)
 
-find_package(catkin REQUIRED COMPONENTS
-  std_msgs
-  message_generation
-)
+find_package(rosidl_default_generators REQUIRED)
+find_package(ament_cmake REQUIRED)
+find_package(std_msgs REQUIRED)
+set(CMAKE_CXX_STANDARD 14)
 
-add_message_files(
-  FILES
-    Area.msg
-    AreaArray.msg
-    Lane.msg
-    LaneArray.msg
-    LaneAttributeRelation.msg
-    LaneAttributeRelationArray.msg
-    LaneChangeRelation.msg
-    LaneChangeRelationArray.msg
-    LaneRelation.msg
-    LaneRelationArray.msg
-    LaneSignalLightRelation.msg
-    LaneSignalLightRelationArray.msg
-    OppositeLaneRelation.msg
-    OppositeLaneRelationArray.msg
-    Point.msg
-    PointArray.msg
-    Signal.msg
-    SignalArray.msg
-    SignalLight.msg
-    SignalLightArray.msg
-    Wayarea.msg
-    WayareaArray.msg
-    Waypoint.msg
-    WaypointArray.msg
-    WaypointLaneRelation.msg
-    WaypointLaneRelationArray.msg
-    WaypointRelation.msg
-    WaypointRelationArray.msg
-    WaypointSignalRelation.msg
-    WaypointSignalRelationArray.msg
+rosidl_generate_interfaces(
+    ${PROJECT_NAME}
+        msg/LaneRelationArray.msg
+        msg/SignalArray.msg
+        msg/OppositeLaneRelationArray.msg
+        msg/WaypointRelationArray.msg
+        msg/WaypointLaneRelation.msg
+        msg/LaneArray.msg
+        msg/PointArray.msg
+        msg/SignalLightArray.msg
+        msg/SignalLight.msg
+        msg/WaypointSignalRelation.msg
+        msg/Waypoint.msg
+        msg/Point.msg
+        msg/WayareaArray.msg
+        msg/Area.msg
+        msg/LaneSignalLightRelation.msg
+        msg/LaneAttributeRelation.msg
+        msg/WaypointRelation.msg
+        msg/Lane.msg
+        msg/AreaArray.msg
+        msg/LaneChangeRelationArray.msg
+        msg/LaneRelation.msg
+        msg/Wayarea.msg
+        msg/LaneAttributeRelationArray.msg
+        msg/WaypointArray.msg
+        msg/WaypointSignalRelationArray.msg
+        msg/Signal.msg
+        msg/LaneChangeRelation.msg
+        msg/WaypointLaneRelationArray.msg
+        msg/LaneSignalLightRelationArray.msg
+        msg/OppositeLaneRelation.msg
+    DEPENDENCIES
+        std_msgs
 )
-
-generate_messages(
-  DEPENDENCIES
-    std_msgs
-)
-
-catkin_package(
-  CATKIN_DEPENDS
-    message_runtime
-    std_msgs
-)
+ament_package()

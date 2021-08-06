@@ -1,4 +1,4 @@
-Header header
+std_msgs/Header header
 string tm
 int32 devmode
 int32 drvcontmode

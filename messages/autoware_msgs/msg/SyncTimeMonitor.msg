@@ -1,4 +1,4 @@
-Header header
+std_msgs/Header header
 float64 image_raw
 float64 points_raw
 float64 points_image

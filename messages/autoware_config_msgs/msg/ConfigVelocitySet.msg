@@ -1,4 +1,4 @@
-Header header
+std_msgs/Header header
 float32 stop_distance_obstacle
 float32 stop_distance_stopline
 float32 detection_range
