@@ -7,7 +7,7 @@ find_package(geometry_msgs REQUIRED)
 # find_package(jsk_recognition_msgs REQUIRED) does not exist in ros2
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
-set(CMAKE_CXX_STANDARD 1 4)
+set(CMAKE_CXX_STANDARD 14)
 
 rosidl_generate_interfaces(
     ${PROJECT_NAME}
