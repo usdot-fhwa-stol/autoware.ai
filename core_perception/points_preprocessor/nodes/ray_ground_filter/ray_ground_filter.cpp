@@ -104,7 +104,12 @@ void RayGroundFilter::filterROSMsg(const sensor_msgs::PointCloud2ConstPtr in_ori
                    const std::vector<void*>& in_selector,
                    const sensor_msgs::PointCloud2::Ptr out_filtered_msg)
 {
-  size_t point_size = in_origin_cloud->row_step/in_origin_cloud->width;  // in Byte
+  size_t point_size = in_origin_cloud->point_step;  // in Byte
+
+  if (point_size == 0) {
+    ROS_WARN_THROTTLE(5, "Cloud point_step of zero, can't filter message");
+    return;
+  }
 
   // TODO(yoan picchi) I fear this may do a lot of cache miss because it is sorted in the radius
   // and no longer sorted in the original pointer. One thing to try is that, given
@@ -263,7 +268,13 @@ void RayGroundFilter::ConvertAndTrim(const sensor_msgs::PointCloud2::Ptr in_tran
                       std::vector<void*>* out_no_ground_ptrs)
 {
   // --- Clarify some of the values used to access the binary blob
-  size_t point_size = in_transformed_cloud->row_step/in_transformed_cloud->width;  // in Byte
+  size_t point_size = in_transformed_cloud->point_step;  // in Byte
+
+  if (point_size == 0) {
+    ROS_WARN_THROTTLE(5, "Cloud point_step of zero, can't filter message");
+    return;
+  }
+
   size_t cloud_count = in_transformed_cloud->width*in_transformed_cloud->height;
 
   const uint offset_not_set = ~0;
@@ -328,7 +339,7 @@ void RayGroundFilter::ConvertAndTrim(const sensor_msgs::PointCloud2::Ptr in_tran
       z = ReverseFloat(z);
     }
     // ---
-
+    
     if (z > in_clip_height)
     {
       out_no_ground_ptrs->push_back(point_start_ptr);

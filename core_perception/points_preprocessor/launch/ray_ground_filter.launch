@@ -14,7 +14,7 @@
   <arg name="ground_point_topic" default="points_ground" />
 
   <!-- rosrun points_preprocessor ray_ground_filter -->
-  <node pkg="points_preprocessor" type="ray_ground_filter" name="ray_ground_filter" output="log">
+  <node pkg="points_preprocessor" type="ray_ground_filter" name="ray_ground_filter">
     <param name="input_point_topic" value="$(arg input_point_topic)" />
     <param name="base_frame" value="$(arg base_frame)" />
     <param name="clipping_height" value="$(arg clipping_height)" />
