@@ -90,6 +90,7 @@ add_library( lanelet2_extension_lib
   lib/StopRule.cpp
   lib/DigitalSpeedLimit.cpp
   lib/DigitalMinimumGap.cpp
+  lib/SignalizedIntersection.cpp
   lib/RegionAccessRule.cpp
   lib/DirectionOfTravel.cpp
 )
