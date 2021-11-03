@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.5.1)
 project(lanelet2_extension)
 
 #
@@ -32,16 +32,26 @@ find_package(PROJ4 REQUIRED)
 
 # Extract environment variable value
 set(LANELET2_EXTENSION_LOGGER_TYPE $ENV{LANELET2_EXTENSION_LOGGER_TYPE})
+set(ROS_VERSION $ENV{ROS_VERSION})
 
 if(LANELET2_EXTENSION_LOGGER_TYPE EQUAL 1 )
 
   message("lanelet2_extension using std::cout and cerr for logging")
   add_definitions(-DLANELET2_EXTENSION_LOGGER_TYPE=1)
 
-else() # Default to ROS logging
+elseif(ROS_VERSION EQUAL 2)
+
+   # ROS 2 logging
+  message("lanelet2_extension using rclcpp for logging")
+  add_definitions(-DLANELET2_EXTENSION_LOGGER_TYPE=0) 
+  add_definitions(-DLANELET2_EXTENSION_ROS_VERSION=2)
+  set(LOGGER_DEP roscpp)
+
+else() # Default to ROS 1 logging
 
   message("lanelet2_extension using roscpp for logging")
-  add_definitions(-DLANELET2_EXTENSION_LOGGER_TYPE=0) 
+  add_definitions(-DLANELET2_EXTENSION_LOGGER_TYPE=0)
+  add_definitions(-DLANELET2_EXTENSION_ROS_VERSION=1)
   set(LOGGER_DEP roscpp)
   
 endif()
