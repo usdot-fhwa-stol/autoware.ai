@@ -79,8 +79,9 @@ TEST(SignalizedIntersectionTest, mapLoadingTest)
     for (auto regem : llt.regulatoryElementsAs<DigitalSpeedLimit>())
     {
       std::cerr << "regem: " << regem->id() << ", subtype: " << regem->RuleName << std::endl;
-      //std::cerr << "lanelet of regem speed: " << regem->getLanelets().front().id();
+      std::cerr << "size llt of regem speed: " << regem->getLanelets().size() << std::endl;;
       auto llts = map->laneletLayer.findUsages(regem);
+      
       std::cerr << "speed findUsage size: " << llts.size() << std::endl;
 
     }
