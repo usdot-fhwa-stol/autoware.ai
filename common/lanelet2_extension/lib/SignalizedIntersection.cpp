@@ -24,71 +24,158 @@ namespace lanelet
     #if __cplusplus < 201703L
     // Forward declare static constexpr
     constexpr char SignalizedIntersection::RuleName[];  // instantiate string in cpp file
-    constexpr char SignalizedIntersection::MinGap[];
+    constexpr const char CarmaRoleNameString::IntersectionExit[];
+    constexpr const char CarmaRoleNameString::IntersectionInterior[];
     #endif
 
-    ConstLanelets SignalizedIntersection::getLanelets() const
+    namespace signalized_intersection
     {
-    return getParameters<ConstLanelet>(RoleName::Refers);
+        template <typename T>
+        RuleParameters toRuleParameters(const std::vector<T>& primitives)
+        {
+        auto cast_func = [](const auto& elem) { return static_cast<RuleParameter>(elem); };
+        return utils::transform(primitives, cast_func);
+        }
+
+        //template <>
+        //RuleParameters toRuleParameters(const std::vector<LineStringOrPolygon3d>& primitives)
+        //{
+        //auto cast_func = [](const auto& elem) { return elem.asRuleParameter(); };
+        //return utils::transform(primitives, cast_func);
+        //}
     }
 
-    ConstAreas SignalizedIntersection::getAreas() const
+    ConstLanelets SignalizedIntersection::getEntryLanelets() const {return getParameters<ConstLanelet>(RoleName::Refers);}
+
+    //Lanelets SignalizedIntersection::getEntryLanelets() {return getParameters<Lanelet>(RoleName::Refers);} TODO: investigate if it is really not possible 
+
+    ConstLanelets SignalizedIntersection::getExitLanelets() const 
     {
-        return getParameters<ConstArea>(RoleName::Refers);
+        // TODO: is there a faster way?
+        ConstLanelets const_lanelets;
+        const_lanelets.insert(const_lanelets.end(), exit_lanelets.begin(), exit_lanelets.end());
+        return const_lanelets;
+    }
+    Lanelets SignalizedIntersection::getExitLanelets() 
+    {
+        return exit_lanelets;
     }
 
-    double SignalizedIntersection::getMinimumGap() const
+    ConstLanelets SignalizedIntersection::getInteriorLanelets() const 
     {
-        return min_gap_;
+        // TODO: is there a faster way?
+        ConstLanelets const_lanelets;
+        const_lanelets.insert(const_lanelets.end(), interior_lanelets.begin(), interior_lanelets.end());
+        return const_lanelets;
+    }
+    Lanelets SignalizedIntersection::getInteriorLanelets() 
+    {
+        return interior_lanelets;
     }
 
-    bool SignalizedIntersection::appliesTo(const std::string& participant) const
-    {
-        return setContainsParticipant(participants_, participant);
-    }
-       
-    std::unique_ptr<lanelet::RegulatoryElementData> SignalizedIntersection::buildData(Id id, double min_gap, Lanelets lanelets,
-                                                                Areas areas, std::vector<std::string> participants)
+    std::unique_ptr<lanelet::RegulatoryElementData> SignalizedIntersection::buildData(Id id, Lanelets entry, Lanelets exit,
+                                                                Lanelets interior)
     {
         // Add parameters
+        std::cerr << "Intersection Called~" << std::endl;
         RuleParameterMap rules;
-        rules[lanelet::RoleNameString::Refers].insert(rules[lanelet::RoleNameString::Refers].end(), lanelets.begin(),
-                                                        lanelets.end());
-        rules[lanelet::RoleNameString::Refers].insert(rules[lanelet::RoleNameString::Refers].end(), areas.begin(),
-                                                        areas.end());
+        rules[lanelet::RoleNameString::Refers].insert(rules[lanelet::RoleNameString::Refers].end(), entry.begin(),
+                                                        entry.end());
+        rules[lanelet::CarmaRoleNameString::IntersectionExit].insert(rules[lanelet::CarmaRoleNameString::IntersectionExit].end(), exit.begin(),
+                                                        exit.end());
+        rules[lanelet::CarmaRoleNameString::IntersectionInterior].insert(rules[lanelet::CarmaRoleNameString::IntersectionInterior].end(), interior.begin(),
+                                                        interior.end());
 
         // Add attributes
         AttributeMap attribute_map({ { AttributeNamesString::Type, AttributeValueString::RegulatoryElement },
-                                    { AttributeNamesString::Subtype, RuleName },
-                                    { MinGap, Attribute(min_gap).value() } });
+                                    { AttributeNamesString::Subtype, RuleName }});
 
-        for (auto participant : participants)
-        {
-            const std::string key = std::string(AttributeNamesString::Participant) + ":" + participant;
-            attribute_map[key] = "yes";
-        }
 
         return std::make_unique<RegulatoryElementData>(id, rules, attribute_map);
     }
 
-
-    SignalizedIntersection::SignalizedIntersection(const lanelet::RegulatoryElementDataPtr& data) : RegulatoryElement(data)
+    std::vector<CarmaTrafficLightConstPtr> SignalizedIntersection::getTrafficSignals(const ConstLanelet& llt) const
     {
-        // Read participants
-        addParticipantsToSetFromMap(participants_, attributes());
-
-        // Read min gap
-        auto optional_min_gap = attribute(MinGap).asDouble();
-
-        if (!optional_min_gap)
-        {
-            throw std::invalid_argument("MinGap attribute of SignalizedIntersection regulatory element is not set or cannot be "
-                                        "read ");
-        }
-
-        min_gap_ = *optional_min_gap;
+        return llt.regulatoryElementsAs<CarmaTrafficLight>();
     }
 
+    void SignalizedIntersection::addLanelet(const Lanelet& lanelet, IntersectionSection section)
+    {
+        switch (section)
+        {
+            case IntersectionSection::ENTRY:
+            {
+                auto entry_lanelets = getEntryLanelets();
+                if (std::find(entry_lanelets.begin(), entry_lanelets.end(), lanelet) == entry_lanelets.end())
+                    parameters()[RoleName::Refers].emplace_back(lanelet);
+                break;
+            }
+            case IntersectionSection::EXIT:
+                if (std::find(exit_lanelets.begin(), exit_lanelets.end(), lanelet) == exit_lanelets.end())
+                    exit_lanelets.push_back(lanelet);
+                break;
+            case IntersectionSection::INTERIOR:
+                if (std::find(interior_lanelets.begin(), interior_lanelets.end(), lanelet) == interior_lanelets.end())
+                    interior_lanelets.push_back(lanelet);
+                break;
+            default:
+                throw std::invalid_argument("Invalid section is passed as IntersectionSection");
+        }
+        
+    }
+    
+    bool SignalizedIntersection::removeLanelet(const Lanelet& llt)
+    {
+        auto exit_it = std::find(exit_lanelets.begin(), exit_lanelets.end(), llt);
+        if (exit_it != exit_lanelets.end())
+        {
+            exit_lanelets.erase(exit_it);
+            return true;
+        }     
+        ConstLanelet const_llt = llt;
+        auto entry_lanelets = getEntryLanelets();
+        auto lltIt = std::find(entry_lanelets.begin(), entry_lanelets.end(), const_llt); //this works because == operator compares constData()
+        if (lltIt != entry_lanelets.end()) {
+            // TODO remove it from parameter
+            return true;
+        }
+        
+        auto interior_it = std::find(interior_lanelets.begin(), interior_lanelets.end(), llt);
+        if (interior_it != interior_lanelets.end())
+        {
+            interior_lanelets.erase(interior_it);
+            return true;
+        }  
+        
+        return false;
+    }
+
+    RegulatoryElementDataPtr constructSignalizedIntersectionData(Id id, const AttributeMap& attributes, Lanelets entry, Lanelets exit, Lanelets interior)
+    {
+        std::cerr << "Intersection 3 Called~ Data creation" << std::endl;
+        RuleParameterMap rpm;
+        rpm[lanelet::RoleNameString::Refers].insert(rpm[lanelet::RoleNameString::Refers].end(), entry.begin(),
+                                                        entry.end());
+        rpm[lanelet::CarmaRoleNameString::IntersectionExit].insert(rpm[lanelet::CarmaRoleNameString::IntersectionExit].end(), exit.begin(),
+                                                        exit.end());
+        rpm[lanelet::CarmaRoleNameString::IntersectionInterior].insert(rpm[lanelet::CarmaRoleNameString::IntersectionInterior].end(), interior.begin(),
+                                                        interior.end());
+
+        auto data = std::make_shared<RegulatoryElementData>(id, std::move(rpm), attributes);
+        data->attributes[AttributeName::Type] = AttributeValueString::RegulatoryElement;
+        data->attributes[AttributeName::Subtype] = SignalizedIntersection::RuleName;
+        return data;
+    }
+    
+    SignalizedIntersection::SignalizedIntersection(Id id, const AttributeMap& attributes, Lanelets entry, Lanelets exit, Lanelets interior):
+        SignalizedIntersection(constructSignalizedIntersectionData(id, attributes, entry, exit, interior)) {
+        std::cerr << "Intersection 2 Called~" << std::endl;
+    }
+
+    SignalizedIntersection::SignalizedIntersection(const lanelet::RegulatoryElementDataPtr& data) : RegulatoryElement(data) {
+        std::cerr << "Intersection 1 Called~" << std::endl;
+        std::cerr << "parameters size: " << data->parameters.size() << std::endl;
+    }
 
     namespace
     {

@@ -17,6 +17,7 @@
 #include <lanelet2_core/primitives/RegulatoryElement.h>
 #include <boost/algorithm/string.hpp>
 #include <lanelet2_core/utility/Units.h>
+#include <lanelet2_extension/regulatory_elements/CarmaTrafficLight.h>
 #include <unordered_set>
 
 namespace lanelet
@@ -27,27 +28,26 @@ namespace lanelet
  * @ingroup RegulatoryElementPrimitives
  * @ingroup Primitives
  */
+enum class IntersectionSection {ENTRY, EXIT, INTERIOR};
+
+struct CarmaRoleNameString
+{
+  static constexpr char IntersectionExit[] = "intersection_exit";  
+  static constexpr char IntersectionInterior[] = "intersection_interior";  
+};
+
 class SignalizedIntersection : public RegulatoryElement
 {
 public:
+  using Ptr = std::shared_ptr<SignalizedIntersection>;
   static constexpr char RuleName[] = "signalized_intersection";
-  static constexpr char MinGap[] = "mingap";
-  double min_gap_ = 0;
-  std::unordered_set<std::string> participants_;
-
-  /**
-   * @brief Returns the minimum gap  defined by this regulation
-   *
-   * @return The minimum gap  as a double object
-   */
-  double getMinimumGap() const;
-
-  /** 
-   * @brief Returns true if the given participant must follow this minimum gap 
-   *
-   * @return True if this minimum gap  should apply to the given participant
-   */
-  bool appliesTo(const std::string& participant) const;
+  //! Directly construct a stop line from its required rule parameters.
+  //! Might modify the input data in oder to get correct tags.
+  static Ptr make(Id id, const AttributeMap& attributes, Lanelets entry, Lanelets exit, Lanelets interior) {
+    return Ptr{new SignalizedIntersection(id, attributes, entry, exit, interior)};
+  }
+  std::vector<Lanelet> exit_lanelets;
+  std::vector<Lanelet> interior_lanelets;
 
   /**
    * @brief Returns the entry lanelets into the signalized intersection
@@ -55,13 +55,6 @@ public:
    * @return list of const lanelets
    */
   ConstLanelets getEntryLanelets() const;
-
-  /**
-   * @brief Returns the entry lanelets into the signalized intersection
-   *
-   * @return list of mutable lanelets
-   */
-  Lanelets getEntryLanelets();
 
     /**
    * @brief Returns the interior lanelets of signalized intersection
@@ -77,7 +70,7 @@ public:
    */
   Lanelets getInteriorLanelets();
 
-    /**
+  /**
    * @brief Returns the exit lanelets into the signalized intersection
    *
    * @return list of const lanelets
@@ -91,27 +84,61 @@ public:
    */
   Lanelets getExitLanelets();
 
-  //! get list of traffic signs that constitute this AllWayStop if existing
-  ConstLineStringsOrPolygons3d getTrafficSignals() const;
-  LineStringsOrPolygons3d getTrafficSignals();
+  /**
+   * @brief Returns the carma traffic signals in the specified entry lanelet in the intersection
+   * @param entry lanelet in the intersection to get the traffic signals for
+   *
+   * @return vector of const traffic signals. Empty list if the lanelet is not an entry lanelet or not in the intersection
+   */
+  std::vector<CarmaTrafficLightConstPtr> getTrafficSignals(const ConstLanelet& llt) const;
+
+  /**
+   * @brief Returns the stop line of the specified lanelet in the intersection
+   *
+   * @return gets the stop line for a lanelet, if there is one
+   */
+  Optional<lanelet::LineString3d> getStopLine(const ConstLanelet& llt) const;
+
+  /**
+   * @brief Returns the stop line of the specified lanelet in the intersection
+   *
+   * @return gets the stop line for a lanelet, if there is one
+   */
+  Optional<lanelet::LineString3d> getStopLine(const ConstLanelet& llt);
+
+  /**
+   * @brief Adds the lanelet into the specified section of the intersection
+   * @param lanelet to add  
+   * @param section section of the intersection to add to (entry, exit, interior)
+   * 
+   * NOTE: If entry lanelet is being added, the user must make sure that the regulatory element refers the lanelet back
+   */
+  void addLanelet(const Lanelet& lanelet, IntersectionSection section);
+
+  /**
+   * @brief Removes the lanelet from the intersection
+   * @param lanelet to remove
+   * @return true if successful, false if lanelet was not found  
+   * 
+   * NOTE: If entry lanelet is being removed, the user must make sure that they remove the regulatory element from the lanelet
+   */
+  bool removeLanelet(const Lanelet& lanelet);
 
   /**
    * @brief Static helper function that creates a minimum gap  based on the provided double, start, end lines, and the
    * affected participants
    *
    * @param id The lanelet::Id of this object
-   * @param min_gap The double which will be treated as the minimum gap (unit of meters) in this region
-   * @param lanelets The lanelets this minimum gap  applies to
-   * @param areas The areas this minimum gap  applies to
-   * @param participants The set of participants which this minimum gap  will apply to
+   * @param entry Entry lanelets of the intersection (which this regem also refers)
+   * @param exit Exit lanelets of the intersection
+   * @param interior Interior lanelets of the intersection
    *
    * @return RegulatoryElementData containing all the necessary information to construct a minimum gap  element
    */
-  static std::unique_ptr<lanelet::RegulatoryElementData> buildData(Id id, double min_gap, Lanelets lanelets, Areas areas,
-                                                     std::vector<std::string> participants);
+  static std::unique_ptr<lanelet::RegulatoryElementData> buildData(Id id, Lanelets entry, Lanelets exit, Lanelets interior);
 
   /**
-   * @brief Constructor required for compatability with lanlet2 loading
+   * @brief Constructor required for compatability with lanelet2 loading
    *
    * @param data The data to initialize this regulation with
    */
@@ -121,6 +148,8 @@ protected:
   // the following lines are required so that lanelet2 can create this object when loading a map with this regulatory
   // element
   friend class RegisterRegulatoryElement<SignalizedIntersection>;
+  SignalizedIntersection(Id id, const AttributeMap& attributes, Lanelets entry, Lanelets exit, Lanelets interior);
+
 };
 
 // Convenience Ptr Declarations
