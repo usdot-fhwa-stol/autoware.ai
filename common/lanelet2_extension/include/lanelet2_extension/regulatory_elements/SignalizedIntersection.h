@@ -23,7 +23,12 @@
 namespace lanelet
 {
 /**
- * @brief TODO
+ * @brief Represents signalized intersection on the road. 
+ *
+ * A PassingControlLine is created from a list of contiguous LineString3d and participants who are allowed to cross from
+ * the left or right. If the control line is representing a lane boundary, each LineString3d parameter should exactly
+ * match a right or left bound of an adjacent lanelet. In this fashion, a single regulatory element can represent the
+ * lane change restrictions of multiple lanelets while still allowing each lanelet to be associated individually.
  *
  * @ingroup RegulatoryElementPrimitives
  * @ingroup Primitives
@@ -32,6 +37,7 @@ enum class IntersectionSection {ENTRY, EXIT, INTERIOR};
 
 struct CarmaRoleNameString
 {
+  static constexpr char IntersectionEntry[] = "intersection_entry"; //saved and used internally as RoleName::Refers
   static constexpr char IntersectionExit[] = "intersection_exit";  
   static constexpr char IntersectionInterior[] = "intersection_interior";  
 };
@@ -39,15 +45,7 @@ struct CarmaRoleNameString
 class SignalizedIntersection : public RegulatoryElement
 {
 public:
-  using Ptr = std::shared_ptr<SignalizedIntersection>;
   static constexpr char RuleName[] = "signalized_intersection";
-  //! Directly construct a stop line from its required rule parameters.
-  //! Might modify the input data in oder to get correct tags.
-  static Ptr make(Id id, const AttributeMap& attributes, Lanelets entry, Lanelets exit, Lanelets interior) {
-    return Ptr{new SignalizedIntersection(id, attributes, entry, exit, interior)};
-  }
-  std::vector<Lanelet> exit_lanelets;
-  std::vector<Lanelet> interior_lanelets;
 
   /**
    * @brief Returns the entry lanelets into the signalized intersection
@@ -64,25 +62,11 @@ public:
   ConstLanelets getInteriorLanelets() const;
 
   /**
-   * @brief Returns the interior lanelets of signalized intersection
-   *
-   * @return list of mutable lanelets
-   */
-  Lanelets getInteriorLanelets();
-
-  /**
    * @brief Returns the exit lanelets into the signalized intersection
    *
    * @return list of const lanelets
    */
   ConstLanelets getExitLanelets() const;
-
-  /**
-   * @brief Returns the exit lanelets into the signalized intersection
-   *
-   * @return list of mutable lanelets
-   */
-  Lanelets getExitLanelets();
 
   /**
    * @brief Returns the carma traffic signals in the specified entry lanelet in the intersection
@@ -95,16 +79,9 @@ public:
   /**
    * @brief Returns the stop line of the specified lanelet in the intersection
    *
-   * @return gets the stop line for a lanelet, if there is one
+   * @return gets a const stop line for a lanelet, if there is one
    */
-  Optional<lanelet::LineString3d> getStopLine(const ConstLanelet& llt) const;
-
-  /**
-   * @brief Returns the stop line of the specified lanelet in the intersection
-   *
-   * @return gets the stop line for a lanelet, if there is one
-   */
-  Optional<lanelet::LineString3d> getStopLine(const ConstLanelet& llt);
+  Optional<lanelet::ConstLineString3d> getStopLine(const ConstLanelet& llt) const;
 
   /**
    * @brief Adds the lanelet into the specified section of the intersection
@@ -112,6 +89,7 @@ public:
    * @param section section of the intersection to add to (entry, exit, interior)
    * 
    * NOTE: If entry lanelet is being added, the user must make sure that the regulatory element refers the lanelet back
+   *       For maps, laneletMapPtr->update(lanelet, regem) for full connection
    */
   void addLanelet(const Lanelet& lanelet, IntersectionSection section);
 
@@ -121,6 +99,7 @@ public:
    * @return true if successful, false if lanelet was not found  
    * 
    * NOTE: If entry lanelet is being removed, the user must make sure that they remove the regulatory element from the lanelet
+   *       For maps, laneletMapPtr->remove(lanelet, regem) for removing all connection
    */
   bool removeLanelet(const Lanelet& lanelet);
 
@@ -135,7 +114,7 @@ public:
    *
    * @return RegulatoryElementData containing all the necessary information to construct a minimum gap  element
    */
-  static std::unique_ptr<lanelet::RegulatoryElementData> buildData(Id id, Lanelets entry, Lanelets exit, Lanelets interior);
+  static std::unique_ptr<lanelet::RegulatoryElementData> buildData(Id id, const Lanelets& entry, const Lanelets& exit, const Lanelets& interior);
 
   /**
    * @brief Constructor required for compatability with lanelet2 loading
@@ -148,7 +127,7 @@ protected:
   // the following lines are required so that lanelet2 can create this object when loading a map with this regulatory
   // element
   friend class RegisterRegulatoryElement<SignalizedIntersection>;
-  SignalizedIntersection(Id id, const AttributeMap& attributes, Lanelets entry, Lanelets exit, Lanelets interior);
+  SignalizedIntersection(Id id, const AttributeMap& attributes, const Lanelets& entry, const Lanelets& exit, const Lanelets& interior);
 
 };
 

@@ -24,60 +24,21 @@ namespace lanelet
     #if __cplusplus < 201703L
     // Forward declare static constexpr
     constexpr char SignalizedIntersection::RuleName[];  // instantiate string in cpp file
+    constexpr const char CarmaRoleNameString::IntersectionEntry[];
     constexpr const char CarmaRoleNameString::IntersectionExit[];
     constexpr const char CarmaRoleNameString::IntersectionInterior[];
     #endif
 
-    namespace signalized_intersection
-    {
-        template <typename T>
-        RuleParameters toRuleParameters(const std::vector<T>& primitives)
-        {
-        auto cast_func = [](const auto& elem) { return static_cast<RuleParameter>(elem); };
-        return utils::transform(primitives, cast_func);
-        }
-
-        //template <>
-        //RuleParameters toRuleParameters(const std::vector<LineStringOrPolygon3d>& primitives)
-        //{
-        //auto cast_func = [](const auto& elem) { return elem.asRuleParameter(); };
-        //return utils::transform(primitives, cast_func);
-        //}
-    }
-
     ConstLanelets SignalizedIntersection::getEntryLanelets() const {return getParameters<ConstLanelet>(RoleName::Refers);}
 
-    //Lanelets SignalizedIntersection::getEntryLanelets() {return getParameters<Lanelet>(RoleName::Refers);} TODO: investigate if it is really not possible 
+    ConstLanelets SignalizedIntersection::getExitLanelets() const {return getParameters<ConstLanelet>(CarmaRoleNameString::IntersectionExit);}
 
-    ConstLanelets SignalizedIntersection::getExitLanelets() const 
-    {
-        // TODO: is there a faster way?
-        ConstLanelets const_lanelets;
-        const_lanelets.insert(const_lanelets.end(), exit_lanelets.begin(), exit_lanelets.end());
-        return const_lanelets;
-    }
-    Lanelets SignalizedIntersection::getExitLanelets() 
-    {
-        return exit_lanelets;
-    }
+    ConstLanelets SignalizedIntersection::getInteriorLanelets() const {return getParameters<ConstLanelet>(CarmaRoleNameString::IntersectionInterior);}
 
-    ConstLanelets SignalizedIntersection::getInteriorLanelets() const 
-    {
-        // TODO: is there a faster way?
-        ConstLanelets const_lanelets;
-        const_lanelets.insert(const_lanelets.end(), interior_lanelets.begin(), interior_lanelets.end());
-        return const_lanelets;
-    }
-    Lanelets SignalizedIntersection::getInteriorLanelets() 
-    {
-        return interior_lanelets;
-    }
-
-    std::unique_ptr<lanelet::RegulatoryElementData> SignalizedIntersection::buildData(Id id, Lanelets entry, Lanelets exit,
-                                                                Lanelets interior)
+    std::unique_ptr<lanelet::RegulatoryElementData> SignalizedIntersection::buildData(Id id, const Lanelets& entry, const Lanelets& exit,
+                                                                const Lanelets& interior)
     {
         // Add parameters
-        std::cerr << "Intersection Called~" << std::endl;
         RuleParameterMap rules;
         rules[lanelet::RoleNameString::Refers].insert(rules[lanelet::RoleNameString::Refers].end(), entry.begin(),
                                                         entry.end());
@@ -104,77 +65,69 @@ namespace lanelet
         switch (section)
         {
             case IntersectionSection::ENTRY:
-            {
-                auto entry_lanelets = getEntryLanelets();
-                if (std::find(entry_lanelets.begin(), entry_lanelets.end(), lanelet) == entry_lanelets.end())
-                    parameters()[RoleName::Refers].emplace_back(lanelet);
+                parameters()[RoleNameString::Refers].emplace_back(RuleParameter(lanelet));
                 break;
-            }
             case IntersectionSection::EXIT:
-                if (std::find(exit_lanelets.begin(), exit_lanelets.end(), lanelet) == exit_lanelets.end())
-                    exit_lanelets.push_back(lanelet);
+                parameters()[CarmaRoleNameString::IntersectionExit].emplace_back(RuleParameter(lanelet));
                 break;
             case IntersectionSection::INTERIOR:
-                if (std::find(interior_lanelets.begin(), interior_lanelets.end(), lanelet) == interior_lanelets.end())
-                    interior_lanelets.push_back(lanelet);
+                parameters()[CarmaRoleNameString::IntersectionInterior].emplace_back(RuleParameter(lanelet));
                 break;
             default:
                 throw std::invalid_argument("Invalid section is passed as IntersectionSection");
         }
-        
     }
     
+    namespace {
+
+        template <typename T>
+        bool findAndErase(const T& primitive, RuleParameters* member)
+        {
+        if (member == nullptr)
+        {
+            std::cerr << __FUNCTION__ << ": member is null pointer";
+            return false;
+        }
+        auto it = std::find(member->begin(), member->end(), RuleParameter(primitive));
+        if (it == member->end())
+        {
+            return false;
+        }
+        member->erase(it);
+        return true;
+        }
+    }
+
     bool SignalizedIntersection::removeLanelet(const Lanelet& llt)
     {
-        auto exit_it = std::find(exit_lanelets.begin(), exit_lanelets.end(), llt);
-        if (exit_it != exit_lanelets.end())
-        {
-            exit_lanelets.erase(exit_it);
+        // if successfully found and erased, then return true, else false
+        if (findAndErase(RuleParameter(llt), &parameters().find(RoleNameString::Refers)->second))   
             return true;
-        }     
-        ConstLanelet const_llt = llt;
-        auto entry_lanelets = getEntryLanelets();
-        auto lltIt = std::find(entry_lanelets.begin(), entry_lanelets.end(), const_llt); //this works because == operator compares constData()
-        if (lltIt != entry_lanelets.end()) {
-            // TODO remove it from parameter
+        if (findAndErase(RuleParameter(llt), &parameters().find(CarmaRoleNameString::IntersectionExit)->second))
             return true;
-        }
-        
-        auto interior_it = std::find(interior_lanelets.begin(), interior_lanelets.end(), llt);
-        if (interior_it != interior_lanelets.end())
-        {
-            interior_lanelets.erase(interior_it);
+        if (findAndErase(RuleParameter(llt), &parameters().find(CarmaRoleNameString::IntersectionInterior)->second))
             return true;
-        }  
         
         return false;
     }
 
-    RegulatoryElementDataPtr constructSignalizedIntersectionData(Id id, const AttributeMap& attributes, Lanelets entry, Lanelets exit, Lanelets interior)
+    Optional<lanelet::ConstLineString3d> SignalizedIntersection::getStopLine(const ConstLanelet& llt) const
     {
-        std::cerr << "Intersection 3 Called~ Data creation" << std::endl;
-        RuleParameterMap rpm;
-        rpm[lanelet::RoleNameString::Refers].insert(rpm[lanelet::RoleNameString::Refers].end(), entry.begin(),
-                                                        entry.end());
-        rpm[lanelet::CarmaRoleNameString::IntersectionExit].insert(rpm[lanelet::CarmaRoleNameString::IntersectionExit].end(), exit.begin(),
-                                                        exit.end());
-        rpm[lanelet::CarmaRoleNameString::IntersectionInterior].insert(rpm[lanelet::CarmaRoleNameString::IntersectionInterior].end(), interior.begin(),
-                                                        interior.end());
+        Optional<lanelet::ConstLineString3d> stop_line = boost::none;
+        // stop line geometry should be same for any traffic signals
+        auto traffic_signals = llt.regulatoryElementsAs<CarmaTrafficLight>();
+        if (!traffic_signals.empty())
+            stop_line = traffic_signals.front()->stopLine().front();
 
-        auto data = std::make_shared<RegulatoryElementData>(id, std::move(rpm), attributes);
-        data->attributes[AttributeName::Type] = AttributeValueString::RegulatoryElement;
-        data->attributes[AttributeName::Subtype] = SignalizedIntersection::RuleName;
-        return data;
-    }
-    
-    SignalizedIntersection::SignalizedIntersection(Id id, const AttributeMap& attributes, Lanelets entry, Lanelets exit, Lanelets interior):
-        SignalizedIntersection(constructSignalizedIntersectionData(id, attributes, entry, exit, interior)) {
-        std::cerr << "Intersection 2 Called~" << std::endl;
-    }
+        return stop_line;
+    }   
 
     SignalizedIntersection::SignalizedIntersection(const lanelet::RegulatoryElementDataPtr& data) : RegulatoryElement(data) {
-        std::cerr << "Intersection 1 Called~" << std::endl;
-        std::cerr << "parameters size: " << data->parameters.size() << std::endl;
+        // use only RoleName::Refers to avoid data inconsistency 
+        data->parameters[lanelet::RoleNameString::Refers].insert(data->parameters[lanelet::RoleNameString::Refers].end(), 
+                                                        data->parameters[CarmaRoleNameString::IntersectionEntry].begin(),
+                                                        data->parameters[CarmaRoleNameString::IntersectionEntry].end());
+        data->parameters[CarmaRoleNameString::IntersectionEntry].clear();
     }
 
     namespace

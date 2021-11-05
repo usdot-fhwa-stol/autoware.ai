@@ -24,13 +24,27 @@
   <!-- Middle/Horizontal -->
   <way id="1350" visible="false" version="1">
     <nd ref="1339" />
-    <nd ref="1342" />digital
+    <nd ref="1342" />
     <tag k="subtype" v="-" />
     <tag k="type" v="virtual" />
   </way>
 
-  <!-- Entry Lanelet -->
+  <!-- Entry Lanelets -->
   <relation id="1349" visible="true" version="1">
+    <member type="way" ref="1347" role="left" />
+    <member type="way" ref="1348" role="right" />
+    <tag k="dynamic" v="no" />
+    <tag k="location" v="urban" />
+    <tag k="one_way" v="yes" />
+    <tag k="subtype" v="road" />
+    <tag k="type" v="lanelet" />
+
+    <!-- Speed Limit -->
+    <member type='relation' ref='45218' role='regulatory_element' />
+    <!-- Signalized Intersection -->
+    <member type='relation' ref='45219' role='regulatory_element' />
+  </relation>
+  <relation id="1352" visible="true" version="1">
     <member type="way" ref="1347" role="left" />
     <member type="way" ref="1348" role="right" />
     <tag k="dynamic" v="no" />
@@ -75,9 +89,9 @@
 
   <!-- Regulatory speed limit -->
   <relation id='45218' visible='true' version='1'>
-    <member type='lanelet' ref='1349' role='refers' />
-    <member type='lanelet' ref='1350' role='refers' />
-    <member type='lanelet' ref='1451' role='refers' />
+    <member type='relation' ref='1349' role='refers' />
+    <member type='relation' ref='1350' role='refers' />
+    <member type='relation' ref='1351' role='refers' />
     <tag k='limit' v='5 mph' /> <!-- Speed limit value must have units one of the following   m/s, mps, km/h, kmh, m/h, mph -->
     <tag k='subtype' v='digital_speed_limit' />
     <tag k='type' v='regulatory_element' />
@@ -86,9 +100,10 @@
 
   <!-- Regulatory Signalized Intersection Rule -->
   <relation id='45219' visible='true' version='1'>
-    <member type='lanelet' ref='1349' role='refers' />
-    <member type='lanelet' ref='1350' role='refers' />
-    <member type='lanelet' ref='1351' role='refers' />
+    <member type='relation' ref='1349' role='refers' />
+    <member type='relation' ref='1350' role='intersection_exit' />
+    <member type='relation' ref='1351' role='intersection_interior' />
+    <member type='relation' ref='1352' role='intersection_entry' /> <!--same as 'refers' internally, so interchangeable-->
     <tag k='subtype' v='signalized_intersection' />
     <tag k='type' v='regulatory_element' />
   </relation>

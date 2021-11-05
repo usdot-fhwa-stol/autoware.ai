@@ -62,10 +62,6 @@ bool DigitalSpeedLimit::appliesTo(const std::string& participant) const
 
 DigitalSpeedLimit::DigitalSpeedLimit(const lanelet::RegulatoryElementDataPtr& data) : RegulatoryElement(data)
 {
-  std::cerr << "Sppeed 1 Called~" << std::endl;
-  std::cerr << "speed size: " << data->parameters.size() << std::endl;
-
-
   // Read participants
   addParticipantsToSetFromMap(participants_, attributes());
 
