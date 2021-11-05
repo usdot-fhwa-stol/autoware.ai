@@ -21,7 +21,7 @@
 #include <lanelet2_traffic_rules/TrafficRulesFactory.h>
 #include <lanelet2_core/Attribute.h>
 #include "TestHelpers.h"
-#include <lanelet2_extension/regulatory_elements/CarmaTrafficLight.h>
+#include <lanelet2_extension/regulatory_elements/CarmaTrafficSignal.h>
 
 using ::testing::_;
 using ::testing::A;
@@ -33,7 +33,7 @@ using ::testing::ReturnArg;
 namespace lanelet
 {
 
-TEST(CarmaTrafficLightTest, CarmaTrafficLight)
+TEST(CarmaTrafficSignalTest, CarmaTrafficSignal)
 {
   auto pl1 = carma_wm::getPoint(0, 0, 0);
   auto pl2 = carma_wm::getPoint(0, 1, 0);
@@ -51,20 +51,20 @@ TEST(CarmaTrafficLightTest, CarmaTrafficLight)
   lanelet::Id traffic_light_id = utils::getId();
   LineString3d virtual_stop_line(traffic_light_id, {pl2, pr2});
   // Creat passing control line for solid dashed line
-  std::shared_ptr<CarmaTrafficLight> traffic_light(new CarmaTrafficLight(CarmaTrafficLight::buildData(lanelet::utils::getId(), { virtual_stop_line }, {ll_1, ll_2})));
+  std::shared_ptr<CarmaTrafficSignal> traffic_light(new CarmaTrafficSignal(CarmaTrafficSignal::buildData(lanelet::utils::getId(), { virtual_stop_line }, {ll_1, ll_2})));
   ll_1.addRegulatoryElement(traffic_light);
 
-  std::vector<std::pair<boost::posix_time::ptime, CarmaTrafficLightState>> input_time_steps;
+  std::vector<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> input_time_steps;
 
-  input_time_steps.push_back(std::make_pair(time::timeFromSec(1001),static_cast<lanelet::CarmaTrafficLightState>(0)));
-  input_time_steps.push_back(std::make_pair(time::timeFromSec(1002),static_cast<lanelet::CarmaTrafficLightState>(1)));
-  input_time_steps.push_back(std::make_pair(time::timeFromSec(1003),static_cast<lanelet::CarmaTrafficLightState>(2)));
-  input_time_steps.push_back(std::make_pair(time::timeFromSec(1004),static_cast<lanelet::CarmaTrafficLightState>(3)));
-  input_time_steps.push_back(std::make_pair(time::timeFromSec(1005),static_cast<lanelet::CarmaTrafficLightState>(4)));
+  input_time_steps.push_back(std::make_pair(time::timeFromSec(1001),static_cast<lanelet::CarmaTrafficSignalState>(0)));
+  input_time_steps.push_back(std::make_pair(time::timeFromSec(1002),static_cast<lanelet::CarmaTrafficSignalState>(1)));
+  input_time_steps.push_back(std::make_pair(time::timeFromSec(1003),static_cast<lanelet::CarmaTrafficSignalState>(2)));
+  input_time_steps.push_back(std::make_pair(time::timeFromSec(1004),static_cast<lanelet::CarmaTrafficSignalState>(3)));
+  input_time_steps.push_back(std::make_pair(time::timeFromSec(1005),static_cast<lanelet::CarmaTrafficSignalState>(4)));
 
   EXPECT_THROW(traffic_light->setStates(input_time_steps,0), lanelet::InvalidInputError);
 
-  input_time_steps.push_back(std::make_pair(time::timeFromSec(1006),static_cast<lanelet::CarmaTrafficLightState>(0)));
+  input_time_steps.push_back(std::make_pair(time::timeFromSec(1006),static_cast<lanelet::CarmaTrafficSignalState>(0)));
 
   traffic_light->setStates(input_time_steps,0);
 
@@ -72,8 +72,8 @@ TEST(CarmaTrafficLightTest, CarmaTrafficLight)
   ASSERT_EQ(time::durationFromSec(5),traffic_light->fixed_cycle_duration);
   ASSERT_EQ(0,traffic_light->revision_);
 
-  ASSERT_EQ(static_cast<lanelet::CarmaTrafficLightState>(1),traffic_light->predictState(time::timeFromSec(1.5)).get());
-  ASSERT_EQ(static_cast<lanelet::CarmaTrafficLightState>(0),traffic_light->predictState(time::timeFromSec(1)).get());
+  ASSERT_EQ(static_cast<lanelet::CarmaTrafficSignalState>(1),traffic_light->predictState(time::timeFromSec(1.5)).get());
+  ASSERT_EQ(static_cast<lanelet::CarmaTrafficSignalState>(0),traffic_light->predictState(time::timeFromSec(1)).get());
   ASSERT_EQ(traffic_light->getControlledLanelets().size(), 2);
   ASSERT_EQ(traffic_light->getControlledLanelets().back().id(), ll_2.id());
   

@@ -15,7 +15,7 @@
  */
 
 #include <ostream>
-#include <lanelet2_extension/regulatory_elements/CarmaTrafficLight.h>
+#include <lanelet2_extension/regulatory_elements/CarmaTrafficSignal.h>
 #include <lanelet2_extension/logging/logger.h>
 #include "RegulatoryHelpers.h"
 
@@ -26,45 +26,45 @@ using namespace lanelet::time;
 
 // C++ 14 vs 17 parameter export
 #if __cplusplus < 201703L
-constexpr char CarmaTrafficLight::RuleName[];  // instantiate string in cpp file
+constexpr char CarmaTrafficSignal::RuleName[];  // instantiate string in cpp file
 #endif
 
-std::ostream& operator<<(std::ostream& os, CarmaTrafficLightState s)
+std::ostream& operator<<(std::ostream& os, CarmaTrafficSignalState s)
 {
   switch (s)
   {  // clang-format off
-    case CarmaTrafficLightState::UNAVAILABLE   : os << "CarmaTrafficLightState::UNAVAILABLE"; break;
-    case CarmaTrafficLightState::DARK: os << "CarmaTrafficLightState::DARK"; break;
-    case CarmaTrafficLightState::STOP_THEN_PROCEED : os << "CarmaTrafficLightState::STOP_THEN_PROCEED"; break;
-    case CarmaTrafficLightState::STOP_AND_REMAIN  : os << "CarmaTrafficLightState::STOP_AND_REMAIN"; break;
-    case CarmaTrafficLightState::PRE_MOVEMENT  : os << "CarmaTrafficLightState::PRE_MOVEMENT"; break;
-    case CarmaTrafficLightState::PERMISSIVE_MOVEMENT_ALLOWED  : os << "CarmaTrafficLightState::PERMISSIVE_MOVEMENT_ALLOWED"; break;
-    case CarmaTrafficLightState::PROTECTED_MOVEMENT_ALLOWED  : os << "CarmaTrafficLightState::PROTECTED_MOVEMENT_ALLOWED"; break;
-    case CarmaTrafficLightState::PERMISSIVE_CLEARANCE  : os << "CarmaTrafficLightState::PERMISSIVE_CLEARANCE"; break;
-    case CarmaTrafficLightState::PROTECTED_CLEARANCE  : os << "CarmaTrafficLightState::PROTECTED_CLEARANCE"; break;
-    case CarmaTrafficLightState::CAUTION_CONFLICTING_TRAFFIC  : os << "CarmaTrafficLightState::CAUTION_CONFLICTING_TRAFFIC"; break;
+    case CarmaTrafficSignalState::UNAVAILABLE   : os << "CarmaTrafficSignalState::UNAVAILABLE"; break;
+    case CarmaTrafficSignalState::DARK: os << "CarmaTrafficSignalState::DARK"; break;
+    case CarmaTrafficSignalState::STOP_THEN_PROCEED : os << "CarmaTrafficSignalState::STOP_THEN_PROCEED"; break;
+    case CarmaTrafficSignalState::STOP_AND_REMAIN  : os << "CarmaTrafficSignalState::STOP_AND_REMAIN"; break;
+    case CarmaTrafficSignalState::PRE_MOVEMENT  : os << "CarmaTrafficSignalState::PRE_MOVEMENT"; break;
+    case CarmaTrafficSignalState::PERMISSIVE_MOVEMENT_ALLOWED  : os << "CarmaTrafficSignalState::PERMISSIVE_MOVEMENT_ALLOWED"; break;
+    case CarmaTrafficSignalState::PROTECTED_MOVEMENT_ALLOWED  : os << "CarmaTrafficSignalState::PROTECTED_MOVEMENT_ALLOWED"; break;
+    case CarmaTrafficSignalState::PERMISSIVE_CLEARANCE  : os << "CarmaTrafficSignalState::PERMISSIVE_CLEARANCE"; break;
+    case CarmaTrafficSignalState::PROTECTED_CLEARANCE  : os << "CarmaTrafficSignalState::PROTECTED_CLEARANCE"; break;
+    case CarmaTrafficSignalState::CAUTION_CONFLICTING_TRAFFIC  : os << "CarmaTrafficSignalState::CAUTION_CONFLICTING_TRAFFIC"; break;
     default: os.setstate(std::ios_base::failbit);
   }  // clang-format on
   return os;
 }
 
-ConstLineStrings3d CarmaTrafficLight::stopLine() const
+ConstLineStrings3d CarmaTrafficSignal::stopLine() const
 {
   return getParameters<ConstLineString3d>(RoleName::RefLine);
 }
 
-LineStrings3d CarmaTrafficLight::stopLine()
+LineStrings3d CarmaTrafficSignal::stopLine()
 {
   return getParameters<LineString3d>(RoleName::RefLine);
 }
 
-CarmaTrafficLight::CarmaTrafficLight(const lanelet::RegulatoryElementDataPtr& data) : RegulatoryElement(data)
+CarmaTrafficSignal::CarmaTrafficSignal(const lanelet::RegulatoryElementDataPtr& data) : RegulatoryElement(data)
 {}
 
-std::unique_ptr<lanelet::RegulatoryElementData> CarmaTrafficLight::buildData(Id id, LineString3d stop_line, Lanelets lanelets)
+std::unique_ptr<lanelet::RegulatoryElementData> CarmaTrafficSignal::buildData(Id id, LineString3d stop_line, Lanelets lanelets)
 {
 
-  if (stop_line.empty()) throw lanelet::InvalidInputError("Empty linestring was passed into CarmaTrafficLight buildData function");
+  if (stop_line.empty()) throw lanelet::InvalidInputError("Empty linestring was passed into CarmaTrafficSignal buildData function");
   // Add parameters
   RuleParameterMap rules;
   rules[lanelet::RoleNameString::Refers].insert(rules[lanelet::RoleNameString::Refers].end(), lanelets.begin(),
@@ -80,11 +80,11 @@ std::unique_ptr<lanelet::RegulatoryElementData> CarmaTrafficLight::buildData(Id 
   return std::make_unique<RegulatoryElementData>(id, rules, attribute_map);
 }
 
-boost::optional<CarmaTrafficLightState> CarmaTrafficLight::predictState(boost::posix_time::ptime time_stamp)
+boost::optional<CarmaTrafficSignalState> CarmaTrafficSignal::predictState(boost::posix_time::ptime time_stamp)
 {
   if (recorded_time_stamps.empty())
   {
-    LOG_WARN_STREAM("CarmaTrafficLight doesn't have any recorded states of traffic lights");
+    LOG_WARN_STREAM("CarmaTrafficSignal doesn't have any recorded states of traffic lights");
     return boost::none;
   }
   if (recorded_time_stamps.size() == 1) // if only 1 timestamp recorded, this signal doesn't change
@@ -117,16 +117,16 @@ boost::optional<CarmaTrafficLightState> CarmaTrafficLight::predictState(boost::p
   throw lanelet::InvalidInputError("Reached unreachable code block. Implies duplicate phase is not provided. Unable to determine fixed cycle duration");
 }
 
-lanelet::ConstLanelets CarmaTrafficLight::getControlledLanelets() const
+lanelet::ConstLanelets CarmaTrafficSignal::getControlledLanelets() const
 {
   return getParameters<lanelet::ConstLanelet>(RoleName::Refers);
 } 
 
-void CarmaTrafficLight::setStates(std::vector<std::pair<boost::posix_time::ptime, CarmaTrafficLightState>> input_time_steps, int revision)
+void CarmaTrafficSignal::setStates(std::vector<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> input_time_steps, int revision)
 {
   if (input_time_steps.empty())
   {
-    LOG_ERROR_STREAM("Given states for the CarmaTrafficLight Id: " << id() << " is empty. Returning...");
+    LOG_ERROR_STREAM("Given states for the CarmaTrafficSignal Id: " << id() << " is empty. Returning...");
     return;
   }
 
@@ -183,7 +183,7 @@ boost::posix_time::time_duration durationFromSec(double sec) {
 namespace
 {
 // this object actually does the registration work for us
-lanelet::RegisterRegulatoryElement<lanelet::CarmaTrafficLight> reg;
+lanelet::RegisterRegulatoryElement<lanelet::CarmaTrafficSignal> reg;
 }  // namespace
 
 }  // namespace lanelet
