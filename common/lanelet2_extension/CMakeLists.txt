@@ -29,35 +29,10 @@ find_path(PUGIXML_INCLUDE_DIRS
 )
 
 find_package(PROJ4 REQUIRED)
+find_package(Boost REQUIRED)
 
-# Extract environment variable value
-set(LANELET2_EXTENSION_LOGGER_TYPE $ENV{LANELET2_EXTENSION_LOGGER_TYPE})
-set(ROS_VERSION $ENV{ROS_VERSION})
 
-if(LANELET2_EXTENSION_LOGGER_TYPE EQUAL 1 )
-
-  message("lanelet2_extension using std::cout and cerr for logging")
-  add_definitions(-DLANELET2_EXTENSION_LOGGER_TYPE=1)
-
-elseif(ROS_VERSION EQUAL 2)
-
-   # ROS 2 logging
-  message("lanelet2_extension using rclcpp for logging")
-  add_definitions(-DLANELET2_EXTENSION_LOGGER_TYPE=0) 
-  add_definitions(-DLANELET2_EXTENSION_ROS_VERSION=2)
-  set(LOGGER_DEP roscpp)
-
-else() # Default to ROS 1 logging
-
-  message("lanelet2_extension using roscpp for logging")
-  add_definitions(-DLANELET2_EXTENSION_LOGGER_TYPE=0)
-  add_definitions(-DLANELET2_EXTENSION_ROS_VERSION=1)
-  set(LOGGER_DEP roscpp)
-  
-endif()
-
-find_package(catkin REQUIRED COMPONENTS
-  ${LOGGER_DEP}
+set(deps_using_buildtool
   lanelet2_core
   lanelet2_io
   lanelet2_maps
@@ -68,14 +43,63 @@ find_package(catkin REQUIRED COMPONENTS
   hardcoded_params
 )
 
-find_package(Boost REQUIRED)
 
+# Extract environment variable value
+set(LANELET2_EXTENSION_LOGGER_TYPE $ENV{LANELET2_EXTENSION_LOGGER_TYPE})
+set(ROS_VERSION $ENV{ROS_VERSION})
+
+if(LANELET2_EXTENSION_LOGGER_TYPE EQUAL 1 )
+
+  message("lanelet2_extension using std::cout and cerr for logging")
+  add_definitions(-DLANELET2_EXTENSION_LOGGER_TYPE=1)
+
+  set(catkin_depends_deps
+    ${deps_using_buildtool}
+  )
+
+elseif(ROS_VERSION EQUAL 2)
+
+   # ROS 2 logging
+  message("lanelet2_extension using rclcpp for logging")
+  add_definitions(-DLANELET2_EXTENSION_LOGGER_TYPE=0) 
+  add_definitions(-DLANELET2_EXTENSION_ROS_VERSION=2)
+  set(LOGGER_DEP rclcpp)
+  find_package(rclcpp REQUIRED)
+
+  set(catkin_depends_deps
+    ${deps_using_buildtool} # Don't include rclcpp as its not a catkin package
+  )
+
+else() # Default to ROS 1 logging
+
+  message("lanelet2_extension using roscpp for logging")
+  add_definitions(-DLANELET2_EXTENSION_LOGGER_TYPE=0)
+  add_definitions(-DLANELET2_EXTENSION_ROS_VERSION=1)
+  
+  set(LOGGER_DEP roscpp)
+  
+  find_package(catkin REQUIRED COMPONENTS
+    ${LOGGER_DEP}
+  )
+
+  set(catkin_depends_deps
+    ${LOGGER_DEP} ${deps_using_buildtool} # Include roscpp as its a catkin dep
+  )
+  
+endif()
+
+find_package(catkin REQUIRED COMPONENTS
+  ${deps_using_buildtool}
+)
+
+message("Logger includes: " ${${LOGGER_DEP}_INCLUDE_DIRS})
+message("Logger Libs: " ${${LOGGER_DEP}_LIBRARIES})
 
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES lanelet2_extension_lib
-  CATKIN_DEPENDS ${LOGGER_DEP} lanelet2_core lanelet2_io lanelet2_maps lanelet2_projection lanelet2_routing lanelet2_traffic_rules lanelet2_validation hardcoded_params
-  DEPENDS Boost
+  CATKIN_DEPENDS ${catkin_depends_deps}
+  DEPENDS Boost ${LOGGER_DEP}
 )
 
 include_directories(
@@ -85,6 +109,7 @@ include_directories(
   ${PUGIXML_INCLUDE_DIRS}
   ${PROJ4_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
+  ${${LOGGER_DEP}_INCLUDE_DIRS}
 )
 
 add_definitions (${GeographicLib_DEFINITIONS})
@@ -114,6 +139,7 @@ target_link_libraries(lanelet2_extension_lib
   ${GeographicLib_LIBRARIES}
   ${PROJ4_LIBRARIES}
   ${Boost_LIBRARIES}
+  ${${LOGGER_DEP}_LIBRARIES}
 )
 
 install(TARGETS lanelet2_extension_lib
@@ -126,9 +152,9 @@ install(DIRECTORY include/${PROJECT_NAME}/
 
 if(CATKIN_ENABLE_TESTING)
  catkin_add_gmock(projector-test test/src/test_projector.cpp)
- target_link_libraries(projector-test ${catkin_LIBRARIES} lanelet2_extension_lib)
+ target_link_libraries(projector-test ${catkin_LIBRARIES} ${${LOGGER_DEP}_LIBRARIES} lanelet2_extension_lib)
  catkin_add_gmock(regulatory_elements-test test/src/test_regulatory_elements.cpp)
- target_link_libraries(regulatory_elements-test ${catkin_LIBRARIES} lanelet2_extension_lib)
+ target_link_libraries(regulatory_elements-test ${catkin_LIBRARIES} ${${LOGGER_DEP}_LIBRARIES} lanelet2_extension_lib)
 
  catkin_add_gmock(carma-additions-test
   test/src/CarmaTestsMain.cpp
@@ -145,5 +171,5 @@ if(CATKIN_ENABLE_TESTING)
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test # Add test directory as working directory for unit tests
  )
 
- target_link_libraries(carma-additions-test lanelet2_extension_lib ${catkin_LIBRARIES})
+ target_link_libraries(carma-additions-test lanelet2_extension_lib ${catkin_LIBRARIES} ${${LOGGER_DEP}_LIBRARIES})
 endif()
