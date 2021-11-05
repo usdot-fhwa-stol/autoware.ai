@@ -1,4 +1,4 @@
-FROM usdotfhwastolcandidate/carma-base:elise as base_image
+FROM usdotfhwastoldev/carma-base:develop as base_image
 
 FROM base_image as build
 

@@ -38,7 +38,7 @@ namespace lanelet
  * CAUTION_CONFLICTING_TRAFFIC : Yellow Flashing
  *
  */
-enum class CarmaTrafficLightState {
+enum class CarmaTrafficSignalState {
   UNAVAILABLE=0,
   DARK=1,
   STOP_THEN_PROCEED=2,
@@ -88,9 +88,9 @@ namespace time {
 }
 
 /**
- * \brief Stream operator for CarmaTrafficLightState enum.
+ * \brief Stream operator for CarmaTrafficSignalState enum.
  */
-std::ostream& operator<<(std::ostream& os, CarmaTrafficLightState s);
+std::ostream& operator<<(std::ostream& os, CarmaTrafficSignalState s);
 
 /**
  * @brief: Class representing a known timing traffic light.
@@ -100,20 +100,20 @@ std::ostream& operator<<(std::ostream& os, CarmaTrafficLightState s);
  * @ingroup Primitives
  */
 
-class CarmaTrafficLight : public lanelet::RegulatoryElement
+class CarmaTrafficSignal : public lanelet::RegulatoryElement
 {
 public:
   static constexpr char RuleName[] = "carma_traffic_light";
   int revision_ = 0; //indicates when was this last modified
   boost::posix_time::time_duration fixed_cycle_duration;
-  std::vector<std::pair<boost::posix_time::ptime, CarmaTrafficLightState>> recorded_time_stamps;
+  std::vector<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> recorded_time_stamps;
   /**
    * @brief setStates function sorts states automatically
    *
    * @param data The data to initialize this regulation with
    * NOTE: to extract full cycle, first and last state should match in input_time_steps
    */
-  void setStates(std::vector<std::pair<boost::posix_time::ptime, CarmaTrafficLightState>> input_time_steps, int revision);
+  void setStates(std::vector<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> input_time_steps, int revision);
 
   /**
    * @brief getControlledLanelets function returns lanelets this element controls
@@ -125,11 +125,11 @@ public:
    *
    * @param time_stamp boost::posix_time::ptime of the event happening
    */
-  boost::optional<CarmaTrafficLightState> predictState(boost::posix_time::ptime time_stamp);
+  boost::optional<CarmaTrafficSignalState> predictState(boost::posix_time::ptime time_stamp);
   ConstLineStrings3d stopLine() const;
   LineStrings3d stopLine();
 
-  explicit CarmaTrafficLight(const lanelet::RegulatoryElementDataPtr& data);
+  explicit CarmaTrafficSignal(const lanelet::RegulatoryElementDataPtr& data);
   /**
    * @brief: Creating one is not directly usable unless setStates is called Static helper function that creates a stop line data object based on the provided inputs
    *
@@ -145,13 +145,13 @@ public:
 private:
   // the following lines are required so that lanelet2 can create this object
   // when loading a map with this regulatory element
-  friend class lanelet::RegisterRegulatoryElement<CarmaTrafficLight>;
+  friend class lanelet::RegisterRegulatoryElement<CarmaTrafficSignal>;
 };
 
 
 // Convenience Ptr Declarations
-using CarmaTrafficLightPtr = std::shared_ptr<CarmaTrafficLight>;
-using CarmaTrafficLightConstPtr = std::shared_ptr<const CarmaTrafficLight>;
+using CarmaTrafficSignalPtr = std::shared_ptr<CarmaTrafficSignal>;
+using CarmaTrafficSignalConstPtr = std::shared_ptr<const CarmaTrafficSignal>;
 
 }  // namespace lanelet
 

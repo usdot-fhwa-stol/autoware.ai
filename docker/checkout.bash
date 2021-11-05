@@ -21,7 +21,7 @@ while [[ $# -gt 0 ]]; do
       arg="$1"
       case $arg in
             -d|--develop)
-                  BRANCH=noetic/develop
+                  BRANCH=develop
                   shift
             ;;
             -r|--root)
@@ -34,10 +34,10 @@ done
 
 cd ${dir}/autoware.ai
 
-if [[ "$BRANCH" = "noetic/develop" ]]; then
+if [[ "$BRANCH" = "develop" ]]; then
       git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-msgs.git --branch $BRANCH
 else
-      git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-msgs.git --branch release/elise
+      git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-msgs.git --branch develop
 fi
 
 # Required to build pacmod_msgs
