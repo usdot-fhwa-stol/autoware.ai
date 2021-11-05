@@ -37,7 +37,7 @@ enum class IntersectionSection {ENTRY, EXIT, INTERIOR};
 
 struct CarmaRoleNameString
 {
-  static constexpr char IntersectionEntry[] = "intersection_entry"; //saved and used internally as RoleName::Refers
+  static constexpr char IntersectionEntry[] = "intersection_entry"; //This is the main term that is used, but lanelet library internally interprets it as RoleName::Refers
   static constexpr char IntersectionExit[] = "intersection_exit";  
   static constexpr char IntersectionInterior[] = "intersection_interior";  
 };
