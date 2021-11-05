@@ -100,10 +100,10 @@
 
   <!-- Regulatory Signalized Intersection Rule -->
   <relation id='45219' visible='true' version='1'>
-    <member type='relation' ref='1349' role='refers' />
+    <member type='relation' ref='1349' role='intersection_entry' />
     <member type='relation' ref='1350' role='intersection_exit' />
     <member type='relation' ref='1351' role='intersection_interior' />
-    <member type='relation' ref='1352' role='intersection_entry' /> <!--same as 'refers' internally, so interchangeable-->
+    <member type='relation' ref='1352' role='intersection_entry' />
     <tag k='subtype' v='signalized_intersection' />
     <tag k='type' v='regulatory_element' />
   </relation>

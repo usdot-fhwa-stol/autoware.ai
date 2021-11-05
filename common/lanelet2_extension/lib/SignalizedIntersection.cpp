@@ -29,7 +29,7 @@ namespace lanelet
         constexpr const char CarmaRoleNameString::IntersectionInterior[];
     #endif
 
-    ConstLanelets SignalizedIntersection::getEntryLanelets() const {return getParameters<ConstLanelet>(RoleName::Refers);}
+    ConstLanelets SignalizedIntersection::getEntryLanelets() const {return getParameters<ConstLanelet>(CarmaRoleNameString::IntersectionEntry);}
 
     ConstLanelets SignalizedIntersection::getExitLanelets() const {return getParameters<ConstLanelet>(CarmaRoleNameString::IntersectionExit);}
 
@@ -40,7 +40,7 @@ namespace lanelet
     {
         // Add parameters
         RuleParameterMap rules;
-        rules[lanelet::RoleNameString::Refers].insert(rules[lanelet::RoleNameString::Refers].end(), entry.begin(),
+        rules[lanelet::CarmaRoleNameString::IntersectionEntry].insert(rules[lanelet::CarmaRoleNameString::IntersectionEntry].end(), entry.begin(),
                                                         entry.end());
         rules[lanelet::CarmaRoleNameString::IntersectionExit].insert(rules[lanelet::CarmaRoleNameString::IntersectionExit].end(), exit.begin(),
                                                         exit.end());
@@ -65,7 +65,7 @@ namespace lanelet
         switch (section)
         {
             case IntersectionSection::ENTRY:
-                parameters()[RoleNameString::Refers].emplace_back(RuleParameter(lanelet));
+                parameters()[CarmaRoleNameString::IntersectionEntry].emplace_back(RuleParameter(lanelet));
                 break;
             case IntersectionSection::EXIT:
                 parameters()[CarmaRoleNameString::IntersectionExit].emplace_back(RuleParameter(lanelet));
@@ -143,7 +143,7 @@ namespace lanelet
         if (iter == section_lookup.end())
             return false; // regem is not here
         else if ( iter->second == IntersectionSection::ENTRY)
-            findAndErase(RuleParameter(llt), &parameters().find(RoleNameString::Refers)->second);
+            findAndErase(RuleParameter(llt), &parameters().find(CarmaRoleNameString::IntersectionEntry)->second);
         else if ( iter->second == IntersectionSection::EXIT)
             findAndErase(RuleParameter(llt), &parameters().find(CarmaRoleNameString::IntersectionExit)->second);
         else if ( iter->second == IntersectionSection::INTERIOR)
@@ -167,14 +167,8 @@ namespace lanelet
 
     SignalizedIntersection::SignalizedIntersection(const lanelet::RegulatoryElementDataPtr& data) : RegulatoryElement(data) {
         
-        // use only RoleName::Refers to avoid data inconsistency 
-        data->parameters[lanelet::RoleNameString::Refers].insert(data->parameters[lanelet::RoleNameString::Refers].end(), 
-                                                        data->parameters[CarmaRoleNameString::IntersectionEntry].begin(),
-                                                        data->parameters[CarmaRoleNameString::IntersectionEntry].end());
-        
-        data->parameters[CarmaRoleNameString::IntersectionEntry].clear();
-        
-        for (const auto& param : data->parameters[lanelet::RoleNameString::Refers])
+        // save section_lookup for faster lookup
+        for (const auto& param : data->parameters[lanelet::CarmaRoleNameString::IntersectionEntry])
         {
             section_lookup.insert({GetIdVisitor::id(param), IntersectionSection::ENTRY});
         }
