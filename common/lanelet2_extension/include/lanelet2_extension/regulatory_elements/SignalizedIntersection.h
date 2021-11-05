@@ -25,10 +25,10 @@ namespace lanelet
 /**
  * @brief Represents signalized intersection on the road. 
  *
- * A PassingControlLine is created from a list of contiguous LineString3d and participants who are allowed to cross from
- * the left or right. If the control line is representing a lane boundary, each LineString3d parameter should exactly
- * match a right or left bound of an adjacent lanelet. In this fashion, a single regulatory element can represent the
- * lane change restrictions of multiple lanelets while still allowing each lanelet to be associated individually.
+ * SignalizedIntersection consists of ENTRY, EXIT, INTERIOR lanelets that are saved as parameters. 
+ * Although this class doesn't manage it, entry lanelets are expected to have CarmaTrafficSignal class to represent the traffic light.
+ * Therefore, this class can be understood as merely recording of which lanelets are part of the intersection, but traffic signal timer
+ * or which entry correlates to which exit information is handled by each CarmaTrafficSignal object itself.
  *
  * @ingroup RegulatoryElementPrimitives
  * @ingroup Primitives
