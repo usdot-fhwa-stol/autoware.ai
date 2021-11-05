@@ -131,7 +131,8 @@ public:
 
   explicit CarmaTrafficSignal(const lanelet::RegulatoryElementDataPtr& data);
   /**
-   * @brief: Creating one is not directly usable unless setStates is called Static helper function that creates a stop line data object based on the provided inputs
+   * @brief: Creating one is not directly usable unless setStates is called 
+   *         Static helper function that creates a stop line data object based on the provided inputs
    *
    * @param id The lanelet::Id of this element
    * @param lanelets List of lanelets this element controls.

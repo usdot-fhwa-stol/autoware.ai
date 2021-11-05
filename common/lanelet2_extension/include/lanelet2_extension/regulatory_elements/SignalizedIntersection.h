@@ -17,11 +17,21 @@
 #include <lanelet2_core/primitives/RegulatoryElement.h>
 #include <boost/algorithm/string.hpp>
 #include <lanelet2_core/utility/Units.h>
-#include <lanelet2_extension/regulatory_elements/CarmaTrafficLight.h>
+#include <lanelet2_extension/regulatory_elements/CarmaTrafficSignal.h>
 #include <unordered_set>
+#include <unordered_map>
 
 namespace lanelet
 {
+enum class IntersectionSection {ENTRY, EXIT, INTERIOR};
+
+struct CarmaRoleNameString
+{
+  static constexpr char IntersectionEntry[] = "intersection_entry"; //This is the main term that is used, but lanelet library internally interprets it as RoleName::Refers
+  static constexpr char IntersectionExit[] = "intersection_exit";  
+  static constexpr char IntersectionInterior[] = "intersection_interior";  
+};
+
 /**
  * @brief Represents signalized intersection on the road. 
  *
@@ -33,20 +43,13 @@ namespace lanelet
  * @ingroup RegulatoryElementPrimitives
  * @ingroup Primitives
  */
-enum class IntersectionSection {ENTRY, EXIT, INTERIOR};
-
-struct CarmaRoleNameString
-{
-  static constexpr char IntersectionEntry[] = "intersection_entry"; //This is the main term that is used, but lanelet library internally interprets it as RoleName::Refers
-  static constexpr char IntersectionExit[] = "intersection_exit";  
-  static constexpr char IntersectionInterior[] = "intersection_interior";  
-};
 
 class SignalizedIntersection : public RegulatoryElement
 {
 public:
   static constexpr char RuleName[] = "signalized_intersection";
-
+  std::unordered_map<lanelet::Id, IntersectionSection> section_lookup; //fast check whether if lanelet is entry, exit, interior
+  
   /**
    * @brief Returns the entry lanelets into the signalized intersection
    *
@@ -74,7 +77,7 @@ public:
    *
    * @return vector of const traffic signals. Empty list if the lanelet is not an entry lanelet or not in the intersection
    */
-  std::vector<CarmaTrafficLightConstPtr> getTrafficSignals(const ConstLanelet& llt) const;
+  std::vector<CarmaTrafficSignalConstPtr> getTrafficSignals(const ConstLanelet& llt) const;
 
   /**
    * @brief Returns the stop line of the specified lanelet in the intersection
@@ -86,12 +89,12 @@ public:
   /**
    * @brief Adds the lanelet into the specified section of the intersection
    * @param lanelet to add  
-   * @param section section of the intersection to add to (entry, exit, interior)
+   * @param section of the intersection to add to (entry, exit, interior)
    * 
    * NOTE: If entry lanelet is being added, the user must make sure that the regulatory element refers the lanelet back
    *       For maps, laneletMapPtr->update(lanelet, regem) for full connection
    */
-  void addLanelet(const Lanelet& lanelet, IntersectionSection section);
+  void addLanelet(Lanelet lanelet, IntersectionSection section);
 
   /**
    * @brief Removes the lanelet from the intersection
@@ -104,8 +107,7 @@ public:
   bool removeLanelet(const Lanelet& lanelet);
 
   /**
-   * @brief Static helper function that creates a minimum gap  based on the provided double, start, end lines, and the
-   * affected participants
+   * @brief Static helper function that creates signalized intersection data with given entry, exit, and interior lanelets
    *
    * @param id The lanelet::Id of this object
    * @param entry Entry lanelets of the intersection (which this regem also refers)
@@ -127,7 +129,6 @@ protected:
   // the following lines are required so that lanelet2 can create this object when loading a map with this regulatory
   // element
   friend class RegisterRegulatoryElement<SignalizedIntersection>;
-  SignalizedIntersection(Id id, const AttributeMap& attributes, const Lanelets& entry, const Lanelets& exit, const Lanelets& interior);
 
 };
 

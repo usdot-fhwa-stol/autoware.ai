@@ -102,6 +102,7 @@ TEST(SignalizedIntersectionTest, addRemoveLaneletTest)
 
   EXPECT_TRUE(intersection->removeLanelet(llt3));
   EXPECT_TRUE(intersection->removeLanelet(llt));
+  EXPECT_EQ(intersection->section_lookup.size(), 2);
   EXPECT_FALSE(intersection->removeLanelet(llt));
 
   EXPECT_EQ(llt.regulatoryElementsAs<SignalizedIntersection>().size(), 1); //NOTE: user must delete it from the lanelet 
@@ -162,7 +163,7 @@ TEST(SignalizedIntersectionTest, trafficSignalFunctions)
   auto pl = carma_wm::getPoint(0, 1, 0);
   auto pr = carma_wm::getPoint(1, 1, 0); 
   LineString3d virtual_stop_line(stop_line_id, {pl, pr});
-  std::shared_ptr<CarmaTrafficLight> traffic_light(new CarmaTrafficLight(CarmaTrafficLight::buildData(lanelet::utils::getId(), { virtual_stop_line }, {llt})));
+  std::shared_ptr<CarmaTrafficSignal> traffic_light(new CarmaTrafficSignal(CarmaTrafficSignal::buildData(lanelet::utils::getId(), { virtual_stop_line }, {llt})));
   llt.addRegulatoryElement(traffic_light);
 
   EXPECT_EQ(intersection->getTrafficSignals(llt).size(), 1);
