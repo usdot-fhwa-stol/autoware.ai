@@ -17,6 +17,7 @@
 #include <boost/algorithm/string.hpp>
 #include <lanelet2_extension/regulatory_elements/SignalizedIntersection.h>
 #include "RegulatoryHelpers.h"
+#include <lanelet2_extension/logging/logger.h>
 
 namespace lanelet
 {
@@ -87,7 +88,7 @@ namespace lanelet
         {
             if (member == nullptr)
             {
-                std::cerr << __FUNCTION__ << ": member is null pointer";
+                LOG_ERROR_STREAM("member is null pointer!");
                 return false;
             }
 
