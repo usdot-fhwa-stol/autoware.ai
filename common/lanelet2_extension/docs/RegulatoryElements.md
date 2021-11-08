@@ -309,3 +309,153 @@ To support multiple types of participants a new attribute should be added for ea
 </relation>
 
 ```
+## Carma Traffic Signal
+
+Represents a virtual traffic signal with known fixed signal phases. It is virtual because it corresponds to single signal group ID provided by a SAE J2735 SPaT message.
+Normally the traffic signal timing information is provided by SAE J2735 SPaT messages although alternative data sources can be supported.
+
+A CarmaTrafficSignal is created from a stop_line (LineString3d) and a list of exit_lanelets (Lanelet). stop_line is where the vehicle should stop and wait before crossing and exit_lanelets represent which direction the vehicle can go based on this traffic signal.
+
+### Parameters
+
+| **Role** | **Possible Type** | **description**                |
+|-------------|--------------|----------------------------------|
+| **ref_line**    | **LineString3d**    | The linestring which define the geometry of this stop line. |
+| **exit_lanelet**    | **Lanelet**    | A lanelet representing the direction this traffic signal controls |
+
+### Custom Attributes
+
+| **Key** | **Value Type** | **description**                |
+|-------------|--------------|----------------------------------|
+| **subtype** | **carma_traffic_signal**    | Subtype name |
+
+### Note on the creation/usage of this object
+Currently when the object is created, it doesn't have any default values for the signal timers. Therefore, setStates function should be used to set the timers before using predictState ever.
+
+### OSM XML Example
+
+```(xml)
+<!-- Entry Lanelet -->
+<relation id="1349" visible="true" version="1">
+  <member type="way" ref="1347" role="left" />
+  <member type="way" ref="1348" role="right" />
+  <tag k="location" v="urban" />
+  <tag k="subtype" v="road" />
+  <tag k="type" v="lanelet" />
+
+  <!-- Carma Traffic Signal -->
+  <member type='relation' ref='45221' role='regulatory_element' />
+</relation>
+
+<!-- Exit Lanelet -->
+<relation id="1350" visible="true" version="1">
+  <member type="way" ref="1399" role="left" />
+  <member type="way" ref="1398" role="right" />
+  <tag k="location" v="urban" />
+  <tag k="subtype" v="road" />
+  <tag k="type" v="lanelet" />
+</relation>
+
+<!-- Virtual Linestring for Stop Line >
+<way id="1349" visible="false" version="1">
+  <nd ref="1339" />
+  <nd ref="1342" />
+  <tag k="subtype" v="-" />
+  <tag k="type" v="virtual" />
+</way>
+
+<!-- Regulatory Carma Traffic Signal -->
+<relation id='45221' visible='true' version='1'>
+  <member type="way" ref="1349" role="ref_line" /> <!-- Horizontal linestring representing the stop line -->
+  <member type='relation' ref="1350" role='exit_lanelet' />
+  <tag k='subtype' v='carma_traffic_signal' />
+  <tag k='type' v='regulatory_element' />
+</relation>
+
+```
+
+## Signalized Intersection
+
+Represents signalized intersection on the road. 
+
+SignalizedIntersection consists of ENTRY, EXIT, INTERIOR lanelets that are saved as parameters. 
+Although this class doesn't manage it, entry lanelets are expected to have CarmaTrafficSignal class to represent the traffic light.
+Therefore, this class can be understood as merely recording of which lanelets are part of the intersection, but traffic signal timer
+or which entry correlates to which exit information is handled by each CarmaTrafficSignal object itself.
+
+### Parameters
+
+| **Role** | **Possible Type** | **description**                |
+|-------------|--------------|----------------------------------|
+| **intersection_entry**    | **Lanelet**    | A lanelet representing the entry of this intersection|
+| **intersection_exit**    | **Lanelet**    | A lanelet representing the exit of this intersection|
+| **intersection_interior**    | **Lanelet**    |  A lanelet representing the interior of this intersection|
+
+### Custom Attributes
+
+| **Key** | **Value Type** | **description**                |
+|-------------|--------------|----------------------------------|
+| **subtype** | **signalized_intersection**    | Subtype name |
+
+### OSM XML Example
+
+```(xml)
+<!-- Entry Lanelets -->
+  <relation id="1349" visible="true" version="1">
+    <member type="way" ref="1347" role="left" />
+    <member type="way" ref="1348" role="right" />
+    <tag k="dynamic" v="no" />
+    <tag k="location" v="urban" />
+    <tag k="one_way" v="yes" />
+    <tag k="subtype" v="road" />
+    <tag k="type" v="lanelet" />
+
+    <!-- Signalized Intersection -->
+    <member type='relation' ref='45219' role='regulatory_element' />
+  </relation>
+  <relation id="1352" visible="true" version="1">
+    <member type="way" ref="1347" role="left" />
+    <member type="way" ref="1348" role="right" />
+    <tag k="dynamic" v="no" />
+    <tag k="location" v="urban" />
+    <tag k="one_way" v="yes" />
+    <tag k="subtype" v="road" />
+    <tag k="type" v="lanelet" />
+
+    <!-- Signalized Intersection -->
+    <member type='relation' ref='45219' role='regulatory_element' />
+  </relation>
+
+  <!-- Exit Lanelet -->
+  <relation id="1350" visible="true" version="1">
+    <member type="way" ref="1347" role="left" />
+    <member type="way" ref="1348" role="right" />
+    <tag k="dynamic" v="no" />
+    <tag k="location" v="urban" />
+    <tag k="one_way" v="yes" />
+    <tag k="subtype" v="road" />
+    <tag k="type" v="lanelet" />
+  </relation>
+
+  <!-- Interior Lanelet -->
+  <relation id="1351" visible="true" version="1">
+    <member type="way" ref="1347" role="left" />
+    <member type="way" ref="1348" role="right" />
+    <tag k="dynamic" v="no" />
+    <tag k="location" v="urban" />
+    <tag k="one_way" v="yes" />
+    <tag k="subtype" v="road" />
+    <tag k="type" v="lanelet" />
+  </relation>
+
+  <!-- Regulatory Signalized Intersection Rule -->
+  <relation id='45219' visible='true' version='1'>
+    <member type='relation' ref='1349' role='intersection_entry' />
+    <member type='relation' ref='1350' role='intersection_exit' />
+    <member type='relation' ref='1351' role='intersection_interior' />
+    <member type='relation' ref='1352' role='intersection_entry' />
+    <tag k='subtype' v='signalized_intersection' />
+    <tag k='type' v='regulatory_element' />
+  </relation>
+
+```
