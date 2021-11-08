@@ -401,61 +401,61 @@ or which entry correlates to which exit information is handled by each CarmaTraf
 
 ```(xml)
 <!-- Entry Lanelets -->
-  <relation id="1349" visible="true" version="1">
-    <member type="way" ref="1347" role="left" />
-    <member type="way" ref="1348" role="right" />
-    <tag k="dynamic" v="no" />
-    <tag k="location" v="urban" />
-    <tag k="one_way" v="yes" />
-    <tag k="subtype" v="road" />
-    <tag k="type" v="lanelet" />
+<relation id="1349" visible="true" version="1">
+  <member type="way" ref="1347" role="left" />
+  <member type="way" ref="1348" role="right" />
+  <tag k="dynamic" v="no" />
+  <tag k="location" v="urban" />
+  <tag k="one_way" v="yes" />
+  <tag k="subtype" v="road" />
+  <tag k="type" v="lanelet" />
 
-    <!-- Signalized Intersection -->
-    <member type='relation' ref='45219' role='regulatory_element' />
-  </relation>
-  <relation id="1352" visible="true" version="1">
-    <member type="way" ref="1347" role="left" />
-    <member type="way" ref="1348" role="right" />
-    <tag k="dynamic" v="no" />
-    <tag k="location" v="urban" />
-    <tag k="one_way" v="yes" />
-    <tag k="subtype" v="road" />
-    <tag k="type" v="lanelet" />
+  <!-- Signalized Intersection -->
+  <member type='relation' ref='45219' role='regulatory_element' />
+</relation>
+<relation id="1352" visible="true" version="1">
+  <member type="way" ref="1347" role="left" />
+  <member type="way" ref="1348" role="right" />
+  <tag k="dynamic" v="no" />
+  <tag k="location" v="urban" />
+  <tag k="one_way" v="yes" />
+  <tag k="subtype" v="road" />
+  <tag k="type" v="lanelet" />
 
-    <!-- Signalized Intersection -->
-    <member type='relation' ref='45219' role='regulatory_element' />
-  </relation>
+  <!-- Signalized Intersection -->
+  <member type='relation' ref='45219' role='regulatory_element' />
+</relation>
 
-  <!-- Exit Lanelet -->
-  <relation id="1350" visible="true" version="1">
-    <member type="way" ref="1347" role="left" />
-    <member type="way" ref="1348" role="right" />
-    <tag k="dynamic" v="no" />
-    <tag k="location" v="urban" />
-    <tag k="one_way" v="yes" />
-    <tag k="subtype" v="road" />
-    <tag k="type" v="lanelet" />
-  </relation>
+<!-- Exit Lanelet -->
+<relation id="1350" visible="true" version="1">
+  <member type="way" ref="1347" role="left" />
+  <member type="way" ref="1348" role="right" />
+  <tag k="dynamic" v="no" />
+  <tag k="location" v="urban" />
+  <tag k="one_way" v="yes" />
+  <tag k="subtype" v="road" />
+  <tag k="type" v="lanelet" />
+</relation>
 
-  <!-- Interior Lanelet -->
-  <relation id="1351" visible="true" version="1">
-    <member type="way" ref="1347" role="left" />
-    <member type="way" ref="1348" role="right" />
-    <tag k="dynamic" v="no" />
-    <tag k="location" v="urban" />
-    <tag k="one_way" v="yes" />
-    <tag k="subtype" v="road" />
-    <tag k="type" v="lanelet" />
-  </relation>
+<!-- Interior Lanelet -->
+<relation id="1351" visible="true" version="1">
+  <member type="way" ref="1347" role="left" />
+  <member type="way" ref="1348" role="right" />
+  <tag k="dynamic" v="no" />
+  <tag k="location" v="urban" />
+  <tag k="one_way" v="yes" />
+  <tag k="subtype" v="road" />
+  <tag k="type" v="lanelet" />
+</relation>
 
-  <!-- Regulatory Signalized Intersection Rule -->
-  <relation id='45219' visible='true' version='1'>
-    <member type='relation' ref='1349' role='intersection_entry' />
-    <member type='relation' ref='1350' role='intersection_exit' />
-    <member type='relation' ref='1351' role='intersection_interior' />
-    <member type='relation' ref='1352' role='intersection_entry' />
-    <tag k='subtype' v='signalized_intersection' />
-    <tag k='type' v='regulatory_element' />
-  </relation>
+<!-- Regulatory Signalized Intersection Rule -->
+<relation id='45219' visible='true' version='1'>
+  <member type='relation' ref='1349' role='intersection_entry' />
+  <member type='relation' ref='1350' role='intersection_exit' />
+  <member type='relation' ref='1351' role='intersection_interior' />
+  <member type='relation' ref='1352' role='intersection_entry' />
+  <tag k='subtype' v='signalized_intersection' />
+  <tag k='type' v='regulatory_element' />
+</relation>
 
 ```
