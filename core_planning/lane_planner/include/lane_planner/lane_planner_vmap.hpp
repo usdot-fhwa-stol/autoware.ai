@@ -69,7 +69,7 @@ vector_map::DTLane create_vector_map_dtlane(const autoware_msgs::DTLane& wd);
 
 VectorMap create_lane_vmap(const VectorMap& vmap, int lno);
 VectorMap create_coarse_vmap_from_lane(const autoware_msgs::Lane& lane);
-VectorMap create_coarse_vmap_from_route(const tablet_socket_msgs::route_cmd& route);
+VectorMap create_coarse_vmap_from_route(const tablet_socket_msgs::RouteCmd& route);
 VectorMap create_fine_vmap(const VectorMap& lane_vmap, int lno, const VectorMap& coarse_vmap, double search_radius,
          int waypoint_max);
 

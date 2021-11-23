@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
 	ros::NodeHandle node;
 	pub[0] = node.advertise<tablet_socket_msgs::gear_cmd>("gear_cmd", 1);
 	pub[1] = node.advertise<tablet_socket_msgs::mode_cmd>("mode_cmd", 1);
-	pub[2] = node.advertise<tablet_socket_msgs::route_cmd>("route_cmd", 1);
+	pub[2] = node.advertise<tablet_socket_msgs::RouteCmd>("route_cmd", 1);
 	pub[3] = node.advertise<geometry_msgs::PoseStamped>("gnss_pose", 1);
 	pub[4] = node.advertise<std_msgs::Bool>("gnss_stat", 1);
 	node.param<int>("tablet_receiver/port", port, DEFAULT_PORT);
@@ -270,7 +270,7 @@ static int getSensorValue(int sock, ros::Publisher pub[TOPIC_NR])
 			}
 		}
 
-		tablet_socket_msgs::route_cmd msg;
+		tablet_socket_msgs::RouteCmd msg;
 		tablet_socket_msgs::Waypoint point;
 		for (int i = 0; i < points_nr; i++) {
 			if (i % 2) {

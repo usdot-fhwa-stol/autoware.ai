@@ -16,14 +16,14 @@ if(${ROS_VERSION} EQUAL 1) # ROS 1
   set(msgs )
   foreach(filePath ${msg_files})
     get_filename_component(name ${filePath} NAME)
-    set(msgs ${msgs} ros1_msg/${name})
+    set(msgs ${msgs} ${name})
   endforeach(filePath)
 
   file(GLOB action_files ros1_action/*.action)
   set(actions )
   foreach(filePath ${action_files})
     get_filename_component(name ${filePath} NAME)
-    set(actions ${actions} ros1_action/${name})
+    set(actions ${actions} ${name})
   endforeach(filePath)
 
 
@@ -32,12 +32,12 @@ if(${ROS_VERSION} EQUAL 1) # ROS 1
   find_package(catkin REQUIRED COMPONENTS geometry_msgs actionlib_msgs message_generation)
 
   add_message_files(
-    DIRECTORY msg
+    DIRECTORY ros1_msg
     FILES ${msgs}
   )
 
   add_action_files(
-    DIRECTORY action
+    DIRECTORY ros1_action
     FILES ${actions}
   )
 

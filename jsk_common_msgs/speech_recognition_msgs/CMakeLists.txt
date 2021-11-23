@@ -5,19 +5,27 @@ find_package(ros_environment REQUIRED)
 
 set(ROS_VERSION $ENV{ROS_VERSION})
 
+if(${ROS_VERSION} EQUAL 1) # ROS 1
+  set(msg_directory ) # Empty as ROS1 defaults to msg/
+  set(srv_directory ) # Empty as ROS1 defaults to srv/
+else()
+  set(msg_directory "msg/")
+  set(srv_directory "srv/")
+endif()
+
 ## Collection Message Paths 
 file(GLOB msg_files msg/*.msg)
 set(msgs )
 foreach(filePath ${msg_files})
   get_filename_component(name ${filePath} NAME)
-  set(msgs ${msgs} msg/${name})
+  set(msgs ${msgs} ${msg_directory}${name})
 endforeach(filePath)
 
 file(GLOB srv_files srv/*.srv)
 set(srvs )
 foreach(filePath ${srv_files})
   get_filename_component(name ${filePath} NAME)
-  set(srvs ${srvs} srv/${name})
+  set(srvs ${srvs} ${srv_directory}${name})
 endforeach(filePath)
 
 

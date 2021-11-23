@@ -5,21 +5,28 @@ find_package(ros_environment REQUIRED)
 
 set(ROS_VERSION $ENV{ROS_VERSION})
 
+if(${ROS_VERSION} EQUAL 1) # ROS 1
+  set(msg_directory ) # Empty as ROS1 defaults to msg/
+else()
+  set(msg_directory "msg/")
+endif()
+
 ## Collection Message Paths 
 file(GLOB msg_files msg/*.msg)
 set(msgs )
 foreach(filePath ${msg_files})
   get_filename_component(name ${filePath} NAME)
-  set(msgs ${msgs} msg/${name})
+  set(msgs ${msgs} ${msg_directory}${name})
 endforeach(filePath)
 
 if(${ROS_VERSION} EQUAL 1) # ROS 1
   
   # Add the ros1 only messages
   file(GLOB msg_files ros1_only_msg/*.msg)
+  set(ros1_msgs )
   foreach(filePath ${msg_files})
     get_filename_component(name ${filePath} NAME)
-    set(msgs ${msgs} ros1_only_msg/${name})
+    set(ros1_msgs ${ros1_msgs} ${name})
   endforeach(filePath)
 
   find_package(catkin REQUIRED COMPONENTS
@@ -31,6 +38,12 @@ if(${ROS_VERSION} EQUAL 1) # ROS 1
   add_message_files(
     FILES
       ${msgs}
+  )
+
+  add_message_files(
+    DIRECTORY ros1_only_msg
+    FILES
+      ${ros1_msgs}
   )
 
   generate_messages(DEPENDENCIES
