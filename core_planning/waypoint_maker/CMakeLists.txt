@@ -13,7 +13,7 @@ find_package(
     autoware_config_msgs
     geometry_msgs
     gnss
-    lane_planner
+    lane_planner_ros1
     libwaypoint_follower
     nav_msgs
     roscpp

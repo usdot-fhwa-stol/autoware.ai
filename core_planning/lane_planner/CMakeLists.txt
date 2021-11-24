@@ -118,8 +118,8 @@ add_dependencies(
 )
 
 install(
-  DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  DIRECTORY include/lane_planner/
+  DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION}/lane_planner
 )
 
 install(
