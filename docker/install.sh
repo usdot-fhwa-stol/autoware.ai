@@ -20,7 +20,6 @@
 ###
 # Source environment variables
 source /home/carma/.base-image/init-env.sh
-source /opt/ros/noetic/setup.bash
 
 # Enter source directory
 cd /home/carma/autoware.ai
