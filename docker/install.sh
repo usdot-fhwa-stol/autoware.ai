@@ -29,7 +29,7 @@ echo "ROS 1 Build with CUDA"
 sudo mkdir /opt/autoware.ai # Create install directory
 sudo chown carma /opt/autoware.ai # Set owner to expose permissions for build
 sudo chgrp carma /opt/autoware.ai # Set group to expose permissions for build
-AUTOWARE_COMPILE_WITH_CUDA=1 colcon build --build-base build_ros1 --install-base /opt/autoware.ai/ros/install --executor sequential --cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_LIBRARY_PATH=/usr/local/cuda/lib64/stubs -DCMAKE_CXX_FLAGS=-Wall -DCMAKE_C_FLAGS=-Wall
+AUTOWARE_COMPILE_WITH_CUDA=1 colcon build --build-base build_ros1 --install-base /opt/autoware.ai/ros/install --cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_LIBRARY_PATH=/usr/local/cuda/lib64/stubs -DCMAKE_CXX_FLAGS=-Wall -DCMAKE_C_FLAGS=-Wall
 
 # Get the exit code from the ROS1 build so we can skip the ROS2 build if the ROS1 build failed
 status=$?
