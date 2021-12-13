@@ -130,7 +130,7 @@ static pcl_omp::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> omp_n
 static int max_iter = 30;        // Maximum iterations
 static float ndt_res = 1.0;      // Resolution
 static double step_size = 0.1;   // Step size
-static double trans_eps = 0.01;  // Transformation epsilon
+static double trans_eps = 0.001;  // Transformation epsilon. In PCLv1.10 (ros noetic) this value is squared error not base epsilon 
 
 static ros::Publisher predict_pose_pub;
 static geometry_msgs::PoseStamped predict_pose_msg;
@@ -322,18 +322,27 @@ static void param_callback(const autoware_config_msgs::ConfigNDT::ConstPtr& inpu
   if (input->trans_epsilon != trans_eps)
   {
     trans_eps = input->trans_epsilon;
+    double rot_threshold = 1.0 - trans_eps;
+    
 
-    if (_method_type == MethodType::PCL_GENERIC)
+    if (_method_type == MethodType::PCL_GENERIC) {
+      ROS_INFO_STREAM("Using tramslation threshold of " << trans_eps);
+      ROS_INFO_STREAM("Using rotation threshold of " << rot_threshold);
       ndt.setTransformationEpsilon(trans_eps);
-    else if (_method_type == MethodType::PCL_ANH)
+      ndt.setTransformationRotationEpsilon(rot_threshold);
+    }
+    else if (_method_type == MethodType::PCL_ANH) {
       anh_ndt.setTransformationEpsilon(trans_eps);
+    }
 #ifdef CUDA_FOUND
-    else if (_method_type == MethodType::PCL_ANH_GPU)
+    else if (_method_type == MethodType::PCL_ANH_GPU) {
       anh_gpu_ndt_ptr->setTransformationEpsilon(trans_eps);
+    }
 #endif
 #ifdef USE_PCL_OPENMP
-    else if (_method_type == MethodType::PCL_OPENMP)
+    else if (_method_type == MethodType::PCL_OPENMP) {
       omp_ndt.setTransformationEpsilon(ndt_res);
+    }
 #endif
   }
 
@@ -460,9 +469,13 @@ static void map_callback(const sensor_msgs::PointCloud2::ConstPtr& input)
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr map_ptr(new pcl::PointCloud<pcl::PointXYZ>(map));
 
+    double rot_threshold = 1.0 - trans_eps;
+
     // Setting point cloud to be aligned to.
     if (_method_type == MethodType::PCL_GENERIC)
     {
+      ROS_INFO_STREAM("Using tramslation threshold of " << trans_eps);
+      ROS_INFO_STREAM("Using rotation threshold of " << rot_threshold);
       pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> new_ndt;
       pcl::PointCloud<pcl::PointXYZ>::Ptr output_cloud(new pcl::PointCloud<pcl::PointXYZ>);
       new_ndt.setResolution(ndt_res);
@@ -470,6 +483,7 @@ static void map_callback(const sensor_msgs::PointCloud2::ConstPtr& input)
       new_ndt.setMaximumIterations(max_iter);
       new_ndt.setStepSize(step_size);
       new_ndt.setTransformationEpsilon(trans_eps);
+      new_ndt.setTransformationRotationEpsilon(rot_threshold);
 
       new_ndt.align(*output_cloud, Eigen::Matrix4f::Identity());
 

@@ -25,4 +25,4 @@ echo "Build with CUDA"
 sudo mkdir /opt/autoware.ai # Create install directory
 sudo chown carma /opt/autoware.ai # Set owner to expose permissions for build
 sudo chgrp carma /opt/autoware.ai # Set group to expose permissions for build
-AUTOWARE_COMPILE_WITH_CUDA=1 colcon build --install-base /opt/autoware.ai/ros/install --executor sequential --cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_LIBRARY_PATH=/usr/local/cuda/lib64/stubs -DCMAKE_CXX_FLAGS=-Wall -DCMAKE_C_FLAGS=-Wall
+AUTOWARE_COMPILE_WITH_CUDA=1 colcon build --install-base /opt/autoware.ai/ros/install --cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_LIBRARY_PATH=/usr/local/cuda/lib64/stubs -DCMAKE_CXX_FLAGS=-Wall -DCMAKE_C_FLAGS=-Wall
