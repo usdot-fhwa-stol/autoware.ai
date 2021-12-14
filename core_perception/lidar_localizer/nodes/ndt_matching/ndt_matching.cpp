@@ -131,7 +131,8 @@ static int max_iter = 30;        // Maximum iterations
 static float ndt_res = 1.0;      // Resolution
 static double step_size = 0.1;   // Step size
 static double trans_eps = 0.001;  // Transformation epsilon. In PCLv1.10 (ros noetic) this value is squared error not base epsilon 
-
+                                  // NOTE: A value of 0.0001 can work as well. 
+                                  // This will increase the required iteration count (and therefore execution time) but might increase performance 
 static ros::Publisher predict_pose_pub;
 static geometry_msgs::PoseStamped predict_pose_msg;
 
