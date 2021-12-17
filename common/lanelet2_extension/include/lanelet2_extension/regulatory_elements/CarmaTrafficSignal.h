@@ -139,8 +139,9 @@ public:
    * @brief prefictState assumes sorted, fixed time, so guaranteed to give you one final state
    *
    * @param time_stamp boost::posix_time::ptime of the event happening
+   * @return std::pair of signal state and its end time at the input time 
    */
-  boost::optional<CarmaTrafficSignalState> predictState(boost::posix_time::ptime time_stamp);
+  boost::optional<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> predictState(boost::posix_time::ptime time_stamp);
   
   /**
    * @brief Return the stop_lines related to the entry lanelets in order if exists.

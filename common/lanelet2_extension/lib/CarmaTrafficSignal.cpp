@@ -82,7 +82,7 @@ std::unique_ptr<lanelet::RegulatoryElementData> CarmaTrafficSignal::buildData(Id
   return std::make_unique<RegulatoryElementData>(id, rules, attribute_map);
 }
 
-boost::optional<CarmaTrafficSignalState> CarmaTrafficSignal::predictState(boost::posix_time::ptime time_stamp)
+boost::optional<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> CarmaTrafficSignal::predictState(boost::posix_time::ptime time_stamp)
 {
   if (recorded_time_stamps.empty())
   {
@@ -91,7 +91,7 @@ boost::optional<CarmaTrafficSignalState> CarmaTrafficSignal::predictState(boost:
   }
   if (recorded_time_stamps.size() == 1) // if only 1 timestamp recorded, this signal doesn't change
   {
-    return recorded_time_stamps.front().second;
+    return std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>(recorded_time_stamps.front().first, recorded_time_stamps.front().second);
   }
   // shift starting time to the future or to the past to fit input into a valid cycle
   boost::posix_time::time_duration accumulated_offset_duration;
@@ -110,9 +110,10 @@ boost::optional<CarmaTrafficSignalState> CarmaTrafficSignal::predictState(boost:
   // iterate through states in the cycle to get the signal
   for (size_t i = 0; i < recorded_time_stamps.size(); i++)
   {
-    if (toSec(recorded_time_stamps[i].first) + offset_duration_dir * toSec(accumulated_offset_duration) >= toSec(time_stamp))
+    double end_time = toSec(recorded_time_stamps[i].first) + offset_duration_dir * toSec(accumulated_offset_duration);
+    if (end_time >= toSec(time_stamp))
     { 
-      return recorded_time_stamps[i].second;
+      return std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>(timeFromSec(end_time), recorded_time_stamps[i].second);
     }
   }
 
