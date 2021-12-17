@@ -72,8 +72,8 @@ TEST(CarmaTrafficSignalTest, CarmaTrafficSignal)
   ASSERT_EQ(time::durationFromSec(5),traffic_light->fixed_cycle_duration);
   ASSERT_EQ(0,traffic_light->revision_);
 
-  ASSERT_EQ(static_cast<lanelet::CarmaTrafficSignalState>(1),traffic_light->predictState(time::timeFromSec(1.5)).get());
-  ASSERT_EQ(static_cast<lanelet::CarmaTrafficSignalState>(0),traffic_light->predictState(time::timeFromSec(1)).get());
+  ASSERT_EQ(static_cast<lanelet::CarmaTrafficSignalState>(1),traffic_light->predictState(time::timeFromSec(1.5)).get().second);
+  ASSERT_EQ(static_cast<lanelet::CarmaTrafficSignalState>(0),traffic_light->predictState(time::timeFromSec(1)).get().second);
   ASSERT_EQ(traffic_light->getControlStartLanelets().size(), 2);
   ASSERT_EQ(traffic_light->getControlStartLanelets().back().id(), ll_2.id());
   
