@@ -21,7 +21,7 @@ while [[ $# -gt 0 ]]; do
       arg="$1"
       case $arg in
             -d|--develop)
-                  BRANCH=carma-develop
+                  BRANCH=develop
                   shift
             ;;
             -r|--root)
