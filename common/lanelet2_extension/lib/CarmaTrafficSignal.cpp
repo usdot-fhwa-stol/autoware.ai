@@ -60,6 +60,54 @@ LineStrings3d CarmaTrafficSignal::stopLine()
   return getParameters<LineString3d>(RoleName::RefLine);
 }
 
+Optional<ConstLineString3d> CarmaTrafficSignal::getStopLine(const ConstLanelet& llt) const 
+{
+  auto sl = stopLine();
+  if (sl.empty()) {
+    return {};
+  }
+  std::cerr << "inside stop line!\n";
+  auto llts = getControlStartLanelets();
+  std::cerr << "inside stop line! llts.size(): " << llts.size() << "\n";
+  auto it = std::find(llts.begin(), llts.end(), llt);
+  std::cerr << "inside stop line 1!\n";
+  if (llts.empty())
+  {
+    std::cerr << "StartLanelest are zero!!!!!!1\n";
+    return {};
+  }
+  if (it == llts.end()) {
+    std::cerr << "Returnning sadly\n";
+    return {};
+  }
+  std::cerr << "inside stop line 2!\n";
+  return sl.at(size_t(std::distance(llts.begin(), it)));
+}
+
+Optional<LineString3d> CarmaTrafficSignal::getStopLine(const ConstLanelet& llt) 
+{
+  auto sl = stopLine();
+  if (sl.empty()) {
+    return {};
+  }
+  std::cerr << "inside stop line!\n";
+  lanelet::ConstLanelets llts = getControlStartLanelets();
+  std::cerr << "inside stop line! llts.size(): " << llts.size() << "\n";
+  if (llts.empty())
+  {
+    std::cerr << "StartLanelest are zero!!!!!!1\n";
+    return {};
+  }
+  auto it = std::find(llts.begin(), llts.end(), llt);
+  std::cerr << "inside stop line 1!\n";
+  if (it == llts.end()) {
+    std::cerr << "Returnning sadly\n";
+    return {};
+  }
+  std::cerr << "inside stop line 2!\n";
+  return sl.at(size_t(std::distance(llts.begin(), it)));
+}
+
 CarmaTrafficSignal::CarmaTrafficSignal(const lanelet::RegulatoryElementDataPtr& data) : RegulatoryElement(data)
 {}
 
@@ -67,6 +115,11 @@ std::unique_ptr<lanelet::RegulatoryElementData> CarmaTrafficSignal::buildData(Id
 {
   // Add parameters
   RuleParameterMap rules;
+  std::cerr << "INSIDE BUILDDATA for TRAFFIC LIGHT\n";
+  for (auto llt: entry_lanelets)
+  {
+    std::cerr << "llt.d(): " << llt.id() << "\n";
+  }
   rules[lanelet::CarmaTrafficSignalRoleNameString::ControlStart].insert(rules[lanelet::CarmaTrafficSignalRoleNameString::ControlStart].end(), entry_lanelets.begin(),
                                                 entry_lanelets.end());
   rules[lanelet::CarmaTrafficSignalRoleNameString::ControlEnd].insert(rules[lanelet::CarmaTrafficSignalRoleNameString::ControlEnd].end(), exit_lanelets.begin(),
@@ -89,10 +142,12 @@ boost::optional<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> Ca
     LOG_WARN_STREAM("CarmaTrafficSignal doesn't have any recorded states of traffic lights");
     return boost::none;
   }
+
   if (recorded_time_stamps.size() == 1) // if only 1 timestamp recorded, this signal doesn't change
   {
     return std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>(recorded_time_stamps.front().first, recorded_time_stamps.front().second);
   }
+  
   // shift starting time to the future or to the past to fit input into a valid cycle
   boost::posix_time::time_duration accumulated_offset_duration;
   double offset_duration_dir = recorded_time_stamps.front().first > time_stamp ? -1.0 : 1.0; // -1 if past, +1 if time_stamp is in future
@@ -122,12 +177,17 @@ boost::optional<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> Ca
 
 lanelet::ConstLanelets CarmaTrafficSignal::getControlStartLanelets() const
 {
-  return getParameters<ConstLanelet>(CarmaTrafficSignalRoleNameString::ControlStart);
+  std::cerr<<"Printing parameters:\n";
+  for (auto iter = parameters().begin(); iter != parameters().end(); iter++)
+  {
+    std::cerr<<"Printing parameter[i]" << iter->first <<"\n";
+  } 
+  return getParameters<ConstLanelet>("control_start");
 } 
 
 lanelet::ConstLanelets CarmaTrafficSignal::getControlEndLanelets() const
 {
-  return getParameters<ConstLanelet>(CarmaTrafficSignalRoleNameString::ControlEnd);
+  return getParameters<ConstLanelet>("control_end");
 }
 
 void CarmaTrafficSignal::setStates(std::vector<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> input_time_steps, int revision)
@@ -154,6 +214,11 @@ void CarmaTrafficSignal::setStates(std::vector<std::pair<boost::posix_time::ptim
   if (input_time_steps.back().second != input_time_steps.front().second)
   {
     throw lanelet::InvalidInputError("Duplicate phase is not provided. Unable to determine fixed cycle duration");
+  }
+
+  for (size_t i = 0; i < input_time_steps.size() - 1; i++)
+  {
+    signal_durations[input_time_steps[i + 1].second] = input_time_steps[i + 1].first - input_time_steps[i].first;
   }
 
   recorded_time_stamps = input_time_steps;

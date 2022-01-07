@@ -114,6 +114,9 @@ public:
   int revision_ = 0; //indicates when was this last modified
   boost::posix_time::time_duration fixed_cycle_duration;
   std::vector<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> recorded_time_stamps;
+  std::unordered_map<CarmaTrafficSignalState, boost::posix_time::time_duration> signal_durations;
+
+
   /**
    * @brief setStates function sorts states automatically
    *
@@ -148,6 +151,14 @@ public:
    */
   ConstLineStrings3d stopLine() const;
   LineStrings3d stopLine();
+
+  /**
+   * @brief Return the stop_lines related to the specified entry lanelet
+   * @param llt entry_lanelet 
+   * @return optional stop line linestring
+   */
+  Optional<ConstLineString3d> getStopLine(const ConstLanelet& llt) const;
+  Optional<LineString3d> getStopLine(const ConstLanelet& llt);
 
   explicit CarmaTrafficSignal(const lanelet::RegulatoryElementDataPtr& data);
   /**

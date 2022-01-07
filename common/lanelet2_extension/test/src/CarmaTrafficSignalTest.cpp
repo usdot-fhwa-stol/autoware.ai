@@ -48,11 +48,37 @@ TEST(CarmaTrafficSignalTest, CarmaTrafficSignal)
   auto ll_1 = carma_wm::getLanelet(left_1, right_1, lanelet::AttributeValueString::SolidDashed,lanelet::AttributeValueString::Dashed);
   auto ll_2 = carma_wm::getLanelet(left_1, right_1, lanelet::AttributeValueString::SolidDashed,lanelet::AttributeValueString::Dashed);
   
-  lanelet::Id traffic_light_id = utils::getId();
-  LineString3d virtual_stop_line(traffic_light_id, {pl2, pr2});
+  lanelet::Id stop_line_id = utils::getId();
+  LineString3d virtual_stop_line(stop_line_id, {pl2, pr2});
+  lanelet::Id stop_line_id1= utils::getId();
+  LineString3d virtual_stop_line1(stop_line_id1, {pl2, pr2});
   // Creat passing control line for solid dashed line
-  std::shared_ptr<CarmaTrafficSignal> traffic_light(new CarmaTrafficSignal(CarmaTrafficSignal::buildData(lanelet::utils::getId(), { virtual_stop_line }, {ll_1, ll_2}, {ll_2})));
+  std::shared_ptr<CarmaTrafficSignal> traffic_light(new CarmaTrafficSignal(CarmaTrafficSignal::buildData(lanelet::utils::getId(), { virtual_stop_line,  virtual_stop_line1}, {ll_1, ll_2}, {ll_2})));
   ll_1.addRegulatoryElement(traffic_light);
+
+  auto entry_lanelets = traffic_light->getControlStartLanelets();
+
+  lanelet::RegulatoryElementPtr regem = traffic_light;
+  auto factory_pcl = lanelet::RegulatoryElementFactory::create(regem->attribute(lanelet::AttributeName::Subtype).value(),
+                                                            std::const_pointer_cast<lanelet::RegulatoryElementData>(regem->constData()));
+
+  lanelet::CarmaTrafficSignalPtr ctl = std::dynamic_pointer_cast<lanelet::CarmaTrafficSignal>(factory_pcl);
+
+  std::cerr << "Tryign to print the entry stuff" << std::endl;
+  for (auto l : ctl->getControlStartLanelets())
+  {
+    std::cerr << "entry lanelet: " << l.id() << "\n";
+  }
+
+  for (auto l : entry_lanelets)
+  {
+    std::cerr << "lanelet: " << l.id() << "\n";
+  }
+  
+  ASSERT_EQ(2,entry_lanelets.size());
+
+  auto sl = traffic_light->getStopLine(ll_2);
+  ASSERT_EQ(stop_line_id1,sl.get().id());
 
   std::vector<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> input_time_steps;
 
