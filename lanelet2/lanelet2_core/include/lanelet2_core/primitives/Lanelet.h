@@ -11,6 +11,7 @@
 #include "lanelet2_core/primitives/LineString.h"
 #include "lanelet2_core/primitives/Primitive.h"
 #include "lanelet2_core/utility/Optional.h"
+#include <iostream>
 
 namespace lanelet {
 enum class LaneletType { OneWay, Bidirectional };
@@ -322,7 +323,7 @@ class ConstWeakLanelet {
   ConstWeakLanelet() = default;
   ConstWeakLanelet(const ConstLanelet& llet)  // NOLINT
       : laneletData_{llet.constData()}, inverted_{llet.inverted()} {}
-
+  ~ConstWeakLanelet() {/*std::cerr << "Deleting: " << lock().id() << "\n";*/}
   /**
    * @brief Obtains the original ConstLanelet.
    * @throws NullptrError if the managed lanelet expired.
@@ -332,8 +333,10 @@ class ConstWeakLanelet {
   //! tests whether the WeakLanelet is still valid
   bool expired() const noexcept { return laneletData_.expired(); }
 
- protected:
   std::weak_ptr<const LaneletData> laneletData_;  // NOLINT
+  
+ protected:
+  
   bool inverted_{false};                          // NOLINT
 };
 
