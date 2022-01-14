@@ -119,7 +119,6 @@ RegulatoryElementPtr RegulatoryElementFactory::create(std::string ruleName, cons
   auto& inst = RegulatoryElementFactory::instance();
   auto it = inst.registry_.find(ruleName);
   if (it != inst.registry_.end()) {
-    std::cerr << "!!!!!!! We found a place with rulename: " << ruleName << "\n";
     return it->second(data);
   }
   throw InvalidInputError("No regulatory element found that implements rule " + ruleName);
