@@ -63,8 +63,8 @@ struct RecurseVisitor : public RuleParameterVisitor {
 };
 
 // Helper visitor class for finding existing elements with same id in the map and assigning input to it
-struct ResolveMemoryVisitor : public lanelet::internal::TrueMutableParameterVisitor {
-  explicit ResolveMemoryVisitor (lanelet::LaneletMapPtr ll_Map) : ll_Map_(ll_Map) {}
+struct OverwriteParameterVisitor : public lanelet::internal::TrueMutableParameterVisitor {
+  explicit OverwriteParameterVisitor (lanelet::LaneletMapPtr ll_Map) : ll_Map_(ll_Map) {}
   void operator() (Point3d& p) override { overwriteWithMatchingId(p, ll_Map_);} 
   void operator() (LineString3d& ls) override { overwriteWithMatchingId(ls, ll_Map_);}
   void operator() (Polygon3d& poly) override { overwriteWithMatchingId(poly, ll_Map_);}
