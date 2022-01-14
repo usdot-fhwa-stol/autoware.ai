@@ -215,7 +215,6 @@ double toSec(const boost::posix_time::time_duration& duration) {
 }
 
 double toSec(const boost::posix_time::ptime& time) {
-  // TODO clean up this comment boost::posix_time::time_duration duration = t - boost::posix_time::from_time_t(0);
   return toSec(time - boost::posix_time::from_time_t(0));
 }
 
