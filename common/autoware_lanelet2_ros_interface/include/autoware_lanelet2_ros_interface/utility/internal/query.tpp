@@ -28,6 +28,16 @@ void recurse (const lanelet::ConstLanelet& prim,const lanelet::LaneletMapPtr ll_
 void recurse (const lanelet::ConstArea& prim,const lanelet::LaneletMapPtr ll_Map, query::direction check_dir, query::References& rfs);
 void recurse (const lanelet::RegulatoryElementConstPtr& prim_ptr,const lanelet::LaneletMapPtr ll_Map, query::direction check_dir, query::References& rfs);
 
+/**
+ * [findReferences finds all primitives that reference the given primitive in a given map]
+ * @param  ll_Map [input lanelet map]
+ * @return        [References object with referenced element sets for each primitive layers]
+ * NOTE: Polygons and Compound primitives such as LaneletOrArea are not currently supported
+ */
+//template <class primT>
+void resolveMemory (WeakLanelet& prim, const lanelet::LaneletMapPtr ll_Map);
+
+
 // Helper visitor class for finding all references in other primities for a given RuleParameter, which is boost::variant
 struct RecurseVisitor : public RuleParameterVisitor {
   explicit RecurseVisitor (const lanelet::LaneletMapPtr ll_Map, query::direction check_dir, query::References& rfs) :
@@ -49,6 +59,27 @@ struct RecurseVisitor : public RuleParameterVisitor {
   lanelet::LaneletMapPtr ll_Map_;
   query::direction check_dir_;
   query::References &rfs_;
+};
+
+// TODO create function for each
+// Helper visitor class for finding existing elements with same id in the map and changing input to it
+struct ResolveMemoryVisitor : public lanelet::internal::MisheelMutableParameterVisitor {
+  explicit ResolveMemoryVisitor (lanelet::LaneletMapPtr ll_Map) : ll_Map_(ll_Map) {std::cerr << "It was created!\n";}
+  void operator() (Point3d& p) override {}
+  void operator() (LineString3d& ls) override {}
+
+  void operator() (Polygon3d& /*unused*/) override {}
+  void operator() (WeakLanelet& llt) override { 
+    std::cerr << "inside operator for WeakLanelet!" << std::endl;
+    if (llt.expired()) {  // NOLINT
+      std::cerr << "It is expired!!" << std::endl;
+      return;
+    }
+    resolveMemory(llt, ll_Map_);
+  }
+  void operator()(WeakArea& area) {}
+  private:
+  lanelet::LaneletMapPtr ll_Map_;
 };
 
 /**

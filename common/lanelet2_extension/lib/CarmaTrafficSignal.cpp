@@ -66,21 +66,15 @@ Optional<ConstLineString3d> CarmaTrafficSignal::getStopLine(const ConstLanelet& 
   if (sl.empty()) {
     return {};
   }
-  std::cerr << "inside stop line!\n";
   auto llts = getControlStartLanelets();
-  std::cerr << "inside stop line! llts.size(): " << llts.size() << "\n";
   auto it = std::find(llts.begin(), llts.end(), llt);
-  std::cerr << "inside stop line 1!\n";
   if (llts.empty())
   {
-    std::cerr << "StartLanelest are zero!!!!!!1\n";
     return {};
   }
   if (it == llts.end()) {
-    std::cerr << "Returnning sadly\n";
     return {};
   }
-  std::cerr << "inside stop line 2!\n";
   return sl.at(size_t(std::distance(llts.begin(), it)));
 }
 
@@ -90,21 +84,15 @@ Optional<LineString3d> CarmaTrafficSignal::getStopLine(const ConstLanelet& llt)
   if (sl.empty()) {
     return {};
   }
-  std::cerr << "inside stop line!\n";
   lanelet::ConstLanelets llts = getControlStartLanelets();
-  std::cerr << "inside stop line! llts.size(): " << llts.size() << "\n";
   if (llts.empty())
   {
-    std::cerr << "StartLanelest are zero!!!!!!1\n";
     return {};
   }
   auto it = std::find(llts.begin(), llts.end(), llt);
-  std::cerr << "inside stop line 1!\n";
   if (it == llts.end()) {
-    std::cerr << "Returnning sadly\n";
     return {};
   }
-  std::cerr << "inside stop line 2!\n";
   return sl.at(size_t(std::distance(llts.begin(), it)));
 }
 
@@ -115,11 +103,6 @@ std::unique_ptr<lanelet::RegulatoryElementData> CarmaTrafficSignal::buildData(Id
 {
   // Add parameters
   RuleParameterMap rules;
-  std::cerr << "INSIDE BUILDDATA for TRAFFIC LIGHT\n";
-  for (auto llt: entry_lanelets)
-  {
-    std::cerr << "llt.d(): " << llt.id() << "\n";
-  }
   rules[lanelet::CarmaTrafficSignalRoleNameString::ControlStart].insert(rules[lanelet::CarmaTrafficSignalRoleNameString::ControlStart].end(), entry_lanelets.begin(),
                                                 entry_lanelets.end());
   rules[lanelet::CarmaTrafficSignalRoleNameString::ControlEnd].insert(rules[lanelet::CarmaTrafficSignalRoleNameString::ControlEnd].end(), exit_lanelets.begin(),
@@ -177,17 +160,12 @@ boost::optional<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> Ca
 
 lanelet::ConstLanelets CarmaTrafficSignal::getControlStartLanelets() const
 {
-  std::cerr<<"Printing parameters:\n";
-  for (auto iter = parameters().begin(); iter != parameters().end(); iter++)
-  {
-    std::cerr<<"Printing parameter[i]" << iter->first <<"\n";
-  } 
-  return getParameters<ConstLanelet>("control_start");
+  return getParameters<ConstLanelet>(CarmaTrafficSignalRoleNameString::ControlStart);
 } 
 
 lanelet::ConstLanelets CarmaTrafficSignal::getControlEndLanelets() const
 {
-  return getParameters<ConstLanelet>("control_end");
+  return getParameters<ConstLanelet>(CarmaTrafficSignalRoleNameString::ControlEnd);
 }
 
 void CarmaTrafficSignal::setStates(std::vector<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> input_time_steps, int revision)

@@ -62,9 +62,7 @@ void save(Archive& ar, const lanelet::AttributeMap& p, unsigned int /*version*/)
 
 template <typename Archive>
 void load(Archive& ar, lanelet::RuleParameterMap& p, unsigned int /*version*/) {
-  std::cerr<<"calling parameter\n";
   boost::serialization::load_map_collection(ar, p);
-
 }
 
 template <typename Archive>
@@ -121,6 +119,7 @@ void save(Archive& ar, const lanelet::Lanelet& l, unsigned int /*version*/) {
 template <typename Archive>
 void load(Archive& ar, lanelet::Lanelet& l, unsigned int /*version*/) {
   std::shared_ptr<lanelet::LaneletData> ptr;
+  
   bool inv = false;
   ar >> inv >> ptr;
   l = lanelet::Lanelet(ptr, inv);
@@ -146,31 +145,14 @@ void save(Archive& ar, const lanelet::WeakLanelet& l, unsigned int /*version*/) 
     throw lanelet::LaneletError("Can not serialize expired weak pointer!");
   }
   auto sp = l.lock();
-  std::cerr << "Still has it : " << sp.id() << "\n";
   ar& sp;
 }
 template <typename Archive>
 void load(Archive& ar, lanelet::WeakLanelet& l, unsigned int /*version*/) {
   lanelet::Lanelet lanelet;
-  //lanelet::Lanelet lanelet1;
 
-  std::cerr << "OMG WE ARE AT HERe, weaklenelt\n";
   ar& lanelet;
-  //lanelet1 = lanelet;
   l = lanelet;
-  
-  if (l.expired())
-  {
-    std::cerr << "inside, deserialization, we lost ot\n";
-  }
-  else
-  {
-    std::cerr << " still has it " << l.lock().id() << "\n";
-    std::cerr << "weak count" << l.laneletData_.use_count() << "\n";
-    //auto copy = l.laneletData_;
-    std::cerr << "weak count" << l.laneletData_.use_count() << "\n";
-
-  }
 }
 
 //! linestring + data

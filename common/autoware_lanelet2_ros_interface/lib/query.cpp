@@ -32,6 +32,14 @@ namespace lanelet
 namespace utils
 {
 
+void resolveMemory (WeakLanelet& prim, const lanelet::LaneletMapPtr ll_Map)
+{
+  if (ll_Map->laneletLayer.exists(prim.lock().id()))
+  {
+    prim = ll_Map->laneletLayer.get(prim.lock().id());
+  }
+}
+
 // Point
 void recurse (const lanelet::ConstPoint3d& prim, const lanelet::LaneletMapPtr ll_Map, query::direction check_dir, query::References& rfs)
 {

@@ -119,6 +119,7 @@ RegulatoryElementPtr RegulatoryElementFactory::create(std::string ruleName, cons
   auto& inst = RegulatoryElementFactory::instance();
   auto it = inst.registry_.find(ruleName);
   if (it != inst.registry_.end()) {
+    std::cerr << "!!!!!!! We found a place with rulename: " << ruleName << "\n";
     return it->second(data);
   }
   throw InvalidInputError("No regulatory element found that implements rule " + ruleName);
@@ -147,6 +148,15 @@ void RegulatoryElement::applyVisitor(RuleParameterVisitor& visitor) const {
   for (const auto& elems : parameters()) {
     visitor.role = elems.first;
     for (const auto& elem : elems.second) {
+      boost::apply_visitor(visitor, elem);
+    }
+  }
+}
+
+void RegulatoryElement::applyVisitor(lanelet::internal::MisheelMutableParameterVisitor& visitor) {
+  for (auto& elems : parameters()) {
+    visitor.role = elems.first;
+    for (auto& elem : elems.second) {
       boost::apply_visitor(visitor, elem);
     }
   }

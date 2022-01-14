@@ -63,17 +63,6 @@ TEST(CarmaTrafficSignalTest, CarmaTrafficSignal)
                                                             std::const_pointer_cast<lanelet::RegulatoryElementData>(regem->constData()));
 
   lanelet::CarmaTrafficSignalPtr ctl = std::dynamic_pointer_cast<lanelet::CarmaTrafficSignal>(factory_pcl);
-
-  std::cerr << "Tryign to print the entry stuff" << std::endl;
-  for (auto l : ctl->getControlStartLanelets())
-  {
-    std::cerr << "entry lanelet: " << l.id() << "\n";
-  }
-
-  for (auto l : entry_lanelets)
-  {
-    std::cerr << "lanelet: " << l.id() << "\n";
-  }
   
   ASSERT_EQ(2,entry_lanelets.size());
 
