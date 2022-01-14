@@ -32,11 +32,39 @@ namespace lanelet
 namespace utils
 {
 
-void resolveMemory (WeakLanelet& prim, const lanelet::LaneletMapPtr ll_Map)
+void overwriteWithMatchingId (WeakLanelet& prim, const lanelet::LaneletMapPtr ll_Map)
 {
   if (ll_Map->laneletLayer.exists(prim.lock().id()))
   {
     prim = ll_Map->laneletLayer.get(prim.lock().id());
+  }
+}
+void overwriteWithMatchingId (WeakArea& prim, const lanelet::LaneletMapPtr ll_Map)
+{
+  if (ll_Map->areaLayer.exists(prim.lock().id()))
+  {
+    prim = ll_Map->areaLayer.get(prim.lock().id());
+  }
+}
+void overwriteWithMatchingId (Point3d& prim, const lanelet::LaneletMapPtr ll_Map)
+{
+  if (ll_Map->pointLayer.exists(prim.id()))
+  {
+    prim = ll_Map->pointLayer.get(prim.id());
+  }
+}
+void overwriteWithMatchingId (LineString3d& prim, const lanelet::LaneletMapPtr ll_Map)
+{
+  if (ll_Map->lineStringLayer.exists(prim.id()))
+  {
+    prim = ll_Map->lineStringLayer.get(prim.id());
+  }
+}
+void overwriteWithMatchingId (Polygon3d& prim, const lanelet::LaneletMapPtr ll_Map)
+{
+  if (ll_Map->polygonLayer.exists(prim.id()))
+  {
+    prim = ll_Map->polygonLayer.get(prim.id());
   }
 }
 

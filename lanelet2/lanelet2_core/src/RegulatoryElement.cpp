@@ -153,7 +153,7 @@ void RegulatoryElement::applyVisitor(RuleParameterVisitor& visitor) const {
   }
 }
 
-void RegulatoryElement::applyVisitor(lanelet::internal::MisheelMutableParameterVisitor& visitor) {
+void RegulatoryElement::applyVisitor(lanelet::internal::TrueMutableParameterVisitor& visitor) {
   for (auto& elems : parameters()) {
     visitor.role = elems.first;
     for (auto& elem : elems.second) {

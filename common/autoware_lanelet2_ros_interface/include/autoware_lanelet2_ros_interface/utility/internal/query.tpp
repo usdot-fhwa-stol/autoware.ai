@@ -29,14 +29,15 @@ void recurse (const lanelet::ConstArea& prim,const lanelet::LaneletMapPtr ll_Map
 void recurse (const lanelet::RegulatoryElementConstPtr& prim_ptr,const lanelet::LaneletMapPtr ll_Map, query::direction check_dir, query::References& rfs);
 
 /**
- * [findReferences finds all primitives that reference the given primitive in a given map]
+ * Overwrite the given primitive with matching id one from the given ll_map. This is used to match memory address of same element from different processes.
+ * Does nothing if there is no matching id
  * @param  ll_Map [input lanelet map]
- * @return        [References object with referenced element sets for each primitive layers]
- * NOTE: Polygons and Compound primitives such as LaneletOrArea are not currently supported
  */
-//template <class primT>
-void resolveMemory (WeakLanelet& prim, const lanelet::LaneletMapPtr ll_Map);
-
+void overwriteWithMatchingId (Point3d& prim, const lanelet::LaneletMapPtr ll_Map);
+void overwriteWithMatchingId (LineString3d& prim, const lanelet::LaneletMapPtr ll_Map);
+void overwriteWithMatchingId (Polygon3d& prim, const lanelet::LaneletMapPtr ll_Map);
+void overwriteWithMatchingId (WeakLanelet& prim, const lanelet::LaneletMapPtr ll_Map);
+void overwriteWithMatchingId (WeakArea& prim, const lanelet::LaneletMapPtr ll_Map);
 
 // Helper visitor class for finding all references in other primities for a given RuleParameter, which is boost::variant
 struct RecurseVisitor : public RuleParameterVisitor {
@@ -61,23 +62,24 @@ struct RecurseVisitor : public RuleParameterVisitor {
   query::References &rfs_;
 };
 
-// TODO create function for each
-// Helper visitor class for finding existing elements with same id in the map and changing input to it
-struct ResolveMemoryVisitor : public lanelet::internal::MisheelMutableParameterVisitor {
-  explicit ResolveMemoryVisitor (lanelet::LaneletMapPtr ll_Map) : ll_Map_(ll_Map) {std::cerr << "It was created!\n";}
-  void operator() (Point3d& p) override {}
-  void operator() (LineString3d& ls) override {}
-
-  void operator() (Polygon3d& /*unused*/) override {}
+// Helper visitor class for finding existing elements with same id in the map and assigning input to it
+struct ResolveMemoryVisitor : public lanelet::internal::TrueMutableParameterVisitor {
+  explicit ResolveMemoryVisitor (lanelet::LaneletMapPtr ll_Map) : ll_Map_(ll_Map) {}
+  void operator() (Point3d& p) override { overwriteWithMatchingId(p, ll_Map_);} 
+  void operator() (LineString3d& ls) override { overwriteWithMatchingId(ls, ll_Map_);}
+  void operator() (Polygon3d& poly) override { overwriteWithMatchingId(poly, ll_Map_);}
   void operator() (WeakLanelet& llt) override { 
-    std::cerr << "inside operator for WeakLanelet!" << std::endl;
     if (llt.expired()) {  // NOLINT
-      std::cerr << "It is expired!!" << std::endl;
       return;
     }
-    resolveMemory(llt, ll_Map_);
+    overwriteWithMatchingId(llt, ll_Map_);
   }
-  void operator()(WeakArea& area) {}
+  void operator() (WeakArea& area) override { 
+    if (area.expired()) {  // NOLINT
+      return;
+    }
+    overwriteWithMatchingId(area, ll_Map_);
+  }
   private:
   lanelet::LaneletMapPtr ll_Map_;
 };
