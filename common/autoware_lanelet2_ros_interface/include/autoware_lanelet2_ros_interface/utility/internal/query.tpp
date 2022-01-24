@@ -15,6 +15,7 @@
  */
 
 #pragma once
+#include <lanelet2_extension/logging/logger.h>
 
 // NOTE: This file is not meant to be included directly. Include query.h instead
 namespace lanelet
@@ -63,19 +64,21 @@ struct RecurseVisitor : public RuleParameterVisitor {
 };
 
 // Helper visitor class for finding existing elements with same id in the map and assigning input to it
-struct OverwriteParameterVisitor : public lanelet::internal::TrueMutableParameterVisitor {
+struct OverwriteParameterVisitor : public lanelet::internal::ParameterEditorVisitor {
   explicit OverwriteParameterVisitor (lanelet::LaneletMapPtr ll_Map) : ll_Map_(ll_Map) {}
   void operator() (Point3d& p) override { overwriteWithMatchingId(p, ll_Map_);} 
   void operator() (LineString3d& ls) override { overwriteWithMatchingId(ls, ll_Map_);}
   void operator() (Polygon3d& poly) override { overwriteWithMatchingId(poly, ll_Map_);}
   void operator() (WeakLanelet& llt) override { 
     if (llt.expired()) {  // NOLINT
+      LOG_WARN_STREAM("OverwriteParameterVisitor detected that this weakLanelet has expired! Returning...");
       return;
     }
     overwriteWithMatchingId(llt, ll_Map_);
   }
   void operator() (WeakArea& area) override { 
     if (area.expired()) {  // NOLINT
+      LOG_WARN_STREAM("OverwriteParameterVisitor detected that this weakArea has expired! Returning...");
       return;
     }
     overwriteWithMatchingId(area, ll_Map_);

@@ -171,14 +171,14 @@ class MutableParameterVisitor : public boost::static_visitor<void> {  // NOLINT
  * parameter of a regulatory element 
  * @see RegulatoryElement::applyVisitor
  */
-class TrueMutableParameterVisitor : public boost::static_visitor<void> {  // NOLINT
+class ParameterEditorVisitor : public boost::static_visitor<void> {  // NOLINT
  public:
   virtual void operator()(Point3d /*unused*/&) = 0;
   virtual void operator()(LineString3d& /*unused*/) = 0;
   virtual void operator()(Polygon3d& /*unused*/) = 0;
   virtual void operator()(WeakLanelet& /*unused*/) = 0;
   virtual void operator()(WeakArea& /*unused*/) = 0;
-  virtual ~TrueMutableParameterVisitor() = default;
+  virtual ~ParameterEditorVisitor() = default;
   std::string role;  //!< applyVisitor will set the current role here
 };
 }  // namespace internal
@@ -252,7 +252,7 @@ class RegulatoryElement  // NOLINT
 
   //! applies a visitor to every parameter in the regulatory element
   void applyVisitor(RuleParameterVisitor& visitor) const;
-  void applyVisitor(lanelet::internal::TrueMutableParameterVisitor& visitor);
+  void applyVisitor(lanelet::internal::ParameterEditorVisitor& visitor);
 
 
  protected:

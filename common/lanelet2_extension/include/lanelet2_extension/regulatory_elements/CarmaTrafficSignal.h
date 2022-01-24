@@ -142,7 +142,9 @@ public:
    * @brief prefictState assumes sorted, fixed time, so guaranteed to give you one final state
    *
    * @param time_stamp boost::posix_time::ptime of the event happening
-   * @return std::pair of signal state and its end time at the input time 
+   * @return std::pair of signal state and its end time at the input time
+   *         optional will empty if no timestamps are recorded yet
+   * @throw  InvalidInputError if timestamps recorded somehow did not have full cycle
    */
   boost::optional<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> predictState(boost::posix_time::ptime time_stamp);
   
@@ -155,9 +157,10 @@ public:
   /**
    * @brief Return the stop_lines related to the specified entry lanelet
    * @param llt entry_lanelet 
-   * @return optional stop line linestring
+   * @return optional stop line linestring. 
+   *         Empty optional if no stopline, or no entry lanelets, or if specified entry lanelet is not recorded. 
    */
-  Optional<ConstLineString3d> getStopLine(const ConstLanelet& llt) const;
+  Optional<ConstLineString3d> getConstStopLine(const ConstLanelet& llt);
   Optional<LineString3d> getStopLine(const ConstLanelet& llt);
 
   explicit CarmaTrafficSignal(const lanelet::RegulatoryElementDataPtr& data);

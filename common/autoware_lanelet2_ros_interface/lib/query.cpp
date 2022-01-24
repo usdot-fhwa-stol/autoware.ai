@@ -34,16 +34,24 @@ namespace utils
 
 void overwriteWithMatchingId (WeakLanelet& prim, const lanelet::LaneletMapPtr ll_Map)
 {
-  if (ll_Map->laneletLayer.exists(prim.lock().id()))
+  if (auto prim_ptr = prim.lock() && ll_Map->laneletLayer.exists(prim_ptr->id()))
   {
     prim = ll_Map->laneletLayer.get(prim.lock().id());
+  }
+  else 
+  {
+    LOG_WARN_STREAM("Could not acquire weak pointer lock for weakLanelet or primitive did not exist in the map");
   }
 }
 void overwriteWithMatchingId (WeakArea& prim, const lanelet::LaneletMapPtr ll_Map)
 {
-  if (ll_Map->areaLayer.exists(prim.lock().id()))
+  if (auto prim_ptr = prim.lock() && ll_Map->areaLayer.exists(prim_ptr->id()))
   {
     prim = ll_Map->areaLayer.get(prim.lock().id());
+  }
+  else 
+  {
+    LOG_WARN_STREAM("Could not acquire weak pointer lock for weakArea or primitive did not exist in the map");
   }
 }
 void overwriteWithMatchingId (Point3d& prim, const lanelet::LaneletMapPtr ll_Map)

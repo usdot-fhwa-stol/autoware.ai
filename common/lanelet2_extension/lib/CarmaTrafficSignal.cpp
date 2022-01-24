@@ -60,40 +60,34 @@ LineStrings3d CarmaTrafficSignal::stopLine()
   return getParameters<LineString3d>(RoleName::RefLine);
 }
 
-Optional<ConstLineString3d> CarmaTrafficSignal::getStopLine(const ConstLanelet& llt) const 
-{
-  auto sl = stopLine();
-  if (sl.empty()) {
-    return {};
-  }
-  auto llts = getControlStartLanelets();
-  auto it = std::find(llts.begin(), llts.end(), llt);
-  if (llts.empty())
-  {
-    return {};
-  }
-  if (it == llts.end()) {
-    return {};
-  }
-  return sl.at(size_t(std::distance(llts.begin(), it)));
-}
-
 Optional<LineString3d> CarmaTrafficSignal::getStopLine(const ConstLanelet& llt) 
 {
   auto sl = stopLine();
   if (sl.empty()) {
-    return {};
+    return boost::none;
   }
   lanelet::ConstLanelets llts = getControlStartLanelets();
   if (llts.empty())
   {
-    return {};
+    return boost::none;
   }
   auto it = std::find(llts.begin(), llts.end(), llt);
   if (it == llts.end()) {
-    return {};
+    return boost::none;
   }
   return sl.at(size_t(std::distance(llts.begin(), it)));
+}
+
+Optional<ConstLineString3d> CarmaTrafficSignal::getConstStopLine(const ConstLanelet& llt) 
+{
+  Optional<LineString3d> mutable_stop_line = getStopLine(llt);
+  
+  if (!mutable_stop_line)
+    return boost::none;
+
+  ConstLineString3d const_stop_line = mutable_stop_line.get();
+  
+  return const_stop_line;
 }
 
 CarmaTrafficSignal::CarmaTrafficSignal(const lanelet::RegulatoryElementDataPtr& data) : RegulatoryElement(data)
