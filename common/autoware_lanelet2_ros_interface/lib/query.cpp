@@ -34,24 +34,40 @@ namespace utils
 
 void overwriteWithMatchingId (WeakLanelet& prim, const lanelet::LaneletMapPtr ll_Map)
 {
-  if (auto prim_ptr = prim.lock() && ll_Map->laneletLayer.exists(prim_ptr->id()))
+  if (prim.expired())
   {
-    prim = ll_Map->laneletLayer.get(prim.lock().id());
+    LOG_WARN_STREAM("Could not acquire weak pointer lock for weakLanelet");
+    return;
+  }
+    
+  auto prim_locked = prim.lock();
+ 
+  if (ll_Map->laneletLayer.exists(prim_locked.id()))
+  {
+    prim = ll_Map->laneletLayer.get(prim_locked.id());
   }
   else 
   {
-    LOG_WARN_STREAM("Could not acquire weak pointer lock for weakLanelet or primitive did not exist in the map");
+    LOG_WARN_STREAM("Lanelet primitive did not exist in the map");
   }
 }
 void overwriteWithMatchingId (WeakArea& prim, const lanelet::LaneletMapPtr ll_Map)
 {
-  if (auto prim_ptr = prim.lock() && ll_Map->areaLayer.exists(prim_ptr->id()))
+  if (prim.expired())
   {
-    prim = ll_Map->areaLayer.get(prim.lock().id());
+    LOG_WARN_STREAM("Could not acquire weak pointer lock for weakArea");
+    return;
+  }
+    
+  auto prim_locked = prim.lock();
+ 
+  if (ll_Map->areaLayer.exists(prim_locked.id()))
+  {
+    prim = ll_Map->areaLayer.get(prim_locked.id());
   }
   else 
   {
-    LOG_WARN_STREAM("Could not acquire weak pointer lock for weakArea or primitive did not exist in the map");
+    LOG_WARN_STREAM("Area primitive did not exist in the map");
   }
 }
 void overwriteWithMatchingId (Point3d& prim, const lanelet::LaneletMapPtr ll_Map)
