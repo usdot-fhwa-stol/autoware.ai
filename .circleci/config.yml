@@ -72,7 +72,7 @@ jobs:
             source ${INIT_ENV}
             source ${ROS_2_ENV}
             cd autoware.ai/
-            build-wrapper-linux-x86-64 --out-dir /opt/carma/bw-output colcon build --install-base ./ros/install_ros2 --build-base ./ros/build_ros2 --cmake-args -DCMAKE_BUILD_TYPE=Debug -DCMAKE_LIBRARY_PATH=/usr/local/cuda/lib64/stubs -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}"
+            build-wrapper-linux-x86-64 --out-dir /opt/carma/bw-output colcon build --install-base ./ros/install_ros2 --build-base ./ros/build_ros2 --cmake-args -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}"
 
       # Run SonarCloud analysis
       # PR Branchs and number extracted from Circle variables and github api
