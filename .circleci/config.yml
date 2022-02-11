@@ -54,8 +54,9 @@ jobs:
           command: |
             source ${INIT_ENV}
             cd autoware.ai/
+            export ROS_PARALLEL_JOBS='-j1 -l1' # try to reduce memory consumption on build
             export AUTOWARE_COMPILE_WITH_CUDA=1 
-            build-wrapper-linux-x86-64 --out-dir /opt/carma/bw-output colcon build --install-base ./ros/install --cmake-args -DCMAKE_BUILD_TYPE=Debug -DCMAKE_LIBRARY_PATH=/usr/local/cuda/lib64/stubs -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}"
+            build-wrapper-linux-x86-64 --out-dir /opt/carma/bw-output colcon build --parallel-workers 4 --install-base ./ros/install --cmake-args -DCMAKE_BUILD_TYPE=Debug -DCMAKE_LIBRARY_PATH=/usr/local/cuda/lib64/stubs -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}"
       # The free version of Circle CI does not have enough memory to run tests in this repo
       # The following run statement can be used as a starting point for future implementation of automated unit tests
       # - run:
@@ -71,7 +72,7 @@ jobs:
             source ${INIT_ENV}
             source ${ROS_2_ENV}
             cd autoware.ai/
-            build-wrapper-linux-x86-64 --out-dir /opt/carma/bw-output colcon build --install-base ./ros/install_ros2 --build-base ./ros/build_ros2 --cmake-args -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}"
+            build-wrapper-linux-x86-64 --out-dir /opt/carma/bw-output colcon build --parallel-workers 4 --install-base ./ros/install_ros2 --build-base ./ros/build_ros2 --cmake-args -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}"
 
       # Run SonarCloud analysis
       # PR Branchs and number extracted from Circle variables and github api
