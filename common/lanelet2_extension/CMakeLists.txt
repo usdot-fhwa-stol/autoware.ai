@@ -137,6 +137,8 @@ if(${ROS_VERSION} EQUAL 2)
   )
 
   add_definitions (${GeographicLib_DEFINITIONS})
+  ament_export_definitions(-DLANELET2_EXTENSION_LOGGER_TYPE=0)
+  ament_export_definitions(-DLANELET2_EXTENSION_ROS_VERSION=2)
 
   # Build
   ament_auto_add_library(lanelet2_extension_lib SHARED
