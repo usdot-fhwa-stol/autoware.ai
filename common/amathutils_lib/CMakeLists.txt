@@ -113,7 +113,7 @@ else() #ROS2
     amathutils_lib_ros2/include
   )
 
-  ament_auto_add_library(amathutils_ros2_lib SHARED
+  ament_auto_add_library(amathutils_lib SHARED
     amathutils_lib_ros2/src/Amathutils.cpp
     amathutils_lib_ros2/src/butterworth_filter.cpp
     amathutils_lib_ros2/src/kalman_filter.cpp
@@ -127,15 +127,15 @@ else() #ROS2
 
     ament_add_gtest(test_amathutils_lib_ros2 amathutils_lib_ros2/test/test_amathutils_lib.cpp)
     ament_target_dependencies(test_amathutils_lib_ros2 ${${PROJECT_NAME}_FOUND_TEST_DEPENDS})
-    target_link_libraries(test_amathutils_lib_ros2 amathutils_ros2_lib)
+    target_link_libraries(test_amathutils_lib_ros2 amathutils_lib)
 
     ament_add_gtest(test_butterworth_filter amathutils_lib_ros2/test/test_butterworth_filter.cpp)
     ament_target_dependencies(test_butterworth_filter ${${PROJECT_NAME}_FOUND_TEST_DEPENDS})
-    target_link_libraries(test_butterworth_filter amathutils_ros2_lib)
+    target_link_libraries(test_butterworth_filter amathutils_lib)
 
     ament_add_gtest(test_kalman_filter amathutils_lib_ros2/test/test_kalman_filter.cpp)
     ament_target_dependencies(test_kalman_filter ${${PROJECT_NAME}_FOUND_TEST_DEPENDS})
-    target_link_libraries(test_kalman_filter amathutils_ros2_lib)
+    target_link_libraries(test_kalman_filter amathutils_lib)
 
   endif()
 
