@@ -35,7 +35,7 @@ jobs:
           INIT_ENV: /home/carma/.base-image/init-env.sh
           ROS_2_ENV: /opt/ros/foxy/setup.bash
           COVERAGE_FLAGS: -g --coverage -fprofile-arcs -ftest-coverage -Wall
-    resource_class: large       
+    resource_class: xlarge       
     # Set working directory
     working_directory: "/opt/carma/"
     # Pull code and execute tests
