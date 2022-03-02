@@ -34,6 +34,7 @@ jobs:
           TERM: xterm
           INIT_ENV: /home/carma/.base-image/init-env.sh
           ROS_2_ENV: /opt/ros/foxy/setup.bash
+          MIXED_CATKIN_ENV: /home/carma/catkin/setup.bash
           COVERAGE_FLAGS: -g --coverage -fprofile-arcs -ftest-coverage -Wall
     resource_class: xlarge       
     # Set working directory
@@ -71,6 +72,7 @@ jobs:
           command: |
             source ${INIT_ENV}
             source ${ROS_2_ENV}
+            source ${MIXED_CATKIN_ENV}
             cd autoware.ai/
             build-wrapper-linux-x86-64 --out-dir /opt/carma/bw-output colcon build --parallel-workers 4 --install-base ./ros/install_ros2 --build-base ./ros/build_ros2 --cmake-args -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}"
 
