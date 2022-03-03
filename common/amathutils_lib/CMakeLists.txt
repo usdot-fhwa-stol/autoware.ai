@@ -6,7 +6,6 @@ find_package(ros_environment REQUIRED)
 set(ROS_VERSION $ENV{ROS_VERSION})
 
 if(${ROS_VERSION} EQUAL 1)
-  message("Building ros1")
   
   find_package(autoware_build_flags REQUIRED)
 
@@ -105,7 +104,6 @@ if(${ROS_VERSION} EQUAL 1)
   endif()     
 
 else() #ROS2
-  message("Building ros2")
 
   find_package(ament_cmake_auto REQUIRED)
   ament_auto_find_build_dependencies()
