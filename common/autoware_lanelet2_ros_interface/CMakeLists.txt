@@ -32,7 +32,6 @@ find_path(PUGIXML_INCLUDE_DIRS
 
 
 if(${ROS_VERSION} EQUAL 1)
-  message("Building ros1")
 
   set(CMAKE_CXX_FLAGS "-std=c++14 -fext-numeric-literals")
   set(CMAKE_CXX_STANDARD 14)
@@ -135,14 +134,11 @@ if(${ROS_VERSION} EQUAL 1)
 
 else() #ROS2
 
-  message("Building ros2")
   ## Find dependencies using ament auto
   find_package(ament_cmake_auto REQUIRED)
   ament_auto_find_build_dependencies()
 
   find_package(lanelet2_extension REQUIRED)
-
-  # find_package(PkgConfig)
 
   # Includes
   include_directories(
