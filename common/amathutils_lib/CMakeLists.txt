@@ -6,7 +6,7 @@ find_package(ros_environment REQUIRED)
 set(ROS_VERSION $ENV{ROS_VERSION})
 
 if(${ROS_VERSION} EQUAL 1)
-
+  
   find_package(autoware_build_flags REQUIRED)
 
   find_package(Eigen3 REQUIRED)
@@ -109,14 +109,14 @@ else() #ROS2
   ament_auto_find_build_dependencies()
 
   include_directories(
-    amathutils_lib_ros2/include
+    include/amathutils_lib_ros2
   )
 
   ament_auto_add_library(amathutils_lib SHARED
-    amathutils_lib_ros2/src/Amathutils.cpp
-    amathutils_lib_ros2/src/butterworth_filter.cpp
-    amathutils_lib_ros2/src/kalman_filter.cpp
-    amathutils_lib_ros2/src/time_delay_kalman_filter.cpp
+    src/amathutils_lib_ros2/amathutils.cpp
+    src/amathutils_lib_ros2/butterworth_filter.cpp
+    src/amathutils_lib_ros2/kalman_filter.cpp
+    src/amathutils_lib_ros2/time_delay_kalman_filter.cpp
   )
   if(BUILD_TESTING)  
 
@@ -124,15 +124,15 @@ else() #ROS2
     find_package(launch_testing_ament_cmake)
     ament_lint_auto_find_test_dependencies() # This populates the ${${PROJECT_NAME}_FOUND_TEST_DEPENDS} variable
 
-    ament_add_gtest(test_amathutils_lib_ros2 amathutils_lib_ros2/test/test_amathutils_lib.cpp)
+    ament_add_gtest(test_amathutils_lib_ros2 test/amathutils_lib_ros2/test_amathutils_lib.cpp)
     ament_target_dependencies(test_amathutils_lib_ros2 ${${PROJECT_NAME}_FOUND_TEST_DEPENDS})
     target_link_libraries(test_amathutils_lib_ros2 amathutils_lib)
 
-    ament_add_gtest(test_butterworth_filter amathutils_lib_ros2/test/test_butterworth_filter.cpp)
+    ament_add_gtest(test_butterworth_filter test/amathutils_lib_ros2/test_butterworth_filter.cpp)
     ament_target_dependencies(test_butterworth_filter ${${PROJECT_NAME}_FOUND_TEST_DEPENDS})
     target_link_libraries(test_butterworth_filter amathutils_lib)
 
-    ament_add_gtest(test_kalman_filter amathutils_lib_ros2/test/test_kalman_filter.cpp)
+    ament_add_gtest(test_kalman_filter test/amathutils_lib_ros2/test_kalman_filter.cpp)
     ament_target_dependencies(test_kalman_filter ${${PROJECT_NAME}_FOUND_TEST_DEPENDS})
     target_link_libraries(test_kalman_filter amathutils_lib)
 
