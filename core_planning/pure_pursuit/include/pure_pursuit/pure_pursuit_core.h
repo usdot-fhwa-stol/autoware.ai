@@ -80,7 +80,7 @@ private:
   // control loop update rate
   double update_rate_;
   
-const int DEFAULT_VELOCITY_SOURCE_ = 0;
+  const int DEFAULT_VELOCITY_SOURCE_ = 0;
   const double DEFAULT_CONST_VELOCITY_ = 5.0;
 
   // variables
@@ -97,6 +97,12 @@ const int DEFAULT_VELOCITY_SOURCE_ = 0;
   // the next waypoint must be outside of this threshold.
   double minimum_lookahead_distance_;
   std::string output_interface_;
+
+  // parameters for controller shutdown
+  long consecutive_input_counter_ = 0;
+  int ignore_initial_inputs_ = 0;
+  long prev_input_time_ = 0;
+  int shutdown_timeout_ = 200;
 
   // callbacks
   void callbackFromCurrentPose(const geometry_msgs::PoseStampedConstPtr& msg);

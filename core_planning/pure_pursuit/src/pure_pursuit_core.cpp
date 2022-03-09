@@ -60,6 +60,8 @@ void PurePursuitNode::initForROS()
   private_nh_.param("out_twist_name", out_twist, std::string("twist_raw"));
   private_nh_.param("out_ctrl_cmd_name", out_ctrl_cmd, std::string("ctrl_raw"));
   private_nh_.param("output_interface", output_interface_, std::string("ctrl_cmd"));
+  private_nh_.param("ignore_initial_inputs", ignore_initial_inputs_, 0);
+  private_nh_.param("shutdown_timeout", shutdown_timeout_, 200);
  
 
   // Output type, use old parameter name only if it is set
@@ -118,6 +120,25 @@ void PurePursuitNode::run()
     loop_rate.expectedCycleTime(),
     
     [this](const auto&) { 
+
+      long current_time = ros::Time::now().toNSec() / 1000000;
+      ROS_DEBUG_STREAM("current_time = " << current_time << ", prev_input_time_ = " << prev_input_time_ << ", input counter = " << consecutive_input_counter_);
+      // If it has been a long time since input data has arrived then reset the input counter and return so control signals arent published anymore
+      if (current_time - prev_input_time_ > shutdown_timeout_)
+      {
+        ROS_DEBUG_STREAM("returning due to timeout.");
+        consecutive_input_counter_ = 0;
+        is_waypoint_set_ = false;
+        return;
+      }
+
+      // If there have not been enough consecutive timely inputs then return (waiting for
+      // previous control plugin to time out and stop publishing, since it uses same output topic)
+      if (consecutive_input_counter_ <= ignore_initial_inputs_)
+      {
+        ROS_DEBUG_STREAM("returning due to first data input");
+        return;
+      }
 
       if (!is_pose_set_ || !is_waypoint_set_ || !is_velocity_set_) // One time check on desired input data
       {
@@ -303,6 +324,13 @@ void PurePursuitNode::callbackFromCurrentVelocity(const geometry_msgs::TwistStam
 
 void PurePursuitNode::callbackFromWayPoints(const autoware_msgs::LaneConstPtr& msg)
 {
+
+  prev_input_time_ = ros::Time::now().toNSec() / 1000000;
+  ++consecutive_input_counter_;
+  ROS_DEBUG_STREAM("New trajectory plan #" << consecutive_input_counter_ << " at time " << prev_input_time_);
+  // TODO prev_input_time_ replaced by msg timestamp, if the value is valid during tests
+  ROS_DEBUG_STREAM("lane msg header time =                " << msg->header.stamp.toNSec() / 1000000);
+
   
   if (add_virtual_end_waypoints_)
   {
