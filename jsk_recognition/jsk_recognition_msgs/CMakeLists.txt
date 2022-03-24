@@ -39,7 +39,7 @@ if(${ROS_VERSION} EQUAL 1) # ROS 1
   endforeach(filePath)
 
   find_package(catkin REQUIRED
-  std_msgs sensor_msgs geometry_msgs message_generation pcl_msgs jsk_footstep_msgs)
+  std_msgs sensor_msgs geometry_msgs message_generation pcl_msgs)
   
   add_message_files(
     FILES
@@ -60,10 +60,10 @@ if(${ROS_VERSION} EQUAL 1) # ROS 1
 
   generate_messages(
     DEPENDENCIES
-    std_msgs sensor_msgs geometry_msgs pcl_msgs jsk_footstep_msgs
+    std_msgs sensor_msgs geometry_msgs pcl_msgs
   )
   catkin_package(
-    CATKIN_DEPENDS std_msgs sensor_msgs geometry_msgs pcl_msgs jsk_footstep_msgs
+    CATKIN_DEPENDS std_msgs sensor_msgs geometry_msgs pcl_msgs
   )
 
   # From https://github.com/jsk-ros-pkg/jsk_recognition/pull/2345
@@ -104,7 +104,6 @@ else() # ROS 2
   find_package(std_msgs REQUIRED)
   find_package(sensor_msgs REQUIRED)
   find_package(pcl_msgs REQUIRED)
-  find_package(jsk_footstep_msgs REQUIRED)
 
   rosidl_generate_interfaces(
     ${PROJECT_NAME}
@@ -115,7 +114,6 @@ else() # ROS 2
       sensor_msgs
       geometry_msgs
       pcl_msgs
-      jsk_footstep_msgs
   )
 
   ament_export_dependencies(rosidl_default_runtime)
