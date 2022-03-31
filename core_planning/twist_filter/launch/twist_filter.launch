@@ -7,7 +7,7 @@
   <arg name="lowpass_gain_linear_x" default="0.0" />
   <arg name="lowpass_gain_angular_z" default="0.0" />
   <arg name="lowpass_gain_steering_angle" default="0.0" />
-  <arg name="longitudinal_velocity_limit" default="35.7632" />
+  <arg name="longitudinal_velocity_limit" default="80.0" /> <!--mph-->
   <arg name="longitudinal_accel_limit" default="3.5" />
 
   <!-- rosrun waypoint_follower twist_filter -->
