@@ -1,4 +1,4 @@
-FROM usdotfhwastoldev/carma-base:develop as base_image
+FROM usdotfhwastolcandidate/carma-base:jetta-gillet as base_image
 
 FROM base_image as build
 
