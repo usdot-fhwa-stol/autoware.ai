@@ -54,22 +54,22 @@ void Context::SetContexts(std::vector<Context>* out_signal_contexts,
 
   std::vector<int> lane_id_vector;
 
-  for (unsigned int i = 0; i < in_lamp_signals_positions->Signals.size(); i++)
+  for (unsigned int i = 0; i < in_lamp_signals_positions->signals.size(); i++)
   {
     autoware_msgs::ExtractedPosition tmp_lamp_position;
-    tmp_lamp_position.signalId = in_lamp_signals_positions->Signals.at(i).signalId;
-    tmp_lamp_position.u = in_lamp_signals_positions->Signals.at(i).u;
-    tmp_lamp_position.v = in_lamp_signals_positions->Signals.at(i).v;
-    tmp_lamp_position.radius = in_lamp_signals_positions->Signals.at(i).radius;
-    tmp_lamp_position.x = in_lamp_signals_positions->Signals.at(i).x;
-    tmp_lamp_position.y = in_lamp_signals_positions->Signals.at(i).y;
-    tmp_lamp_position.z = in_lamp_signals_positions->Signals.at(i).z;
-    tmp_lamp_position.type = in_lamp_signals_positions->Signals.at(i).type;
-    tmp_lamp_position.linkId = in_lamp_signals_positions->Signals.at(i).linkId;
-    tmp_lamp_position.plId = in_lamp_signals_positions->Signals.at(i).plId;
+    tmp_lamp_position.signal_id = in_lamp_signals_positions->signals.at(i).signal_id;
+    tmp_lamp_position.u = in_lamp_signals_positions->signals.at(i).u;
+    tmp_lamp_position.v = in_lamp_signals_positions->signals.at(i).v;
+    tmp_lamp_position.radius = in_lamp_signals_positions->signals.at(i).radius;
+    tmp_lamp_position.x = in_lamp_signals_positions->signals.at(i).x;
+    tmp_lamp_position.y = in_lamp_signals_positions->signals.at(i).y;
+    tmp_lamp_position.z = in_lamp_signals_positions->signals.at(i).z;
+    tmp_lamp_position.type = in_lamp_signals_positions->signals.at(i).type;
+    tmp_lamp_position.link_id = in_lamp_signals_positions->signals.at(i).link_id;
+    tmp_lamp_position.pl_id = in_lamp_signals_positions->signals.at(i).pl_id;
     signals_lamps.push_back(tmp_lamp_position);
 
-    lane_id_vector.push_back(tmp_lamp_position.linkId);  // store lanes ids, to later identify signals contexts
+    lane_id_vector.push_back(tmp_lamp_position.link_id);  // store lanes ids, to later identify signals contexts
   }
 
   // get unique lane ids
@@ -100,7 +100,7 @@ void Context::SetContexts(std::vector<Context>* out_signal_contexts,
       double map_y = lamp_iterator->y;
       double map_z = lamp_iterator->z;
       int radius = lamp_iterator->radius;
-      if (lamp_iterator->linkId == lane_id_vector.at(ctx_idx) && 0 < img_x - radius - 1.5 * radius &&
+      if (lamp_iterator->link_id == lane_id_vector.at(ctx_idx) && 0 < img_x - radius - 1.5 * radius &&
           img_x + radius + 1.5 * radius < in_image_width && 0 < img_y - radius - 1.5 * radius &&
           img_y + radius + 1.5 * radius < in_image_height)
       {
@@ -118,8 +118,8 @@ void Context::SetContexts(std::vector<Context>* out_signal_contexts,
             current_signal_context.yellowCenter = cv::Point(img_x, img_y);
             current_signal_context.yellowCenter3d = cv::Point3d(map_x, map_y, map_z);
             // use yellow light bulb signalID as this context's representative
-            current_signal_context.signalID = lamp_iterator->signalId;
-            current_signal_context.closestLaneId = lamp_iterator->linkId;
+            current_signal_context.signalID = lamp_iterator->signal_id;
+            current_signal_context.closestLaneId = lamp_iterator->link_id;
             break;
           case 21: /*RED LEFT*/
             current_signal_context.redCenter = cv::Point(img_x, img_y);
@@ -136,8 +136,8 @@ void Context::SetContexts(std::vector<Context>* out_signal_contexts,
             current_signal_context.yellowCenter3d = cv::Point3d(map_x, map_y, map_z);
             current_signal_context.leftTurnSignal = true;
             // use yellow light bulb signalID as this context's representative
-            current_signal_context.signalID = lamp_iterator->signalId;
-            current_signal_context.closestLaneId = lamp_iterator->linkId;
+            current_signal_context.signal_id = lamp_iterator->signal_id;
+            current_signal_context.closestLaneId = lamp_iterator->link_id;
             break;
           default: /* this signal is not for cars (for pedestrian or something) */
             continue;

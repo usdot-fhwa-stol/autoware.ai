@@ -401,7 +401,7 @@ void FeatProjLanelet2::findSignalsInCameraFrame(const std::vector<lanelet::Autow
           radius = static_cast<int>((Eigen::Vector2f(ux - u, vx - v)).norm());
 
           autoware_msgs::ExtractedPosition sign;
-          sign.signalId = p.id();
+          sign.signal_id = p.id();
           sign.u = u + adjust_proj_x_;
           sign.v = v + adjust_proj_y_;
 
@@ -426,10 +426,10 @@ void FeatProjLanelet2::findSignalsInCameraFrame(const std::vector<lanelet::Autow
             }
           }
 
-          sign.linkId = ls.id();  // this should be lane id? -> traffic light reg elem id ok because unique to multiple
+          sign.link_id = ls.id();  // this should be lane id? -> traffic light reg elem id ok because unique to multiple
                                   // physical traffic lights
-          sign.plId = ls.id();
-          signal_in_frame->Signals.push_back(sign);
+          sign.pl_id = ls.id();
+          signal_in_frame->signals.push_back(sign);
         }
       }  // for each point p
     }    // for each linestring ls

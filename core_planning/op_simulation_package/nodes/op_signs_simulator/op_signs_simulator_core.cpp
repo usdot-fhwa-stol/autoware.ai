@@ -55,17 +55,17 @@ OpenPlannerSimulatorSigns::OpenPlannerSimulatorSigns()
 	for(unsigned int i = 0; i < m_Params.firstSignsIds.size(); i++)
 	{
 		autoware_msgs::ExtractedPosition s;
-		s.signalId = m_Params.firstSignsIds.at(i);
+		s.signal_id = m_Params.firstSignsIds.at(i);
 		s.type = 1;
-		m_FirstSignals.Signals.push_back(s);
+		m_FirstSignals.signals.push_back(s);
 	}
 
 	for(unsigned int i=0; i < m_Params.secondSignsIds.size(); i++)
 	{
 		autoware_msgs::ExtractedPosition s;
-		s.signalId = m_Params.secondSignsIds.at(i);
+		s.signal_id = m_Params.secondSignsIds.at(i);
 		s.type = 0;
-		m_SecondSignals.Signals.push_back(s);
+		m_SecondSignals.signals.push_back(s);
 	}
 
 
@@ -104,10 +104,10 @@ OpenPlannerSimulatorSigns::~OpenPlannerSimulatorSigns()
 void OpenPlannerSimulatorSigns::VisualizeTrafficLight(autoware_msgs::Signals& _signals)
 {
 	std::vector<PlannerHNS::TrafficLight> simulatedLights;
-	for(unsigned int i = 0 ; i < _signals.Signals.size() ; i++)
+	for(unsigned int i = 0 ; i < _signals.signals.size() ; i++)
 	{
 		PlannerHNS::TrafficLight tl;
-		tl.id = _signals.Signals.at(i).signalId;
+		tl.id = _signals.signals.at(i).signal_id;
 
 		for(unsigned int k = 0; k < m_Map.trafficLights.size(); k++)
 		{
@@ -118,7 +118,7 @@ void OpenPlannerSimulatorSigns::VisualizeTrafficLight(autoware_msgs::Signals& _s
 			}
 		}
 
-		if(_signals.Signals.at(i).type == 1)
+		if(_signals.signals.at(i).type == 1)
 		{
 			tl.lightState = PlannerHNS::GREEN_LIGHT;
 		}
@@ -195,11 +195,11 @@ void OpenPlannerSimulatorSigns::MainLoop()
 			//std::cout << "Greeeeeen" << std::endl;
 			if(UtilityHNS::UtilityH::GetTimeDiffNow(m_Timer) < m_Params.firstGreenTime)
 			{
-				for(unsigned int i =0; i<m_FirstSignals.Signals.size(); i++)
-					m_FirstSignals.Signals.at(i).type = 1;
+				for(unsigned int i =0; i<m_FirstSignals.signals.size(); i++)
+					m_FirstSignals.signals.at(i).type = 1;
 
-				for(unsigned int i =0; i<m_SecondSignals.Signals.size(); i++)
-					m_SecondSignals.Signals.at(i).type = 0;
+				for(unsigned int i =0; i<m_SecondSignals.signals.size(); i++)
+					m_SecondSignals.signals.at(i).type = 0;
 			}
 			else
 			{
@@ -212,11 +212,11 @@ void OpenPlannerSimulatorSigns::MainLoop()
 			//std::cout << "Yelowwwwww" << std::endl;
 			if(UtilityHNS::UtilityH::GetTimeDiffNow(m_Timer) < m_Params.firstyellowTime)
 			{
-				for(unsigned int i =0; i< m_FirstSignals.Signals.size(); i++)
-					m_FirstSignals.Signals.at(i).type = 0;
+				for(unsigned int i =0; i< m_FirstSignals.signals.size(); i++)
+					m_FirstSignals.signals.at(i).type = 0;
 
-				for(unsigned int i =0; i<m_SecondSignals.Signals.size(); i++)
-					m_SecondSignals.Signals.at(i).type = 0;
+				for(unsigned int i =0; i<m_SecondSignals.signals.size(); i++)
+					m_SecondSignals.signals.at(i).type = 0;
 			}
 			else
 			{
@@ -229,11 +229,11 @@ void OpenPlannerSimulatorSigns::MainLoop()
 			//std::cout << "Reeeeeeed" << std::endl;
 			if(UtilityHNS::UtilityH::GetTimeDiffNow(m_Timer) < m_Params.secondGreenTime)
 			{
-				for(unsigned int i =0; i<m_FirstSignals.Signals.size(); i++)
-					m_FirstSignals.Signals.at(i).type = 0;
+				for(unsigned int i =0; i<m_FirstSignals.signals.size(); i++)
+					m_FirstSignals.signals.at(i).type = 0;
 
-				for(unsigned int i =0; i<m_SecondSignals.Signals.size(); i++)
-					m_SecondSignals.Signals.at(i).type = 1;
+				for(unsigned int i =0; i<m_SecondSignals.signals.size(); i++)
+					m_SecondSignals.signals.at(i).type = 1;
 			}
 			else
 			{
@@ -246,11 +246,11 @@ void OpenPlannerSimulatorSigns::MainLoop()
 			//std::cout << "Yelowwwwww" << std::endl;
 			if(UtilityHNS::UtilityH::GetTimeDiffNow(m_Timer) < m_Params.secondyellowTime)
 			{
-				for(unsigned int i =0; i<m_FirstSignals.Signals.size(); i++)
-					m_FirstSignals.Signals.at(i).type = 0;
+				for(unsigned int i =0; i<m_FirstSignals.signals.size(); i++)
+					m_FirstSignals.signals.at(i).type = 0;
 
-				for(unsigned int i =0; i<m_SecondSignals.Signals.size(); i++)
-					m_SecondSignals.Signals.at(i).type = 0;
+				for(unsigned int i =0; i<m_SecondSignals.signals.size(); i++)
+					m_SecondSignals.signals.at(i).type = 0;
 			}
 			else
 			{
@@ -260,10 +260,10 @@ void OpenPlannerSimulatorSigns::MainLoop()
 		}
 
 		autoware_msgs::Signals all_signals;
-		all_signals.Signals.insert(all_signals.Signals.end(), m_FirstSignals.Signals.begin(), m_FirstSignals.Signals.end());
-		all_signals.Signals.insert(all_signals.Signals.end(), m_SecondSignals.Signals.begin(), m_SecondSignals.Signals.end());
+		all_signals.signals.insert(all_signals.signals.end(), m_FirstSignals.signals.begin(), m_FirstSignals.signals.end());
+		all_signals.signals.insert(all_signals.signals.end(), m_SecondSignals.signals.begin(), m_SecondSignals.signals.end());
 
-		//std::cout << "Number of Signals before send: " << all_signals.Signals.size()  << std::endl;
+		//std::cout << "Number of Signals before send: " << all_signals.signals.size()  << std::endl;
 		pub_trafficLights.publish(all_signals);
 
 		if(bMap)

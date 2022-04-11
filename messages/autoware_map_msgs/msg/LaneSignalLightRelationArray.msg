@@ -1,4 +1,4 @@
 # This consists of multiple LaneSignalLightRelation objects in a map. 
 
-Header header
+std_msgs/Header header
 LaneSignalLightRelation[] data

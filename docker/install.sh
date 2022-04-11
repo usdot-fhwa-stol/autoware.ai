@@ -14,6 +14,10 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
+
+###
+# ROS 1 Build
+###
 # Source environment variables
 source /home/carma/.base-image/init-env.sh
 
@@ -21,8 +25,26 @@ source /home/carma/.base-image/init-env.sh
 cd /home/carma/autoware.ai
 
 # Build with CUDA
-echo "Build with CUDA"
+echo "ROS 1 Build with CUDA"
 sudo mkdir /opt/autoware.ai # Create install directory
 sudo chown carma /opt/autoware.ai # Set owner to expose permissions for build
 sudo chgrp carma /opt/autoware.ai # Set group to expose permissions for build
-AUTOWARE_COMPILE_WITH_CUDA=1 colcon build --install-base /opt/autoware.ai/ros/install --cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_LIBRARY_PATH=/usr/local/cuda/lib64/stubs -DCMAKE_CXX_FLAGS=-Wall -DCMAKE_C_FLAGS=-Wall
+AUTOWARE_COMPILE_WITH_CUDA=1 colcon build --build-base build_ros1 --install-base /opt/autoware.ai/ros/install --cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_LIBRARY_PATH=/usr/local/cuda/lib64/stubs -DCMAKE_CXX_FLAGS=-Wall -DCMAKE_C_FLAGS=-Wall
+
+# Get the exit code from the ROS1 build so we can skip the ROS2 build if the ROS1 build failed
+status=$?
+
+if [[ $status -ne 0 ]]; then
+    echo "Autoware.ai build failed."
+    exit $status
+fi
+
+
+###
+# ROS 2 Build
+###
+source /opt/ros/foxy/setup.bash
+source /home/carma/catkin/setup.bash
+
+echo "ROS 2 Build"
+colcon build --install-base /opt/autoware.ai/ros/install_ros2 --build-base build_ros2 --cmake-args -DCMAKE_BUILD_TYPE=Release

@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>pure_pursuit</name>
+  <name>pure_pursuit_ros1</name>
   <version>1.12.0</version>
-  <description>The pure_pursuit package</description>
+  <description>The pure_pursuit package for ROS1</description>
   <maintainer email="h_ohta@ertl.jp">h_ohta</maintainer>
   <license>Apache 2</license>
 
@@ -22,5 +22,6 @@
   <depend>tf2</depend>
   <depend>tf</depend>
   <depend>roslint</depend>
+  <build_depend>carma_cmake_common</build_depend>
 
 </package>

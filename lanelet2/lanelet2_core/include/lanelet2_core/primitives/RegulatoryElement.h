@@ -166,6 +166,21 @@ class MutableParameterVisitor : public boost::static_visitor<void> {  // NOLINT
   virtual ~MutableParameterVisitor() = default;
   std::string role;  //!< applyVisitor will set the current role here
 };
+/**
+ * @brief You can inherit from this visitor to perform an operation on and alter each
+ * parameter of a regulatory element 
+ * @see RegulatoryElement::applyVisitor
+ */
+class ParameterEditorVisitor : public boost::static_visitor<void> {  // NOLINT
+ public:
+  virtual void operator()(Point3d /*unused*/&) = 0;
+  virtual void operator()(LineString3d& /*unused*/) = 0;
+  virtual void operator()(Polygon3d& /*unused*/) = 0;
+  virtual void operator()(WeakLanelet& /*unused*/) = 0;
+  virtual void operator()(WeakArea& /*unused*/) = 0;
+  virtual ~ParameterEditorVisitor() = default;
+  std::string role;  //!< applyVisitor will set the current role here
+};
 }  // namespace internal
 
 //! @brief A general rule or limitation for a lanelet (abstract base class)
@@ -237,6 +252,8 @@ class RegulatoryElement  // NOLINT
 
   //! applies a visitor to every parameter in the regulatory element
   void applyVisitor(RuleParameterVisitor& visitor) const;
+  void applyVisitor(lanelet::internal::ParameterEditorVisitor& visitor);
+
 
  protected:
   const_iterator begin() const { return constData()->parameters.begin(); }

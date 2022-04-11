@@ -11,6 +11,7 @@
   <author email="aohsato@gmail.com">Akihito Ohsato</author>
 
   <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>carma_cmake_common</build_depend>
 
   <export>
   </export>

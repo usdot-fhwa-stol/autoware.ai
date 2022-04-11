@@ -17,4 +17,5 @@
   <exec_depend>python-pandas</exec_depend>
   <test_depend>rostest</test_depend>
   <test_depend>rosunit</test_depend>
+  <build_depend>carma_cmake_common</build_depend>
 </package>

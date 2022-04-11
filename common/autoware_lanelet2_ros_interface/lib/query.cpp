@@ -32,6 +32,66 @@ namespace lanelet
 namespace utils
 {
 
+void overwriteWithMatchingId (WeakLanelet& prim, const lanelet::LaneletMapPtr ll_Map)
+{
+  if (prim.expired())
+  {
+    LOG_WARN_STREAM("Could not acquire weak pointer lock for weakLanelet");
+    return;
+  }
+    
+  auto prim_locked = prim.lock();
+ 
+  if (ll_Map->laneletLayer.exists(prim_locked.id()))
+  {
+    prim = ll_Map->laneletLayer.get(prim_locked.id());
+  }
+  else 
+  {
+    LOG_WARN_STREAM("Lanelet primitive did not exist in the map");
+  }
+}
+void overwriteWithMatchingId (WeakArea& prim, const lanelet::LaneletMapPtr ll_Map)
+{
+  if (prim.expired())
+  {
+    LOG_WARN_STREAM("Could not acquire weak pointer lock for weakArea");
+    return;
+  }
+    
+  auto prim_locked = prim.lock();
+ 
+  if (ll_Map->areaLayer.exists(prim_locked.id()))
+  {
+    prim = ll_Map->areaLayer.get(prim_locked.id());
+  }
+  else 
+  {
+    LOG_WARN_STREAM("Area primitive did not exist in the map");
+  }
+}
+void overwriteWithMatchingId (Point3d& prim, const lanelet::LaneletMapPtr ll_Map)
+{
+  if (ll_Map->pointLayer.exists(prim.id()))
+  {
+    prim = ll_Map->pointLayer.get(prim.id());
+  }
+}
+void overwriteWithMatchingId (LineString3d& prim, const lanelet::LaneletMapPtr ll_Map)
+{
+  if (ll_Map->lineStringLayer.exists(prim.id()))
+  {
+    prim = ll_Map->lineStringLayer.get(prim.id());
+  }
+}
+void overwriteWithMatchingId (Polygon3d& prim, const lanelet::LaneletMapPtr ll_Map)
+{
+  if (ll_Map->polygonLayer.exists(prim.id()))
+  {
+    prim = ll_Map->polygonLayer.get(prim.id());
+  }
+}
+
 // Point
 void recurse (const lanelet::ConstPoint3d& prim, const lanelet::LaneletMapPtr ll_Map, query::direction check_dir, query::References& rfs)
 {

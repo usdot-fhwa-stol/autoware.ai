@@ -17,6 +17,7 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <depend>subversion</depend>
+  <build_depend>carma_cmake_common</build_depend>
 
   <export>
     <build_type>catkin</build_type>

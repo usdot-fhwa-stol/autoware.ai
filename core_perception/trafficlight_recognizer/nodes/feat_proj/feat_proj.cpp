@@ -330,7 +330,7 @@ void echoSignals2(const ros::Publisher& pub, bool useOpenGLCoord = false)
       radius = static_cast<int>(distance(ux, vx, u, v));
 
       autoware_msgs::ExtractedPosition sign;
-      sign.signalId = signal.id;
+      sign.signal_id = signal.id;
 
       sign.u = u + adjust_proj_x;  // shift project position by configuration value from runtime manager
       sign.v = v + adjust_proj_y;  // shift project position by configuration value from runtime manager
@@ -338,8 +338,8 @@ void echoSignals2(const ros::Publisher& pub, bool useOpenGLCoord = false)
       sign.radius = radius;
       sign.x = signalcenter.x(), sign.y = signalcenter.y(), sign.z = signalcenter.z();
       sign.hang = vmap.vectors[signal.vid].hang;  // hang is expressed in [0, 360] degree
-      sign.type = signal.type, sign.linkId = signal.linkid;
-      sign.plId = signal.plid;
+      sign.type = signal.type, sign.link_id = signal.linkid;
+      sign.pl_id = signal.plid;
 
       // Get holizontal angle of signal in camera corrdinate system
       double signal_angle =
@@ -349,14 +349,14 @@ void echoSignals2(const ros::Publisher& pub, bool useOpenGLCoord = false)
       // Target signal should be face to -50 <= z-axis (= 90 degree) <= +50
       if (isRange(-50, 50, signal_angle - 90))
       {
-        signalsInFrame.Signals.push_back(sign);
+        signalsInFrame.signals.push_back(sign);
       }
     }
   }
   signalsInFrame.header.stamp = ros::Time::now();
   pub.publish(signalsInFrame);
 
-  std::cout << "There are " << signalsInFrame.Signals.size() << " signals in range" << std::endl;
+  std::cout << "There are " << signalsInFrame.signals.size() << " signals in range" << std::endl;
 }
 
 void interrupt(int s)

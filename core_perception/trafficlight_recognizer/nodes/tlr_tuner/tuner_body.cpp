@@ -274,26 +274,26 @@ void TunerBody::launch(void)
 
     /* publish tuned result */
     autoware_msgs::TunedResult res;
-    res.Red.Hue.center = Red_set.hue.center;
-    res.Red.Hue.range = Red_set.hue.range;
-    res.Red.Sat.center = Red_set.sat.center;
-    res.Red.Sat.range = Red_set.sat.range;
-    res.Red.Val.center = Red_set.val.center;
-    res.Red.Val.range = Red_set.val.range;
+    res.red.hue.center = Red_set.hue.center;
+    res.red.hue.range = Red_set.hue.range;
+    res.red.sat.center = Red_set.sat.center;
+    res.red.sat.range = Red_set.sat.range;
+    res.red.val.center = Red_set.val.center;
+    res.red.val.range = Red_set.val.range;
 
-    res.Yellow.Hue.center = Yellow_set.hue.center;
-    res.Yellow.Hue.range = Yellow_set.hue.range;
-    res.Yellow.Sat.center = Yellow_set.sat.center;
-    res.Yellow.Sat.range = Yellow_set.sat.range;
-    res.Yellow.Val.center = Yellow_set.val.center;
-    res.Yellow.Val.range = Yellow_set.val.range;
+    res.yellow.hue.center = Yellow_set.hue.center;
+    res.yellow.hue.range = Yellow_set.hue.range;
+    res.yellow.sat.center = Yellow_set.sat.center;
+    res.yellow.sat.range = Yellow_set.sat.range;
+    res.yellow.val.center = Yellow_set.val.center;
+    res.yellow.val.range = Yellow_set.val.range;
 
-    res.Green.Hue.center = Green_set.hue.center;
-    res.Green.Hue.range = Green_set.hue.range;
-    res.Green.Sat.center = Green_set.sat.center;
-    res.Green.Sat.range = Green_set.sat.range;
-    res.Green.Val.center = Green_set.val.center;
-    res.Green.Val.range = Green_set.val.range;
+    res.green.hue.center = Green_set.hue.center;
+    res.green.hue.range = Green_set.hue.range;
+    res.green.sat.center = Green_set.sat.center;
+    res.green.sat.range = Green_set.sat.range;
+    res.green.val.center = Green_set.val.center;
+    res.green.val.range = Green_set.val.range;
 
     tunedResult_pub.publish(res);
   }

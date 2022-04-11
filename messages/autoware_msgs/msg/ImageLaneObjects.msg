@@ -1,4 +1,4 @@
-Header header
+std_msgs/Header header
 int32 lane_l_x1 # Left Lane
 int32 lane_l_y1
 int32 lane_l_x2

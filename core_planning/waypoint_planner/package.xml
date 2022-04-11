@@ -25,5 +25,6 @@
   <depend>tf</depend>
   <depend>vector_map</depend>
   <depend>autoware_lanelet2_ros_interface</depend>
+  <build_depend>carma_cmake_common</build_depend>
 
 </package>

@@ -1,4 +1,4 @@
-Header header
+std_msgs/Header header
 string type
 uint8 total_num
 int32[] obj_id

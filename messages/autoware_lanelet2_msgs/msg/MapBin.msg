@@ -1,7 +1,10 @@
 # This contains the lanelet map in binary format.
 
 # Timestamp and frame_id of the map
-Header header
+std_msgs/Header header
+
+# sequence ID: consecutively increasing ID
+uint32 seq_id
 
 # version of map format. keep this as empty string if unnecessary
 string format_version

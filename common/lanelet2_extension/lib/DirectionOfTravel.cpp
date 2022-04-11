@@ -92,7 +92,7 @@ DirectionOfTravel::DirectionOfTravel(const lanelet::RegulatoryElementDataPtr& da
 
 namespace
 {
-// this object actually does the registration work for us
-lanelet::RegisterRegulatoryElement<lanelet::DirectionOfTravel> reg;
+  // this object actually does the registration work for us
+  static lanelet::RegisterRegulatoryElement<lanelet::DirectionOfTravel> reg;
 }  // namespace
 }  // namespace lanelet

@@ -1,0 +1,26 @@
+language: c++
+python:
+  - "2.7"
+compiler:
+  - gcc
+sudo: required
+dist: trusty
+services:
+  - docker
+env:
+  global:
+    - USE_TRAVIS=true
+    - USE_DOCKER=true
+    - USE_DEB=true
+  matrix:
+    - ROS_DISTRO=indigo
+    - ROS_DISTRO=jade
+    - ROS_DISTRO=kinetic
+    - ROS_DISTRO=lunar
+    - ROS_DISTRO=melodic
+    - ROS_DISTRO=noetic ROS_PYTHON_VERSION=3
+script: source .travis/travis.sh
+notifications:
+  email:
+    on_success: always
+    on_failure: always

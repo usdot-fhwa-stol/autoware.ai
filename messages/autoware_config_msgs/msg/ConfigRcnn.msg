@@ -1,4 +1,4 @@
-Header  header
+std_msgs/Header  header
 float32 score_threshold #minimum score required to keep the detection [0.0, 1.0] (default 0.6)
 float32 group_threshold #minimum overlap percentage area required to supress detections(NMS threshold) [0.0, 1.0] (default 0.3)
 float32 slices_overlap  #overlap percentage between image slices [0.0, 1.0] (default 0.7)

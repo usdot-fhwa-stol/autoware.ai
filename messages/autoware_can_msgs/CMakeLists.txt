@@ -1,26 +1,62 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5.1)
 project(autoware_can_msgs)
 
-find_package(catkin REQUIRED COMPONENTS
-  message_generation
-  std_msgs
-)
+find_package(ros_environment REQUIRED)
 
-add_message_files(
-  DIRECTORY msg
-  FILES
-    CANData.msg
-    CANInfo.msg
-    CANPacket.msg
-)
+set(ROS_VERSION $ENV{ROS_VERSION})
 
-generate_messages(
-  DEPENDENCIES
+if(${ROS_VERSION} EQUAL 1) # ROS 1
+  set(msg_directory ) # Empty as ROS1 defaults to msg/
+else()
+  set(msg_directory "msg/")
+endif()
+
+## Collection Message Paths 
+file(GLOB msg_files msg/*.msg)
+set(msgs )
+foreach(filePath ${msg_files})
+  get_filename_component(name ${filePath} NAME)
+  set(msgs ${msgs} ${msg_directory}${name})
+endforeach(filePath)
+
+if(${ROS_VERSION} EQUAL 1) # ROS 1
+  
+  find_package(catkin REQUIRED COMPONENTS
+    message_generation
     std_msgs
-)
+  )
 
-catkin_package(
-  CATKIN_DEPENDS
-    message_runtime
-    std_msgs
-)
+  add_message_files(
+    FILES
+      ${msgs}
+  )
+
+  generate_messages(
+    DEPENDENCIES
+      std_msgs
+  )
+
+  catkin_package(
+    CATKIN_DEPENDS
+      message_runtime
+      std_msgs
+  )
+
+else() # ROS 2
+
+  find_package(rosidl_default_generators REQUIRED)
+  find_package(ament_cmake REQUIRED)
+  find_package(std_msgs REQUIRED)
+
+  rosidl_generate_interfaces(
+    ${PROJECT_NAME}
+      ${msgs}
+    DEPENDENCIES
+      std_msgs
+  )
+
+  ament_export_dependencies(rosidl_default_runtime)
+  ament_package()
+endif()
+
+

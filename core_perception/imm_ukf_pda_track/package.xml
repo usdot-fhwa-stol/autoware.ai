@@ -18,4 +18,5 @@
   <depend>vector_map</depend>
   <depend>lanelet2_extension</depend>
   <depend>autoware_lanelet2_ros_interface</depend>
+  <build_depend>carma_cmake_common</build_depend>
 </package>

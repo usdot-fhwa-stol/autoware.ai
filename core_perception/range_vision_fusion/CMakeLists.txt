@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(range_vision_fusion)
 
+find_package(carma_cmake_common REQUIRED)
+carma_check_ros_version(1)
+
 # Set OpenGL_GL_PREFERENCE to GLVND
 cmake_policy(SET CMP0072 NEW)
 

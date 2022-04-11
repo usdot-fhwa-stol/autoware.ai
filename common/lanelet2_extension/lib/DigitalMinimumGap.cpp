@@ -92,8 +92,8 @@ namespace lanelet
 
     namespace
     {
-    // this object actually does the registration work for us
-    lanelet::RegisterRegulatoryElement<lanelet::DigitalMinimumGap> reg;
+        // this object actually does the registration work for us
+        static lanelet::RegisterRegulatoryElement<lanelet::DigitalMinimumGap> reg;
     }  // namespace
 
 } //namespace lanelet

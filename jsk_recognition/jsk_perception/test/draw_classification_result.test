@@ -1,0 +1,17 @@
+<launch>
+
+  <include file="$(find jsk_perception)/sample/sample_draw_classification_result.launch">
+    <arg name="gui" value="false" />
+  </include>
+
+  <test test-name="test_draw_classification_result"
+        name="test_draw_classification_result"
+        pkg="jsk_tools" type="test_topic_published.py"
+        time-limit="15" retry="3">
+    <rosparam>
+      topic_0: /draw_classification_result/output
+      timeout_0: 10
+    </rosparam>
+  </test>
+
+</launch>

@@ -1,2 +1,2 @@
-Header header
-ExtractedPosition[] Signals
+std_msgs/Header header
+ExtractedPosition[] signals

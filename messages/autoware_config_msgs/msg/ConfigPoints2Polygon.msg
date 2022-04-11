@@ -1,4 +1,4 @@
-Header header
+std_msgs/Header header
 int32 k_search
 float32 search_radius
 float32 mu

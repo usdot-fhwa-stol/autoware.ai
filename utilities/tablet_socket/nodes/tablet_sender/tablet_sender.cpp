@@ -23,8 +23,8 @@
 #include <signal.h>
 
 #include <std_msgs/Bool.h>
-#include <tablet_socket_msgs/error_info.h>
-#include <tablet_socket_msgs/mode_info.h>
+#include <tablet_socket_msgs/ErrorInfo.h>
+#include <tablet_socket_msgs/ModeInfo.h>
 #include "autoware_can_msgs/CANInfo.h"
 #include "autoware_msgs/NDTStat.h"
 

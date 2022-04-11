@@ -48,11 +48,26 @@ TEST(CarmaTrafficSignalTest, CarmaTrafficSignal)
   auto ll_1 = carma_wm::getLanelet(left_1, right_1, lanelet::AttributeValueString::SolidDashed,lanelet::AttributeValueString::Dashed);
   auto ll_2 = carma_wm::getLanelet(left_1, right_1, lanelet::AttributeValueString::SolidDashed,lanelet::AttributeValueString::Dashed);
   
-  lanelet::Id traffic_light_id = utils::getId();
-  LineString3d virtual_stop_line(traffic_light_id, {pl2, pr2});
+  lanelet::Id stop_line_id = utils::getId();
+  LineString3d virtual_stop_line(stop_line_id, {pl2, pr2});
+  lanelet::Id stop_line_id1= utils::getId();
+  LineString3d virtual_stop_line1(stop_line_id1, {pl2, pr2});
   // Creat passing control line for solid dashed line
-  std::shared_ptr<CarmaTrafficSignal> traffic_light(new CarmaTrafficSignal(CarmaTrafficSignal::buildData(lanelet::utils::getId(), { virtual_stop_line }, {ll_1, ll_2}, {ll_2})));
+  std::shared_ptr<CarmaTrafficSignal> traffic_light(new CarmaTrafficSignal(CarmaTrafficSignal::buildData(lanelet::utils::getId(), { virtual_stop_line,  virtual_stop_line1}, {ll_1, ll_2}, {ll_2})));
   ll_1.addRegulatoryElement(traffic_light);
+
+  auto entry_lanelets = traffic_light->getControlStartLanelets();
+
+  lanelet::RegulatoryElementPtr regem = traffic_light;
+  auto factory_pcl = lanelet::RegulatoryElementFactory::create(regem->attribute(lanelet::AttributeName::Subtype).value(),
+                                                            std::const_pointer_cast<lanelet::RegulatoryElementData>(regem->constData()));
+
+  lanelet::CarmaTrafficSignalPtr ctl = std::dynamic_pointer_cast<lanelet::CarmaTrafficSignal>(factory_pcl);
+  
+  ASSERT_EQ(2,entry_lanelets.size());
+
+  auto sl = traffic_light->getStopLine(ll_2);
+  ASSERT_EQ(stop_line_id1,sl.get().id());
 
   std::vector<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> input_time_steps;
 
@@ -72,8 +87,8 @@ TEST(CarmaTrafficSignalTest, CarmaTrafficSignal)
   ASSERT_EQ(time::durationFromSec(5),traffic_light->fixed_cycle_duration);
   ASSERT_EQ(0,traffic_light->revision_);
 
-  ASSERT_EQ(static_cast<lanelet::CarmaTrafficSignalState>(1),traffic_light->predictState(time::timeFromSec(1.5)).get());
-  ASSERT_EQ(static_cast<lanelet::CarmaTrafficSignalState>(0),traffic_light->predictState(time::timeFromSec(1)).get());
+  ASSERT_EQ(static_cast<lanelet::CarmaTrafficSignalState>(1),traffic_light->predictState(time::timeFromSec(1.5)).get().second);
+  ASSERT_EQ(static_cast<lanelet::CarmaTrafficSignalState>(0),traffic_light->predictState(time::timeFromSec(1)).get().second);
   ASSERT_EQ(traffic_light->getControlStartLanelets().size(), 2);
   ASSERT_EQ(traffic_light->getControlStartLanelets().back().id(), ll_2.id());
   

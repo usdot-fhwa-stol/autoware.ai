@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(vision_beyond_track)
 
+find_package(carma_cmake_common REQUIRED)
+carma_check_ros_version(1)
+
 find_package(OpenCV REQUIRED)
 
 

@@ -19,4 +19,5 @@
   <depend>std_msgs</depend>
   <depend>tf</depend>
   <depend>visualization_msgs</depend>
+  <build_depend>carma_cmake_common</build_depend>
 </package>

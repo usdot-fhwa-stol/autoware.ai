@@ -60,6 +60,36 @@ LineStrings3d CarmaTrafficSignal::stopLine()
   return getParameters<LineString3d>(RoleName::RefLine);
 }
 
+Optional<LineString3d> CarmaTrafficSignal::getStopLine(const ConstLanelet& llt) 
+{
+  auto sl = stopLine();
+  if (sl.empty()) {
+    return boost::none;
+  }
+  lanelet::ConstLanelets llts = getControlStartLanelets();
+  if (llts.empty())
+  {
+    return boost::none;
+  }
+  auto it = std::find(llts.begin(), llts.end(), llt);
+  if (it == llts.end()) {
+    return boost::none;
+  }
+  return sl.at(size_t(std::distance(llts.begin(), it)));
+}
+
+Optional<ConstLineString3d> CarmaTrafficSignal::getConstStopLine(const ConstLanelet& llt) 
+{
+  Optional<LineString3d> mutable_stop_line = getStopLine(llt);
+  
+  if (!mutable_stop_line)
+    return boost::none;
+
+  ConstLineString3d const_stop_line = mutable_stop_line.get();
+  
+  return const_stop_line;
+}
+
 CarmaTrafficSignal::CarmaTrafficSignal(const lanelet::RegulatoryElementDataPtr& data) : RegulatoryElement(data)
 {}
 
@@ -82,17 +112,19 @@ std::unique_ptr<lanelet::RegulatoryElementData> CarmaTrafficSignal::buildData(Id
   return std::make_unique<RegulatoryElementData>(id, rules, attribute_map);
 }
 
-boost::optional<CarmaTrafficSignalState> CarmaTrafficSignal::predictState(boost::posix_time::ptime time_stamp)
+boost::optional<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> CarmaTrafficSignal::predictState(boost::posix_time::ptime time_stamp)
 {
   if (recorded_time_stamps.empty())
   {
     LOG_WARN_STREAM("CarmaTrafficSignal doesn't have any recorded states of traffic lights");
     return boost::none;
   }
+
   if (recorded_time_stamps.size() == 1) // if only 1 timestamp recorded, this signal doesn't change
   {
-    return recorded_time_stamps.front().second;
+    return std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>(recorded_time_stamps.front().first, recorded_time_stamps.front().second);
   }
+  
   // shift starting time to the future or to the past to fit input into a valid cycle
   boost::posix_time::time_duration accumulated_offset_duration;
   double offset_duration_dir = recorded_time_stamps.front().first > time_stamp ? -1.0 : 1.0; // -1 if past, +1 if time_stamp is in future
@@ -110,9 +142,10 @@ boost::optional<CarmaTrafficSignalState> CarmaTrafficSignal::predictState(boost:
   // iterate through states in the cycle to get the signal
   for (size_t i = 0; i < recorded_time_stamps.size(); i++)
   {
-    if (toSec(recorded_time_stamps[i].first) + offset_duration_dir * toSec(accumulated_offset_duration) >= toSec(time_stamp))
+    double end_time = toSec(recorded_time_stamps[i].first) + offset_duration_dir * toSec(accumulated_offset_duration);
+    if (end_time >= toSec(time_stamp))
     { 
-      return recorded_time_stamps[i].second;
+      return std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>(timeFromSec(end_time), recorded_time_stamps[i].second);
     }
   }
 
@@ -155,6 +188,11 @@ void CarmaTrafficSignal::setStates(std::vector<std::pair<boost::posix_time::ptim
     throw lanelet::InvalidInputError("Duplicate phase is not provided. Unable to determine fixed cycle duration");
   }
 
+  for (size_t i = 0; i < input_time_steps.size() - 1; i++)
+  {
+    signal_durations[input_time_steps[i + 1].second] = input_time_steps[i + 1].first - input_time_steps[i].first;
+  }
+
   recorded_time_stamps = input_time_steps;
   fixed_cycle_duration = recorded_time_stamps.back().first - recorded_time_stamps.front().first; // it is okay if size is only 1, case is handled in predictState
   revision_ = revision;
@@ -171,7 +209,6 @@ double toSec(const boost::posix_time::time_duration& duration) {
 }
 
 double toSec(const boost::posix_time::ptime& time) {
-  // TODO clean up this comment boost::posix_time::time_duration duration = t - boost::posix_time::from_time_t(0);
   return toSec(time - boost::posix_time::from_time_t(0));
 }
 

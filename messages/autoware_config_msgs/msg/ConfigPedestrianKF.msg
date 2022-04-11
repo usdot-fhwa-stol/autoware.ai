@@ -1,4 +1,4 @@
-Header header
+std_msgs/Header header
 int32 initial_lifespan
 int32 default_lifespan
 float32 noise_covariance

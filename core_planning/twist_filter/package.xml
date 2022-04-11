@@ -17,4 +17,5 @@
   <depend>autoware_msgs</depend>
   <depend>roslint</depend>
   <depend>hardcoded_params</depend>
+  <build_depend>carma_cmake_common</build_depend>
 </package>

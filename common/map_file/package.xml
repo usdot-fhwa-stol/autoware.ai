@@ -24,5 +24,6 @@
   <depend>lanelet2_extension</depend>
   <depend>autoware_lanelet2_ros_interface</depend>
   <depend>libboost-filesystem-dev</depend>
+  <build_depend>carma_cmake_common</build_depend>
   
 </package>
