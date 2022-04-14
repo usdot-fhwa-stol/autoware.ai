@@ -25,5 +25,5 @@ uint32 route_version
 bool invalidates_route
 
 # Description of the Routing Graph following this update.
-# This field will only be populated if invalidates_route==true
+# This field will only be populated if invalidates_route==true or if this is the first map broadcast
 autoware_lanelet2_msgs/RoutingGraph routing_graph
