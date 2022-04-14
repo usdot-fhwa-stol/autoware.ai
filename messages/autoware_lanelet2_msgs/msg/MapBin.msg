@@ -23,3 +23,7 @@ uint32 route_version
 
 # route flag to set the route invalidation status
 bool invalidates_route
+
+# Description of the Routing Graph following this update.
+# This field will only be populated if invalidates_route==true
+autoware_lanelet2_msgs/RoutingGraph routing_graph
