@@ -490,7 +490,7 @@ class RoutingGraph {
    */
   RoutingGraph(std::unique_ptr<internal::RoutingGraphGraph>&& graph, lanelet::LaneletSubmapConstPtr&& passableMap);
 
- private:
+ protected:
   //! Documentation to be found in the cpp file.
   std::unique_ptr<internal::RoutingGraphGraph> graph_;  ///< Wrapper of the routing graph
   LaneletSubmapConstPtr passableLaneletSubmap_;         ///< Lanelet map of all passable lanelets
