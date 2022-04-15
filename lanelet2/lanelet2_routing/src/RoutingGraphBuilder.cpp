@@ -3,7 +3,6 @@
 #include <lanelet2_core/LaneletMap.h>
 #include <lanelet2_core/geometry/Area.h>
 #include <lanelet2_core/geometry/Lanelet.h>
-#include <chrono> // TODO remove
 #include <unordered_map>
 
 #include "lanelet2_routing/Exceptions.h"
@@ -92,38 +91,15 @@ RoutingGraphBuilder::RoutingGraphBuilder(const traffic_rules::TrafficRules& traf
       config_{config} {}
 
 RoutingGraphUPtr RoutingGraphBuilder::build(const LaneletMapLayers& laneletMapLayers) {
-  std::chrono::steady_clock::time_point build_start = std::chrono::steady_clock::now();
-  
+
   auto passableLanelets = getPassableLanelets(laneletMapLayers.laneletLayer, trafficRules_);
   auto passableAreas = getPassableAreas(laneletMapLayers.areaLayer, trafficRules_);
-
-  std::chrono::steady_clock::time_point passable_end = std::chrono::steady_clock::now();
-
   auto passableMap = utils::createConstSubmap(passableLanelets, passableAreas);
-
-  std::chrono::steady_clock::time_point submap_end = std::chrono::steady_clock::now();
-
   appendBidirectionalLanelets(passableLanelets);
   addLaneletsToGraph(passableLanelets);
   addAreasToGraph(passableAreas);
   addEdges(passableLanelets, passableMap->laneletLayer);
   addEdges(passableAreas, passableMap->laneletLayer, passableMap->areaLayer);
-
-  std::chrono::steady_clock::time_point completion = std::chrono::steady_clock::now();
-
-  std::cerr << "Passable Lanelets: " << std::chrono::duration_cast<std::chrono::microseconds>(passable_end - build_start).count() << "[µs]" << std::endl;
-  std::cerr << "Passable Lanelets: " << std::chrono::duration_cast<std::chrono::nanoseconds> (passable_end - build_start).count() << "[ns]" << std::endl;
-
-  std::cerr << "Submap: " << std::chrono::duration_cast<std::chrono::microseconds>(submap_end - passable_end).count() << "[µs]" << std::endl;
-  std::cerr << "Submap: " << std::chrono::duration_cast<std::chrono::nanoseconds> (submap_end - passable_end).count() << "[ns]" << std::endl;
-
-  std::cerr << "Graph Construction: " << std::chrono::duration_cast<std::chrono::microseconds>(completion - submap_end).count() << "[µs]" << std::endl;
-  std::cerr << "Graph Construction: " << std::chrono::duration_cast<std::chrono::nanoseconds> (completion - submap_end).count() << "[ns]" << std::endl;
-
-
-  std::cerr << "Total non-submap: " << std::chrono::duration_cast<std::chrono::microseconds>((passable_end - build_start) + (completion - submap_end)).count() << "[µs]" << std::endl;
-  std::cerr << "Total non-submap: " << std::chrono::duration_cast<std::chrono::microseconds>((passable_end - build_start) + (completion - submap_end)).count() << "[µs]" << std::endl;
-
 
   return std::make_unique<RoutingGraph>(std::move(graph_), std::move(passableMap));
 }
