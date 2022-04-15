@@ -3,10 +3,10 @@
 # The reason edges are stored as multiple array fields instead of independent message objects
 # is because ROS2 DDS implementations have known performance issues with heavily nested data structures. 
 
-int64 lanelet_or_area # Lanelet of interest (the vertex)
+int64 lanelet_or_area # Lanelet or area of interest (the vertex)
 
 # The following 4 arrays must have the same size and ordering such that each index corresponds to the same routing graph edge 
-int64[] lanelet_or_area_ids # The other vertices connected to the vertex of interest
+int64[] lanelet_or_area_ids # The other vertices connected to the vertex of interest in a lanelet_or_area->lanelet_or_area_ids[i] direction
 float64[] edge_routing_costs # The routing costs of the edges
 uint16[] edge_routing_cost_source_ids # The ids of the routing cost generators used to compute the routing cost of each edge
 uint8[] edge_relations # The relation type of the edge
