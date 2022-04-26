@@ -155,8 +155,6 @@ add_service_files(FILES
   EuclideanSegment.srv
   NonMaximumSuppression.srv
   SetTemplate.srv
-  WhiteBalancePoints.srv
-  WhiteBalance.srv
 )
 
 generate_messages(
