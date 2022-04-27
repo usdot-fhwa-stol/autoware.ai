@@ -1,4 +1,4 @@
-float32[3] reference_color
+float32[] reference_color
 sensor_msgs/PointCloud2 input
 ---
 sensor_msgs/PointCloud2 output

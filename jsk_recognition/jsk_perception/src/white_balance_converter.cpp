@@ -60,6 +60,7 @@ public:
 
   bool imageCallback(jsk_perception::WhiteBalance::Request &req,
                      jsk_perception::WhiteBalance::Response &res) {
+    req.reference_color.resize(3); // Quick Edit to avoid segfaults
     makeConvertMatrix(req.reference_color[0], req.reference_color[1], req.reference_color[2]);
 
     return true;
@@ -67,6 +68,7 @@ public:
 
   bool pointsCallback(jsk_perception::WhiteBalancePoints::Request &req,
                       jsk_perception::WhiteBalancePoints::Response &res) {
+    req.reference_color.resize(3); // Quick Edit to avoid segfaults
     makeConvertMatrix(req.reference_color[0], req.reference_color[1], req.reference_color[2]);
 
     int rgb_offset = -1;
