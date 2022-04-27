@@ -41,7 +41,7 @@ if [[ "$BRANCH" = "develop" ]]; then
 else
       git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-msgs.git --branch develop
       git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-utils.git --branch develop
-      git clone --depth=1 https://github.com/usdot-fhwa-stol/autoware.auto.git --branch fix/comparison_warning
+      git clone --depth=1 https://github.com/usdot-fhwa-stol/autoware.auto.git --branch develop
 fi
 
 # Required to build pacmod_msgs
