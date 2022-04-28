@@ -68,7 +68,7 @@ jobs:
       #       cd autoware.ai/ros
       #       bash make_with_coverage.bash -t -e . -o /opt/carma/coverage_reports/gcov
       - run:
-          name: Build autoware for ROS 2
+          name: Build autoware for ROS 2 
           command: |
             source ${INIT_ENV}
             source ${ROS_2_ENV}
