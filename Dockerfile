@@ -1,6 +1,6 @@
-FROM usdotfhwastoldev/carma-base:develop AS base_image
+FROM fa8892cbd62b AS base_image
 
-FROM base_image AS build
+FROM fa8892cbd62b AS build
 
 ARG ROS1_PACKAGES=""
 ENV ROS1_PACKAGES=${ROS1_PACKAGES}
@@ -11,7 +11,7 @@ COPY --chown=carma . /home/carma/autoware.ai
 RUN /home/carma/autoware.ai/docker/checkout.bash
 RUN ./home/carma/autoware.ai/docker/install.sh
 
-FROM base_image
+FROM fa8892cbd62b
 
 ARG BUILD_DATE="NULL"
 ARG VCS_REF="NULL"

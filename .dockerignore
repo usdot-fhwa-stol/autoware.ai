@@ -1,6 +1,49 @@
-.git*
-ros/build*
-ros/devel*
-ros/install*
-ros/log*
-ros/coverage_*
+# Added colcon build folders
+# Kyle Rush - 10/30/2019
+
+# GNU global tags
+GTAGS
+GRTAGS
+GSYMS
+GPATH
+
+# Python byte-compile file
+__pycache__/
+*.py[co]
+
+# editor backup files
+*~
+\#*\#
+
+# backup files
+*.bak
+
+# Eclipse
+.cproject
+.project
+.pydevproject
+.settings/
+
+# Visual Studio Code
+**/.vscode/
+
+# CLion
+.idea/
+cmake-build-debug/
+
+# clang-format
+.clang-format
+
+# ROSBag files
+*.bag
+
+# Autoware Resources
+*.pcd
+*.bag
+*.csv
+
+/.metadata/
+build/
+install/
+log/
+.git/
