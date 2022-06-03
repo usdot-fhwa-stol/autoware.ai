@@ -22,15 +22,15 @@ namespace lanelet
 
 namespace time {
 
-double lanelet::time::toSec(const boost::posix_time::time_duration& duration) {
+double toSec(const boost::posix_time::time_duration& duration) {
   if (duration.is_special()) {
     throw std::invalid_argument("Cannot convert special duration to seconds");
   }
   return duration.total_microseconds() / 1000000.0;
 }
 
-double lanelet::time::toSec(const boost::posix_time::ptime& time) {
-  return lanelet::time::toSec(time - boost::posix_time::from_time_t(0));
+double toSec(const boost::posix_time::ptime& time) {
+  return toSec(time - boost::posix_time::from_time_t(0));
 }
 
 boost::posix_time::ptime timeFromSec(double sec) {
