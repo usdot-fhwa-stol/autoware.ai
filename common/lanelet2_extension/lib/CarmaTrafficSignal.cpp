@@ -130,8 +130,8 @@ boost::optional<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> Ca
   boost::posix_time::time_duration accumulated_offset_duration;
   double offset_duration_dir = recorded_time_stamps.front().first > time_stamp ? -1.0 : 1.0; // -1 if past, +1 if time_stamp is in future
 
-  int num_of_cycles = std::abs(toSec(recorded_time_stamps.front().first - time_stamp) / toSec(fixed_cycle_duration));
-  accumulated_offset_duration = durationFromSec( num_of_cycles * toSec(fixed_cycle_duration));
+  int num_of_cycles = std::abs(lanelet::time::toSec(recorded_time_stamps.front().first - time_stamp) / lanelet::time::toSec(fixed_cycle_duration));
+  accumulated_offset_duration = durationFromSec( num_of_cycles * lanelet::time::toSec(fixed_cycle_duration));
   
   if (offset_duration_dir < 0) 
   {
@@ -143,8 +143,8 @@ boost::optional<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> Ca
   // iterate through states in the cycle to get the signal
   for (size_t i = 0; i < recorded_time_stamps.size(); i++)
   {
-    double end_time = toSec(recorded_time_stamps[i].first) + offset_duration_dir * toSec(accumulated_offset_duration);
-    if (end_time >= toSec(time_stamp))
+    double end_time = lanelet::time::toSec(recorded_time_stamps[i].first) + offset_duration_dir * lanelet::time::toSec(accumulated_offset_duration);
+    if (end_time >= lanelet::time::toSec(time_stamp))
     { 
       return std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>(timeFromSec(end_time), recorded_time_stamps[i].second);
     }
