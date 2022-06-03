@@ -18,7 +18,6 @@
 #include <lanelet2_extension/regulatory_elements/CarmaTrafficSignal.h>
 #include <lanelet2_extension/logging/logger.h>
 #include "RegulatoryHelpers.h"
-#include <lanelet2_extension/time/TimeConversion.h>
 
 namespace lanelet
 {
