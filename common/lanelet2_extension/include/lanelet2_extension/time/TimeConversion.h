@@ -21,9 +21,9 @@ namespace lanelet
 
 namespace time {
 
-double lanelet::time::toSec(const boost::posix_time::time_duration& duration);
+double toSec(const boost::posix_time::time_duration& duration);
 
-double lanelet::time::toSec(const boost::posix_time::ptime& time);
+double toSec(const boost::posix_time::ptime& time);
 
 boost::posix_time::ptime timeFromSec(double sec);
 
