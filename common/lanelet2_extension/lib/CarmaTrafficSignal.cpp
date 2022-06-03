@@ -18,6 +18,7 @@
 #include <lanelet2_extension/regulatory_elements/CarmaTrafficSignal.h>
 #include <lanelet2_extension/logging/logger.h>
 #include "RegulatoryHelpers.h"
+#include <lanelet2_extension/time/TimeConversion.h>
 
 namespace lanelet
 {
@@ -197,32 +198,6 @@ void CarmaTrafficSignal::setStates(std::vector<std::pair<boost::posix_time::ptim
   fixed_cycle_duration = recorded_time_stamps.back().first - recorded_time_stamps.front().first; // it is okay if size is only 1, case is handled in predictState
   revision_ = revision;
 }
-
-
-namespace time {
-
-double toSec(const boost::posix_time::time_duration& duration) {
-  if (duration.is_special()) {
-    throw std::invalid_argument("Cannot convert special duration to seconds");
-  }
-  return duration.total_microseconds() / 1000000.0;
-}
-
-double toSec(const boost::posix_time::ptime& time) {
-  return toSec(time - boost::posix_time::from_time_t(0));
-}
-
-boost::posix_time::ptime timeFromSec(double sec) {
-  return boost::posix_time::from_time_t(0) + boost::posix_time::microseconds(static_cast<long>(sec * 1000000L));
-}
-
-boost::posix_time::time_duration durationFromSec(double sec) {
-  return boost::posix_time::microseconds(static_cast<long>(sec * 1000000L));
-}
-
-} // namespace time
-
-
 
 namespace
 {
