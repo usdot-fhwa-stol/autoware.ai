@@ -19,6 +19,7 @@
 
 #include <lanelet2_core/primitives/RegulatoryElement.h>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <lanelet2_extension/time/TimeConversion.h>
 #include <unordered_map>
 
 namespace lanelet
@@ -57,42 +58,6 @@ struct CarmaTrafficSignalRoleNameString
   static constexpr char ControlStart[] = "control_start";
   static constexpr char ControlEnd[] = "control_end";
 };
-
-// Namespace for time representations used with this regulatory element
-namespace time {
-
-  /**
-   * \brief Converts a boost time duration into the number of posix seconds it represents
-   * 
-   * \param duration The duration to convert.
-   * \return The number of posix seconds with microsecond resolution
-   */ 
-  double toSec(const boost::posix_time::time_duration& duration);
-  
-  /**
-   * \brief Converts a boost time duration into the number of posix seconds since 1970
-   * 
-   * \param duration The duration to convert.
-   * \return The number of posix seconds since 1970 with microsecond resolution
-   */ 
-  double toSec(const boost::posix_time::ptime& time);
-
-  /**
-   * \brief Returns a boost posix time object which matches the input posix seconds since 1970 with microsecond accuracy.
-   * 
-   * \param sec The number of posix seconds since 1970. Fractional seconds are supported.
-   * \return Initialized posix time object matching the input
-   */ 
-  boost::posix_time::ptime timeFromSec(double sec);
-
-  /**
-   * \brief Returns a boost posix time object which matches the input posix seconds duration with microsecond accuracy.
-   * 
-   * \param sec The number of posix seconds the duration should reflect. Fractional seconds are supported.
-   * \return Initialized posix time duration object matching the input
-   */ 
-  boost::posix_time::time_duration durationFromSec(double sec);
-}
 
 /**
  * \brief Stream operator for CarmaTrafficSignalState enum.
