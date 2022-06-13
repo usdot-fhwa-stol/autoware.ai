@@ -1,4 +1,4 @@
-FROM usdotfhwastol/carma-base:carma-system-3.11.0 as base_image
+FROM usdotfhwastolcandidate/carma-base:voices as base_image
 
 FROM base_image as build
 
