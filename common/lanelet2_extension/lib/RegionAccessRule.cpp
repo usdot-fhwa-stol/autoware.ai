@@ -89,7 +89,7 @@ std::unique_ptr<lanelet::RegulatoryElementData> RegionAccessRule::buildData(Id i
 
 namespace
 {
-// this object actually does the registration work for us
-lanelet::RegisterRegulatoryElement<lanelet::RegionAccessRule> reg;
+  // this object actually does the registration work for us
+  static lanelet::RegisterRegulatoryElement<lanelet::RegionAccessRule> reg;
 }  // namespace
 }  // namespace lanelet

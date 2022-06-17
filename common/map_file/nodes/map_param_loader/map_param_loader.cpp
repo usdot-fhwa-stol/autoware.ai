@@ -95,10 +95,15 @@ int main(int argc, char **argv)
   }
 
   // Broadcast the georeference
+  ros::Rate rate(0.5);
   ros::Publisher georef_pub = private_nh.advertise<std_msgs::String>("georeference", 1, true);
-  std_msgs::String georef_msg;
-  georef_msg.data = target_frame;
-  georef_pub.publish(georef_msg);
+  while (ros::ok()){
+    std_msgs::String georef_msg;
+    georef_msg.data = target_frame;
+    georef_pub.publish(georef_msg);
+    rate.sleep();
+  }
+  
 
   ros::spin();
 

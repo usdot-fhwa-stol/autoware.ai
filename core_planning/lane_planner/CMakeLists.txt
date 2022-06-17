@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 2.8.12)
-project(lane_planner)
+project(lane_planner_ros1)
+
+find_package(carma_cmake_common REQUIRED)
+carma_check_ros_version(1)
 
 find_package(autoware_build_flags REQUIRED)
 
@@ -115,8 +118,8 @@ add_dependencies(
 )
 
 install(
-  DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  DIRECTORY include/lane_planner/
+  DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION}/lane_planner
 )
 
 install(

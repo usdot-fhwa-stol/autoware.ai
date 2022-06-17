@@ -14,4 +14,5 @@
   <depend>roslint</depend>
   <depend>vector_map_msgs</depend>
   <depend>visualization_msgs</depend>
+  <build_depend>carma_cmake_common</build_depend>
 </package>

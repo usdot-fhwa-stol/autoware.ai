@@ -408,26 +408,26 @@ static void extractedPos_cb(const autoware_msgs::Signals::ConstPtr& extractedPos
 
 static void tunedResult_cb(const autoware_msgs::TunedResult& msg)
 {
-  thSet.Red.Hue.upper = cvtInt2Double_hue(msg.Red.Hue.center, msg.Red.Hue.range);
-  thSet.Red.Hue.lower = cvtInt2Double_hue(msg.Red.Hue.center, -msg.Red.Hue.range);
-  thSet.Red.Sat.upper = cvtInt2Double_sat(msg.Red.Sat.center, msg.Red.Sat.range);
-  thSet.Red.Sat.lower = cvtInt2Double_sat(msg.Red.Sat.center, -msg.Red.Sat.range);
-  thSet.Red.Val.upper = cvtInt2Double_val(msg.Red.Val.center, msg.Red.Val.range);
-  thSet.Red.Val.lower = cvtInt2Double_val(msg.Red.Val.center, -msg.Red.Val.range);
+  thSet.Red.Hue.upper = cvtInt2Double_hue(msg.red.hue.center, msg.red.hue.range);
+  thSet.Red.Hue.lower = cvtInt2Double_hue(msg.red.hue.center, -msg.red.hue.range);
+  thSet.Red.Sat.upper = cvtInt2Double_sat(msg.red.sat.center, msg.red.sat.range);
+  thSet.Red.Sat.lower = cvtInt2Double_sat(msg.red.sat.center, -msg.red.sat.range);
+  thSet.Red.Val.upper = cvtInt2Double_val(msg.red.val.center, msg.red.val.range);
+  thSet.Red.Val.lower = cvtInt2Double_val(msg.red.val.center, -msg.red.val.range);
 
-  thSet.Yellow.Hue.upper = cvtInt2Double_hue(msg.Yellow.Hue.center, msg.Yellow.Hue.range);
-  thSet.Yellow.Hue.lower = cvtInt2Double_hue(msg.Yellow.Hue.center, -msg.Yellow.Hue.range);
-  thSet.Yellow.Sat.upper = cvtInt2Double_sat(msg.Yellow.Sat.center, msg.Yellow.Sat.range);
-  thSet.Yellow.Sat.lower = cvtInt2Double_sat(msg.Yellow.Sat.center, -msg.Yellow.Sat.range);
-  thSet.Yellow.Val.upper = cvtInt2Double_val(msg.Yellow.Val.center, msg.Yellow.Val.range);
-  thSet.Yellow.Val.lower = cvtInt2Double_val(msg.Yellow.Val.center, -msg.Yellow.Val.range);
+  thSet.Yellow.Hue.upper = cvtInt2Double_hue(msg.yellow.hue.center, msg.yellow.hue.range);
+  thSet.Yellow.Hue.lower = cvtInt2Double_hue(msg.yellow.hue.center, -msg.yellow.hue.range);
+  thSet.Yellow.Sat.upper = cvtInt2Double_sat(msg.yellow.sat.center, msg.yellow.sat.range);
+  thSet.Yellow.Sat.lower = cvtInt2Double_sat(msg.yellow.sat.center, -msg.yellow.sat.range);
+  thSet.Yellow.Val.upper = cvtInt2Double_val(msg.yellow.val.center, msg.yellow.val.range);
+  thSet.Yellow.Val.lower = cvtInt2Double_val(msg.yellow.val.center, -msg.yellow.val.range);
 
-  thSet.Green.Hue.upper = cvtInt2Double_hue(msg.Green.Hue.center, msg.Green.Hue.range);
-  thSet.Green.Hue.lower = cvtInt2Double_hue(msg.Green.Hue.center, -msg.Green.Hue.range);
-  thSet.Green.Sat.upper = cvtInt2Double_sat(msg.Green.Sat.center, msg.Green.Sat.range);
-  thSet.Green.Sat.lower = cvtInt2Double_sat(msg.Green.Sat.center, -msg.Green.Sat.range);
-  thSet.Green.Val.upper = cvtInt2Double_val(msg.Green.Val.center, msg.Green.Val.range);
-  thSet.Green.Val.lower = cvtInt2Double_val(msg.Green.Val.center, -msg.Green.Val.range);
+  thSet.Green.Hue.upper = cvtInt2Double_hue(msg.green.hue.center, msg.green.hue.range);
+  thSet.Green.Hue.lower = cvtInt2Double_hue(msg.green.hue.center, -msg.green.hue.range);
+  thSet.Green.Sat.upper = cvtInt2Double_sat(msg.green.sat.center, msg.green.sat.range);
+  thSet.Green.Sat.lower = cvtInt2Double_sat(msg.green.sat.center, -msg.green.sat.range);
+  thSet.Green.Val.upper = cvtInt2Double_val(msg.green.val.center, msg.green.val.range);
+  thSet.Green.Val.lower = cvtInt2Double_val(msg.green.val.center, -msg.green.val.range);
 } /* static void tunedResult_cb() */
 
 static void superimpose_cb(const std_msgs::Bool::ConstPtr& config_msg)

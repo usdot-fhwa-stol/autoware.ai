@@ -1,4 +1,4 @@
 # This consists of multiple WaypointRelation objects in a map. 
 
-Header header
+std_msgs/Header header
 WaypointRelation[] data

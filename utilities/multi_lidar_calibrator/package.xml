@@ -20,4 +20,5 @@
   <exec_depend>libqt5-core</exec_depend>
 
   <test_depend>rosunit</test_depend>
+  <build_depend>carma_cmake_common</build_depend>
 </package>

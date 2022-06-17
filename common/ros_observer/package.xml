@@ -11,6 +11,7 @@
   <depend>roscpp</depend>
   <depend>boost</depend>
   <depend>roslint</depend>
+  <build_depend>carma_cmake_common</build_depend>
   <export>
   </export>
 </package>

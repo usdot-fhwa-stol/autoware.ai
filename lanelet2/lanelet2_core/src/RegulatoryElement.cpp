@@ -152,6 +152,15 @@ void RegulatoryElement::applyVisitor(RuleParameterVisitor& visitor) const {
   }
 }
 
+void RegulatoryElement::applyVisitor(lanelet::internal::ParameterEditorVisitor& visitor) {
+  for (auto& elems : parameters()) {
+    visitor.role = elems.first;
+    for (auto& elem : elems.second) {
+      boost::apply_visitor(visitor, elem);
+    }
+  }
+}
+
 void RegulatoryElement::applyVisitor(lanelet::internal::MutableParameterVisitor& visitor) const {
   for (const auto& elems : parameters()) {
     visitor.role = elems.first;

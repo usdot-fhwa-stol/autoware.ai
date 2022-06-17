@@ -1,86 +1,64 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5.1)
 project(vector_map_msgs)
 
-find_package(catkin REQUIRED COMPONENTS
-  message_generation
-  std_msgs
-)
+find_package(ros_environment REQUIRED)
 
-add_message_files(
-  FILES
-    Area.msg
-    AreaArray.msg
-    Box.msg
-    BoxArray.msg
-    CrossRoad.msg
-    CrossRoadArray.msg
-    CrossWalk.msg
-    CrossWalkArray.msg
-    Curb.msg
-    CurbArray.msg
-    CurveMirror.msg
-    CurveMirrorArray.msg
-    DTLane.msg
-    DTLaneArray.msg
-    DriveOnPortion.msg
-    DriveOnPortionArray.msg
-    Fence.msg
-    FenceArray.msg
-    GuardRail.msg
-    GuardRailArray.msg
-    Gutter.msg
-    GutterArray.msg
-    Lane.msg
-    LaneArray.msg
-    Line.msg
-    LineArray.msg
-    Node.msg
-    NodeArray.msg
-    Point.msg
-    PointArray.msg
-    Pole.msg
-    PoleArray.msg
-    RailCrossing.msg
-    RailCrossingArray.msg
-    RoadEdge.msg
-    RoadEdgeArray.msg
-    RoadMark.msg
-    RoadMarkArray.msg
-    RoadPole.msg
-    RoadPoleArray.msg
-    RoadSign.msg
-    RoadSignArray.msg
-    SideStrip.msg
-    SideStripArray.msg
-    SideWalk.msg
-    SideWalkArray.msg
-    Signal.msg
-    SignalArray.msg
-    StopLine.msg
-    StopLineArray.msg
-    StreetLight.msg
-    StreetLightArray.msg
-    UtilityPole.msg
-    UtilityPoleArray.msg
-    Vector.msg
-    VectorArray.msg
-    Wall.msg
-    WallArray.msg
-    WayArea.msg
-    WayAreaArray.msg
-    WhiteLine.msg
-    WhiteLineArray.msg
-    ZebraZone.msg
-    ZebraZoneArray.msg
-)
+set(ROS_VERSION $ENV{ROS_VERSION})
 
-generate_messages(
-  DEPENDENCIES
+if(${ROS_VERSION} EQUAL 1) # ROS 1
+  set(msg_directory ) # Empty as ROS1 defaults to msg/
+else()
+  set(msg_directory "msg/")
+endif()
+
+## Collection Message Paths 
+file(GLOB msg_files msg/*.msg)
+set(msgs )
+foreach(filePath ${msg_files})
+  get_filename_component(name ${filePath} NAME)
+  set(msgs ${msgs} ${msg_directory}${name})
+endforeach(filePath)
+
+if(${ROS_VERSION} EQUAL 1) # ROS 1
+
+  find_package(catkin REQUIRED COMPONENTS
+    message_generation
     std_msgs
-)
+  )
 
-catkin_package(
-  CATKIN_DEPENDS
-    message_runtime
-    std_msgs
-)
+  add_message_files(
+    FILES
+      ${msgs}
+  )
+
+  generate_messages(
+    DEPENDENCIES
+      std_msgs
+  )
+
+  catkin_package(
+    CATKIN_DEPENDS
+      message_runtime
+      std_msgs
+  )
+
+else()
+
+  find_package(rosidl_default_generators REQUIRED)
+  find_package(ament_cmake REQUIRED)
+  find_package(std_msgs REQUIRED)
+
+  rosidl_generate_interfaces(
+    ${PROJECT_NAME}
+      ${msgs}
+    DEPENDENCIES
+      std_msgs
+  )
+
+  ament_export_dependencies(rosidl_default_runtime)
+  ament_package()
+
+endif()
+
+
+

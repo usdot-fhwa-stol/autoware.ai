@@ -1,4 +1,4 @@
-Header header
+std_msgs/Header header
 float32 others_distance
 float32 detection_range
 int32 threshold_points

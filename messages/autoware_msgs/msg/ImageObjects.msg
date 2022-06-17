@@ -1,4 +1,4 @@
-Header header
+std_msgs/Header header
 uint8 car_num
 int32[] car_type
 float32[] score

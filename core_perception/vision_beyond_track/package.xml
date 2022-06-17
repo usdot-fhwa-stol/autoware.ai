@@ -16,4 +16,5 @@
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
   <depend>tf</depend>
+  <build_depend>carma_cmake_common</build_depend>
 </package>

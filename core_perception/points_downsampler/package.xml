@@ -19,4 +19,5 @@
   <depend>velodyne_pcl</depend>
 
   <exec_depend>message_runtime</exec_depend>
+  <build_depend>carma_cmake_common</build_depend>
 </package>

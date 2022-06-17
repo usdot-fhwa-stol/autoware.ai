@@ -1,8 +1,12 @@
-FROM usdotfhwastol/carma-base:carma-system-3.11.0 as base_image
+FROM usdotfhwastoldev/carma-base:develop AS base_image
 
-FROM base_image as build
+FROM base_image AS build
 
-RUN sudo apt-get install -y ros-noetic-velodyne-pcl
+ARG ROS1_PACKAGES=""
+ENV ROS1_PACKAGES=${ROS1_PACKAGES}
+ARG ROS2_PACKAGES=""
+ENV ROS2_PACKAGES=${ROS2_PACKAGES}
+
 COPY --chown=carma . /home/carma/autoware.ai
 RUN /home/carma/autoware.ai/docker/checkout.bash
 RUN ./home/carma/autoware.ai/docker/install.sh
@@ -24,3 +28,4 @@ LABEL org.label-schema.vcs-ref=${VCS_REF}
 LABEL org.label-schema.build-date=${BUILD_DATE}
 
 COPY --chown=carma --from=build /opt/autoware.ai/ros/install /opt/autoware.ai/ros/install
+COPY --chown=carma --from=build /opt/autoware.ai/ros/install_ros2 /opt/autoware.ai/ros/install_ros2

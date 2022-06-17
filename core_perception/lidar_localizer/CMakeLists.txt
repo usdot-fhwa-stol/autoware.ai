@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(lidar_localizer)
 
+find_package(carma_cmake_common REQUIRED)
+carma_check_ros_version(1)
+
 find_package(PCL REQUIRED)
 
 if(NOT (PCL_VERSION VERSION_LESS "1.7.2"))

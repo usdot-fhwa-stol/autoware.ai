@@ -3,7 +3,6 @@
 #include <lanelet2_core/LaneletMap.h>
 #include <lanelet2_core/geometry/Area.h>
 #include <lanelet2_core/geometry/Lanelet.h>
-
 #include <unordered_map>
 
 #include "lanelet2_routing/Exceptions.h"
@@ -92,6 +91,7 @@ RoutingGraphBuilder::RoutingGraphBuilder(const traffic_rules::TrafficRules& traf
       config_{config} {}
 
 RoutingGraphUPtr RoutingGraphBuilder::build(const LaneletMapLayers& laneletMapLayers) {
+
   auto passableLanelets = getPassableLanelets(laneletMapLayers.laneletLayer, trafficRules_);
   auto passableAreas = getPassableAreas(laneletMapLayers.areaLayer, trafficRules_);
   auto passableMap = utils::createConstSubmap(passableLanelets, passableAreas);
@@ -100,6 +100,7 @@ RoutingGraphUPtr RoutingGraphBuilder::build(const LaneletMapLayers& laneletMapLa
   addAreasToGraph(passableAreas);
   addEdges(passableLanelets, passableMap->laneletLayer);
   addEdges(passableAreas, passableMap->laneletLayer, passableMap->areaLayer);
+
   return std::make_unique<RoutingGraph>(std::move(graph_), std::move(passableMap));
 }
 

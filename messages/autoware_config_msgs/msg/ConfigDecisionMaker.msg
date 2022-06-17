@@ -1,4 +1,4 @@
-Header header
+std_msgs/Header header
 bool auto_mission_reload
 bool auto_engage
 bool auto_mission_change

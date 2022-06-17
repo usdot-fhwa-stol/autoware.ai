@@ -385,7 +385,8 @@ TwistFilter::TwistFilter(ros::NodeHandle *nh, ros::NodeHandle *private_nh):
 {
   if (nh_ != nullptr && private_nh_ != nullptr) {
     nh_->param("vehicle_info/wheel_base", wheel_base_, 2.7);
-    private_nh_->param("longitudinal_velocity_limit", longitudinal_velocity_limit_, 35.7632);
+    private_nh_->param("longitudinal_velocity_limit", longitudinal_velocity_limit_, 80.0);
+    longitudinal_velocity_limit_ = longitudinal_velocity_limit_ * 0.44704;
     private_nh_->param("longitudinal_accel_limit", longitudinal_accel_limit_, 3.5);
     _lon_accel_limiter = LongitudinalAccelLimiter{
       std::min(longitudinal_accel_limit_, 

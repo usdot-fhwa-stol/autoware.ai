@@ -135,8 +135,8 @@ pointcloud2_to_3d_calibration(const sensor_msgs::PointCloud2ConstPtr& pointcloud
 {
   autoware_msgs::CameraExtrinsic msg;
   std::vector<double> cali;
-  for (int y = 0; y < msg.ysize ; ++y) {
-    for (int x = 0; x < msg.xsize ; ++x){
+  for (int y = 0; y < msg.Y_SIZE ; ++y) {
+    for (int x = 0; x < msg.X_SIZE ; ++x){
       cali.push_back(cameraExtrinsicMat.at<double>(y,x));
     }
   }

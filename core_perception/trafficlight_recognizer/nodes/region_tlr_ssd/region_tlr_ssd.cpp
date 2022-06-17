@@ -91,7 +91,7 @@ void RegionTLRSSDROSNode::ROISignalCallback(const autoware_msgs::Signals::ConstP
     std::cout << "No Image" << std::endl;
     return;
   }
-  // std::cout << "rois: " << extracted_pos->Signals.size() << std::endl;
+  // std::cout << "rois: " << extracted_pos->signals.size() << std::endl;
 
   // Acquire signal posotion on the image
   Context::SetContexts(&contexts_, extracted_pos, frame_.rows, frame_.cols);

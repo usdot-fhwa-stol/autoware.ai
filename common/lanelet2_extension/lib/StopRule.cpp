@@ -101,8 +101,8 @@ std::unique_ptr<lanelet::RegulatoryElementData> StopRule::buildData(Id id, LineS
 
 namespace
 {
-// this object actually does the registration work for us
-lanelet::RegisterRegulatoryElement<lanelet::StopRule> reg;
+  // this object actually does the registration work for us
+  static lanelet::RegisterRegulatoryElement<lanelet::StopRule> reg;
 }  // namespace
 
 }  // namespace lanelet

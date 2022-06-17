@@ -322,7 +322,6 @@ class ConstWeakLanelet {
   ConstWeakLanelet() = default;
   ConstWeakLanelet(const ConstLanelet& llet)  // NOLINT
       : laneletData_{llet.constData()}, inverted_{llet.inverted()} {}
-
   /**
    * @brief Obtains the original ConstLanelet.
    * @throws NullptrError if the managed lanelet expired.
@@ -331,7 +330,7 @@ class ConstWeakLanelet {
 
   //! tests whether the WeakLanelet is still valid
   bool expired() const noexcept { return laneletData_.expired(); }
-
+  
  protected:
   std::weak_ptr<const LaneletData> laneletData_;  // NOLINT
   bool inverted_{false};                          // NOLINT

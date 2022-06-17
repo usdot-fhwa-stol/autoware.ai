@@ -494,14 +494,14 @@ void OpenPlannerCarSimulator::visualizePath(const std::vector<PlannerHNS::WayPoi
 
 void OpenPlannerCarSimulator::callbackGetTrafficLightSignals(const autoware_msgs::Signals& msg)
 {
-//	std::cout << "Received Traffic Light Signals : " << msg.Signals.size() << std::endl;
+//	std::cout << "Received Traffic Light Signals : " << msg.signals.size() << std::endl;
 //	m_CurrTrafficLight.clear();
 //	bNewLightSignal = true;
-//	for(unsigned int i = 0 ; i < msg.Signals.size() ; i++)
+//	for(unsigned int i = 0 ; i < msg.signals.size() ; i++)
 //	{
 //		PlannerHNS::TrafficLight tl;
-//		tl.id = msg.Signals.at(i).signalId;
-//		if(msg.Signals.at(i).type == 1)
+//		tl.id = msg.signals.at(i).signal_id;
+//		if(msg.signals.at(i).type == 1)
 //			tl.lightState = PlannerHNS::GREEN_LIGHT;
 //		else
 //			tl.lightState = PlannerHNS::RED_LIGHT;
@@ -511,10 +511,10 @@ void OpenPlannerCarSimulator::callbackGetTrafficLightSignals(const autoware_msgs
 
 	bNewLightSignal = true;
 	std::vector<PlannerHNS::TrafficLight> simulatedLights;
-	for(unsigned int i = 0 ; i < msg.Signals.size() ; i++)
+	for(unsigned int i = 0 ; i < msg.signals.size() ; i++)
 	{
 		PlannerHNS::TrafficLight tl;
-		tl.id = msg.Signals.at(i).signalId;
+		tl.id = msg.signals.at(i).signal_id;
 
 		for(unsigned int k = 0; k < m_Map.trafficLights.size(); k++)
 		{
@@ -525,7 +525,7 @@ void OpenPlannerCarSimulator::callbackGetTrafficLightSignals(const autoware_msgs
 			}
 		}
 
-		if(msg.Signals.at(i).type == 1)
+		if(msg.signals.at(i).type == 1)
 		{
 			tl.lightState = PlannerHNS::GREEN_LIGHT;
 		}

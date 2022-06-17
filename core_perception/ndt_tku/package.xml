@@ -11,4 +11,5 @@
   <depend>glut</depend>
   <depend>libxi-dev</depend>
   <depend>libxmu-dev</depend>
+  <build_depend>carma_cmake_common</build_depend>
 </package>

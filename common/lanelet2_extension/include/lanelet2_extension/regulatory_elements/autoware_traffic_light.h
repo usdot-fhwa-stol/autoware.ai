@@ -80,6 +80,12 @@ private:
   explicit AutowareTrafficLight(const lanelet::RegulatoryElementDataPtr& data);
 };
 
+namespace lanelet2_extension_autoware_traffic_light {
+  // this object actually does the registration work for us
+  // static to ensure this registration occurs per compilation unit without causing mutiple definitions error. 
+  static lanelet::RegisterRegulatoryElement<AutowareTrafficLight> regAutowareTraffic;
+}
+
 }  // namespace autoware
 }  // namespace lanelet
 

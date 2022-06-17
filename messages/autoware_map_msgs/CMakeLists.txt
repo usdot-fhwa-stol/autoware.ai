@@ -1,52 +1,63 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5.1)
 project(autoware_map_msgs)
 
-find_package(catkin REQUIRED COMPONENTS
-  std_msgs
-  message_generation
-)
+find_package(ros_environment REQUIRED)
 
-add_message_files(
-  FILES
-    Area.msg
-    AreaArray.msg
-    Lane.msg
-    LaneArray.msg
-    LaneAttributeRelation.msg
-    LaneAttributeRelationArray.msg
-    LaneChangeRelation.msg
-    LaneChangeRelationArray.msg
-    LaneRelation.msg
-    LaneRelationArray.msg
-    LaneSignalLightRelation.msg
-    LaneSignalLightRelationArray.msg
-    OppositeLaneRelation.msg
-    OppositeLaneRelationArray.msg
-    Point.msg
-    PointArray.msg
-    Signal.msg
-    SignalArray.msg
-    SignalLight.msg
-    SignalLightArray.msg
-    Wayarea.msg
-    WayareaArray.msg
-    Waypoint.msg
-    WaypointArray.msg
-    WaypointLaneRelation.msg
-    WaypointLaneRelationArray.msg
-    WaypointRelation.msg
-    WaypointRelationArray.msg
-    WaypointSignalRelation.msg
-    WaypointSignalRelationArray.msg
-)
+set(ROS_VERSION $ENV{ROS_VERSION})
 
-generate_messages(
-  DEPENDENCIES
+if(${ROS_VERSION} EQUAL 1) # ROS 1
+  set(msg_directory ) # Empty as ROS1 defaults to msg/
+else()
+  set(msg_directory "msg/")
+endif()
+
+## Collection Message Paths 
+file(GLOB msg_files msg/*.msg)
+set(msgs )
+foreach(filePath ${msg_files})
+  get_filename_component(name ${filePath} NAME)
+  set(msgs ${msgs} ${msg_directory}${name})
+endforeach(filePath)
+
+if(${ROS_VERSION} EQUAL 1) # ROS 1
+
+  find_package(catkin REQUIRED COMPONENTS
     std_msgs
-)
+    message_generation
+  )
 
-catkin_package(
-  CATKIN_DEPENDS
-    message_runtime
-    std_msgs
-)
+  add_message_files(
+    FILES
+      ${msgs}
+  )
+
+  generate_messages(
+    DEPENDENCIES
+      std_msgs
+  )
+
+  catkin_package(
+    CATKIN_DEPENDS
+      message_runtime
+      std_msgs
+  )
+
+else() # ROS 2
+
+  find_package(rosidl_default_generators REQUIRED)
+  find_package(ament_cmake REQUIRED)
+  find_package(std_msgs REQUIRED)
+
+  rosidl_generate_interfaces(
+    ${PROJECT_NAME}
+      ${msgs}
+    DEPENDENCIES
+      std_msgs
+  )
+
+  ament_export_dependencies(rosidl_default_runtime)
+  ament_package()
+
+endif()
+
+

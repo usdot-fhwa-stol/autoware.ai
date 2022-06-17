@@ -1,4 +1,4 @@
-Header header
+std_msgs/Header header
 autoware_msgs/SteerCmd steer_cmd
 autoware_msgs/AccelCmd accel_cmd
 autoware_msgs/BrakeCmd brake_cmd

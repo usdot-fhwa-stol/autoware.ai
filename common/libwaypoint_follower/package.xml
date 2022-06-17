@@ -18,4 +18,5 @@
   <depend>rosunit</depend>
   <depend>std_msgs</depend>
   <depend>eigen</depend>
+  <build_depend>carma_cmake_common</build_depend>
 </package>

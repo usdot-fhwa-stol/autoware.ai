@@ -1,4 +1,4 @@
-Header header
+std_msgs/Header header
 float32 acceleration
 float32 stopline_search_radius
 int32 number_of_zeros_ahead

@@ -19,6 +19,8 @@
 
 #include <lanelet2_core/primitives/RegulatoryElement.h>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <lanelet2_extension/time/TimeConversion.h>
+#include <unordered_map>
 
 namespace lanelet
 {
@@ -57,42 +59,6 @@ struct CarmaTrafficSignalRoleNameString
   static constexpr char ControlEnd[] = "control_end";
 };
 
-// Namespace for time representations used with this regulatory element
-namespace time {
-
-  /**
-   * \brief Converts a boost time duration into the number of posix seconds it represents
-   * 
-   * \param duration The duration to convert.
-   * \return The number of posix seconds with microsecond resolution
-   */ 
-  double toSec(const boost::posix_time::time_duration& duration);
-  
-  /**
-   * \brief Converts a boost time duration into the number of posix seconds since 1970
-   * 
-   * \param duration The duration to convert.
-   * \return The number of posix seconds since 1970 with microsecond resolution
-   */ 
-  double toSec(const boost::posix_time::ptime& time);
-
-  /**
-   * \brief Returns a boost posix time object which matches the input posix seconds since 1970 with microsecond accuracy.
-   * 
-   * \param sec The number of posix seconds since 1970. Fractional seconds are supported.
-   * \return Initialized posix time object matching the input
-   */ 
-  boost::posix_time::ptime timeFromSec(double sec);
-
-  /**
-   * \brief Returns a boost posix time object which matches the input posix seconds duration with microsecond accuracy.
-   * 
-   * \param sec The number of posix seconds the duration should reflect. Fractional seconds are supported.
-   * \return Initialized posix time duration object matching the input
-   */ 
-  boost::posix_time::time_duration durationFromSec(double sec);
-}
-
 /**
  * \brief Stream operator for CarmaTrafficSignalState enum.
  */
@@ -114,6 +80,9 @@ public:
   int revision_ = 0; //indicates when was this last modified
   boost::posix_time::time_duration fixed_cycle_duration;
   std::vector<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> recorded_time_stamps;
+  std::unordered_map<CarmaTrafficSignalState, boost::posix_time::time_duration> signal_durations;
+
+
   /**
    * @brief setStates function sorts states automatically
    *
@@ -139,14 +108,26 @@ public:
    * @brief prefictState assumes sorted, fixed time, so guaranteed to give you one final state
    *
    * @param time_stamp boost::posix_time::ptime of the event happening
+   * @return std::pair of signal state and its end time at the input time
+   *         optional will empty if no timestamps are recorded yet
+   * @throw  InvalidInputError if timestamps recorded somehow did not have full cycle
    */
-  boost::optional<CarmaTrafficSignalState> predictState(boost::posix_time::ptime time_stamp);
+  boost::optional<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> predictState(boost::posix_time::ptime time_stamp);
   
   /**
    * @brief Return the stop_lines related to the entry lanelets in order if exists.
    */
   ConstLineStrings3d stopLine() const;
   LineStrings3d stopLine();
+
+  /**
+   * @brief Return the stop_lines related to the specified entry lanelet
+   * @param llt entry_lanelet 
+   * @return optional stop line linestring. 
+   *         Empty optional if no stopline, or no entry lanelets, or if specified entry lanelet is not recorded. 
+   */
+  Optional<ConstLineString3d> getConstStopLine(const ConstLanelet& llt);
+  Optional<LineString3d> getStopLine(const ConstLanelet& llt);
 
   explicit CarmaTrafficSignal(const lanelet::RegulatoryElementDataPtr& data);
   /**

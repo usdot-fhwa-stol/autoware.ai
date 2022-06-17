@@ -13,4 +13,6 @@
   <build_depend>libpcl-all-dev</build_depend>
 
   <exec_depend>libpcl-all</exec_depend>
+
+  <build_depend>carma_cmake_common</build_depend>
 </package>

@@ -17,4 +17,5 @@
   <depend>rosunit</depend>
   <depend>ros_observer</depend>
   <depend>roslint</depend>
+  <build_depend>carma_cmake_common</build_depend>
 </package>

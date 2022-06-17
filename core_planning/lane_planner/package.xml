@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>lane_planner</name>
+  <name>lane_planner_ros1</name>
   <version>1.12.0</version>
-  <description>The lane_planner package</description>
+  <description>The lane_planner package for ROS1</description>
   <maintainer email="tomo@axe-inc.co.jp">Tomomi HORII</maintainer>
   <license>Apache 2</license>
 
@@ -21,4 +21,5 @@
   <depend>autoware_lanelet2_ros_interface</depend>
   <test_depend>rostest</test_depend>
   <test_depend>rosunit</test_depend>
+  <build_depend>carma_cmake_common</build_depend>
 </package>

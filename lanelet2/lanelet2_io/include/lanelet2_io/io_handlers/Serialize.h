@@ -119,6 +119,7 @@ void save(Archive& ar, const lanelet::Lanelet& l, unsigned int /*version*/) {
 template <typename Archive>
 void load(Archive& ar, lanelet::Lanelet& l, unsigned int /*version*/) {
   std::shared_ptr<lanelet::LaneletData> ptr;
+  
   bool inv = false;
   ar >> inv >> ptr;
   l = lanelet::Lanelet(ptr, inv);
@@ -149,6 +150,7 @@ void save(Archive& ar, const lanelet::WeakLanelet& l, unsigned int /*version*/) 
 template <typename Archive>
 void load(Archive& ar, lanelet::WeakLanelet& l, unsigned int /*version*/) {
   lanelet::Lanelet lanelet;
+
   ar& lanelet;
   l = lanelet;
 }

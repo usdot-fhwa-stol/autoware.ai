@@ -1,0 +1,35 @@
+<launch>
+
+  <arg name="gui" default="true" />
+
+  <node name="image_publisher"
+        pkg="jsk_perception" type="image_publisher.py">
+    <rosparam subst_value="true">
+      file_name: $(find jsk_perception)/sample/image/lena.jpg
+      encoding: bgr8
+      publish_info: false
+    </rosparam>
+  </node>
+  <arg name="INPUT_IMAGE" default="image_publisher/output" />
+
+  <!-- create label -->
+  <node name="grid_label"
+        pkg="jsk_perception" type="grid_label">
+    <remap from="~input" to="$(arg INPUT_IMAGE)" />
+    <rosparam>
+      label_size: 128
+    </rosparam>
+  </node>
+
+  <group if="$(arg gui)">
+    <node name="image_view0"
+          pkg="image_view" type="image_view">
+      <remap from="image" to="$(arg INPUT_IMAGE)" />
+    </node>
+    <node name="image_view1"
+          pkg="image_view" type="image_view">
+      <remap from="image" to="grid_label/output" />
+    </node>
+  </group>
+
+</launch>

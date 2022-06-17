@@ -31,6 +31,8 @@ git remote add qpoases_remote git@gitlab.com:autowarefoundation/autoware.ai/qpoa
 git remote add car_demo_remote git@github.com:CPFL/car_demo.git
 git remote add ds4_remote git@github.com:tier4/ds4.git
 git remote add osrf_citysim_remote git@github.com:CPFL/osrf_citysim.git
+git remote add jsk_recognition_remote git@github.com:jsk-ros-pkg/jsk_recognition.git
+git remote add jsk_common_msgs_remote git@github.com:jsk-ros-pkg/jsk_common_msgs.git
 ```
 
 ## Pull from remotes
@@ -59,6 +61,8 @@ git subtree pull --prefix=qpoases qpoases_remote master --squash
 git subtree pull --prefix=car_demo car_demo_remote master --squash
 git subtree pull --prefix=ds4 ds4_remote master --squash
 git subtree pull --prefix=osrf_citysim osrf_citysim_remote master --squash
+git subtree pull --prefix=jsk_recognition jsk_recognition_remote 1.2.15 --squash
+git subtree pull --prefix=jsk_common_msgs jsk_common_msgs_remote 4.3.2 --squash
 ```
 
 ## Adding Sub-Trees

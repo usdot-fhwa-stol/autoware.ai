@@ -570,7 +570,7 @@ VectorMap create_coarse_vmap_from_lane(const autoware_msgs::Lane& lane)
   return coarse_vmap;
 }
 
-VectorMap create_coarse_vmap_from_route(const tablet_socket_msgs::route_cmd& route)
+VectorMap create_coarse_vmap_from_route(const tablet_socket_msgs::RouteCmd& route)
 {
   geo_pos_conv geo;
   geo.set_plane(7);

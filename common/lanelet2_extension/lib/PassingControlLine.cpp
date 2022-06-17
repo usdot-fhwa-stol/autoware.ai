@@ -127,8 +127,8 @@ std::unique_ptr<lanelet::RegulatoryElementData> PassingControlLine::buildData(Id
 
 namespace
 {
-// this object actually does the registration work for us
-lanelet::RegisterRegulatoryElement<lanelet::PassingControlLine> reg;
+  // this object actually does the registration work for us
+  static lanelet::RegisterRegulatoryElement<lanelet::PassingControlLine> reg;
 }  // namespace
 
 }  // namespace lanelet

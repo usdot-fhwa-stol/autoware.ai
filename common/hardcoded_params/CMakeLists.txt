@@ -13,20 +13,45 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5.1)
 project(hardcoded_params)
 
-find_package(catkin REQUIRED)
+find_package(carma_cmake_common REQUIRED)
+carma_package()
 
-catkin_package(
-  INCLUDE_DIRS include
-)
+find_package(ros_environment REQUIRED)
 
-include_directories(
-        include
-        ${catkin_INCLUDE_DIRS}
-)
+set(ROS_VERSION $ENV{ROS_VERSION})
 
-install(DIRECTORY include/${PROJECT_NAME}/
-        DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+if(${ROS_VERSION} EQUAL 2) # ROS 2
+        ## Find dependencies using ament auto
+        find_package(ament_cmake_auto REQUIRED)
+        ament_auto_find_build_dependencies()
+
+        # Includes
+        # Currently this is a header only library so nothing else is needed here
+        include_directories(
+                include
         )
+
+        # Install
+        ament_auto_package()
+        
+else() # ROS 1
+
+        find_package(catkin REQUIRED)
+
+        catkin_package(
+                INCLUDE_DIRS include
+        )
+
+        include_directories(
+                include
+                ${catkin_INCLUDE_DIRS}
+        )
+
+        install(DIRECTORY include/${PROJECT_NAME}/
+                DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+        )
+
+endif()
