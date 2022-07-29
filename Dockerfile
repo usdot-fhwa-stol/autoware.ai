@@ -1,6 +1,11 @@
-FROM usdotfhwastol/carma-base:carma-system-4.1.0 as base_image
+FROM usdotfhwastol/carma-base:carma-system-4.2.0 AS base_image
 
-FROM base_image as build
+FROM base_image AS build
+
+ARG ROS1_PACKAGES=""
+ENV ROS1_PACKAGES=${ROS1_PACKAGES}
+ARG ROS2_PACKAGES=""
+ENV ROS2_PACKAGES=${ROS2_PACKAGES}
 
 COPY --chown=carma . /home/carma/autoware.ai
 RUN /home/carma/autoware.ai/docker/checkout.bash

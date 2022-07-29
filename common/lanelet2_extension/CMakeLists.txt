@@ -62,6 +62,7 @@ set(cpp_files
   lib/SignalizedIntersection.cpp
   lib/RegionAccessRule.cpp
   lib/DirectionOfTravel.cpp
+  lib/TimeConversion.cpp
 )
 
 
