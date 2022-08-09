@@ -1,4 +1,4 @@
-FROM usdotfhwastoldev/carma-base:develop AS base_image
+FROM usdotfhwastoldev/carma-base:coverage AS base_image
 
 FROM base_image AS build
 
