@@ -136,8 +136,8 @@ boost::optional<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> Ca
         return std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>(timeFromSec(end_time), recorded_time_stamps[i].second);
       }
     }
-    LOG_WARN_STREAM("CarmaTrafficSignal doesn't have enough state saved, but returning the last one!");
-    return std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>(recorded_time_stamps.back().first, recorded_time_stamps.back().second);
+    LOG_WARN_STREAM("CarmaTrafficSignal doesn't have enough state saved, but returning RED state!");
+    return std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>(timeFromSec(lanelet::time::toSec(time_stamp) + 24 * 60 * 60.0 ), CarmaTrafficSignalState::STOP_AND_REMAIN); // 1 day later end, stop and remain
   }
   
   // shift starting time to the future or to the past to fit input into a valid cycle
