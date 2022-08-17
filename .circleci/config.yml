@@ -28,13 +28,13 @@ jobs:
     # Pull docker image from docker hub
     # XTERM used for better catkin_make output
     docker:
-      - image: usdotfhwastoldev/carma-base:coverage
+      - image: usdotfhwastoldev/carma-base:develop
         user: carma
         environment:
           TERM: xterm
           INIT_ENV: /home/carma/.base-image/init-env.sh
           COVERAGE_FLAGS: -g --coverage -fprofile-arcs -ftest-coverage -Wall
-    resource_class: xlarge       
+    resource_class: xlarge
     # Set working directory
     working_directory: "/opt/carma/"
     # Pull code and execute tests
@@ -43,7 +43,7 @@ jobs:
       # Checkout PR branch
       - checkout:
           path: autoware.ai
-      - run: 
+      - run:
           name: Pull Deps
           command: |
             source ${INIT_ENV}
@@ -54,7 +54,7 @@ jobs:
             source ${INIT_ENV}
             cd autoware.ai/
             export ROS_PARALLEL_JOBS='-j4 -l4' # try to reduce memory consumption on build
-            export AUTOWARE_COMPILE_WITH_CUDA=1 
+            export AUTOWARE_COMPILE_WITH_CUDA=1
             build-wrapper-linux-x86-64 --out-dir /opt/carma/bw-output colcon build --install-base ./ros/install --executor sequential --cmake-args -DCMAKE_BUILD_TYPE=Debug -DCMAKE_LIBRARY_PATH=/usr/local/cuda/lib64/stubs -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}"
       # The free version of Circle CI does not have enough memory to run tests in this repo
       # The following run statement can be used as a starting point for future implementation of automated unit tests
