@@ -125,6 +125,21 @@ boost::optional<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> Ca
     return std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>(recorded_time_stamps.front().first, recorded_time_stamps.front().second);
   }
   
+  if (lanelet::time::toSec(fixed_cycle_duration) < 1.0) //if not set, means it is dynamic, so just look up the value
+  {
+    // iterate through states in the dynamic states to get the signal. if not found, send the last state!
+    for (size_t i = 0; i < recorded_time_stamps.size(); i++)
+    {
+      double end_time = lanelet::time::toSec(recorded_time_stamps[i].first);
+      if (end_time >= lanelet::time::toSec(time_stamp))
+      { 
+        return std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>(timeFromSec(end_time), recorded_time_stamps[i].second);
+      }
+    }
+    LOG_WARN_STREAM("CarmaTrafficSignal doesn't have enough state saved, but returning the last one!");
+    return std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>(recorded_time_stamps.back().first, recorded_time_stamps.back().second);
+  }
+  
   // shift starting time to the future or to the past to fit input into a valid cycle
   boost::posix_time::time_duration accumulated_offset_duration;
   double offset_duration_dir = recorded_time_stamps.front().first > time_stamp ? -1.0 : 1.0; // -1 if past, +1 if time_stamp is in future
