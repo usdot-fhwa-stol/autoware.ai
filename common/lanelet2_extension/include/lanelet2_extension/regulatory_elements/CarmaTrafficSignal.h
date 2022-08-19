@@ -79,6 +79,8 @@ public:
 
   int revision_ = 0; //indicates when was this last modified
   boost::posix_time::time_duration fixed_cycle_duration;
+  std::vector<boost::posix_time::ptime> recorded_start_time_stamps; //user must ensure it's 1 to 1 with recorded_time_stamps , 
+                                                                                                        //used in dynamic SPAT processing
   std::vector<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> recorded_time_stamps;
   std::unordered_map<CarmaTrafficSignalState, boost::posix_time::time_duration> signal_durations;
 

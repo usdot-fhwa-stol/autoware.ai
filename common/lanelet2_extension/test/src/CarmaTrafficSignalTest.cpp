@@ -71,6 +71,10 @@ TEST(CarmaTrafficSignalTest, CarmaTrafficSignal)
 
   std::vector<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> input_time_steps;
 
+  std::cerr << "fixed_cycle_duration: " << traffic_light->fixed_cycle_duration << std::endl;
+  
+  throw std::invalid_argument("FORCED STOP");
+  
   input_time_steps.push_back(std::make_pair(time::timeFromSec(1001),static_cast<lanelet::CarmaTrafficSignalState>(0)));
   input_time_steps.push_back(std::make_pair(time::timeFromSec(1002),static_cast<lanelet::CarmaTrafficSignalState>(1)));
   input_time_steps.push_back(std::make_pair(time::timeFromSec(1003),static_cast<lanelet::CarmaTrafficSignalState>(2)));
