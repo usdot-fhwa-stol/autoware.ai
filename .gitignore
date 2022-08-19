@@ -53,4 +53,3 @@ ENV/
 build/
 install/
 log/
-Dockerfile

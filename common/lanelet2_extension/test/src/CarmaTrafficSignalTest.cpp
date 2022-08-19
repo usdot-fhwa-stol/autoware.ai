@@ -70,13 +70,20 @@ TEST(CarmaTrafficSignalTest, CarmaTrafficSignal)
   ASSERT_EQ(stop_line_id1,sl.get().id());
 
   std::vector<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> input_time_steps;
-
-  std::cerr << "fixed_cycle_duration: " << traffic_light->fixed_cycle_duration << std::endl;
-  
-  throw std::invalid_argument("FORCED STOP");
   
   input_time_steps.push_back(std::make_pair(time::timeFromSec(1001),static_cast<lanelet::CarmaTrafficSignalState>(0)));
   input_time_steps.push_back(std::make_pair(time::timeFromSec(1002),static_cast<lanelet::CarmaTrafficSignalState>(1)));
+
+  /// TEST DYNAMIC SPAT
+  traffic_light->recorded_time_stamps = input_time_steps;
+  ASSERT_EQ(2,traffic_light->recorded_time_stamps.size());
+  ASSERT_THROW(traffic_light->predictState(time::timeFromSec(1002.5)), std::invalid_argument);
+  traffic_light->recorded_start_time_stamps.push_back(time::timeFromSec(1000));
+  traffic_light->recorded_start_time_stamps.push_back(time::timeFromSec(1001));
+  ASSERT_EQ(traffic_light->predictState(time::timeFromSec(1011.5)).get().second, static_cast<lanelet::CarmaTrafficSignalState>(1));
+  ASSERT_EQ(traffic_light->predictState(time::timeFromSec(1011.5)).get().first, time::timeFromSec(1012));
+  /// END DYNAMIC SPAT TEST
+
   input_time_steps.push_back(std::make_pair(time::timeFromSec(1003),static_cast<lanelet::CarmaTrafficSignalState>(2)));
   input_time_steps.push_back(std::make_pair(time::timeFromSec(1004),static_cast<lanelet::CarmaTrafficSignalState>(3)));
   input_time_steps.push_back(std::make_pair(time::timeFromSec(1005),static_cast<lanelet::CarmaTrafficSignalState>(4)));

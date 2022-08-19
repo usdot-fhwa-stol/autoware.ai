@@ -137,10 +137,15 @@ boost::optional<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> Ca
       }
     }
 
+    if (recorded_time_stamps.size() != recorded_start_time_stamps.size())
+    {
+      throw std::invalid_argument("recorded_start_time_stamps size is not equal to recorded_time_stamps size");
+    }
+    
     // not enough states saved, so extrapolating the states with repeated cycles
-    boost::posix_time::time_duration cycle_duration = recorded_time_stamps.back().second - recorded_start_time_stamps.front();
-    int num_of_cycles = static_cast<int>((time_stamp - recorded_start_time_stamps.front()) / cycle_duration);
-    double shifted_start_time_stamp = lanelet::time::toSec(recorded_start_time_stamps.front() + num_of_cycles * cycle_duration);
+    double cycle_duration = lanelet::time::toSec(recorded_time_stamps.back().first - recorded_start_time_stamps.front());
+    int num_of_cycles = static_cast<int>(lanelet::time::toSec((time_stamp - recorded_start_time_stamps.front())) / cycle_duration);
+    double shifted_start_time_stamp = lanelet::time::toSec(recorded_start_time_stamps.front()) + num_of_cycles * cycle_duration;
 
     for (size_t i = 0; i < recorded_time_stamps.size(); i++)
     {
