@@ -127,37 +127,33 @@ boost::optional<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> Ca
   
   if (lanelet::time::toSec(fixed_cycle_duration) < 1.0) // there are recorded states, but no fixed_cycle_duration means it is dynamic
   {
-    // iterate through states in the dynamic states to get the signal.
-    for (size_t i = 0; i < recorded_time_stamps.size(); i++)
-    {
-      double end_time = lanelet::time::toSec(recorded_time_stamps[i].first);
-      if (end_time >= lanelet::time::toSec(time_stamp))
-      {
-        return std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>(timeFromSec(end_time), recorded_time_stamps[i].second);
-      }
-    }
-
     if (recorded_time_stamps.size() != recorded_start_time_stamps.size())
     {
       throw std::invalid_argument("recorded_start_time_stamps size is not equal to recorded_time_stamps size");
     }
     
-    // not enough states saved, so extrapolating the states with repeated cycles
-    double cycle_duration = lanelet::time::toSec(recorded_time_stamps.back().first - recorded_start_time_stamps.front());
-    int num_of_cycles = static_cast<int>(lanelet::time::toSec((time_stamp - recorded_start_time_stamps.front())) / cycle_duration);
-    double shifted_start_time_stamp = lanelet::time::toSec(recorded_start_time_stamps.front()) + num_of_cycles * cycle_duration;
+    // if requested time is BEFORE recorded states' time interval, return STOP_AND_WAIT
+    if (recorded_start_time_stamps.front() >= time_stamp)
+    {
+      return std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>(recorded_start_time_stamps.front(), CarmaTrafficSignalState::STOP_AND_REMAIN);
+    }
 
+    // if requested time is AFTER recorded states' time interval, return STOP_AND_WAIT
+    if (recorded_start_time_stamps.front() >= time_stamp)
+    {
+      auto end_infinity_time = timeFromSec(2147483647);
+      LOG_WARN_STREAM("CarmaTrafficSignal doesn't have enough state saved, so returning STOP_AND_WAIT state! End_time: " << end_infinity_time);
+      return std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>(end_infinity_time, CarmaTrafficSignalState::STOP_AND_REMAIN); //end at 03:14:07 on Tuesday, 19 January 2038.
+    }
+    
+    // iterate through states in the dynamic states to get the signal.
     for (size_t i = 0; i < recorded_time_stamps.size(); i++)
     {
-      double end_time_duration = lanelet::time::toSec(recorded_time_stamps[i].first - recorded_start_time_stamps.front()); //duration since start of recorded states
-      double end_time = shifted_start_time_stamp + end_time_duration;
-      if (end_time >= lanelet::time::toSec(time_stamp))
+      if (recorded_time_stamps[i].first >= time_stamp)
       {
-        LOG_WARN_STREAM("CarmaTrafficSignal doesn't have enough state saved, so repeating existing states until requested time is covered. End_time: " 
-                            << timeFromSec(end_time) << ", state: " << recorded_time_stamps[i].second);
-        return std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>(timeFromSec(end_time), recorded_time_stamps[i].second);
+        return std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>(recorded_time_stamps[i].first, recorded_time_stamps[i].second);
       }
-    }   
+    }
   }
   
   // shift starting time to the future or to the past to fit input into a valid cycle
