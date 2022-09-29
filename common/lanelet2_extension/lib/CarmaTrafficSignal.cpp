@@ -139,7 +139,7 @@ boost::optional<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> Ca
     }
 
     // if requested time is AFTER recorded states' time interval, return STOP_AND_WAIT
-    if (recorded_start_time_stamps.front() >= time_stamp)
+    if (recorded_time_stamps.back().first <= time_stamp)
     {
       auto end_infinity_time = timeFromSec(2147483647);
       LOG_WARN_STREAM("CarmaTrafficSignal doesn't have enough state saved, so returning STOP_AND_WAIT state! End_time: " << end_infinity_time);
