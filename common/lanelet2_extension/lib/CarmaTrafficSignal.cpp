@@ -132,18 +132,18 @@ boost::optional<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> Ca
       throw std::invalid_argument("recorded_start_time_stamps size is not equal to recorded_time_stamps size");
     }
     
-    // if requested time is BEFORE recorded states' time interval, return STOP_AND_WAIT
+    // if requested time is BEFORE recorded states' time interval, return STOP_AND_REMAIN
     if (recorded_start_time_stamps.front() >= time_stamp)
     {
       return std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>(recorded_start_time_stamps.front(), CarmaTrafficSignalState::STOP_AND_REMAIN);
     }
 
-    // if requested time is AFTER recorded states' time interval, return STOP_AND_WAIT
+    // if requested time is AFTER recorded states' time interval, return STOP_AND_REMAIN
     if (recorded_time_stamps.back().first <= time_stamp)
     {
-      auto end_infinity_time = timeFromSec(2147483647);
-      LOG_WARN_STREAM("CarmaTrafficSignal doesn't have enough state saved, so returning STOP_AND_WAIT state! End_time: " << end_infinity_time);
-      return std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>(end_infinity_time, CarmaTrafficSignalState::STOP_AND_REMAIN); //end at 03:14:07 on Tuesday, 19 January 2038.
+      auto end_infinity_time = timeFromSec(2147483647); //corresponds to 03:14:07 on Tuesday, 19 January 2038.
+      LOG_WARN_STREAM("CarmaTrafficSignal doesn't have enough state saved, so returning STOP_AND_REMAIN state! End_time: " << end_infinity_time);
+      return std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>(end_infinity_time, CarmaTrafficSignalState::STOP_AND_REMAIN);
     }
     
     // iterate through states in the dynamic states to get the signal.
