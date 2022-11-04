@@ -52,6 +52,7 @@ jobs:
           name: Build autoware.ai
           command: |
             source ${INIT_ENV}
+            source /opt/ros/foxy/setup.bash
             cd autoware.ai/
             export ROS_PARALLEL_JOBS='-j4 -l4' # try to reduce memory consumption on build
             export AUTOWARE_COMPILE_WITH_CUDA=1
