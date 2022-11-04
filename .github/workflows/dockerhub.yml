@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - "carma-develop"
+      - "compilation-database"
 
 jobs:
   docker:
