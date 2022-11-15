@@ -55,16 +55,17 @@ jobs:
             cd autoware.ai/
             export ROS_PARALLEL_JOBS='-j4 -l4' # try to reduce memory consumption on build
             export AUTOWARE_COMPILE_WITH_CUDA=1
-            build-wrapper-linux-x86-64 --out-dir /opt/carma/bw-output colcon build --install-base ./ros/install --executor sequential --cmake-args -DCMAKE_BUILD_TYPE=Debug -DCMAKE_LIBRARY_PATH=/usr/local/cuda/lib64/stubs -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}"
+            colcon build --install-base ./ros/install --executor sequential --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_LIBRARY_PATH=/usr/local/cuda/lib64/stubs -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}"
       # The free version of Circle CI does not have enough memory to run tests in this repo
       # The following run statement can be used as a starting point for future implementation of automated unit tests
-      # - run:
-      #     name: Run C++ Tests
-      #     command: |
-      #       source ${INIT_ENV}
-      #       source /opt/carma/autoware.ai/ros/install/setup.bash
-      #       cd autoware.ai/ros
-      #       bash make_with_coverage.bash -t -e . -o /opt/carma/coverage_reports/gcov
+      - run:
+          name: Run C++ Tests
+          command: |
+            source ${INIT_ENV}
+            cd autoware.ai/
+            export ROS_PARALLEL_JOBS='-j4 -l4' # try to reduce memory consumption on build
+            colcon test --return-code-on-test-failure --install-base ./ros/install --parallel-workers 4 --ctest-args -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug"
+            collect_gcovr.bash . /opt/carma/coverage_reports/gcov
       
       # Run SonarCloud analysis
       # PR Branchs and number extracted from Circle variables and github api
@@ -83,7 +84,7 @@ jobs:
             if [ -z "${CIRCLE_PULL_REQUEST}" ]; then
               echo "Non-PR Build Detected. Running analysis on ${CIRCLE_BRANCH}"
               cd autoware.ai
-              sonar-scanner -Dproject.settings=.sonarqube/sonar-scanner.properties -Dsonar.login=${SONAR_SCANNER_TOKEN} || true
+              sonar-scanner -Dproject.settings=.sonarqube/sonar-scanner.properties -Dsonar.login=${SONAR_SCANNER_TOKEN}
               exit 0;
             fi
             echo "PR branch ${CIRCLE_BRANCH}"
