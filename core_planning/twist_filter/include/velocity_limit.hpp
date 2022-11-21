@@ -1,6 +1,6 @@
 #pragma once
 /*
- * Copyright (C) 2018-2021 LEIDOS.
+ * Copyright (C) 2022 LEIDOS.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,10 +15,11 @@
  * the License.
  */
 
-#include <ros/ros.h>
-#include <geometry_msgs/TwistStamped.h>
-#include <autoware_msgs/ControlCommandStamped.h>
+#include <geometry_msgs/msg/twist_stamped.hpp>
+#include <autoware_msgs/msg/control_command_stamped.hpp>
 #include <hardcoded_params/control_limits/control_limits.h>
+#include <rclcpp/rclcpp.hpp>
+
 
 namespace twist_filter {
 
@@ -32,8 +33,8 @@ constexpr double MAX_LONGITUDINAL_VELOCITY_HARDCODED_LIMIT_M_S = hardcoded_param
  * \return A copy of the message with the longitudinal speed limited 
  * based on params or hardcoded limit
  */
-autoware_msgs::ControlCommandStamped
-    longitudinalLimitCtrl(const autoware_msgs::ControlCommandStamped& msg, const double limit);
+autoware_msgs::msg::ControlCommandStamped
+    longitudinalLimitCtrl(const autoware_msgs::msg::ControlCommandStamped& msg, const double limit);
 
 /**
  * Limit the longitudinal speed found in the input TwistStamped
@@ -43,6 +44,7 @@ autoware_msgs::ControlCommandStamped
  * \return A copy of the message with the longitudinal speed limited 
  * based on params or hardcoded limit
  */
-geometry_msgs::TwistStamped
-    longitudinalLimitTwist(const geometry_msgs::TwistStamped& msg, const double limit);
+geometry_msgs::msg::TwistStamped
+    longitudinalLimitTwist(const geometry_msgs::msg::TwistStamped& msg, const double limit);
+
 }

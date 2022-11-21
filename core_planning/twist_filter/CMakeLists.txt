@@ -3,75 +3,67 @@
 #   for refactoring required in that process
 #    - Kyle Rush
 #    - 9/13/2020
+# - Refactored to use ament for ros2
+#    - 11/16/2022
 
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 project(twist_filter)
 
 find_package(carma_cmake_common REQUIRED)
-carma_check_ros_version(1)
+carma_check_ros_version(2)
+carma_package()
 
-find_package(autoware_build_flags REQUIRED)
+## Find dependencies using ament auto
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
 
-find_package(
-  catkin REQUIRED COMPONENTS
-    autoware_config_msgs
-    autoware_health_checker
-    autoware_msgs
-    geometry_msgs
-    roscpp
-    rostest
-    std_msgs
-    roslint
-    hardcoded_params
-)
+find_package(Boost REQUIRED)
 
-catkin_package(
-  INCLUDE_DIRS
-  CATKIN_DEPENDS
-    autoware_config_msgs
-    autoware_health_checker
-    autoware_msgs
-    geometry_msgs
-    roscpp
-    std_msgs
-)
+# Name build targets
+set(node_exec twist_filter_node_exec)
+set(node_lib twist_filter_node)
 
-set(ROSLINT_CPP_OPTS "--filter=-build/c++14")
-roslint_cpp()
-
-SET(CMAKE_CXX_FLAGS "-O2 -g -Wall ${CMAKE_CXX_FLAGS}")
-
+# Includes
 include_directories(
-  ${catkin_INCLUDE_DIRS}
   include
 )
 
-add_executable(twist_filter 
-  src/twist_filter_node.cpp
-  src/velocity_limit.cpp
-  src/accel_limit.cpp
-  src/twist_filter.cpp)
-target_link_libraries(twist_filter ${catkin_LIBRARIES})
-add_dependencies(twist_filter ${catkin_EXPORTED_TARGETS})
-
-install(
-  TARGETS twist_filter
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+# Build
+ament_auto_add_library(${node_lib} SHARED
+        src/velocity_limit.cpp
+        src/accel_limit.cpp
+        src/twist_filter.cpp
 )
 
-install(
-  DIRECTORY launch/
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
+ament_auto_add_executable(${node_exec} 
+        src/twist_filter_node.cpp 
 )
 
-if (CATKIN_ENABLE_TESTING)
-  find_package(rostest REQUIRED)
-  roslint_add_test()
-  catkin_add_gtest(${PROJECT_NAME}-test 
-    test/test_twist_filter.cpp
-    src/accel_limit.cpp
-    src/velocity_limit.cpp)
-  target_link_libraries(${PROJECT_NAME}-test ${catkin_LIBRARIES})
-endif ()
+# Register component
+rclcpp_components_register_nodes(${node_lib} "twist_filter::TwistFilter")
+
+# All locally created targets will need to be manually linked
+# ament auto will handle linking of external dependencies
+target_link_libraries(${node_exec}
+        ${node_lib}
+        ${Boost_LIBRARIES}
+)
+
+# Testing
+if(BUILD_TESTING)  
+
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies() # This populates the ${${PROJECT_NAME}_FOUND_TEST_DEPENDS} variable
+
+  ament_add_gtest(test_twist_filter test/test_twist_filter.cpp)
+
+  ament_target_dependencies(test_twist_filter ${${PROJECT_NAME}_FOUND_TEST_DEPENDS})
+
+  target_link_libraries(test_twist_filter ${node_lib})
+
+endif()
+
+# Install
+ament_auto_package(
+        INSTALL_TO_SHARE launch
+)
