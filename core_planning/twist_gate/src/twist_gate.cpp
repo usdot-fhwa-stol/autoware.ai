@@ -41,17 +41,17 @@ TwistGate::TwistGate(const rclcpp::NodeOptions &options)
 
     //Declare parameters
     use_decision_maker_ = declare_parameter<bool>("~use_decision_maker", use_decision_maker_);
-    use_lgsim_ = declare_parameter<bool>("~use_lgsim", use_lgsim_);
-    use_twist_ = declare_parameter<bool>("~use_twist", use_twist_);
+    use_lgsim_ = declare_parameter<bool>("use_lgsim", use_lgsim_);
+    use_twist_ = declare_parameter<bool>("use_twist", use_twist_);
 
 }
 
 carma_ros2_utils::CallbackReturn TwistGate::handle_on_configure(const rclcpp_lifecycle::State &prev_state)
 {
     //get parameters
-    get_parameter<bool>("~use_decision_maker", use_decision_maker_);
-    get_parameter<bool>("~use_lgsim", use_lgsim_);
-    get_parameter<bool>("~use_twist", use_twist_);
+    get_parameter<bool>("use_decision_maker", use_decision_maker_);
+    get_parameter<bool>("use_lgsim", use_lgsim_);
+    get_parameter<bool>("use_twist", use_twist_);
     
     // TODO: control_command_pub_ is unused
     control_command_pub_ = create_publisher<std_msgs::msg::String>("ctrl_mode", 1);

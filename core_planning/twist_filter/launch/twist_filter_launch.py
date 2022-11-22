@@ -97,6 +97,8 @@ def generate_launch_description():
                 extra_arguments=[
                     {'use_intra_process_comms': True},
                     {'--log-level' : log_level },
+                ],
+                parameters = [
                     {'loop_rate': loop_rate},
                     {'use_decision_maker' : use_decision_maker}
                 ]
