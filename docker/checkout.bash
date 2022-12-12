@@ -39,4 +39,4 @@ git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-utils.git --branch 
 git clone --depth=1 https://github.com/usdot-fhwa-stol/autoware.auto.git --branch "release/isetta"
 
 # Required to build pacmod_msgs
-git clone https://github.com/astuff/astuff_sensor_msgs.git ${dir}/src/astuff_sensor_msgs --branch "3.0.1"
+git clone https://github.com/astuff/astuff_sensor_msgs.git ${dir}/src/astuff_sensor_msgs -b "3.0.1"
