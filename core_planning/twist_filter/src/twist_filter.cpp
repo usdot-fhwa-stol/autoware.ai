@@ -201,7 +201,7 @@ geometry_msgs::msg::TwistStamped
   geometry_msgs::msg::TwistStamped ts;
   ts = msg;
 
-  rclcpp::Time t = rclcpp::Time(msg.header.stamp, RCL_SYSTEM_TIME);
+  rclcpp::Time t = rclcpp::Time(msg.header.stamp.sec, msg.header.stamp.nanosec);
   az_prev_.dt = (t - az_prev_.time).seconds();
   const double lv = msg.twist.linear.x;
   double az = msg.twist.angular.z;
@@ -280,7 +280,7 @@ autoware_msgs::msg::ControlCommandStamped
   autoware_msgs::msg::ControlCommandStamped ccs;
   ccs = msg;
 
-  rclcpp::Time t = rclcpp::Time(msg.header.stamp, RCL_SYSTEM_TIME);
+  rclcpp::Time t = rclcpp::Time(msg.header.stamp.sec, msg.header.stamp.nanosec);
   sa_prev_.dt = (t - sa_prev_.time).seconds();
   const double lv = msg.cmd.linear_velocity;
   double sa = msg.cmd.steering_angle;

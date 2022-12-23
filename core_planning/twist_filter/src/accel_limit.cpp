@@ -25,7 +25,7 @@ LongitudinalAccelLimiter::longitudinalAccelLimitCtrl(const autoware_msgs::msg::C
     if (!_initialized) {
         // Record current command and then return unmodified
         _prev_v = msg.cmd.linear_velocity;
-        _prev_t = rclcpp::Time(msg.header.stamp, RCL_SYSTEM_TIME);
+        _prev_t = rclcpp::Time(msg.header.stamp.sec, msg.header.stamp.nanosec);
         _initialized = true;
 
         return msg;
@@ -34,7 +34,7 @@ LongitudinalAccelLimiter::longitudinalAccelLimitCtrl(const autoware_msgs::msg::C
     autoware_msgs::msg::ControlCommandStamped out{msg};
     // Else we've initialized previously, let's compare.
     double delta_v = msg.cmd.linear_velocity - _prev_v;
-    double delta_t = (rclcpp::Time(msg.header.stamp, RCL_SYSTEM_TIME) - _prev_t).seconds();
+    double delta_t = (rclcpp::Time(msg.header.stamp.sec, msg.header.stamp.nanosec) - _prev_t).seconds();
     double accel = delta_v / delta_t;
 
     if (std::abs(accel) > _accel_limit) {
@@ -44,7 +44,7 @@ LongitudinalAccelLimiter::longitudinalAccelLimitCtrl(const autoware_msgs::msg::C
 
     // Update filter for next timestep
     _prev_v = out.cmd.linear_velocity;
-    _prev_t = rclcpp::Time(out.header.stamp, RCL_SYSTEM_TIME);
+    _prev_t = rclcpp::Time(out.header.stamp.sec, out.header.stamp.nanosec);
 
     return out;
 }
@@ -54,7 +54,7 @@ LongitudinalAccelLimiter::longitudinalAccelLimitTwist(const geometry_msgs::msg::
     if (!_initialized) {
         // Record current command and then return unmodified
         _prev_v = msg.twist.linear.x;
-        _prev_t = rclcpp::Time(msg.header.stamp, RCL_SYSTEM_TIME);
+        _prev_t = rclcpp::Time(msg.header.stamp.sec, msg.header.stamp.nanosec);
         _initialized = true;
 
         return msg;
@@ -63,7 +63,7 @@ LongitudinalAccelLimiter::longitudinalAccelLimitTwist(const geometry_msgs::msg::
     geometry_msgs::msg::TwistStamped out{msg};
     // Else we've initialized previously, let's compare.
     double delta_v = msg.twist.linear.x - _prev_v;
-    double delta_t = (rclcpp::Time(msg.header.stamp, RCL_SYSTEM_TIME) - _prev_t).seconds();
+    double delta_t = (rclcpp::Time(msg.header.stamp.sec, msg.header.stamp.nanosec) - _prev_t).seconds();
     double accel = delta_v / delta_t;
 
     if (std::abs(accel) > _accel_limit) {
@@ -72,7 +72,7 @@ LongitudinalAccelLimiter::longitudinalAccelLimitTwist(const geometry_msgs::msg::
 
     // Update filter for next timestep
     _prev_v = out.twist.linear.x;
-    _prev_t = rclcpp::Time(out.header.stamp, RCL_SYSTEM_TIME);
+    _prev_t = rclcpp::Time(out.header.stamp.sec, out.header.stamp.nanosec);
 
     return out;
 }
