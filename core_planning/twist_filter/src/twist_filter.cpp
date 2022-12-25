@@ -368,14 +368,14 @@ void TwistFilter::configCallback(
 
 void TwistFilter::updatePrevTwist(const geometry_msgs::msg::TwistStamped& msg)
 {
-  az_prev_.time = msg.header.stamp;
+  az_prev_.time = rclcpp::Time(msg.header.stamp.sec, msg.header.stamp.nanosec);
   az_prev_.val = msg.twist.angular.z;
 }
 
 void TwistFilter::updatePrevCtrl(
   const autoware_msgs::msg::ControlCommandStamped& msg)
 {
-  sa_prev_.time = msg.header.stamp;
+  sa_prev_.time = rclcpp::Time(msg.header.stamp.sec, msg.header.stamp.nanosec);
   sa_prev_.val = msg.cmd.steering_angle;
 }
 
