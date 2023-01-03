@@ -1,57 +1,54 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 project(twist_gate)
 
 find_package(carma_cmake_common REQUIRED)
-carma_check_ros_version(1)
+carma_check_ros_version(2)
+carma_package()
 
-find_package(autoware_build_flags REQUIRED)
-find_package(
-  catkin REQUIRED COMPONENTS
-    autoware_config_msgs
-    autoware_health_checker
-    autoware_msgs
-    geometry_msgs
-    ros_observer
-    roscpp
-    roslint
-    std_msgs
-    tablet_socket_msgs
-)
+## Find dependencies using ament auto
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
 
-catkin_package(
-  INCLUDE_DIRS include
-)
+# Name build targets
+set(node_exec twist_gate_node_exec)
+set(node_lib twist_gate_node)
 
-SET(CMAKE_CXX_FLAGS "-O2 -g -Wall ${CMAKE_CXX_FLAGS}")
-set(ROSLINT_CPP_OPTS "--filter=-build/c++14")
-
-roslint_cpp()
-
+# Includes
 include_directories(
   include
-  ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(twist_gate src/twist_gate_node.cpp src/twist_gate.cpp)
-target_link_libraries(twist_gate ${catkin_LIBRARIES})
-add_dependencies(twist_gate ${catkin_EXPORTED_TARGETS})
-
-install(
-  TARGETS twist_gate
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+# Build
+ament_auto_add_library(${node_lib} SHARED
+        src/twist_gate.cpp
 )
 
-if(CATKIN_ENABLE_TESTING)
-  roslint_add_test()
-  find_package(rostest REQUIRED)
-  add_rostest_gtest(
-    test-twist_gate
-    test/test_twist_gate.test
-    test/src/test_twist_gate.cpp
-    src/twist_gate.cpp
-  )
-  add_dependencies(test-twist_gate ${catkin_EXPORTED_TARGETS})
-  target_link_libraries(test-twist_gate ${catkin_LIBRARIES})
+ament_auto_add_executable(${node_exec} 
+        src/twist_gate_node.cpp 
+)
+
+# Register component
+rclcpp_components_register_nodes(${node_lib} "TwistGate")
+
+# All locally created targets will need to be manually linked
+# ament auto will handle linking of external dependencies
+target_link_libraries(${node_exec}
+        ${node_lib}
+)
+
+# Testing
+if(BUILD_TESTING)  
+
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies() # This populates the ${${PROJECT_NAME}_FOUND_TEST_DEPENDS} variable
+
+  ament_add_gtest(test_twist_gate test/src/test_twist_gate.cpp)
+
+  ament_target_dependencies(test_twist_gate ${${PROJECT_NAME}_FOUND_TEST_DEPENDS})
+
+  target_link_libraries(test_twist_gate ${node_lib})
+
 endif()
+
+# Install
+ament_auto_package()

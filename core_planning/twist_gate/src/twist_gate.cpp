@@ -28,66 +28,67 @@
  *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "twist_gate/twist_gate.h"
-#include <ros_observer/lib_ros_observer.h>
+#include "twist_gate/twist_gate.hpp"
 
 #include <memory>
 #include <string>
-#include <autoware_system_msgs/DiagnosticStatus.h>
 
-using AwDiagStatus = autoware_system_msgs::DiagnosticStatus;
+namespace std_ph = std::placeholders;
 
-TwistGate::TwistGate(const ros::NodeHandle& nh, const ros::NodeHandle& private_nh)
-  : nh_(nh)
-  , private_nh_(private_nh)
-  , timeout_period_(10.0)
+TwistGate::TwistGate(const rclcpp::NodeOptions &options)
+    : carma_ros2_utils::CarmaLifecycleNode(options), timeout_period_(10,0)
 {
-  private_nh_.param<bool>("use_decision_maker", use_decision_maker_, false);
-  private_nh_.param<bool>("use_lgsim", use_lgsim_, false);
-  private_nh_.param<bool>("use_twist", use_twist_, false);
 
-  health_checker_ptr_ = std::make_shared<autoware_health_checker::HealthChecker>(nh_, private_nh_);
-  control_command_pub_ = nh_.advertise<std_msgs::String>("/ctrl_mode", 1);
-  vehicle_cmd_pub_ = nh_.advertise<vehicle_cmd_msg_t>("/vehicle_cmd", 1, true);
-  config_sub_ = nh_.subscribe("config/twist_filter", 1, &TwistGate::configCallback, this);
+    //Declare parameters
+    use_decision_maker_ = declare_parameter<bool>("~use_decision_maker", use_decision_maker_);
+    use_lgsim_ = declare_parameter<bool>("use_lgsim", use_lgsim_);
+    use_twist_ = declare_parameter<bool>("use_twist", use_twist_);
 
-  auto_cmd_sub_stdmap_["twist_cmd"] = nh_.subscribe("/twist_cmd", 1, &TwistGate::twistCmdCallback, this);
-  auto_cmd_sub_stdmap_["ctrl_cmd"] = nh_.subscribe("/ctrl_cmd", 1, &TwistGate::ctrlCmdCallback, this);
-  auto_cmd_sub_stdmap_["lamp_cmd"] = nh_.subscribe("/lamp_cmd", 1, &TwistGate::lampCmdCallback, this);
-  auto_cmd_sub_stdmap_["state"] = nh_.subscribe("/decision_maker/state", 1, &TwistGate::stateCallback, this);
-  auto_cmd_sub_stdmap_["emergency_velocity"] =
-      nh_.subscribe("emergency_velocity", 1, &TwistGate::emergencyCmdCallback, this);
-
-  output_msg_.header.seq = 0;
-  emergency_stop_msg_.data = false;
-  health_checker_ptr_->ENABLE();
-  health_checker_ptr_->NODE_ACTIVATE();
-
-  emergency_handling_time_ = ros::Time::now();
 }
 
-void TwistGate::twistCmdCallback(const geometry_msgs::TwistStamped::ConstPtr& input_msg)
+carma_ros2_utils::CallbackReturn TwistGate::handle_on_configure(const rclcpp_lifecycle::State &prev_state)
 {
+    //get parameters
+    get_parameter<bool>("use_decision_maker", use_decision_maker_);
+    get_parameter<bool>("use_lgsim", use_lgsim_);
+    get_parameter<bool>("use_twist", use_twist_);
+    
+    // TODO: control_command_pub_ is unused
+    control_command_pub_ = create_publisher<std_msgs::msg::String>("ctrl_mode", 1);
+    vehicle_cmd_pub_ = create_publisher<vehicle_cmd_msg_t>("vehicle_cmd",1);
+
+    config_sub_ = create_subscription<autoware_config_msgs::msg::ConfigTwistFilter>("config/twist_filter", 1, std::bind(&TwistGate::configCallback, this, std_ph::_1));
+    twist_cmd_sub_ = create_subscription<geometry_msgs::msg::TwistStamped>("/twist_cmd", 1, std::bind(&TwistGate::twistCmdCallback, this, std_ph::_1));
+    ctrl_cmd_sub_ = create_subscription<autoware_msgs::msg::ControlCommandStamped>("/ctrl_cmd", 1 , std::bind(&TwistGate::ctrlCmdCallback, this, std_ph::_1));
+    lamp_cmd_sub_ = create_subscription<autoware_msgs::msg::LampCmd>("/lamp_cmd", 1, std::bind(&TwistGate::lampCmdCallback, this, std_ph::_1));
+    state_sub_ = create_subscription<std_msgs::msg::String>("/decision_maker/state", 1, std::bind(&TwistGate::stateCallback, this, std_ph::_1));
+    vehicle_cmd_sub_ = create_subscription<vehicle_cmd_msg_t>("emergency_velocity", 1, std::bind(&TwistGate::emergencyCmdCallback, this, std_ph::_1));
+
+    emergency_stop_msg_.data = false;
+
+    emergency_handling_time_ = this->now();
+
+    return CallbackReturn::SUCCESS;
+
+}
+
+void TwistGate::twistCmdCallback(const geometry_msgs::msg::TwistStamped::UniquePtr input_msg)
+{  
   if (!use_twist_) {
     return; // Ignore message if not using twist as input
   }
-  health_checker_ptr_->CHECK_RATE("topic_rate_twist_cmd_slow", 8, 5, 1, "topic twist_cmd subscribe rate slow.");
-  health_checker_ptr_->CHECK_MAX_VALUE("twist_cmd_linear_high", input_msg->twist.linear.x,
-    DBL_MAX, DBL_MAX, DBL_MAX, "linear twist_cmd is too high");
 
   updateEmergencyState();
   if (!emergency_handling_active_)
   {
     output_msg_.header.frame_id = input_msg->header.frame_id;
     output_msg_.header.stamp = input_msg->header.stamp;
-    output_msg_.header.seq++;
     output_msg_.twist_cmd.twist = input_msg->twist;
-
     updateStateAndPublish();
   }
 }
 
-void TwistGate::ctrlCmdCallback(const autoware_msgs::ControlCommandStamped::ConstPtr& input_msg)
+void TwistGate::ctrlCmdCallback(const autoware_msgs::msg::ControlCommandStamped::UniquePtr input_msg)
 {
   if (use_twist_) {
     return; // Ignore message if using twist as input
@@ -98,14 +99,13 @@ void TwistGate::ctrlCmdCallback(const autoware_msgs::ControlCommandStamped::Cons
   {
     output_msg_.header.frame_id = input_msg->header.frame_id;
     output_msg_.header.stamp = input_msg->header.stamp;
-    output_msg_.header.seq++;
     output_msg_.ctrl_cmd = input_msg->cmd;
 
     updateStateAndPublish();
   }
 }
 
-void TwistGate::lampCmdCallback(const autoware_msgs::LampCmd::ConstPtr& input_msg)
+void TwistGate::lampCmdCallback(const autoware_msgs::msg::LampCmd::UniquePtr input_msg)
 {
   updateEmergencyState();
   if (!emergency_handling_active_)
@@ -115,7 +115,7 @@ void TwistGate::lampCmdCallback(const autoware_msgs::LampCmd::ConstPtr& input_ms
   }
 }
 
-void TwistGate::stateCallback(const std_msgs::StringConstPtr& input_msg)
+void TwistGate::stateCallback(const std_msgs::msg::String::UniquePtr input_msg)
 {
   if (!emergency_handling_active_)
   {
@@ -123,18 +123,18 @@ void TwistGate::stateCallback(const std_msgs::StringConstPtr& input_msg)
     if (input_msg->data.find("WaitEngage") != std::string::npos ||
         input_msg->data.find("WaitDriveReady") != std::string::npos)
     {
-      output_msg_.gear_cmd.gear = autoware_msgs::Gear::PARK;
+      output_msg_.gear_cmd.gear = autoware_msgs::msg::Gear::PARK;
     }
     // Set Drive Gear
     else
     {
       if (use_lgsim_)
       {
-        output_msg_.gear_cmd.gear = autoware_msgs::Gear::NONE;
+        output_msg_.gear_cmd.gear = autoware_msgs::msg::Gear::NONE;
       }
       else
       {
-        output_msg_.gear_cmd.gear = autoware_msgs::Gear::DRIVE;
+        output_msg_.gear_cmd.gear = autoware_msgs::msg::Gear::DRIVE;
       }
     }
 
@@ -157,9 +157,9 @@ void TwistGate::stateCallback(const std_msgs::StringConstPtr& input_msg)
   }
 }
 
-void TwistGate::emergencyCmdCallback(const vehicle_cmd_msg_t::ConstPtr& input_msg)
+void TwistGate::emergencyCmdCallback(const vehicle_cmd_msg_t::UniquePtr input_msg)
 {
-  emergency_handling_time_ = ros::Time::now();
+  emergency_handling_time_ = this->now();
   emergency_handling_active_ = true;
   output_msg_ = *input_msg;
 
@@ -171,9 +171,9 @@ void TwistGate::updateEmergencyState()
   // Reset emergency handling
   if (emergency_handling_active_)
   {
-    ROS_ERROR_STREAM("EMERGENCY HANDLING IS ACTIVE");
+    RCLCPP_ERROR_STREAM(get_logger(), "EMERGENCY HANDLING IS ACTIVE");
     // If no emergency message received for more than timeout_period_
-    if ((ros::Time::now() - emergency_handling_time_) > timeout_period_)
+    if ((this->now() - emergency_handling_time_) > timeout_period_)
     {
       emergency_handling_active_ = false;
     }
@@ -186,14 +186,19 @@ void TwistGate::updateStateAndPublish()
   // ssc_interface will handle autonomy disengagements if the control commands timeout
   if (use_decision_maker_ && (!is_state_drive_))
   {
-    output_msg_.twist_cmd.twist = geometry_msgs::Twist();
-    output_msg_.ctrl_cmd = autoware_msgs::ControlCommand();
+    output_msg_.twist_cmd.twist = geometry_msgs::msg::Twist();
+    output_msg_.ctrl_cmd = autoware_msgs::msg::ControlCommand();
   }
 
-  vehicle_cmd_pub_.publish(output_msg_);
+  vehicle_cmd_pub_->publish(output_msg_);
 }
 
-void TwistGate::configCallback(const autoware_config_msgs::ConfigTwistFilter& msg)
+void TwistGate::configCallback(const autoware_config_msgs::msg::ConfigTwistFilter::UniquePtr msg)
 {
-  use_decision_maker_ = msg.use_decision_maker;
+  use_decision_maker_ = msg->use_decision_maker;
 }
+
+#include "rclcpp_components/register_node_macro.hpp"
+
+// Register the component with class_loader
+RCLCPP_COMPONENTS_REGISTER_NODE(TwistGate)

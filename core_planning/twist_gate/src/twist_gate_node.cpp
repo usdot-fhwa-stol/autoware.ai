@@ -15,19 +15,22 @@
  */
 
 // ROS Includes
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 // User defined includes
-#include "twist_gate/twist_gate.h"
+#include <twist_gate/twist_gate.hpp>
 
-int main(int argc, char** argv)
+int main(int argc, char **argv) 
 {
-  ros::init(argc, argv, "twist_gate");
-  ros::NodeHandle nh;
-  ros::NodeHandle private_nh("~");
+  rclcpp::init(argc, argv);
 
-  TwistGate twist_gate(nh, private_nh);
+  auto node = std::make_shared<TwistGate>(rclcpp::NodeOptions());
+  
+  rclcpp::executors::MultiThreadedExecutor executor;
+  executor.add_node(node->get_node_base_interface());
+  executor.spin();
 
-  ros::spin();
+  rclcpp::shutdown();
+
   return 0;
 }

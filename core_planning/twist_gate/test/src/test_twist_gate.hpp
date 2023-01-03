@@ -15,103 +15,112 @@
  */
 
 #include <gtest/gtest.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
-#include "twist_gate/twist_gate.h"
+#include "twist_gate/twist_gate.hpp"
 
-class TwistGateTestClass {
+class TwistGateTestClass : public rclcpp::Node
+{
 public:
-  TwistGateTestClass() {
-    twist_cmd_publisher =
-        nh.advertise<geometry_msgs::TwistStamped>("twist_cmd", 0);
-    control_cmd_publisher =
-        nh.advertise<autoware_msgs::ControlCommandStamped>("ctrl_cmd", 0);
-    decision_maker_state_publisher =
-        nh.advertise<std_msgs::String>("decision_maker/state", 0);
-    lamp_cmd_publisher = nh.advertise<autoware_msgs::LampCmd>("lamp_cmd", 0);
-    emergency_vehicle_cmd_publisher = nh.advertise<autoware_msgs::VehicleCmd>("emergency_velocity", 0);
-    vehicle_cmd_subscriber = nh.subscribe(
-        "/vehicle_cmd", 1, &TwistGateTestClass::vehicleCmdCallback, this);
-  }
+    TwistGateTestClass() : Node("TwistGateTestClass")
+    {
+        twist_cmd_publisher = create_publisher<geometry_msgs::msg::TwistStamped>("twist_cmd", 0);
+        control_cmd_publisher = create_publisher<autoware_msgs::msg::ControlCommandStamped>("ctrl_cmd", 0);
+        decision_maker_state_publisher = create_publisher<std_msgs::msg::String>("decision_maker/state", 0);
+        lamp_cmd_publisher = create_publisher<autoware_msgs::msg::LampCmd>("lamp_cmd", 0);
+        emergency_vehicle_cmd_publisher = create_publisher<autoware_msgs::msg::VehicleCmd>("emergency_velocity", 0);
 
-  TwistGate *tg;
-  autoware_msgs::VehicleCmd cb_vehicle_cmd;
+        vehicle_cmd_subscriber = create_subscription<autoware_msgs::msg::VehicleCmd>("/vehicle_cmd", 1 , std::bind(&TwistGateTestClass::vehicleCmdCallback, this, std::placeholders::_1));
 
-  ros::NodeHandle nh;
-  ros::Publisher twist_cmd_publisher, control_cmd_publisher, remote_cmd_publisher, mode_cmd_publisher, gear_cmd_publisher, accel_cmd_publisher, steer_cmd_publisher, brake_cmd_publisher, lamp_cmd_publisher, decision_maker_state_publisher, emergency_vehicle_cmd_publisher;
-  ros::Subscriber vehicle_cmd_subscriber;
+        rclcpp::NodeOptions options;
+        tg = std::make_shared<TwistGate>(options);
 
-  void tgSpinOnce() { tg->spinOnce(); }
+        tg->configure(); //Call configure state transition
+        tg->activate();  //Call activate state transition to get not read for runtime
 
-  autoware_msgs::VehicleCmd setTgTwistGateMsg(double d_value, int i_value) {
-    tg->output_msg_.twist_cmd.twist.linear.x = d_value;
-    tg->output_msg_.twist_cmd.twist.angular.z = d_value;
-    tg->output_msg_.mode = i_value;
-    tg->output_msg_.gear_cmd.gear = i_value;
-    tg->output_msg_.lamp_cmd.l = i_value;
-    tg->output_msg_.lamp_cmd.r = i_value;
-    tg->output_msg_.accel_cmd.accel = i_value;
-    tg->output_msg_.brake_cmd.brake = i_value;
-    tg->output_msg_.steer_cmd.steer = i_value;
-    tg->output_msg_.ctrl_cmd.linear_velocity = i_value;
-    tg->output_msg_.ctrl_cmd.steering_angle = i_value;
-    tg->output_msg_.emergency = i_value;
+    }
 
-    return tg->output_msg_;
-  }
+    std::shared_ptr<TwistGate> tg;
+    autoware_msgs::msg::VehicleCmd cb_vehicle_cmd;
 
-  autoware_msgs::VehicleCmd getTgTwistGateMsg() {return tg->output_msg_;}
+    rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr twist_cmd_publisher;
+    rclcpp::Publisher<autoware_msgs::msg::ControlCommandStamped>::SharedPtr control_cmd_publisher;
+    rclcpp::Publisher<std_msgs::msg::String>::SharedPtr decision_maker_state_publisher;
+    rclcpp::Publisher<autoware_msgs::msg::LampCmd>::SharedPtr lamp_cmd_publisher;
+    rclcpp::Publisher<autoware_msgs::msg::VehicleCmd>::SharedPtr emergency_vehicle_cmd_publisher;
+    
+    rclcpp::Subscription<autoware_msgs::msg::VehicleCmd>::SharedPtr vehicle_cmd_subscriber;
 
-  void publishTwistCmd(double linear_x, double angular_z) {
-    geometry_msgs::TwistStamped msg;
-    msg.header.stamp = ros::Time::now();
-    msg.twist.linear.x = linear_x;
-    msg.twist.angular.z = angular_z;
 
-    twist_cmd_publisher.publish(msg);
-  }
+    autoware_msgs::msg::VehicleCmd setTgTwistGateMsg(double d_value, int i_value) {
+        tg->output_msg_.twist_cmd.twist.linear.x = d_value;
+        tg->output_msg_.twist_cmd.twist.angular.z = d_value;
+        tg->output_msg_.mode = i_value;
+        tg->output_msg_.gear_cmd.gear = i_value;
+        tg->output_msg_.lamp_cmd.l = i_value;
+        tg->output_msg_.lamp_cmd.r = i_value;
+        tg->output_msg_.accel_cmd.accel = i_value;
+        tg->output_msg_.brake_cmd.brake = i_value;
+        tg->output_msg_.steer_cmd.steer = i_value;
+        tg->output_msg_.ctrl_cmd.linear_velocity = i_value;
+        tg->output_msg_.ctrl_cmd.steering_angle = i_value;
+        tg->output_msg_.emergency = i_value;
 
-  void publishControlCmd(double linear_vel, double linear_acc,
+        return tg->output_msg_;
+    }
+
+    autoware_msgs::msg::VehicleCmd getTgTwistGateMsg() {return tg->output_msg_;}
+
+    void publishTwistCmd(double linear_x, double angular_z) {
+        geometry_msgs::msg::TwistStamped msg;
+        msg.header.stamp = this->now();
+        msg.twist.linear.x = linear_x;
+        msg.twist.angular.z = angular_z;
+
+        twist_cmd_publisher->publish(msg);
+    }
+
+    void publishControlCmd(double linear_vel, double linear_acc,
                          double steer_angle) {
-    autoware_msgs::ControlCommandStamped msg;
-    msg.header.stamp = ros::Time::now();
-    msg.cmd.linear_velocity = linear_vel;
-    msg.cmd.linear_acceleration = linear_acc;
-    msg.cmd.steering_angle = steer_angle;
+        autoware_msgs::msg::ControlCommandStamped msg;
+        msg.header.stamp = this->now();
+        msg.cmd.linear_velocity = linear_vel;
+        msg.cmd.linear_acceleration = linear_acc;
+        msg.cmd.steering_angle = steer_angle;
 
-    control_cmd_publisher.publish(msg);
-  }
+        control_cmd_publisher->publish(msg);
+    }
 
-  void publishLampCmd(int lamp_l, int lamp_r){
-    autoware_msgs::LampCmd msg;
-    msg.header.stamp = ros::Time::now();
-    msg.l = lamp_l;
-    msg.r = lamp_r;
+    void publishLampCmd(int lamp_l, int lamp_r){
+        autoware_msgs::msg::LampCmd msg;
+        msg.header.stamp = this->now();
+        msg.l = lamp_l;
+        msg.r = lamp_r;
 
-    lamp_cmd_publisher.publish(msg);
-  }
+        lamp_cmd_publisher->publish(msg);
+    }
 
-  void publishEmergencyVehicleCmd(int emergency, double linear_vel){
-    autoware_msgs::VehicleCmd msg;
-    msg.header.stamp = ros::Time::now();
-    msg.emergency = emergency;
-    msg.ctrl_cmd.linear_velocity = linear_vel;
+    void publishEmergencyVehicleCmd(int emergency, double linear_vel){
+        autoware_msgs::msg::VehicleCmd msg;
+        msg.header.stamp = this->now();
+        msg.emergency = emergency;
+        msg.ctrl_cmd.linear_velocity = linear_vel;
 
-    emergency_vehicle_cmd_publisher.publish(msg);
-  }
+        emergency_vehicle_cmd_publisher->publish(msg);
+    }
 
-  void publishDecisionMakerState(std::string states) {
-    std_msgs::String msg;
-    msg.data = states;
+    void publishDecisionMakerState(std::string states) {
+        std_msgs::msg::String msg;
+        msg.data = states;
 
-    decision_maker_state_publisher.publish(msg);
-  }
+        decision_maker_state_publisher->publish(msg);
+    }
 
-  void vehicleCmdCallback(autoware_msgs::VehicleCmd msg) {
-    cb_vehicle_cmd = msg;
-  }
+    void vehicleCmdCallback(autoware_msgs::msg::VehicleCmd::SharedPtr msg) {
+        cb_vehicle_cmd = *msg;
+    }
 
-  autoware_msgs::VehicleCmd getTwistGateMsg() { return tg->output_msg_; }
+    autoware_msgs::msg::VehicleCmd getTwistGateMsg() { return tg->output_msg_; }
 
-  bool getIsStateDriveFlag() { return tg->is_state_drive_; }
+    bool getIsStateDriveFlag() { return tg->is_state_drive_; }
 };

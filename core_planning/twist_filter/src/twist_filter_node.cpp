@@ -22,15 +22,20 @@
  *   - 9/11/2020
  */
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include "twist_filter.hpp"
 
-int main(int argc, char** argv)
+int main(int argc, char **argv) 
 {
-  ros::init(argc, argv, "twist_filter");
-  ros::NodeHandle nh;
-  ros::NodeHandle pnh("~");
-  twist_filter::TwistFilter twist_filter(&nh, &pnh);
-  ros::spin();
+  rclcpp::init(argc, argv);
+
+  auto node = std::make_shared<twist_filter::TwistFilter>(rclcpp::NodeOptions());
+  
+  rclcpp::executors::MultiThreadedExecutor executor;
+  executor.add_node(node->get_node_base_interface());
+  executor.spin();
+
+  rclcpp::shutdown();
+
   return 0;
 }
