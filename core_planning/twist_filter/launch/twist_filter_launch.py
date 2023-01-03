@@ -41,11 +41,14 @@ def generate_launch_description():
     use_decision_maker = LaunchConfiguration('use_decision_maker')
     declare_use_decision_maker = DeclareLaunchArgument(name='use_decision_maker', default_value='False')
 
-    lateral_accel_limit = LaunchConfiguration('lateral_accel_limit')
-    declare_lateral_accel_limit = DeclareLaunchArgument(name = 'lateral_accel_limit', default_value='5.0')
+    vehicle_wheel_base = LaunchConfiguration('/vehicle_wheel_base')
+    declare_vehicle_wheel_base = DeclareLaunchArgument('/vehicle_wheel_base', default_value = '0.0')
 
-    lateral_jerk_limit = LaunchConfiguration('lateral_jerk_limit')
-    declare_lateral_jerk_limit = DeclareLaunchArgument(name = 'lateral_jerk_limit', default_value='5.0')
+    vehicle_lateral_accel_limit = LaunchConfiguration('/vehicle_lateral_accel_limit')
+    declare_vehicle_lateral_accel_limit = DeclareLaunchArgument(name = '/vehicle_lateral_accel_limit', default_value='5.0')
+
+    vehicle_lateral_jerk_limit = LaunchConfiguration('/vehicle_lateral_jerk_limit')
+    declare_vehicle_lateral_jerk_limit = DeclareLaunchArgument(name = '/vehicle_lateral_jerk_limit', default_value='5.0')
 
     lowpass_gain_linear_x = LaunchConfiguration('lowpass_gain_linear_x')
     declare_lowpass_gain_linear_x = DeclareLaunchArgument(name = 'lowpass_gain_linear_x', default_value='0.0')
@@ -56,11 +59,11 @@ def generate_launch_description():
     lowpass_gain_steering_angle = LaunchConfiguration('lowpass_gain_steering_angle')
     declare_lowpass_gain_steering_angle = DeclareLaunchArgument(name='lowpass_gain_steering_angle', default_value='0.0')
 
-    longitudinal_velocity_limit = LaunchConfiguration('longitudinal_velocity_limit')
-    declare_longitudinal_velocity_limit = DeclareLaunchArgument(name = 'longitudinal_velocity_limit', default_value='80.0') #mph
+    config_speed_limit = LaunchConfiguration('/config_speed_limit')
+    declare_config_speed_limit = DeclareLaunchArgument(name = '/config_speed_limit', default_value='80.0') #mph
 
-    longitudinal_accel_limit = LaunchConfiguration('longitudinal_accel_limit')
-    declare_longitudinal_accel_limit = DeclareLaunchArgument(name= 'longitudinal_accel_limit', default_value='3.5')
+    vehicle_acceleration_limit = LaunchConfiguration('/vehicle_acceleration_limit')
+    declare_vehicle_acceleration_limit = DeclareLaunchArgument(name= '/vehicle_acceleration_limit', default_value='3.5')
 
         
     # Launch node(s) in a carma container to allow logging to be configured
@@ -81,13 +84,14 @@ def generate_launch_description():
                         {'--log-level' : log_level },
                     ],
                     parameters = [
-                        {'lateral_accel_limit' : lateral_accel_limit},
-                        {'lateral_jerk_limit' : lateral_jerk_limit},
+                        {'/vehicle_lateral_jerk_limit' : vehicle_lateral_accel_limit},
+                        {'/vehicle_lateral_jerk_limit' : vehicle_lateral_jerk_limit},
                         {'lowpass_gain_linear_x' : lowpass_gain_linear_x},
                         {'lowpass_gain_angular_z' : lowpass_gain_angular_z},
                         {'lowpass_gain_steering_angle' : lowpass_gain_steering_angle},
-                        {'longitudinal_velocity_limit' : longitudinal_velocity_limit},
-                        {'longitudinal_accel_limit' : longitudinal_accel_limit}
+                        {'/config_speed_limit' : config_speed_limit},
+                        {'/vehicle_acceleration_limit' : vehicle_acceleration_limit},
+                        {'/vehicle_wheel_base': vehicle_wheel_base}
                     ]
             ),
             ComposableNode(
@@ -110,12 +114,13 @@ def generate_launch_description():
         declare_log_level_arg,
         declare_loop_rate,
         declare_use_decision_maker,
-        declare_lateral_accel_limit,
-        declare_lateral_jerk_limit,
+        declare_vehicle_lateral_accel_limit,
+        declare_vehicle_lateral_jerk_limit,
         declare_lowpass_gain_linear_x,
         declare_lowpass_gain_angular_z,
         declare_lowpass_gain_steering_angle,
-        declare_longitudinal_velocity_limit,
-        declare_longitudinal_accel_limit,
+        declare_config_speed_limit,
+        declare_vehicle_acceleration_limit,
+        declare_vehicle_wheel_base,
         container
     ])
