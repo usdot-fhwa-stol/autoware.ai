@@ -1,4 +1,4 @@
-FROM usdotfhwastolcandidate/carma-base:isetta AS base_image
+FROM usdotfhwastol/carma-base:carma-system-4.3.0 AS base_image
 
 FROM base_image AS build
 
