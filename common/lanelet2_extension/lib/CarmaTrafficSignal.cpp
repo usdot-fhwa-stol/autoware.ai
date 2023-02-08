@@ -125,6 +125,37 @@ boost::optional<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> Ca
     return std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>(recorded_time_stamps.front().first, recorded_time_stamps.front().second);
   }
   
+  if (lanelet::time::toSec(fixed_cycle_duration) < 1.0) // there are recorded states, but no fixed_cycle_duration means it is dynamic
+  {
+    if (recorded_time_stamps.size() != recorded_start_time_stamps.size())
+    {
+      throw std::invalid_argument("recorded_start_time_stamps size is not equal to recorded_time_stamps size");
+    }
+    
+    // if requested time is BEFORE recorded states' time interval, return STOP_AND_REMAIN
+    if (recorded_start_time_stamps.front() >= time_stamp)
+    {
+      return std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>(recorded_start_time_stamps.front(), CarmaTrafficSignalState::STOP_AND_REMAIN);
+    }
+
+    // if requested time is AFTER recorded states' time interval, return STOP_AND_REMAIN
+    if (recorded_time_stamps.back().first <= time_stamp)
+    {
+      auto end_infinity_time = timeFromSec(2147483647); //corresponds to 03:14:07 on Tuesday, 19 January 2038.
+      LOG_WARN_STREAM("CarmaTrafficSignal doesn't have enough state saved, so returning STOP_AND_REMAIN state! End_time: " << end_infinity_time);
+      return std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>(end_infinity_time, CarmaTrafficSignalState::STOP_AND_REMAIN);
+    }
+    
+    // iterate through states in the dynamic states to get the signal.
+    for (size_t i = 0; i < recorded_time_stamps.size(); i++)
+    {
+      if (recorded_time_stamps[i].first >= time_stamp)
+      {
+        return std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>(recorded_time_stamps[i].first, recorded_time_stamps[i].second);
+      }
+    }
+  }
+  
   // shift starting time to the future or to the past to fit input into a valid cycle
   boost::posix_time::time_duration accumulated_offset_duration;
   double offset_duration_dir = recorded_time_stamps.front().first > time_stamp ? -1.0 : 1.0; // -1 if past, +1 if time_stamp is in future

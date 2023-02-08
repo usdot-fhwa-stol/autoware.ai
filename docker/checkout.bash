@@ -34,15 +34,9 @@ done
 
 cd ${dir}/autoware.ai
 
-if [[ "$BRANCH" = "develop" ]]; then
-      git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-msgs.git --branch $BRANCH
-      git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-utils.git --branch $BRANCH
-      git clone --depth=1 https://github.com/usdot-fhwa-stol/autoware.auto.git --branch $BRANCH
-else
-      git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-msgs.git --branch carma-system-4.2.0
-      git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-utils.git --branch carma-system-4.2.0
-      git clone --depth=1 https://github.com/usdot-fhwa-stol/autoware.auto.git --branch carma-system-4.2.0
-fi
+git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-msgs.git --branch "carma-system-4.3.0"
+git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-utils.git --branch "carma-system-4.3.0"
+git clone --depth=1 https://github.com/usdot-fhwa-stol/autoware.auto.git --branch "carma-system-4.3.0"
 
 # Required to build pacmod_msgs
-git clone https://github.com/astuff/astuff_sensor_msgs.git ${dir}/src/astuff_sensor_msgs --branch 3.0.1
+git clone https://github.com/astuff/astuff_sensor_msgs.git ${dir}/src/astuff_sensor_msgs -b "3.0.1"
