@@ -1,4 +1,4 @@
-FROM usdotfhwastol/carma-base:carma-system-4.3.0 AS base_image
+FROM usdotfhwastoldev/carma-base:develop AS base_image
 
 FROM base_image AS build
 
