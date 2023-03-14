@@ -84,14 +84,14 @@ def generate_launch_description():
                         {'--log-level' : log_level },
                     ],
                     parameters = [
-                        {'/vehicle_lateral_jerk_limit' : vehicle_lateral_accel_limit},
-                        {'/vehicle_lateral_jerk_limit' : vehicle_lateral_jerk_limit},
+                        {'vehicle_lateral_accel_limit' : vehicle_lateral_accel_limit},
+                        {'vehicle_lateral_jerk_limit' : vehicle_lateral_jerk_limit},
                         {'lowpass_gain_linear_x' : lowpass_gain_linear_x},
                         {'lowpass_gain_angular_z' : lowpass_gain_angular_z},
                         {'lowpass_gain_steering_angle' : lowpass_gain_steering_angle},
-                        {'/config_speed_limit' : config_speed_limit},
-                        {'/vehicle_acceleration_limit' : vehicle_acceleration_limit},
-                        {'/vehicle_wheel_base': vehicle_wheel_base}
+                        {'config_speed_limit' : config_speed_limit},
+                        {'vehicle_acceleration_limit' : vehicle_acceleration_limit},
+                        {'vehicle_wheel_base': vehicle_wheel_base}
                     ]
             ),
             ComposableNode(

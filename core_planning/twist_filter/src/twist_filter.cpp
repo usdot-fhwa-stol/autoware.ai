@@ -36,11 +36,11 @@ TwistFilter::TwistFilter(const rclcpp::NodeOptions &options)
 {
 
   // Declare parameters
-  wheel_base_ = declare_parameter<double>("/vehicle_wheel_base", wheel_base_);
-  longitudinal_velocity_limit_ = declare_parameter<double>("/config_speed_limit", longitudinal_velocity_limit_);
-  longitudinal_accel_limit_ = declare_parameter<double>("/vehicle_acceleration_limit", longitudinal_accel_limit_);
-  lateral_accel_limit_ = declare_parameter<double>("/vehicle_lateral_accel_limit", lateral_accel_limit_);
-  lateral_jerk_limit_ = declare_parameter<double>("/vehicle_lateral_jerk_limit", lateral_jerk_limit_);
+  wheel_base_ = declare_parameter<double>("vehicle_wheel_base", wheel_base_);
+  longitudinal_velocity_limit_ = declare_parameter<double>("config_speed_limit", longitudinal_velocity_limit_);
+  longitudinal_accel_limit_ = declare_parameter<double>("vehicle_acceleration_limit", longitudinal_accel_limit_);
+  lateral_accel_limit_ = declare_parameter<double>("vehicle_lateral_accel_limit", lateral_accel_limit_);
+  lateral_jerk_limit_ = declare_parameter<double>("vehicle_lateral_jerk_limit", lateral_jerk_limit_);
   lowpass_gain_linear_x_ = declare_parameter<double>("lowpass_gain_linear_x", lowpass_gain_linear_x_);
   lowpass_gain_angular_z_ = declare_parameter<double>("lowpass_gain_angular_x", lowpass_gain_angular_z_);
   lowpass_gain_steering_angle_ = declare_parameter<double>("lowpass_gain_steering_angle", lowpass_gain_steering_angle_);
@@ -49,17 +49,17 @@ TwistFilter::TwistFilter(const rclcpp::NodeOptions &options)
 carma_ros2_utils::CallbackReturn TwistFilter::handle_on_configure(const rclcpp_lifecycle::State &prev_state)
 {
   // get parameters
-  get_parameter<double>("/vehicle_wheel_base", wheel_base_);
+  get_parameter<double>("vehicle_wheel_base", wheel_base_);
   // parameters on private handles
-  get_parameter<double>("/config_speed_limit", longitudinal_velocity_limit_);
+  get_parameter<double>("config_speed_limit", longitudinal_velocity_limit_);
   longitudinal_velocity_limit_ = longitudinal_velocity_limit_ * 0.44704;
   
-  get_parameter<double>("/vehicle_acceleration_limit", longitudinal_accel_limit_);
+  get_parameter<double>("vehicle_acceleration_limit", longitudinal_accel_limit_);
   _lon_accel_limiter = LongitudinalAccelLimiter{
     std::min(longitudinal_accel_limit_, MAX_LONGITUDINAL_ACCEL_HARDCODED_LIMIT_M_S_2)};
   
-  get_parameter<double>("/vehicle_lateral_accel_limit", lateral_accel_limit_);
-  get_parameter<double>("/vehicle_lateral_jerk_limit", lateral_jerk_limit_);
+  get_parameter<double>("vehicle_lateral_accel_limit", lateral_accel_limit_);
+  get_parameter<double>("vehicle_lateral_jerk_limit", lateral_jerk_limit_);
   get_parameter<double>("lowpass_gain_linear_x", lowpass_gain_linear_x_);
   get_parameter<double>("lowpass_gain_angular_x", lowpass_gain_angular_z_);
   get_parameter<double>("lowpass_gain_steering_angle", lowpass_gain_steering_angle_);
