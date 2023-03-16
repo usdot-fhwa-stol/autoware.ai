@@ -63,6 +63,7 @@ set(cpp_files
   lib/RegionAccessRule.cpp
   lib/DirectionOfTravel.cpp
   lib/TimeConversion.cpp
+  lib/BusStopRule.cpp
 )
 
 

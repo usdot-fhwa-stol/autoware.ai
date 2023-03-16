@@ -461,3 +461,61 @@ or which entry correlates to which exit information is handled by each CarmaTraf
 </relation>
 
 ```
+## Bus Stop Rule
+
+Represents a virtual bus stop and wait line horizontally laying on the roadway. It indicates whether a given participant bus 
+should stop and wait momentarily before passing the line. General usage is as a  bus stop line that is not represented by an actual
+physical roadway object. By default, it only apply to bus in the participant list.
+
+A BusStopRule is created from a list of contiguous LineString3d and participant bus which should stop and wait at bus stop before crossing.
+The object is agnostic to the line's invertedness.
+
+### Parameters
+
+| **Role** | **Possible Type** | **description**                |
+|-------------|--------------|----------------------------------|
+| **ref_line**    | **LineString3d**    | The linestrings which define the geometry of this stop line. Must be contiguous |
+
+### Custom Attributes
+
+| **Key** | **Value Type** | **description**                |
+|-------------|--------------|----------------------------------|
+| **subtype** | **stop_rule**    | Subtype name |
+| **participant:XXX** | **yes/no**    | The participant type this stop rule applies to |
+
+#### Note on participant tags
+
+To support multiple types of participants a new attribute should be added for each desired type and the value field set to "yes", or "no". There is no need to explicitly mark participants as not passable, this will be implied. The lanelet2 participant heirarchy found [here](https://github.com/fzi-forschungszentrum-informatik/Lanelet2/blob/master/lanelet2_core/doc/LaneletAndAreaTagging.md#overriding) is supported.
+
+### OSM XML Example
+
+```(xml)
+<!-- Lanelet -->
+<relation id="1349" visible="true" version="1">
+  <member type="way" ref="1347" role="left" />
+  <member type="way" ref="1348" role="right" />
+  <tag k="location" v="urban" />
+  <tag k="subtype" v="road" />
+  <tag k="type" v="lanelet" />
+
+  <!-- Bus Stop Rule -->
+  <member type='relation' ref='45221' role='regulatory_element' />
+</relation>
+
+<!-- Virtual Linestring for Bus Stop Rule>
+<way id="1349" visible="false" version="1">
+  <nd ref="1339" />
+  <nd ref="1342" />
+  <tag k="subtype" v="-" />
+  <tag k="type" v="virtual" />
+</way>
+
+<!-- Regulatory Bus Stop Rule -->
+<relation id='45221' visible='true' version='1'>
+  <member type="way" ref="1349" role="ref_line" /> <!-- Horizontal linestring representing the stop line -->
+  <tag k='subtype' v='stop_rule' />
+  <tag k='type' v='regulatory_element' />
+  <tag k='participant:bus' v='yes' /> <!-- Allow only bus -->
+</relation>
+
+```
