@@ -17,6 +17,7 @@
 #include <lanelet2_core/primitives/RegulatoryElement.h>
 #include <boost/algorithm/string.hpp>
 #include <unordered_set>
+#include "StopRule.h"
 
 namespace lanelet
 {
@@ -36,7 +37,7 @@ class BusStopRule : public StopRule
 public:
   static constexpr char RuleName[] = "stop_rule";
   static constexpr char Participants[] = "participants";
-  std::unordered_set<std::string> participants_ = ["bus"];
+  std::unordered_set<std::string> participants_ = {"bus"};
 
   /**
    * @brief Constructor defined to support loading from lanelet files
@@ -47,13 +48,12 @@ public:
    * @brief Static helper function that creates a stop line data object based on the provided inputs
    *
    * @param id The lanelet::Id of this element
-   * @param stopAndWaitLine The line strings which represent this regularoty elements geometry
+   * @param stopAndWaitLine The line strings which represents the virtual stop line before with bus will stop at a bus stop
    * @param participants The set of participants which this rule applies to
    *
    * @return RegulatoryElementData containing all the necessary information to construct a stop rule
    */
-  static std::unique_ptr<lanelet::RegulatoryElementData> buildData(Id id, LineStrings3d stopAndWaitLine,
-                                                     std::vector<std::string> participants);
+  static std::unique_ptr<lanelet::RegulatoryElementData> buildData(Id id, LineStrings3d stopAndWaitLine);
 
 protected:
   // the following lines are required so that lanelet2 can create this object when loading a map with this regulatory
@@ -62,7 +62,7 @@ protected:
 };
 
 // Convenience Ptr Declarations
-using StopRulePtr = std::shared_ptr<StopRule>;
-using StopRuleConstPtr = std::shared_ptr<const StopRule>;
+using BusStopRulePtr = std::shared_ptr<BusStopRule>;
+using BusStopRuleConstPtr = std::shared_ptr<const BusStopRule>;
 
 }  // namespace lanelet

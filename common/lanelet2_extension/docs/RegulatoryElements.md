@@ -481,11 +481,6 @@ The object is agnostic to the line's invertedness.
 | **Key** | **Value Type** | **description**                |
 |-------------|--------------|----------------------------------|
 | **subtype** | **stop_rule**    | Subtype name |
-| **participant:XXX** | **yes/no**    | The participant type this stop rule applies to |
-
-#### Note on participant tags
-
-To support multiple types of participants a new attribute should be added for each desired type and the value field set to "yes", or "no". There is no need to explicitly mark participants as not passable, this will be implied. The lanelet2 participant heirarchy found [here](https://github.com/fzi-forschungszentrum-informatik/Lanelet2/blob/master/lanelet2_core/doc/LaneletAndAreaTagging.md#overriding) is supported.
 
 ### OSM XML Example
 
@@ -515,7 +510,6 @@ To support multiple types of participants a new attribute should be added for ea
   <member type="way" ref="1349" role="ref_line" /> <!-- Horizontal linestring representing the stop line -->
   <tag k='subtype' v='stop_rule' />
   <tag k='type' v='regulatory_element' />
-  <tag k='participant:bus' v='yes' /> <!-- Allow only bus -->
-</relation>
+  </relation>
 
 ```

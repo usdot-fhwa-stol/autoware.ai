@@ -24,7 +24,7 @@ constexpr char BusStopRule::RuleName[];  // instantiate string in cpp file
 constexpr char BusStopRule::Participants[];
 #endif
 
-BusStopRule::BusStopRule(const lanelet::RegulatoryElementDataPtr& data) : RegulatoryElement(data)
+BusStopRule::StopRule(const lanelet::RegulatoryElementDataPtr& data) : RegulatoryElement(data)
 {
   // Read participants
   addParticipantsToSetFromMap(participants_, attributes());
@@ -33,7 +33,7 @@ BusStopRule::BusStopRule(const lanelet::RegulatoryElementDataPtr& data) : Regula
 namespace
 {
   // this object actually does the registration work for us
-  static lanelet::RegisterRegulatoryElement<lanelet::StopRule> reg;
+  static lanelet::RegisterRegulatoryElement<lanelet::BusStopRule> reg;
 }  // namespace
 
 }  // namespace lanelet
