@@ -58,7 +58,7 @@ public:
 protected:
   // the following lines are required so that lanelet2 can create this object when loading a map with this regulatory
   // element
-  friend class RegisterRegulatoryElement<StopRule>;
+  friend class RegisterRegulatoryElement<BusStopRule>;
 };
 
 // Convenience Ptr Declarations
