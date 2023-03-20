@@ -48,7 +48,7 @@ TEST(BusStopRuleTest, BusStopRule)
   lanelet::Id stop_line_id = utils::getId();
   LineString3d virtual_stop_line(stop_line_id, {pl2, pr2});
   // Creat passing control line for solid dashed line
-  std::shared_ptr<StopRule> stop_and_wait(new StopRule(StopRule::buildData(
+  std::shared_ptr<BusStopRule> stop_and_wait(new BusStopRule(BusStopRule::buildData(
       lanelet::utils::getId(), { virtual_stop_line })));
 
   ll_1.addRegulatoryElement(stop_and_wait);
