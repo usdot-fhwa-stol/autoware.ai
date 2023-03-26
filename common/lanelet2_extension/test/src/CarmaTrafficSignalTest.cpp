@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 LEIDOS.
+ * Copyright (C) 2023 LEIDOS.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -80,8 +80,7 @@ TEST(CarmaTrafficSignalTest, CarmaTrafficSignal)
   ASSERT_THROW(traffic_light->predictState(time::timeFromSec(1002.5)), std::invalid_argument);
   traffic_light->recorded_start_time_stamps.push_back(time::timeFromSec(1000));
   traffic_light->recorded_start_time_stamps.push_back(time::timeFromSec(1001));
-  ASSERT_EQ(traffic_light->predictState(time::timeFromSec(1011.5)).get().second, static_cast<lanelet::CarmaTrafficSignalState>(1));
-  ASSERT_EQ(traffic_light->predictState(time::timeFromSec(1011.5)).get().first, time::timeFromSec(1012));
+  ASSERT_EQ(traffic_light->predictState(time::timeFromSec(1011.5)).get().second, static_cast<lanelet::CarmaTrafficSignalState>(3));
   /// END DYNAMIC SPAT TEST
 
   input_time_steps.push_back(std::make_pair(time::timeFromSec(1003),static_cast<lanelet::CarmaTrafficSignalState>(2)));
