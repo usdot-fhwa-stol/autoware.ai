@@ -63,6 +63,7 @@ set(cpp_files
   lib/RegionAccessRule.cpp
   lib/DirectionOfTravel.cpp
   lib/TimeConversion.cpp
+  lib/BusStopRule.cpp
 )
 
 
@@ -222,6 +223,7 @@ else()
       test/src/RegionAccessRuleTest.cpp
       test/src/PassingControlLineTest.cpp
       test/src/StopRuleTest.cpp
+      test/src/BusStopRuleTest.cpp
       test/src/DirectionOfTravelTest.cpp
       test/src/DigitalSpeedLimitTest.cpp
       test/src/DigitalMinimumGapTest.cpp
