@@ -1,0 +1,8 @@
+points_map_loader::PointsMapLoader:
+  ros__parameters:
+    path_pcd_parameter: ['','']
+    update_rate: 0
+    scene_num: ""
+    mode: ""
+    path_area_list: ""
+    
