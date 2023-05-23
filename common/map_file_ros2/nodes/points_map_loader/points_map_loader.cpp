@@ -429,7 +429,7 @@ namespace points_map_loader {
 
     void PointsMapLoader::publish_gnss_pcd(const geometry_msgs::msg::PoseStamped::SharedPtr msg)
     {
-        rclcpp::Time now = rclcpp::Time(0,0);
+        rclcpp::Time now = this->now();
         if (((now - current_time).seconds() * 1000) < fallback_rate)
             return;
         if (((now - gnss_time).seconds() * 1000) < update_rate)
@@ -462,7 +462,7 @@ namespace points_map_loader {
         geometry_msgs::msg::TransformStamped tf_geom;
         tf2::Transform transform;
         try {
-            rclcpp::Time zero = rclcpp::Time(0, 0);
+            rclcpp::Time zero = this->now();
             // listener.waitForTransform("map", msg.header.frame_id, zero, );
             tf_geom = buffer.lookupTransform("map", msg->header.frame_id, zero, rclcpp::Duration(10,0));
         } catch (tf2::TransformException &ex) {

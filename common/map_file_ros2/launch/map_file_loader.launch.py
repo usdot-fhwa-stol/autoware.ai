@@ -2,7 +2,7 @@ from launch import LaunchDescription
 from launch.substitutions import LaunchConfiguration
 from launch.actions import DeclareLaunchArgument
 from launch.actions import GroupAction
-from launch_ros.substitutions import FindPackageShare
+from launch.substitutions import ThisLaunchFileDir
 from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.conditions import IfCondition
@@ -30,12 +30,11 @@ def generate_launch_description():
     declare_area_paths = DeclareLaunchArgument(name='area_paths', default_value='', description='List of cell paths to load when using the arealist load type. If this is not filled all the cells will be loaded based on the arealist.txt file')
 
 
-    map_file_ros2_pkg = FindPackageShare('map_file_ros2')
     download_launch_group = GroupAction(
         condition = IfCondition(PythonExpression(["'",load_type,"' == 'download'"])),
         actions = [
             IncludeLaunchDescription(
-                PythonLaunchDescriptionSource(['/', map_file_ros2_pkg, '/launch', '/points_map_loader.launch.py']),
+                PythonLaunchDescriptionSource([ThisLaunchFileDir(), '/launch/points_map_loader.launch.py']),
                 launch_arguments = {
                     'load_type' : load_type,
                     'area' : area,
@@ -48,7 +47,7 @@ def generate_launch_description():
         condition = IfCondition(PythonExpression(["'",load_type,"' == 'noupdate'"])),
         actions = [
             IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(['/', map_file_ros2_pkg, '/launch', '/points_map_loader.launch.py']),
+            PythonLaunchDescriptionSource([ThisLaunchFileDir(), '/launch/points_map_loader.launch.py']),
             launch_arguments = {
                         'load_type' : load_type,
                         'pcd_path_parameter' : single_pcd_path,
@@ -61,7 +60,7 @@ def generate_launch_description():
         condition = IfCondition(PythonExpression(["'",load_type,"' == 'arealist'"])),
         actions = [
             IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(['/', map_file_ros2_pkg, '/launch', '/points_map_loader.launch.py']),
+            PythonLaunchDescriptionSource([ThisLaunchFileDir(), '/launch/points_map_loader.launch.py']),
             launch_arguments = {
                         'load_type' : load_type,
                         'area' : area,
