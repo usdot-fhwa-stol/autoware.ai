@@ -25,6 +25,7 @@
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_ros/static_transform_broadcaster.h>
 #include <geometry_msgs/msg/transform_stamped.hpp>
+#include <carma_ros2_utils/carma_lifecycle_node.hpp>
 
 #include <autoware_msgs/msg/lane.hpp>
 #include <autoware_msgs/msg/lane_array.hpp>
@@ -68,7 +69,7 @@ namespace points_map_loader
     std::mutex downloaded_areas_mtx;
     std::vector<std::string> cached_arealist_paths;
 
-    class PointsMapLoader : public rclcpp::Node {
+    class PointsMapLoader : public carma_ros2_utils::CarmaLifecycleNode {
     private:
     
         std::queue<geometry_msgs::msg::Point> queue_; // takes priority over look_ahead_queue_
@@ -91,10 +92,13 @@ namespace points_map_loader
         // Parameters
         int update_rate = DEFAULT_UPDATE_RATE;
         std::string area = "";
-        std::string mode = "";
+        std::string load_type = "";
         std::string path_area_list = "";
-        std::vector<std::string> path_pcd = {};
-
+        std::vector<std::string> pcd_path = {};
+        std::string host_name = HTTP_HOSTNAME;
+        int port = HTTP_PORT;
+        std::string user = HTTP_USER;
+        std::string password = HTTP_PASSWORD;
     public:
         explicit PointsMapLoader(const rclcpp::NodeOptions &);
         void enqueue(const geometry_msgs::msg::Point& p);
@@ -125,6 +129,9 @@ namespace points_map_loader
         void publish_current_pcd(const geometry_msgs::msg::PoseStamped::SharedPtr msg);
         void request_lookahead_download(const autoware_msgs::msg::LaneArray::SharedPtr msg);
         // static void print_usage();
+
+        carma_ros2_utils::CallbackReturn handle_on_configure(const rclcpp_lifecycle::State &prev_state);
+
 
     };
     

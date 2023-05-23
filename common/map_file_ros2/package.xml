@@ -40,6 +40,7 @@
   <depend>vector_map</depend>
   <depend>visualization_msgs</depend>
   <depend>lanelet2_extension</depend>
+  <depend>carma_ros2_utils</depend>
 
 
   <test_depend>ament_lint_auto</test_depend>

@@ -26,8 +26,12 @@ int main(int argc, char **argv)
     points_map_loader::print_usage();
     return EXIT_FAILURE;
   }
+  
   auto node = std::make_shared<points_map_loader::PointsMapLoader>(rclcpp::NodeOptions());
-  rclcpp::spin(node);
+
+  rclcpp::executors::MultiThreadedExecutor executor;
+  executor.add_node(node->get_node_base_interface());
+  executor.spin();
 
   rclcpp::shutdown();
   return 0;

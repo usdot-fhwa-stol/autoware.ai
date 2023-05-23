@@ -20,30 +20,38 @@
 namespace points_map_loader {
 
 
-    PointsMapLoader::PointsMapLoader(const rclcpp::NodeOptions &options) : Node("PointsMapLoader")
+    PointsMapLoader::PointsMapLoader(const rclcpp::NodeOptions &options) : carma_ros2_utils::CarmaLifecycleNode(options)
     {
         // Initialize parameters
         update_rate = declare_parameter<int>("update_rate", update_rate);
 
-        area = declare_parameter<std::string>("scene_num", area);
-        mode = declare_parameter<std::string>("mode", mode);
+        area = declare_parameter<std::string>("area", area);
+        load_type = declare_parameter<std::string>("load_type", load_type);
         path_area_list = declare_parameter<std::string>("path_area_list", path_area_list);
         // parameter as lists
-        declare_parameter("path_pcd_parameter", path_pcd);
+        declare_parameter("pcd_path_parameter", pcd_path);
 
+        host_name = declare_parameter<std::string>("host_name", host_name);
+        port = declare_parameter<int>("port", port);
+        user = declare_parameter<std::string>("user", user);
+        password = declare_parameter<std::string>("password", password);
 
+    }
+
+    carma_ros2_utils::CallbackReturn PointsMapLoader::handle_on_configure(const rclcpp_lifecycle::State &prev_state)
+    {
         // Get Parameters
         get_parameter<int>("update_rate", update_rate);
-        get_parameter<std::string>("scene_num", area);
-        get_parameter<std::string>("mode", mode);
+        get_parameter<std::string>("area", area);
+        get_parameter<std::string>("load_type", load_type);
         get_parameter<std::string>("path_area_list", path_area_list);
         
         // path pcd - list of strings
-        rclcpp::Parameter path_pcd_parameter = get_parameter("path_pcd_parameter");
-        path_pcd = path_pcd_parameter.as_string_array();
+        rclcpp::Parameter pcd_path_parameter = get_parameter("pcd_path_parameter");
+        pcd_path = pcd_path_parameter.as_string_array();
         
 
-        if (area == "noupdate")
+        if (load_type == "noupdate")
 		    margin = -1;
         else if (area == "1x1")
             margin = 0;
@@ -66,30 +74,23 @@ namespace points_map_loader {
         if (margin < 0) {
 		    can_download = false;
             // If area = no_update get pcd paths
-            pcd_paths = path_pcd;
+            pcd_paths.insert(pcd_paths.end(), pcd_path.begin(), pcd_path.end());
         } else {
-            if (mode == "download")
+            if (load_type == "download")
             {
                 can_download = true;
-                // std::string host_name = HTTP_HOSTNAME;
-                // host_name = declare_parameter<std::string>("points_map_loader/host_name", host_name);
-                // get_parameter<std::string>("points_map_loader/host_name", host_name);
-                // int port = HTTP_PORT;
-                // port = declare_parameter<int>("points_map_loader/port", port);
-                // get_parameter<int>("points_map_loader/port", port);
-                // std::string user = HTTP_USER;
-                // user = declare_parameter<std::string>("points_map_loader/user", user);
-                // get_parameter<std::string>("points_map_loader/user", user);
-                // std::string password = HTTP_PASSWORD;
-                // password = declare_parameter<std::string>("points_map_loader/password", password);
-                // get_parameter<std::string>("points_map_loader/password", password);
+                
+                get_parameter<std::string>("host_name", host_name);
+                get_parameter<int>("port", port);
+                get_parameter<std::string>("user", user);
+                get_parameter<std::string>("password", password);
 
-                // gf = GetFile(host_name, port, user, password);
+                gf = GetFile(host_name, port, user, password);
             }
             else{
                 can_download = false;
                 arealist_path += path_area_list;
-                pcd_paths = path_pcd;
+                pcd_paths.insert(pcd_paths.end(), pcd_path.begin(), pcd_path.end());
             }
 
         }
@@ -109,34 +110,46 @@ namespace points_map_loader {
         current_sub = create_subscription<geometry_msgs::msg::PoseStamped>("current_pose", 1000, std::bind(&PointsMapLoader::publish_current_pcd, this, std::placeholders::_1));
         initial_sub = create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>("initialpose", 1, std::bind(&PointsMapLoader::publish_dragged_pcd, this, std::placeholders::_1));
 
-        if (can_download){
-            waypoints_sub = create_subscription<autoware_msgs::msg::LaneArray>("traffic_waypoints_array", 1, std::bind(&PointsMapLoader::request_lookahead_download, this, std::placeholders::_1));
-            try {
-				std::thread downloader([this]{this->download_map();});
-				downloader.detach();
-			} catch (std::exception &ex) {
-				RCLCPP_ERROR_STREAM(get_logger(), "failed to create thread from " << ex.what());
-			}
-        }
-        else{
-            AreaList areas = read_arealist(arealist_path);
-            for (const Area& area : areas) {
-				// Check if the user entered pcd paths in addition to the arealist.txt file
-				if (pcd_paths.size() > 0) {
-					// Only load cells which the user specified
-					for (const std::string& path : pcd_paths) {
-						if (path == area.path)
-							cache_arealist(area, downloaded_areas);
-					}
-				} else {
-					// The user did not specify any cells to load all the cells contained in the arealist.txt file
-					cache_arealist(area, downloaded_areas);
-				}
-			}
+        if (margin < 0) {
+            int err = 0;
+            publish_pcd(create_pcd(pcd_paths, &err), &err);
+        } else{
+            fallback_rate = update_rate * 2; // XXX better way?
+
+            // Create subscribers
+            gnss_sub = create_subscription<geometry_msgs::msg::PoseStamped>("gnss_pose", 1000, std::bind(&PointsMapLoader::publish_gnss_pcd, this, std::placeholders::_1));
+            current_sub = create_subscription<geometry_msgs::msg::PoseStamped>("current_pose", 1000, std::bind(&PointsMapLoader::publish_current_pcd, this, std::placeholders::_1));
+            initial_sub = create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>("initialpose", 1, std::bind(&PointsMapLoader::publish_dragged_pcd, this, std::placeholders::_1));
+
+            if (can_download){
+                waypoints_sub = create_subscription<autoware_msgs::msg::LaneArray>("traffic_waypoints_array", 1, std::bind(&PointsMapLoader::request_lookahead_download, this, std::placeholders::_1));
+                try {
+                    std::thread downloader([this]{this->download_map();});
+                    downloader.detach();
+                } catch (std::exception &ex) {
+                        RCLCPP_ERROR_STREAM(get_logger(), "failed to create thread from " << ex.what());
+                }
+            } else{
+                AreaList areas = read_arealist(arealist_path);
+                for (const Area& area : areas) {
+                    // Check if the user entered pcd paths in addition to the arealist.txt file
+                    if (pcd_paths.size() > 0) {
+                        // Only load cells which the user specified
+                        for (const std::string& path : pcd_paths) {
+                            if (path == area.path)
+                                cache_arealist(area, downloaded_areas);
+                        }
+                    } else {
+                        // The user did not specify any cells to load all the cells contained in the arealist.txt file
+                        cache_arealist(area, downloaded_areas);
+                    }
+                }
+            }
+
+            gnss_time = current_time = this->now();
         }
 
-        gnss_time = current_time = this->now();
-        
+        return CallbackReturn::SUCCESS;
     }
 
     void PointsMapLoader::enqueue(const geometry_msgs::msg::Point& p)
