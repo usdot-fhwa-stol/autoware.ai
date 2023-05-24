@@ -51,6 +51,21 @@ namespace points_map_loader {
         pcd_path = pcd_path_parameter.as_string_array();
         
 
+        // Create publishers
+        // NOTE: Currently, intra-process comms must be disabled for the following two publishers that are transient_local: https://github.com/ros2/rclcpp/issues/1753
+        rclcpp::PublisherOptions intra_proc_disabled; 
+        intra_proc_disabled.use_intra_process_comm = rclcpp::IntraProcessSetting::Disable; // Disable intra-process comms for this PublisherOptions object
+        // Create a publisher that will send all previously published messages to late-joining subscribers ONLY If the subscriber is transient_local too
+        auto pub_qos_transient_local = rclcpp::QoS(rclcpp::KeepLast(1)); // A publisher with this QoS will store the "Last" message that it has sent on the topic
+        
+        pcd_pub = create_publisher<sensor_msgs::msg::PointCloud2>("points_map", pub_qos_transient_local, intra_proc_disabled); //Make latched
+        stat_pub = create_publisher<std_msgs::msg::Bool>("pmap_stat", pub_qos_transient_local, intra_proc_disabled); //Make latched
+
+        return CallbackReturn::SUCCESS;
+    }
+
+    carma_ros2_utils::CallbackReturn PointsMapLoader::handle_on_activate(const rclcpp_lifecycle::State &prev_state)
+    {
         if (load_type == "noupdate")
 		    margin = -1;
         else if (area == "1x1")
@@ -93,17 +108,7 @@ namespace points_map_loader {
                 pcd_paths.insert(pcd_paths.end(), pcd_path.begin(), pcd_path.end());
             }
 
-        }
-
-        // Create publishers
-        // NOTE: Currently, intra-process comms must be disabled for the following two publishers that are transient_local: https://github.com/ros2/rclcpp/issues/1753
-        rclcpp::PublisherOptions intra_proc_disabled; 
-        intra_proc_disabled.use_intra_process_comm = rclcpp::IntraProcessSetting::Disable; // Disable intra-process comms for this PublisherOptions object
-        // Create a publisher that will send all previously published messages to late-joining subscribers ONLY If the subscriber is transient_local too
-        auto pub_qos_transient_local = rclcpp::QoS(rclcpp::KeepLast(1)); // A publisher with this QoS will store the "Last" message that it has sent on the topic
-        
-        pcd_pub = create_publisher<sensor_msgs::msg::PointCloud2>("points_map", pub_qos_transient_local, intra_proc_disabled); //Make latched
-        stat_pub = create_publisher<std_msgs::msg::Bool>("pmap_stat", pub_qos_transient_local, intra_proc_disabled); //Make latched
+        } 
         
         stat_msg.data = false;
 	    stat_pub->publish(stat_msg);
@@ -147,7 +152,6 @@ namespace points_map_loader {
 
             gnss_time = current_time = this->now();
         }
-
         return CallbackReturn::SUCCESS;
     }
 
