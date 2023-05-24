@@ -105,13 +105,12 @@ namespace points_map_loader {
         pcd_pub = create_publisher<sensor_msgs::msg::PointCloud2>("points_map", pub_qos_transient_local, intra_proc_disabled); //Make latched
         stat_pub = create_publisher<std_msgs::msg::Bool>("pmap_stat", pub_qos_transient_local, intra_proc_disabled); //Make latched
         
-        // Create subscribers
-        gnss_sub = create_subscription<geometry_msgs::msg::PoseStamped>("gnss_pose", 1000, std::bind(&PointsMapLoader::publish_gnss_pcd, this, std::placeholders::_1));
-        current_sub = create_subscription<geometry_msgs::msg::PoseStamped>("current_pose", 1000, std::bind(&PointsMapLoader::publish_current_pcd, this, std::placeholders::_1));
-        initial_sub = create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>("initialpose", 1, std::bind(&PointsMapLoader::publish_dragged_pcd, this, std::placeholders::_1));
+        stat_msg.data = false;
+	    stat_pub->publish(stat_msg);
 
         if (margin < 0) {
             int err = 0;
+            RCLCPP_INFO_STREAM(get_logger(), "Entering margin < 0");
             publish_pcd(create_pcd(pcd_paths, &err), &err);
         } else{
             fallback_rate = update_rate * 2; // XXX better way?
@@ -419,6 +418,7 @@ namespace points_map_loader {
         if (pcd.width != 0) {
             pcd.header.frame_id = "map";
             pcd_pub->publish(pcd);
+            RCLCPP_INFO_STREAM(get_logger(), "Publishing pcd");
 
             if (errp == NULL || *errp == 0) {
                 stat_msg.data = true;
@@ -464,7 +464,9 @@ namespace points_map_loader {
         try {
             rclcpp::Time zero = this->now();
             // listener.waitForTransform("map", msg.header.frame_id, zero, );
+            RCLCPP_WARN_STREAM(get_logger(), "Reaching before lookup Transform");
             tf_geom = buffer.lookupTransform("map", msg->header.frame_id, zero, rclcpp::Duration(10,0));
+            RCLCPP_WARN_STREAM(get_logger(), "Reaching After lookup Transform");
         } catch (tf2::TransformException &ex) {
             RCLCPP_ERROR_STREAM(get_logger(),"failed to create transform from " << ex.what());
         }
