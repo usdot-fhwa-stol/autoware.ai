@@ -49,8 +49,30 @@ ament_auto_add_executable(points_map_loader_exec
     nodes/points_map_loader/points_map_loader_node.cpp
 )
 
+ament_auto_add_library(map_param_loader_lib SHARED
+    nodes/map_param_loader/map_param_loader.cpp)
+
+ament_auto_add_executable(map_param_loader_exec
+    nodes/map_param_loader/map_param_loader_node.cpp)
+
+ament_auto_add_library(lanelet2_map_loader_lib SHARED
+    nodes/lanelet2_map_loader/lanelet2_map_loader.cpp)
+
+ament_auto_add_executable(lanelet2_map_loader_exec
+    nodes/lanelet2_map_loader/lanelet2_map_loader_node.cpp)
+
+ament_auto_add_library(lanelet2_map_visualization_lib SHARED
+    nodes/lanelet2_map_visualization/lanelet2_map_visualization.cpp)
+
+ament_auto_add_executable(lanelet2_map_visualization_exec
+    nodes/lanelet2_map_visualization/lanelet2_map_visualization_node.cpp)
+
 # Register component
 rclcpp_components_register_nodes(points_map_loader_lib "points_map_loader::PointsMapLoader")
+
+rclcpp_components_register_nodes(points_map_loader_lib "map_param_loader::MapParamLoader")
+
+rclcpp_components_register_nodes(points_map_loader_lib "lanelet2_map_visualization::Lanelet2MapVisualization")
 
 # All locally created targets will need to be manually linked
 # ament auto will handle linking of external dependencies
@@ -59,6 +81,21 @@ target_link_libraries(points_map_loader_lib get_file ${PCL_LIBRARIES})
 target_link_libraries(
     points_map_loader_exec
     points_map_loader_lib
+)
+
+target_link_libraries(
+    map_param_loader_exec
+    map_param_loader_lib
+)
+
+target_link_libraries(
+    lanelet2_map_loader_exec
+    lanelet2_map_loader_lib
+)
+
+target_link_libraries(
+    lanelet2_map_visualization_exec
+    lanelet2_map_visualization_lib
 )
 
 ament_auto_package(
