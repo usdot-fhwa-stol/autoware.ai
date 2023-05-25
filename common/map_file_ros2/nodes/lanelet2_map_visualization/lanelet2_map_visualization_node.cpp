@@ -15,12 +15,12 @@
  */
 
 #include <rclcpp/rclcpp.hpp>
-#include <lanelet2_map_loader.hpp>
+#include <lanelet2_map_visualization.hpp>
 
 int main(int argc, char **argv)
 {
     rclcpp::init(argc, argv);
-    rclcpp::spin(std::make_shared<lanelet2_map_loader::Lanelet2MapLoader>(rclcpp::NodeOptions()));
+    rclcpp::spin(std::make_shared<lanelet2_map_visualization::Lanelet2MapVisualization>(rclcpp::NodeOptions()));
 
 
     rclcpp::shutdown();
