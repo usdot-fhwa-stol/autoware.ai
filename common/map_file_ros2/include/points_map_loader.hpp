@@ -99,6 +99,12 @@ namespace points_map_loader
         int port = HTTP_PORT;
         std::string user = HTTP_USER;
         std::string password = HTTP_PASSWORD;
+
+        rclcpp::TimerBase::SharedPtr timer_;
+        void timer_callback();
+        bool is_timer_first_pass_ = true;
+        sensor_msgs::msg::PointCloud2 pcd_;
+
     public:
         explicit PointsMapLoader(const rclcpp::NodeOptions &);
         void enqueue(const geometry_msgs::msg::Point& p);
@@ -131,7 +137,6 @@ namespace points_map_loader
         // static void print_usage();
 
         carma_ros2_utils::CallbackReturn handle_on_configure(const rclcpp_lifecycle::State &prev_state);
-        carma_ros2_utils::CallbackReturn handle_on_activate(const rclcpp_lifecycle::State &prev_state);
 
 
     };

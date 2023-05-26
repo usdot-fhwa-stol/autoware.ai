@@ -61,98 +61,106 @@ namespace points_map_loader {
         pcd_pub = create_publisher<sensor_msgs::msg::PointCloud2>("points_map", pub_qos_transient_local, intra_proc_disabled); //Make latched
         stat_pub = create_publisher<std_msgs::msg::Bool>("pmap_stat", pub_qos_transient_local, intra_proc_disabled); //Make latched
 
+        timer_ = this->create_wall_timer(std::chrono::seconds(1), std::bind(&PointsMapLoader::timer_callback, this));
+
         return CallbackReturn::SUCCESS;
     }
 
-    carma_ros2_utils::CallbackReturn PointsMapLoader::handle_on_activate(const rclcpp_lifecycle::State &prev_state)
-    {
-        if (load_type == "noupdate")
-		    margin = -1;
-        else if (area == "1x1")
-            margin = 0;
-        else if (area == "3x3")
-            margin = MARGIN_UNIT * 1;
-        else if (area == "5x5")
-            margin = MARGIN_UNIT * 2;
-        else if (area == "7x7")
-            margin = MARGIN_UNIT * 3;
-        else if (area == "9x9")
-            margin = MARGIN_UNIT * 4;
-        else {
-            print_usage();
-            RCLCPP_ERROR_STREAM(get_logger(), "Invalid area argument");
-            
-        }
-
-        std::string arealist_path;
-	    std::vector<std::string> pcd_paths;
-        if (margin < 0) {
-		    can_download = false;
-            // If area = no_update get pcd paths
-            pcd_paths.insert(pcd_paths.end(), pcd_path.begin(), pcd_path.end());
-        } else {
-            if (load_type == "download")
-            {
-                can_download = true;
+    void PointsMapLoader::timer_callback(){
+        if (is_timer_first_pass_)
+        {
+            if (load_type == "noupdate")
+		        margin = -1;
+            else if (area == "1x1")
+                margin = 0;
+            else if (area == "3x3")
+                margin = MARGIN_UNIT * 1;
+            else if (area == "5x5")
+                margin = MARGIN_UNIT * 2;
+            else if (area == "7x7")
+                margin = MARGIN_UNIT * 3;
+            else if (area == "9x9")
+                margin = MARGIN_UNIT * 4;
+            else {
+                print_usage();
+                RCLCPP_ERROR_STREAM(get_logger(), "Invalid area argument");
                 
-                get_parameter<std::string>("host_name", host_name);
-                get_parameter<int>("port", port);
-                get_parameter<std::string>("user", user);
-                get_parameter<std::string>("password", password);
-
-                gf = GetFile(host_name, port, user, password);
             }
-            else{
+
+            std::string arealist_path;
+            std::vector<std::string> pcd_paths;
+            if (margin < 0) {
                 can_download = false;
-                arealist_path += path_area_list;
+                // If area = no_update get pcd paths
                 pcd_paths.insert(pcd_paths.end(), pcd_path.begin(), pcd_path.end());
-            }
+            } else {
+                if (load_type == "download")
+                {
+                    can_download = true;
+                    
+                    get_parameter<std::string>("host_name", host_name);
+                    get_parameter<int>("port", port);
+                    get_parameter<std::string>("user", user);
+                    get_parameter<std::string>("password", password);
 
-        } 
-        
-        stat_msg.data = false;
-	    stat_pub->publish(stat_msg);
-
-        if (margin < 0) {
-            int err = 0;
-            RCLCPP_INFO_STREAM(get_logger(), "Entering margin < 0");
-            publish_pcd(create_pcd(pcd_paths, &err), &err);
-        } else{
-            fallback_rate = update_rate * 2; // XXX better way?
-
-            // Create subscribers
-            gnss_sub = create_subscription<geometry_msgs::msg::PoseStamped>("gnss_pose", 1000, std::bind(&PointsMapLoader::publish_gnss_pcd, this, std::placeholders::_1));
-            current_sub = create_subscription<geometry_msgs::msg::PoseStamped>("current_pose", 1000, std::bind(&PointsMapLoader::publish_current_pcd, this, std::placeholders::_1));
-            initial_sub = create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>("initialpose", 1, std::bind(&PointsMapLoader::publish_dragged_pcd, this, std::placeholders::_1));
-
-            if (can_download){
-                waypoints_sub = create_subscription<autoware_msgs::msg::LaneArray>("traffic_waypoints_array", 1, std::bind(&PointsMapLoader::request_lookahead_download, this, std::placeholders::_1));
-                try {
-                    std::thread downloader([this]{this->download_map();});
-                    downloader.detach();
-                } catch (std::exception &ex) {
-                        RCLCPP_ERROR_STREAM(get_logger(), "failed to create thread from " << ex.what());
+                    gf = GetFile(host_name, port, user, password);
                 }
+                else{
+                    can_download = false;
+                    arealist_path += path_area_list;
+                    pcd_paths.insert(pcd_paths.end(), pcd_path.begin(), pcd_path.end());
+                }
+
+            } 
+            
+            stat_msg.data = false;
+            stat_pub->publish(stat_msg);
+
+            if (margin < 0) {
+                int err = 0;
+                pcd_ = create_pcd(pcd_paths, &err);
+                publish_pcd(pcd_, &err);
             } else{
-                AreaList areas = read_arealist(arealist_path);
-                for (const Area& area : areas) {
-                    // Check if the user entered pcd paths in addition to the arealist.txt file
-                    if (pcd_paths.size() > 0) {
-                        // Only load cells which the user specified
-                        for (const std::string& path : pcd_paths) {
-                            if (path == area.path)
-                                cache_arealist(area, downloaded_areas);
+                fallback_rate = update_rate * 2; // XXX better way?
+
+                // Create subscribers
+                gnss_sub = create_subscription<geometry_msgs::msg::PoseStamped>("gnss_pose", 1000, std::bind(&PointsMapLoader::publish_gnss_pcd, this, std::placeholders::_1));
+                current_sub = create_subscription<geometry_msgs::msg::PoseStamped>("current_pose", 1000, std::bind(&PointsMapLoader::publish_current_pcd, this, std::placeholders::_1));
+                initial_sub = create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>("initialpose", 1, std::bind(&PointsMapLoader::publish_dragged_pcd, this, std::placeholders::_1));
+
+                if (can_download){
+                    waypoints_sub = create_subscription<autoware_msgs::msg::LaneArray>("traffic_waypoints_array", 1, std::bind(&PointsMapLoader::request_lookahead_download, this, std::placeholders::_1));
+                    try {
+                        std::thread downloader([this]{this->download_map();});
+                        downloader.detach();
+                    } catch (std::exception &ex) {
+                            RCLCPP_ERROR_STREAM(get_logger(), "failed to create thread from " << ex.what());
+                    }
+                } else{
+                    AreaList areas = read_arealist(arealist_path);
+                    for (const Area& area : areas) {
+                        // Check if the user entered pcd paths in addition to the arealist.txt file
+                        if (pcd_paths.size() > 0) {
+                            // Only load cells which the user specified
+                            for (const std::string& path : pcd_paths) {
+                                if (path == area.path)
+                                    cache_arealist(area, downloaded_areas);
+                            }
+                        } else {
+                            // The user did not specify any cells to load all the cells contained in the arealist.txt file
+                            cache_arealist(area, downloaded_areas);
                         }
-                    } else {
-                        // The user did not specify any cells to load all the cells contained in the arealist.txt file
-                        cache_arealist(area, downloaded_areas);
                     }
                 }
-            }
 
-            gnss_time = current_time = this->now();
+                gnss_time = current_time = this->now();
+            }
+            is_timer_first_pass_ = false;
         }
-        return CallbackReturn::SUCCESS;
+        else{
+            int err = 0;
+            publish_pcd(pcd_, &err);
+        }
     }
 
     void PointsMapLoader::enqueue(const geometry_msgs::msg::Point& p)
@@ -422,7 +430,6 @@ namespace points_map_loader {
         if (pcd.width != 0) {
             pcd.header.frame_id = "map";
             pcd_pub->publish(pcd);
-            RCLCPP_INFO_STREAM(get_logger(), "Publishing pcd");
 
             if (errp == NULL || *errp == 0) {
                 stat_msg.data = true;
