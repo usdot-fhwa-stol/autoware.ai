@@ -95,7 +95,7 @@ namespace lanelet2_map_loader{
         // Create a publisher that will send all previously published messages to late-joining subscribers ONLY If the subscriber is transient_local too
         auto pub_qos_transient_local = rclcpp::QoS(rclcpp::KeepLast(1)); // A publisher with this QoS will store the "Last" message that it has sent on the topic
 
-        map_bin_pub = create_publisher<autoware_lanelet2_msgs::msg::MapBin>("/lanelet_map_bin", pub_qos_transient_local, intra_proc_disabled); //Make latched
+        map_bin_pub = create_publisher<autoware_lanelet2_msgs::msg::MapBin>("lanelet_map_bin", pub_qos_transient_local, intra_proc_disabled); //Make latched
 
         timer_ = this->create_wall_timer(std::chrono::seconds(1), std::bind(&Lanelet2MapLoader::timer_callback, this));
         
