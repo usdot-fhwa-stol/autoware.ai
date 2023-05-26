@@ -20,7 +20,10 @@
 int main(int argc, char **argv)
 {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<map_param_loader::MapParamLoader>(rclcpp::NodeOptions()));
+  auto node = std::make_shared<map_param_loader::MapParamLoader>(rclcpp::NodeOptions());
+  rclcpp::executors::MultiThreadedExecutor executor;
+  executor.add_node(node->get_node_base_interface());
+  executor.spin();
 
   rclcpp::shutdown();
   return 0;

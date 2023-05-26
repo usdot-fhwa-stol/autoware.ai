@@ -3,8 +3,10 @@ from launch import LaunchDescription
 from launch.substitutions import LaunchConfiguration
 from launch.actions import DeclareLaunchArgument
 
+from launch_ros.actions import ComposableNodeContainer
+from launch_ros.descriptions import ComposableNode
 from carma_ros2_utils.launch.get_current_namespace import GetCurrentNamespace
-from launch_ros.actions import Node
+\
 
 import os
 
@@ -20,19 +22,27 @@ def generate_launch_description():
     file_name = LaunchConfiguration('file_name')
     declare_file_name = DeclareLaunchArgument(name='file_name', default_value='')
 
-    node = Node(
-        package='map_file_ros2',
-        namespace='',
-        executable='map_param_loader_exec',
-        parameters=[
-            {'broadcast_earth_frame' : broadcast_earth_frame},
-            {'file_name' : '/workspaces/carma_ws/install/map_file_ros2/share/map_file_ros2/config/vector_map_UC1_01_19_speed_edited_2.osm'}
-        ]
-    )
+
+    map_param_loader_container = ComposableNodeContainer(
+    package='carma_ros2_utils',
+    name='map_param_loader_container',
+    executable='carma_component_container_mt',
+    namespace=GetCurrentNamespace(),
+    composable_node_descriptions=[
+        ComposableNode(
+                package='map_file_ros2',
+                plugin='map_param_loader::MapParamLoader',
+                name='map_param_loader',
+                parameters=[ 
+                    {'broadcast_earth_frame' : broadcast_earth_frame},
+                    {'file_name' : file_name} 
+                ]
+        )
+    ])
     
     return LaunchDescription([
         declare_log_level_arg,
         declare_broadcast_earth_frame,
         declare_file_name,
-        node
+        map_param_loader_container
     ])

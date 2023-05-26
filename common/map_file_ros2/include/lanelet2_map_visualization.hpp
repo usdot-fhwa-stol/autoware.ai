@@ -19,7 +19,7 @@
 #include <visualization_msgs/msg/marker_array.hpp>
 #include <lanelet2_projection/UTM.h>
 #include <autoware_lanelet2_msgs/msg/map_bin.hpp>
-
+#include <carma_ros2_utils/carma_lifecycle_node.hpp>
 #include <autoware_lanelet2_ros2_interface/utility/message_conversion.hpp>
 #include <autoware_lanelet2_ros2_interface/utility/query.hpp>
 #include <autoware_lanelet2_ros2_interface/visualization/visualization.hpp>
@@ -30,7 +30,7 @@
 static bool g_viz_lanelets_centerline = true;
 
 namespace lanelet2_map_visualization{
-    class Lanelet2MapVisualization : public rclcpp::Node
+    class Lanelet2MapVisualization : public carma_ros2_utils::CarmaLifecycleNode
     {
         private:
 
@@ -43,6 +43,8 @@ namespace lanelet2_map_visualization{
 
         public:
             Lanelet2MapVisualization(const rclcpp::NodeOptions &options);
+
+            carma_ros2_utils::CallbackReturn handle_on_configure(const rclcpp_lifecycle::State &);
 
     };
 }

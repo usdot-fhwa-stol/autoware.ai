@@ -18,7 +18,7 @@
 #include <lanelet2_projection/UTM.h>
 #include <lanelet2_io/Io.h>
 #include <lanelet2_core/LaneletMap.h>
-
+#include <carma_ros2_utils/carma_lifecycle_node.hpp>
 #include <autoware_lanelet2_ros2_interface/utility/message_conversion.hpp>
 #include <lanelet2_extension/projection/mgrs_projector.h>
 #include <lanelet2_extension/projection/local_frame_projector.h>
@@ -36,7 +36,7 @@ void printUsage()
     RCLCPP_ERROR_STREAM(rclcpp::get_logger("map_file_ros2"), "rosrun map_file lanelet2_map_loader download [X] [Y]: WARNING not implemented");
 }
 
-class Lanelet2MapLoader : public rclcpp::Node
+class Lanelet2MapLoader : public carma_ros2_utils::CarmaLifecycleNode
 {
     private:
         rclcpp::Publisher<autoware_lanelet2_msgs::msg::MapBin>::SharedPtr map_bin_pub;
@@ -53,8 +53,8 @@ class Lanelet2MapLoader : public rclcpp::Node
 
     public:
         Lanelet2MapLoader(const rclcpp::NodeOptions &options);
-        std::string get_filename();
-        void set_map_bin_msg(autoware_lanelet2_msgs::msg::MapBin& msg);
+
+        carma_ros2_utils::CallbackReturn handle_on_configure(const rclcpp_lifecycle::State &);
 
 }; 
 

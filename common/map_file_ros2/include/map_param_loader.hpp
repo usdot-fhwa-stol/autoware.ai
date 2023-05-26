@@ -22,14 +22,15 @@
 #include <tf2/LinearMath/Transform.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <geometry_msgs/msg/transform_stamped.hpp>
-
+#include <carma_ros2_utils/carma_lifecycle_node.hpp>
 #include <lanelet2_extension/projection/local_frame_projector.h>
 #include <lanelet2_extension/io/autoware_osm_parser.h>
 #include <std_msgs/msg/string.hpp>
 
+
 namespace map_param_loader
 {
-    class MapParamLoader : public rclcpp::Node
+    class MapParamLoader : public carma_ros2_utils::CarmaLifecycleNode
     {
         private:
         rclcpp::Publisher<std_msgs::msg::String>::SharedPtr georef_pub_;
@@ -43,8 +44,15 @@ namespace map_param_loader
         // Broadcast the input transform to tf_static.
         void broadcastTransform(const tf2::Transform& transform);
 
+        //parameters
+        std::string lanelet2_filename;
+        bool broadcast_earth_frame = false;
+
         public:
         MapParamLoader(const rclcpp::NodeOptions &options);
+
+        carma_ros2_utils::CallbackReturn handle_on_configure(const rclcpp_lifecycle::State &);
+        carma_ros2_utils::CallbackReturn handle_on_activate(const rclcpp_lifecycle::State &);
 
         
     };

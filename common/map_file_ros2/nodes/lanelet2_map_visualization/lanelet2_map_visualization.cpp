@@ -19,7 +19,13 @@
 
 namespace lanelet2_map_visualization{
 
-    Lanelet2MapVisualization::Lanelet2MapVisualization(const rclcpp::NodeOptions &options) : Node("lanelet2_map_visualization")
+    Lanelet2MapVisualization::Lanelet2MapVisualization(const rclcpp::NodeOptions &options) : carma_ros2_utils::CarmaLifecycleNode(options)
+    {
+
+        
+    }
+
+    carma_ros2_utils::CallbackReturn Lanelet2MapVisualization::handle_on_configure(const rclcpp_lifecycle::State &)
     {
 
         // Set Publisher
@@ -33,6 +39,7 @@ namespace lanelet2_map_visualization{
         //Set Subscriber
         bin_map_sub = create_subscription<autoware_lanelet2_msgs::msg::MapBin>("/lanelet_map_bin", 1, std::bind(&Lanelet2MapVisualization::binMapCallback, this, std::placeholders::_1));
 
+        return CallbackReturn::SUCCESS;
     }
     
     

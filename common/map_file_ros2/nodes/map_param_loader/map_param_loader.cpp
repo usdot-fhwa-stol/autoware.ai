@@ -21,16 +21,15 @@ namespace map_param_loader
 {
   namespace std_ph = std::placeholders;
 
-  MapParamLoader::MapParamLoader(const rclcpp::NodeOptions &options) : Node("map_param_loader")
+  MapParamLoader::MapParamLoader(const rclcpp::NodeOptions &options) : carma_ros2_utils::CarmaLifecycleNode(options)
   {
     
-    int projector_type = 1; // default value
-    std::string lanelet2_filename;
-    lanelet2_filename = declare_parameter<std::string>("file_name", lanelet2_filename);
-    
-    bool broadcast_earth_frame = false;
-    broadcast_earth_frame = declare_parameter<bool>("broadcast_earth_frame", broadcast_earth_frame);
+  }
 
+  carma_ros2_utils::CallbackReturn MapParamLoader::handle_on_configure(const rclcpp_lifecycle::State &)
+  {
+    lanelet2_filename = declare_parameter<std::string>("file_name", lanelet2_filename);
+    broadcast_earth_frame = declare_parameter<bool>("broadcast_earth_frame", broadcast_earth_frame);
 
     // NOTE: Currently, intra-process comms must be disabled for the following two publishers that are transient_local: https://github.com/ros2/rclcpp/issues/1753
     rclcpp::PublisherOptions intra_proc_disabled; 
@@ -43,19 +42,27 @@ namespace map_param_loader
 
     georef_pub_ = this->create_publisher<std_msgs::msg::String>("georeference",  pub_qos_transient_local, intra_proc_disabled);
 
+    return CallbackReturn::SUCCESS;
+  }
+
+  carma_ros2_utils::CallbackReturn MapParamLoader::handle_on_activate(const rclcpp_lifecycle::State &)
+  {
+    int projector_type = 1; // default value
+
     // Parse geo reference info from the lanelet map (.osm)
     lanelet::io_handlers::AutowareOsmParser::parseMapParams(lanelet2_filename, &projector_type, &target_frame_);
 
     if (broadcast_earth_frame) {
       // Get the transform to ecef (when parsed target_frame is map_frame)
-      // tf2::Transform tf = map_param_loader::getTransform(target_frame_);
+      tf2::Transform tf = getTransform(target_frame_);
 
       // Broadcast the transform
-      // map_param_loader::broadcastTransform(tf);
+      broadcastTransform(tf);  
     }
 
     timer_ = this->create_wall_timer(std::chrono::milliseconds(2000), std::bind(&MapParamLoader::timer_callback, this));
     
+    return CallbackReturn::SUCCESS;
   }
 
   void MapParamLoader::timer_callback()
