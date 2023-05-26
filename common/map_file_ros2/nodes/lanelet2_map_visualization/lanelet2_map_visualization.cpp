@@ -34,7 +34,7 @@ namespace lanelet2_map_visualization{
         intra_proc_disabled.use_intra_process_comm = rclcpp::IntraProcessSetting::Disable; // Disable intra-process comms for this PublisherOptions object
         // Create a publisher that will send all previously published messages to late-joining subscribers ONLY If the subscriber is transient_local too
         auto pub_qos_transient_local = rclcpp::QoS(rclcpp::KeepLast(1)); // A publisher with this QoS will store the "Last" message that it has sent on the topic
-        g_map_pub = create_publisher<visualization_msgs::msg::MarkerArray>("/lanelet2_map_rviz", pub_qos_transient_local, intra_proc_disabled);
+        g_map_pub = create_publisher<visualization_msgs::msg::MarkerArray>("/lanelet2_map_viz", pub_qos_transient_local, intra_proc_disabled);
 
         //Set Subscriber
         bin_map_sub = create_subscription<autoware_lanelet2_msgs::msg::MapBin>("/lanelet_map_bin", 1, std::bind(&Lanelet2MapVisualization::binMapCallback, this, std::placeholders::_1));
