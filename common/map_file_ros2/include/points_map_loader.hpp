@@ -100,10 +100,6 @@ namespace points_map_loader
         std::string user = HTTP_USER;
         std::string password = HTTP_PASSWORD;
 
-        rclcpp::TimerBase::SharedPtr timer_;
-        void timer_callback();
-        bool is_timer_first_pass_ = true;
-        sensor_msgs::msg::PointCloud2 pcd_;
 
     public:
         explicit PointsMapLoader(const rclcpp::NodeOptions &);

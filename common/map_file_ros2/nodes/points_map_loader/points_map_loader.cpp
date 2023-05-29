@@ -66,15 +66,8 @@ namespace points_map_loader {
 
     carma_ros2_utils::CallbackReturn PointsMapLoader::handle_on_activate(const rclcpp_lifecycle::State &prev_state)
     {
-        timer_ = this->create_wall_timer(std::chrono::seconds(1), std::bind(&PointsMapLoader::timer_callback, this));
 
-        return CallbackReturn::SUCCESS;
-    }
-
-    void PointsMapLoader::timer_callback(){
-        if (is_timer_first_pass_)
-        {
-            if (load_type == "noupdate")
+        if (load_type == "noupdate")
 		        margin = -1;
             else if (area == "1x1")
                 margin = 0;
@@ -120,11 +113,12 @@ namespace points_map_loader {
             
             stat_msg.data = false;
             stat_pub->publish(stat_msg);
+            sensor_msgs::msg::PointCloud2 pcd;
 
             if (margin < 0) {
                 int err = 0;
-                pcd_ = create_pcd(pcd_paths, &err);
-                publish_pcd(pcd_, &err);
+                pcd = create_pcd(pcd_paths, &err);
+                publish_pcd(pcd, &err);
             } else{
                 fallback_rate = update_rate * 2; // XXX better way?
 
@@ -160,12 +154,8 @@ namespace points_map_loader {
 
                 gnss_time = current_time = this->now();
             }
-            is_timer_first_pass_ = false;
-        }
-        else{
-            int err = 0;
-            publish_pcd(pcd_, &err);
-        }
+
+        return CallbackReturn::SUCCESS;
     }
 
     void PointsMapLoader::enqueue(const geometry_msgs::msg::Point& p)
