@@ -137,6 +137,7 @@ namespace points_map_loader
         // static void print_usage();
 
         carma_ros2_utils::CallbackReturn handle_on_configure(const rclcpp_lifecycle::State &prev_state);
+        carma_ros2_utils::CallbackReturn handle_on_activate(const rclcpp_lifecycle::State &prev_state);
 
 
     };

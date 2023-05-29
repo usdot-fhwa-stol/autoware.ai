@@ -61,6 +61,11 @@ namespace points_map_loader {
         pcd_pub = create_publisher<sensor_msgs::msg::PointCloud2>("points_map", pub_qos_transient_local, intra_proc_disabled); //Make latched
         stat_pub = create_publisher<std_msgs::msg::Bool>("pmap_stat", pub_qos_transient_local, intra_proc_disabled); //Make latched
 
+        return CallbackReturn::SUCCESS;
+    }
+
+    carma_ros2_utils::CallbackReturn PointsMapLoader::handle_on_activate(const rclcpp_lifecycle::State &prev_state)
+    {
         timer_ = this->create_wall_timer(std::chrono::seconds(1), std::bind(&PointsMapLoader::timer_callback, this));
 
         return CallbackReturn::SUCCESS;
