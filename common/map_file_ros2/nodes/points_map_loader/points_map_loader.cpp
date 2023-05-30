@@ -58,7 +58,8 @@ namespace points_map_loader {
         intra_proc_disabled.use_intra_process_comm = rclcpp::IntraProcessSetting::Disable; // Disable intra-process comms for this PublisherOptions object
         // Create a publisher that will send all previously published messages to late-joining subscribers ONLY If the subscriber is transient_local too
         auto pub_qos_transient_local = rclcpp::QoS(rclcpp::KeepLast(1)); // A publisher with this QoS will store the "Last" message that it has sent on the topic
-        
+        pub_qos_transient_local.transient_local();
+
         pcd_pub = create_publisher<sensor_msgs::msg::PointCloud2>("points_map", pub_qos_transient_local, intra_proc_disabled); //Make latched
         stat_pub = create_publisher<std_msgs::msg::Bool>("pmap_stat", pub_qos_transient_local, intra_proc_disabled); //Make latched
 
@@ -74,7 +75,7 @@ namespace points_map_loader {
     void PointsMapLoader::timer_callback()
     {
         if (get_current_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE){
-            run();
+            run();   
             timer_->cancel();
         }
     }
@@ -131,6 +132,7 @@ namespace points_map_loader {
             if (margin < 0) {
                 int err = 0;
                 pcd = create_pcd(pcd_paths, &err);
+                RCLCPP_INFO_STREAM(get_logger(), "Publishing pcd");
                 publish_pcd(pcd, &err);
             } else{
                 fallback_rate = update_rate * 2; // XXX better way?
@@ -433,11 +435,14 @@ namespace points_map_loader {
 
     void PointsMapLoader::publish_pcd(sensor_msgs::msg::PointCloud2 pcd, const int* errp = NULL)
     {
+        RCLCPP_INFO_STREAM(get_logger(),"Entering Publish pcd");
         if (pcd.width != 0) {
+            RCLCPP_INFO_STREAM(get_logger(),"Entering pcd width!= 0");
             pcd.header.frame_id = "map";
             pcd_pub->publish(pcd);
 
             if (errp == NULL || *errp == 0) {
+                RCLCPP_INFO_STREAM(get_logger(),"Err == Null");
                 stat_msg.data = true;
                 stat_pub->publish(stat_msg);
             }
