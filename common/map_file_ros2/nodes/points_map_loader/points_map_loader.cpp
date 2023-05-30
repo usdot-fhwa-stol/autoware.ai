@@ -57,7 +57,7 @@ namespace points_map_loader {
         rclcpp::PublisherOptions intra_proc_disabled; 
         intra_proc_disabled.use_intra_process_comm = rclcpp::IntraProcessSetting::Disable; // Disable intra-process comms for this PublisherOptions object
         // Create a publisher that will send all previously published messages to late-joining subscribers ONLY If the subscriber is transient_local too
-        auto pub_qos_transient_local = rclcpp::QoS(rclcpp::KeepAll()); // A publisher with this QoS will store the "Last" message that it has sent on the topic
+        auto pub_qos_transient_local = rclcpp::QoS(rclcpp::KeepLast(1)); // A publisher with this QoS will store the "Last" message that it has sent on the topic
         pub_qos_transient_local.transient_local();
 
         pcd_pub = create_publisher<sensor_msgs::msg::PointCloud2>("points_map", pub_qos_transient_local, intra_proc_disabled); //Make latched
@@ -435,14 +435,12 @@ namespace points_map_loader {
 
     void PointsMapLoader::publish_pcd(sensor_msgs::msg::PointCloud2 pcd, const int* errp = NULL)
     {
-        RCLCPP_INFO_STREAM(get_logger(),"Entering Publish pcd");
+    
         if (pcd.width != 0) {
-            RCLCPP_INFO_STREAM(get_logger(),"Entering pcd width!= 0");
             pcd.header.frame_id = "map";
             pcd_pub->publish(pcd);
 
             if (errp == NULL || *errp == 0) {
-                RCLCPP_INFO_STREAM(get_logger(),"Err == Null");
                 stat_msg.data = true;
                 stat_pub->publish(stat_msg);
             }
@@ -485,10 +483,7 @@ namespace points_map_loader {
         tf2::Transform transform;
         try {
             rclcpp::Time zero = this->now();
-            // listener.waitForTransform("map", msg.header.frame_id, zero, );
-            RCLCPP_WARN_STREAM(get_logger(), "Reaching before lookup Transform");
             tf_geom = buffer.lookupTransform("map", msg->header.frame_id, zero, rclcpp::Duration(10,0));
-            RCLCPP_WARN_STREAM(get_logger(), "Reaching After lookup Transform");
         } catch (tf2::TransformException &ex) {
             RCLCPP_ERROR_STREAM(get_logger(),"failed to create transform from " << ex.what());
         }
