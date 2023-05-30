@@ -146,8 +146,8 @@ namespace points_map_loader
     void print_usage()
     {
         RCLCPP_ERROR_STREAM(rclcpp::get_logger("map_file_ros2"), "Usage:");
-        RCLCPP_ERROR_STREAM(rclcpp::get_logger("map_file_ros2"), "rosrun map_file points_map_loader noupdate [PCD]...");
-        RCLCPP_ERROR_STREAM(rclcpp::get_logger("map_file_ros2"), "rosrun map_file points_map_loader {1x1|3x3|5x5|7x7|9x9} AREALIST [PCD]...");
-        RCLCPP_ERROR_STREAM(rclcpp::get_logger("map_file_ros2"), "rosrun map_file points_map_loader {1x1|3x3|5x5|7x7|9x9} download");
+        RCLCPP_ERROR_STREAM(rclcpp::get_logger("map_file_ros2"), "ros2 launch map_file_ros2 points_map_loader.launch.py --load_type:=noupdate --pcd_path_parameter:=[PCD]...");
+        RCLCPP_ERROR_STREAM(rclcpp::get_logger("map_file_ros2"), "ros2 launch map_file_ros2 points_map_loader.launch.py --path_area_list:={1x1|3x3|5x5|7x7|9x9} --pcd_path_parameter:=[PCD]...");
+        RCLCPP_ERROR_STREAM(rclcpp::get_logger("map_file_ros2"), "ros2 launch map_file_ros2 points_map_loader.launch --path_area_list:{1x1|3x3|5x5|7x7|9x9} --load_type:=download");
     }
 }
