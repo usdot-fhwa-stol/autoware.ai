@@ -57,7 +57,7 @@ namespace points_map_loader {
         rclcpp::PublisherOptions intra_proc_disabled; 
         intra_proc_disabled.use_intra_process_comm = rclcpp::IntraProcessSetting::Disable; // Disable intra-process comms for this PublisherOptions object
         // Create a publisher that will send all previously published messages to late-joining subscribers ONLY If the subscriber is transient_local too
-        auto pub_qos_transient_local = rclcpp::QoS(rclcpp::KeepLast(1)); // A publisher with this QoS will store the "Last" message that it has sent on the topic
+        auto pub_qos_transient_local = rclcpp::QoS(rclcpp::KeepAll()); // A publisher with this QoS will store the "Last" message that it has sent on the topic
         pub_qos_transient_local.transient_local();
 
         pcd_pub = create_publisher<sensor_msgs::msg::PointCloud2>("points_map", pub_qos_transient_local, intra_proc_disabled); //Make latched
