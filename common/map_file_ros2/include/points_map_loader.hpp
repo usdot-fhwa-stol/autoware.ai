@@ -101,8 +101,6 @@ namespace points_map_loader
         std::string password = HTTP_PASSWORD;
 
 
-    public:
-        explicit PointsMapLoader(const rclcpp::NodeOptions &);
         void enqueue(const geometry_msgs::msg::Point& p);
         void enqueue_look_ahead(const geometry_msgs::msg::Point& p);
         void clear();
@@ -130,7 +128,14 @@ namespace points_map_loader
         void publish_dragged_pcd(const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr msg);
         void publish_current_pcd(const geometry_msgs::msg::PoseStamped::SharedPtr msg);
         void request_lookahead_download(const autoware_msgs::msg::LaneArray::SharedPtr msg);
-        // static void print_usage();
+
+        rclcpp::TimerBase::SharedPtr timer_;
+        void timer_callback();
+
+        void run();
+
+    public:
+        explicit PointsMapLoader(const rclcpp::NodeOptions &);
 
         carma_ros2_utils::CallbackReturn handle_on_configure(const rclcpp_lifecycle::State &prev_state);
         carma_ros2_utils::CallbackReturn handle_on_activate(const rclcpp_lifecycle::State &prev_state);

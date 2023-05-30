@@ -15,6 +15,7 @@
  */
 
 #include <points_map_loader.hpp>
+// #include <lifecycle_msgs/msg/state.hpp>
 
 
 namespace points_map_loader {
@@ -66,7 +67,19 @@ namespace points_map_loader {
 
     carma_ros2_utils::CallbackReturn PointsMapLoader::handle_on_activate(const rclcpp_lifecycle::State &prev_state)
     {
+        timer_ = this->create_wall_timer(std::chrono::milliseconds(500), std::bind(&PointsMapLoader::timer_callback, this));
+        return CallbackReturn::SUCCESS;
+    }
 
+    void PointsMapLoader::timer_callback()
+    {
+        if (get_current_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE){
+            run();
+            timer_->cancel();
+        }
+    }
+
+    void PointsMapLoader::run(){
         if (load_type == "noupdate")
 		        margin = -1;
             else if (area == "1x1")
@@ -154,8 +167,6 @@ namespace points_map_loader {
 
                 gnss_time = current_time = this->now();
             }
-
-        return CallbackReturn::SUCCESS;
     }
 
     void PointsMapLoader::enqueue(const geometry_msgs::msg::Point& p)
