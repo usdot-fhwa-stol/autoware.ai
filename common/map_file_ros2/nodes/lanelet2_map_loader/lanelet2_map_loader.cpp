@@ -94,6 +94,7 @@ namespace lanelet2_map_loader{
         intra_proc_disabled.use_intra_process_comm = rclcpp::IntraProcessSetting::Disable; // Disable intra-process comms for this PublisherOptions object
         // Create a publisher that will send all previously published messages to late-joining subscribers ONLY If the subscriber is transient_local too
         auto pub_qos_transient_local = rclcpp::QoS(rclcpp::KeepLast(1)); // A publisher with this QoS will store the "Last" message that it has sent on the topic
+        pub_qos_transient_local.transient_local();
 
         map_bin_pub = create_publisher<autoware_lanelet2_msgs::msg::MapBin>("lanelet_map_bin", pub_qos_transient_local, intra_proc_disabled); //Make latched
 
@@ -104,9 +105,14 @@ namespace lanelet2_map_loader{
 
     void Lanelet2MapLoader::timer_callback(){
 
-        if(!map_bin_msg_.header.frame_id.empty()){
-            map_bin_msg_.header.stamp = this->now();
-            map_bin_pub->publish(map_bin_msg_);
+        if (get_current_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE){
+
+            if(!map_bin_msg_.header.frame_id.empty()){
+                map_bin_msg_.header.stamp = this->now();
+                map_bin_pub->publish(map_bin_msg_);  
+                timer_->cancel();
+            }
+            
         }
     }
 

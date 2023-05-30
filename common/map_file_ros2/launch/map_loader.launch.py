@@ -8,6 +8,9 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.conditions import IfCondition
 from launch.substitutions import PythonExpression
 
+from launch.substitutions import PathJoinSubstitution
+
+
 import os
 
 
@@ -34,7 +37,9 @@ def generate_launch_description():
         condition = IfCondition(PythonExpression(["'",load_type,"' == 'download'"])),
         actions = [
             IncludeLaunchDescription(
-                PythonLaunchDescriptionSource([ThisLaunchFileDir(), '/launch/points_map_loader.launch.py']),
+                PythonLaunchDescriptionSource([
+                    PathJoinSubstitution([ThisLaunchFileDir(), '/launch/points_map_loader.launch.py'])
+                ]),
                 launch_arguments = {
                     'load_type' : load_type,
                     'area' : area,
@@ -44,23 +49,27 @@ def generate_launch_description():
     )
 
     noupdate_launch_group = GroupAction(
-        condition = IfCondition(PythonExpression(["'",load_type,"' == 'noupdate'"])),
-        actions = [
-            IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([ThisLaunchFileDir(), '/launch/points_map_loader.launch.py']),
-            launch_arguments = {
-                        'load_type' : load_type,
-                        'pcd_path_parameter' : single_pcd_path,
-                    }.items(),
-            ),
-        ]
-    )
+            condition = IfCondition(PythonExpression(["'",load_type,"' == 'noupdate'"])),
+            actions = [
+                IncludeLaunchDescription(
+                    PythonLaunchDescriptionSource([
+                        PathJoinSubstitution([ThisLaunchFileDir(), 'points_map_loader.launch.py'])
+                    ]),
+                    launch_arguments = {
+                            'load_type' : load_type,
+                            'pcd_path_parameter' : single_pcd_path
+                        }.items()
+                ),
+            ]
+        )
 
     arealist_launch_group = GroupAction(
         condition = IfCondition(PythonExpression(["'",load_type,"' == 'arealist'"])),
         actions = [
             IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([ThisLaunchFileDir(), '/launch/points_map_loader.launch.py']),
+                PythonLaunchDescriptionSource([
+                    PathJoinSubstitution([ThisLaunchFileDir(), '/points_map_loader.launch.py'])
+            ]),
             launch_arguments = {
                         'load_type' : load_type,
                         'area' : area,

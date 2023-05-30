@@ -60,7 +60,7 @@ namespace map_param_loader
       broadcastTransform(tf);  
     }
 
-    timer_ = this->create_wall_timer(std::chrono::milliseconds(2000), std::bind(&MapParamLoader::timer_callback, this));
+    timer_ = this->create_wall_timer(std::chrono::milliseconds(500), std::bind(&MapParamLoader::timer_callback, this));
     
     return CallbackReturn::SUCCESS;
   }
