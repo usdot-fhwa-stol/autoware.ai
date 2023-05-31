@@ -32,8 +32,8 @@ namespace lanelet2_map_loader{
 void printUsage()
 {
     RCLCPP_ERROR_STREAM(rclcpp::get_logger("map_file_ros2"), "Usage:");
-    RCLCPP_ERROR_STREAM(rclcpp::get_logger("map_file_ros2"), "ros2 launch map_file lanelet2_map_loader [.OSM]:");
-    RCLCPP_ERROR_STREAM(rclcpp::get_logger("map_file_ros2"), "rosrun map_file lanelet2_map_loader download [X] [Y]: WARNING not implemented");
+    RCLCPP_ERROR_STREAM(rclcpp::get_logger("map_file_ros2"), "ros2 launch map_file lanelet2_map_loader lanelet2_filename:=[.OSM]:");
+    RCLCPP_ERROR_STREAM(rclcpp::get_logger("map_file_ros2"), "ros2 launch map_file lanelet2_map_loader load_type:=download [X] [Y]: WARNING not implemented");
 }
 
 class Lanelet2MapLoader : public carma_ros2_utils::CarmaLifecycleNode
