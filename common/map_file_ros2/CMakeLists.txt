@@ -28,7 +28,6 @@ find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
 
-
 # Includes
 include_directories(
     include
@@ -102,6 +101,22 @@ target_link_libraries(
     lanelet2_map_visualization_exec
     lanelet2_map_visualization_lib
 )
+
+# Testing
+if(BUILD_TESTING)  
+
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies() # This populates the ${${PROJECT_NAME}_FOUND_TEST_DEPENDS} variable
+
+  ament_add_gtest(test_route 
+        test/test_get_transform.cpp
+  )
+
+  ament_target_dependencies(test_route ${${PROJECT_NAME}_FOUND_TEST_DEPENDS})
+
+  target_link_libraries(test_route map_param_loader_lib)
+
+endif()
 
 ament_auto_package(
     INSTALL_TO_SHARE config launch

@@ -27,7 +27,6 @@
 #include <lanelet2_extension/io/autoware_osm_parser.h>
 #include <std_msgs/msg/string.hpp>
 
-
 namespace map_param_loader
 {
     class MapParamLoader : public carma_ros2_utils::CarmaLifecycleNode
@@ -39,8 +38,6 @@ namespace map_param_loader
 
         void timer_callback();
 
-        // Get transform from map_frame to ecef_frame using respective proj strings.
-        tf2::Transform getTransform(const std::string& map_frame);
         // Broadcast the input transform to tf_static.
         void broadcastTransform(const tf2::Transform& transform);
 
@@ -49,12 +46,14 @@ namespace map_param_loader
         bool broadcast_earth_frame = false;
 
         public:
-        MapParamLoader(const rclcpp::NodeOptions &options);
+        explicit MapParamLoader(const rclcpp::NodeOptions &options);
+
+        // Get transform from map_frame to ecef_frame using respective proj strings.
+        tf2::Transform getTransform(const std::string& map_frame);
 
         carma_ros2_utils::CallbackReturn handle_on_configure(const rclcpp_lifecycle::State &);
         carma_ros2_utils::CallbackReturn handle_on_activate(const rclcpp_lifecycle::State &);
 
-        
     };
 
 }
