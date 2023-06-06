@@ -37,7 +37,6 @@
   <depend>tf2_geometry_msgs</depend>
   <depend>tf2_ros</depend>
   <depend>tf2</depend>
-  <depend>vector_map</depend>
   <depend>visualization_msgs</depend>
   <depend>lanelet2_extension</depend>
   <depend>carma_ros2_utils</depend>

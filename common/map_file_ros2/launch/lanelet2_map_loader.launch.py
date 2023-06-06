@@ -19,7 +19,7 @@ def generate_launch_description():
                                                           
     
     lanelet2_filename = LaunchConfiguration('lanelet2_filename')
-    declare_lanelet2_filename = DeclareLaunchArgument(name='lanelet2_filename', default_value='/workspaces/carma_ws/install/map_file_ros2/share/map_file_ros2/config/vector_map_UC1_01_19_speed_edited_2.osm')
+    declare_lanelet2_filename = DeclareLaunchArgument(name='lanelet2_filename', default_value='')
 
     lanelet2_map_loader_container = ComposableNodeContainer(
         package='carma_ros2_utils',
