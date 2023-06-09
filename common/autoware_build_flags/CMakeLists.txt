@@ -14,6 +14,9 @@ else() #ROS2
   
   find_package(ament_cmake_auto REQUIRED)
   ament_auto_find_build_dependencies()
+  list(APPEND ${PROJECT_NAME}_CONFIG_EXTRAS
+    cmake/autoware_build_flags-extras.cmake
+  )
   ament_auto_package()
 
 endif()
