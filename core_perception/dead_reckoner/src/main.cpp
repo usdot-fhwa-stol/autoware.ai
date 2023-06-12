@@ -28,23 +28,20 @@
  *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "deadreckoner.h"
+#include <rclcpp/rclcpp.hpp>
+#include "dead_reckoner.hpp"
 
-DeadRecokner::DeadRecokner() : nh_(), private_nh_("~")
+int main(int argc, char **argv) 
 {
-  twist_sub_ = nh_.subscribe("current_twist", 10, &DeadRecokner::callbackFromCurrentTwist, this);
-  odom_pub_ = nh_.advertise<nav_msgs::Odometry>("current_odom", 10);
-}
+  rclcpp::init(argc, argv);
 
-DeadRecokner::~DeadRecokner()
-{
-}
+  auto node = std::make_shared<dead_reckoner::DeadReckoner>(rclcpp::NodeOptions());
+  
+  rclcpp::executors::MultiThreadedExecutor executor;
+  executor.add_node(node->get_node_base_interface());
+  executor.spin();
 
-void DeadRecokner::callbackFromCurrentTwist(const geometry_msgs::TwistStampedConstPtr& msg)
-{
-  // TODO: calurate odom.pose.pose by accumulating
-  nav_msgs::Odometry odom;
-  odom.header = msg->header;
-  odom.twist.twist = msg->twist;
-  odom_pub_ .publish(odom);
+  rclcpp::shutdown();
+
+  return 0;
 }

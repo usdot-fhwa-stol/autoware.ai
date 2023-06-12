@@ -16,7 +16,7 @@
  *    contributors may be used to endorse or promote products derived from
  *    this software without specific prior written permission.
  *
- *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"geometry
  *  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  *  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
  *  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
@@ -28,14 +28,35 @@
  *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <ros/ros.h>
+#ifndef DEADRECKONER_H
+#define DEADRECKONER_H
 
-#include "deadreckoner.h"
+#include <rclcpp/rclcpp.hpp>
+#include <nav_msgs/msg/odometry.hpp>
+#include <geometry_msgs/msg/twist_stamped.hpp>
+#include <carma_ros2_utils/carma_lifecycle_node.hpp>
 
-int main(int argc, char** argv)
+namespace dead_reckoner
 {
-  ros::init(argc, argv, "deadreckoner");
-  DeadRecokner node;
-  ros::spin();
-  return 0;
-}
+
+class DeadReckoner : public carma_ros2_utils::CarmaLifecycleNode
+{
+public:
+  explicit DeadReckoner(const rclcpp::NodeOptions& options);
+
+  ////
+  // Overrides
+  ////
+  carma_ros2_utils::CallbackReturn handle_on_configure(const rclcpp_lifecycle::State &);
+  carma_ros2_utils::CallbackReturn handle_on_activate(const rclcpp_lifecycle::State &);
+
+private:
+  carma_ros2_utils::SubPtr<geometry_msgs::msg::TwistStamped> twist_sub_;
+  carma_ros2_utils::PubPtr<nav_msgs::msg::Odometry> odom_pub_;
+  
+  void twist_cb(geometry_msgs::msg::TwistStamped::UniquePtr msg);
+};
+
+} // namespace dead_reckoner
+
+#endif  // DEADRECKONER_H
