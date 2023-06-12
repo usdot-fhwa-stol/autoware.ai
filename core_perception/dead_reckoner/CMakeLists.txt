@@ -20,8 +20,6 @@ find_package(carma_cmake_common REQUIRED)
 carma_check_ros_version(2)
 carma_package()
 
-add_compile_options(-std=c++14)
-
 ## Find dependencies using ament auto
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
