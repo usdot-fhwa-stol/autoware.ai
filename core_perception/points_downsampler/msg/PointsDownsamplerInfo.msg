@@ -1,4 +1,4 @@
-Header header
+std_msgs/Header header
 string filter_name
 float32 measurement_range
 int32 original_points_size
