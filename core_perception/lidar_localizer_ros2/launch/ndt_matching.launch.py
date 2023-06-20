@@ -15,10 +15,10 @@ def generate_launch_description():
     declare_log_level_arg = DeclareLaunchArgument(name = 'log_level', default_value='WARN')
 
     method_type = LaunchConfiguration('method_type')
-    declare_method_type = DeclareLaunchArgument(name='method_type', default_value=0)
+    declare_method_type = DeclareLaunchArgument(name='method_type', default_value='0')
 
     use_gnss = LaunchConfiguration('use_gnss')
-    declare_use_gnss = DeclareLaunchArgument(name='use_gnss', default_value=1)
+    declare_use_gnss = DeclareLaunchArgument(name='use_gnss', default_value='1')
 
     use_odom = LaunchConfiguration('use_odom')
     declare_use_odom = DeclareLaunchArgument(name='use_odom', default_value="false")
@@ -33,7 +33,7 @@ def generate_launch_description():
     declare_imu_topic = DeclareLaunchArgument(name='imu_topic', default_value="/imu_raw")
 
     queue_size = LaunchConfiguration('queue_size')
-    declare_queue_size = DeclareLaunchArgument(name='queue_size', default_value=1)
+    declare_queue_size = DeclareLaunchArgument(name='queue_size', default_value='1')
 
     offset = LaunchConfiguration('offset')
     declare_offset = DeclareLaunchArgument(name='offset', default_value="linear")
@@ -59,15 +59,15 @@ def generate_launch_description():
 
     container = ComposableNodeContainer(
         package='carma_ros2_utils',
-        name='map_file_nodes_container',
+        name='ndt_matching_container',
         namespace=GetCurrentNamespace(),
         executable='carma_component_container_mt',
         composable_node_descriptions=[
 
             ComposableNode(
-                package='map_file_ros2',
-                plugin='points_map_loader::PointsMapLoader',
-                name='point_map_loader_node',
+                package='lidar_localizer_ros2',
+                plugin='ndt_matching::NDTMatching',
+                name='ndt_matching',
                 extra_arguments=[
                     {'use_intra_process_comms': True},
                     {'log_level':log_level}
