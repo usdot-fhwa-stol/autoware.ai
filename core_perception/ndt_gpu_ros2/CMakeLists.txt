@@ -100,7 +100,7 @@ if (USE_CUDA)
             include/ndt_gpu_ros2/VoxelGrid.h
             )
 
-    cuda_add_library(ndt_gpu_ros2 ${srcs} ${incs})
+    cuda_add_library(ndt_gpu_ros2 SHARED ${srcs} ${incs})
 
     target_link_libraries(ndt_gpu_ros2
             ${CUDA_LIBRARIES}
@@ -108,6 +108,13 @@ if (USE_CUDA)
             ${CUDA_curand_LIBRARY}
             ${PCL_LIBRARIES}
             )
+    
+    ament_export_libraries(ndt_gpu_ros2)
+    ament_export_include_directories(include)
+
+    ament_auto_package(
+        INSTALL_TO_SHARE config
+    )
 
     install(DIRECTORY include/
             DESTINATION include
@@ -125,6 +132,3 @@ else ()
     message("ndt_gpu_ros2 will not be built, CUDA was not found.")
 endif ()
 
-ament_auto_package(
-    INSTALL_TO_SHARE config
-)

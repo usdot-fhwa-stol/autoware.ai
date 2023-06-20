@@ -7,7 +7,7 @@
 #include <vector>
 #include <eigen3/Eigen/Dense>
 #include <eigen3/Eigen/Geometry>
-#include "Octree.h"
+#include <ndt_cpu_ros2/Octree.h>
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
 

@@ -3,9 +3,9 @@
 
 #include <cuda.h>
 #include <cuda_runtime.h>
-#include "Registration.h"
-#include "common.h"
-#include "VoxelGrid.h"
+#include "ndt_gpu_ros2/Registration.h"
+#include "ndt_gpu_ros2/common.h"
+#include "ndt_gpu_ros2/VoxelGrid.h"
 #include "Eigen/Geometry"
 
 namespace gpu {

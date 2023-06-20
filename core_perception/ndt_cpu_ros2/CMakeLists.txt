@@ -40,10 +40,9 @@ find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
 include_directories(
-  include
   ${PCL_INCLUDE_DIRS}
-  ${catkin_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS}
+  include
 )
 
 set(srcs
@@ -72,7 +71,7 @@ if(NOT ("${CMAKE_BUILD_TYPE}" STREQUAL "Release"))
   add_definitions(-DEIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT)
 endif()
 
-add_library(ndt_cpu_ros2 ${incs} ${srcs})
+ament_auto_add_library(ndt_cpu_ros2 ${srcs} ${incs})
 
 target_link_libraries(ndt_cpu_ros2
   ${PCL_LIBRARIES}

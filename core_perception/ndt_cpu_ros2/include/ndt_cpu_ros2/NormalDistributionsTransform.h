@@ -1,8 +1,8 @@
 #ifndef CPU_NDT_H_
 #define CPU_NDT_H_
 
-#include "Registration.h"
-#include "VoxelGrid.h"
+#include <ndt_cpu_ros2/Registration.h>
+#include <ndt_cpu_ros2/VoxelGrid.h>
 #include <eigen3/Eigen/Geometry>
 
 namespace cpu {
