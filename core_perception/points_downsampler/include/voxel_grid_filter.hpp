@@ -14,16 +14,16 @@
  * the License.
  */
 
-#ifndef RANDOM_FILTER_H
-#define RANDOM_FILTER_H
+#ifndef VOXEL_GRID_FILTER_H
+#define VOXEL_GRID_FILTER_H
 
 #include <rclcpp/rclcpp.hpp>
 #include <carma_ros2_utils/carma_lifecycle_node.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
-
+#include <pcl/filters/voxel_grid.h>
 #include <pcl_conversions/pcl_conversions.h>
 
-#include "autoware_config_msgs/msg/config_random_filter.hpp"
+#include "autoware_config_msgs/msg/config_voxel_grid_filter.hpp"
 
 #include "points_downsampler/msg/points_downsampler_info.hpp"
 
@@ -33,13 +33,13 @@
 
 #define MAX_MEASUREMENT_RANGE 200.0
 
-namespace random_filter
+namespace voxel_grid_filter
 {
 
-class RandomFilter : public carma_ros2_utils::CarmaLifecycleNode
+class VoxelGridFilter : public carma_ros2_utils::CarmaLifecycleNode
 {
 public:
-  explicit RandomFilter(const rclcpp::NodeOptions& options);
+  explicit VoxelGridFilter(const rclcpp::NodeOptions& options);
 
   ////
   // Overrides
@@ -48,7 +48,7 @@ public:
   carma_ros2_utils::CallbackReturn handle_on_activate(const rclcpp_lifecycle::State &);
 
 
-  void config_callback(autoware_config_msgs::msg::ConfigRandomFilter::UniquePtr input);
+  void config_callback(autoware_config_msgs::msg::ConfigVoxelGridFilter::UniquePtr input);
   void scan_callback(sensor_msgs::msg::PointCloud2::UniquePtr input);
 
 
@@ -56,12 +56,13 @@ private:
   carma_ros2_utils::PubPtr<sensor_msgs::msg::PointCloud2> filtered_points_pub_;
   carma_ros2_utils::PubPtr<points_downsampler::msg::PointsDownsamplerInfo> points_downsampler_info_pub_;
   
-  carma_ros2_utils::SubPtr<autoware_config_msgs::msg::ConfigRandomFilter> config_sub_;
+  carma_ros2_utils::SubPtr<autoware_config_msgs::msg::ConfigVoxelGridFilter> config_sub_;
   carma_ros2_utils::SubPtr<sensor_msgs::msg::PointCloud2> scan_sub_;
 
   int sample_num = 1000;
 
   points_downsampler::msg::PointsDownsamplerInfo points_downsampler_info_msg;
+  double voxel_leaf_size = 2.0;
 
   std::chrono::time_point<std::chrono::system_clock> filter_start, filter_end;
 
@@ -73,6 +74,6 @@ private:
   double measurement_range = MAX_MEASUREMENT_RANGE;
 };
 
-} // namespace random_filter
+} // namespace voxel_grid_filter
 
-#endif  // RANDOM_FILTER_H
+#endif  // VOXEL_GRID_FILTER_H

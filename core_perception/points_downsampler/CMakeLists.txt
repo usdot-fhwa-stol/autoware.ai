@@ -24,21 +24,21 @@ carma_package()
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
-find_package(builtin_interfaces REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
+
 rosidl_generate_interfaces(points_downsampler
   "msg/PointsDownsamplerInfo.msg"
-  DEPENDENCIES builtin_interfaces std_msgs
+  DEPENDENCIES std_msgs
 )
-
 
 # Includes
 include_directories(
   include
-
 )
+
+ament_export_include_directories(include)
 
 ###########
 ## Build ##
@@ -47,13 +47,28 @@ include_directories(
 ament_auto_add_library(random_filter SHARED
         nodes/random_filter/random_filter.cpp
 )
+ament_auto_add_library(voxel_grid_filter SHARED
+        nodes/voxel_grid_filter/voxel_grid_filter.cpp
+)
 ament_auto_add_executable(random_filter_exec nodes/random_filter/main.cpp)
+ament_auto_add_executable(voxel_grid_filter_exec nodes/voxel_grid_filter/main.cpp)
+
 
 rosidl_target_interfaces(random_filter ${PROJECT_NAME} "rosidl_typesupport_cpp")
+rosidl_target_interfaces(voxel_grid_filter ${PROJECT_NAME} "rosidl_typesupport_cpp")
 
 # Register component
 rclcpp_components_register_nodes(random_filter "random_filter::RandomFilter")
+rclcpp_components_register_nodes(voxel_grid_filter "voxel_grid_filter::VoxelGridFilter")
+
+target_link_libraries(random_filter_exec
+  random_filter
+)
+
+target_link_libraries(voxel_grid_filter_exec
+  voxel_grid_filter
+)
 
 ament_auto_package(
-  INSTALL_TO_SHARE launch
+  INSTALL_TO_SHARE launch config
 )
