@@ -26,12 +26,15 @@ RandomFilter::RandomFilter(const rclcpp::NodeOptions& options) : carma_ros2_util
   declare_parameter<std::string>("points_topic", POINTS_TOPIC);
   declare_parameter<bool>("output_log", _output_log);
   declare_parameter<double>("measurement_range", measurement_range);
+  declare_parameter<int>("sample_num", sample_num);
+
 }
 
 carma_ros2_utils::CallbackReturn RandomFilter::handle_on_configure(const rclcpp_lifecycle::State &)
 {
   get_parameter<std::string>("points_topic", POINTS_TOPIC);
   get_parameter<bool>("output_log", _output_log);
+  get_parameter<int>("sample_num", sample_num);
 
   if(_output_log == true){
 	  char buffer[80];
@@ -45,8 +48,8 @@ carma_ros2_utils::CallbackReturn RandomFilter::handle_on_configure(const rclcpp_
   get_parameter<double>("measurement_range", measurement_range);
 
   // Publishers
-  filtered_points_pub_ = create_publisher<sensor_msgs::msg::PointCloud2>("/filtered_points", 10);
-  points_downsampler_info_pub_ = create_publisher<points_downsampler::msg::PointsDownsamplerInfo>("/points_downsampler_info", 1000);
+  filtered_points_pub_ = create_publisher<sensor_msgs::msg::PointCloud2>("random_points", 10);
+  points_downsampler_info_pub_ = create_publisher<points_downsampler::msg::PointsDownsamplerInfo>("points_downsampler_info", 1000);
 
   // Subscribers
   config_sub_ = create_subscription<autoware_config_msgs::msg::ConfigRandomFilter>("config/random_filter", 10, std::bind(&RandomFilter::config_callback, this, std_ph::_1));
@@ -58,6 +61,31 @@ carma_ros2_utils::CallbackReturn RandomFilter::handle_on_configure(const rclcpp_
 carma_ros2_utils::CallbackReturn RandomFilter::handle_on_activate(const rclcpp_lifecycle::State &)
 {
   return CallbackReturn::SUCCESS;
+}
+
+rcl_interfaces::msg::SetParametersResult RandomFilter::parameter_update_callback(const std::vector<rclcpp::Parameter> &parameters)
+{
+  auto error_double = update_params<double>({
+    {"measurement_range", measurement_range},
+  }, parameters);
+
+  auto error_string = update_params<std::string>({
+    {"points_topic", POINTS_TOPIC}
+  }, parameters);
+
+  auto error_bool = update_params<bool>({
+    {"output_log", _output_log},
+  }, parameters);
+
+  auto error_int = update_params<int>({
+    {"sample_num", sample_num},
+  }, parameters);
+
+  rcl_interfaces::msg::SetParametersResult result;
+
+  result.successful = !error_double && !error_string && !error_bool && !error_int;
+
+  return result;
 }
 
 void RandomFilter::config_callback(autoware_config_msgs::msg::ConfigRandomFilter::UniquePtr input)

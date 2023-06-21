@@ -46,6 +46,7 @@ public:
   ////
   carma_ros2_utils::CallbackReturn handle_on_configure(const rclcpp_lifecycle::State &);
   carma_ros2_utils::CallbackReturn handle_on_activate(const rclcpp_lifecycle::State &);
+  rcl_interfaces::msg::SetParametersResult parameter_update_callback(const std::vector<rclcpp::Parameter> &parameters);
 
 
   void config_callback(autoware_config_msgs::msg::ConfigVoxelGridFilter::UniquePtr input);
@@ -62,7 +63,7 @@ private:
   int sample_num = 1000;
 
   points_downsampler::msg::PointsDownsamplerInfo points_downsampler_info_msg;
-  double voxel_leaf_size = 2.0;
+  double voxel_leaf_size = 3.0;
 
   std::chrono::time_point<std::chrono::system_clock> filter_start, filter_end;
 

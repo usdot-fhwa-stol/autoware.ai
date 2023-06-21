@@ -46,7 +46,7 @@ public:
   ////
   carma_ros2_utils::CallbackReturn handle_on_configure(const rclcpp_lifecycle::State &);
   carma_ros2_utils::CallbackReturn handle_on_activate(const rclcpp_lifecycle::State &);
-
+  rcl_interfaces::msg::SetParametersResult parameter_update_callback(const std::vector<rclcpp::Parameter> &parameters);
 
   void config_callback(autoware_config_msgs::msg::ConfigRandomFilter::UniquePtr input);
   void scan_callback(sensor_msgs::msg::PointCloud2::UniquePtr input);
@@ -59,7 +59,7 @@ private:
   carma_ros2_utils::SubPtr<autoware_config_msgs::msg::ConfigRandomFilter> config_sub_;
   carma_ros2_utils::SubPtr<sensor_msgs::msg::PointCloud2> scan_sub_;
 
-  int sample_num = 1000;
+  int sample_num = 700;
 
   points_downsampler::msg::PointsDownsamplerInfo points_downsampler_info_msg;
 
@@ -69,7 +69,7 @@ private:
   std::ofstream ofs;
   std::string filename;
 
-  std::string POINTS_TOPIC = "points_topic";
+  std::string POINTS_TOPIC= "filtered_points";
   double measurement_range = MAX_MEASUREMENT_RANGE;
 };
 

@@ -50,7 +50,7 @@ def generate_launch_description():
                     #ament_index_python.get_package_share_directory('points_downsampler') + '/config/interface.yaml',
                     {"points_topic": "points_raw"},  
                     {"output_log": False},
-                    {"measurement_range": 200},  
+                    {"measurement_range": 200.0},  
                 ],
             ),
         ]

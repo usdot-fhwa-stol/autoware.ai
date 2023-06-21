@@ -70,5 +70,5 @@ target_link_libraries(voxel_grid_filter_exec
 )
 
 ament_auto_package(
-  INSTALL_TO_SHARE launch config
+  INSTALL_TO_SHARE launch
 )
