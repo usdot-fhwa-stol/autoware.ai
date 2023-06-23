@@ -302,6 +302,7 @@ carma_ros2_utils::CallbackReturn NDTMatching::handle_on_configure(const rclcpp_l
 }
 
 void NDTMatching::param_callback(const autoware_config_msgs::msg::ConfigNDT::SharedPtr input){
+    RCLCPP_INFO_STREAM(get_logger(), "Entering param callback");
     if (_use_gnss != input->init_pos_gnss)
     {
         init_pos_set = 0;
@@ -467,9 +468,14 @@ void NDTMatching::param_callback(const autoware_config_msgs::msg::ConfigNDT::Sha
         current_velocity_imu_z = current_velocity_z;
         init_pos_set = 1;
     }
+
+    RCLCPP_INFO_STREAM(get_logger(), "Exiting param callback");
 }
 
 void NDTMatching::gnss_callback(const geometry_msgs::msg::PoseStamped::SharedPtr input){
+
+    RCLCPP_INFO_STREAM(get_logger(), "Entering gnss callback");
+
     tf2::Quaternion gnss_q(input->pose.orientation.x, input->pose.orientation.y, input->pose.orientation.z,
                     input->pose.orientation.w);
     tf2::Matrix3x3 gnss_m(gnss_q);
@@ -533,10 +539,14 @@ void NDTMatching::gnss_callback(const geometry_msgs::msg::PoseStamped::SharedPtr
     previous_gnss_pose.pitch = current_gnss_pose.pitch;
     previous_gnss_pose.yaw = current_gnss_pose.yaw;
     previous_gnss_time = current_gnss_time;
+
+    RCLCPP_INFO_STREAM(get_logger(), "Exiting param callback");
 }
 
 pose NDTMatching::convertPoseIntoRelativeCoordinate(const pose &target_pose, const pose &reference_pose)
 {
+    RCLCPP_INFO_STREAM(get_logger(), "Entering convertPoseIntoRelativeCoordinate callback");
+
     tf2::Quaternion target_q;
     target_q.setRPY(target_pose.roll, target_pose.pitch, target_pose.yaw);
     tf2::Vector3 target_v(target_pose.x, target_pose.y, target_pose.z);
@@ -556,10 +566,13 @@ pose NDTMatching::convertPoseIntoRelativeCoordinate(const pose &target_pose, con
     tf2::Matrix3x3 tmp_m(trans_target_tf.getRotation());
     tmp_m.getRPY(trans_target_pose.roll, trans_target_pose.pitch, trans_target_pose.yaw);
 
+    RCLCPP_INFO_STREAM(get_logger(), "Exiting param callback");
     return trans_target_pose;
 }
 
 void NDTMatching::initialpose_callback(const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr input){
+    RCLCPP_INFO_STREAM(get_logger(), "Entering initialpose callback");
+
     tf2_ros::Buffer buffer(get_clock());
     tf2_ros::TransformListener listener(buffer);
     geometry_msgs::msg::TransformStamped tf_geom;
@@ -657,10 +670,13 @@ void NDTMatching::initialpose_callback(const geometry_msgs::msg::PoseWithCovaria
     offset_imu_odom_yaw = 0.0;
 
     init_pos_set = 1;
+
+    RCLCPP_INFO_STREAM(get_logger(), "Entering initialpose callback");
 }
 
 void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr input){
-    
+    RCLCPP_INFO_STREAM(get_logger(), "Entering points callback");
+
     if (map_loaded == 1 && init_pos_set == 1)
     {
         matching_start = std::chrono::system_clock::now();
@@ -1239,15 +1255,19 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
 
         previous_estimated_vel_kmph.data = estimated_vel_kmph.data;
     } 
+
+    RCLCPP_INFO_STREAM(get_logger(), "Exiting points callback");
 }
 
 void NDTMatching::odom_callback(const nav_msgs::msg::Odometry::SharedPtr input){
+    RCLCPP_INFO_STREAM(get_logger(), "Entering odom callback");
     odom = *input;
     odom_calc(input->header.stamp);
+    RCLCPP_INFO_STREAM(get_logger(), "Exiting param callback");
 }
 
 void NDTMatching::odom_calc(rclcpp::Time current_time){
-        
+    RCLCPP_INFO_STREAM(get_logger(), "Entering odom_calc");        
     static rclcpp::Time previous_time = current_time;
     double diff_time = (current_time - previous_time).seconds();
 
@@ -1276,11 +1296,14 @@ void NDTMatching::odom_calc(rclcpp::Time current_time){
     predict_pose_odom.yaw = previous_pose.yaw + offset_odom_yaw;
 
     previous_time = current_time;
+
+    RCLCPP_INFO_STREAM(get_logger(), "Exiting odom_calc");
     }
 
 
 void NDTMatching::imu_callback(const sensor_msgs::msg::Imu::SharedPtr input){
     // std::cout << __func__ << std::endl;
+    RCLCPP_INFO_STREAM(get_logger(), "Entering imu callback");
 
     if (_imu_upside_down)
         imuUpsideDown(input);
@@ -1330,10 +1353,12 @@ void NDTMatching::imu_callback(const sensor_msgs::msg::Imu::SharedPtr input){
     previous_imu_roll = imu_roll;
     previous_imu_pitch = imu_pitch;
     previous_imu_yaw = imu_yaw;
+    RCLCPP_INFO_STREAM(get_logger(), "Exiting param callback");
 }
 
 void NDTMatching::imuUpsideDown(const sensor_msgs::msg::Imu::SharedPtr input)
 {
+    RCLCPP_INFO_STREAM(get_logger(), "Entering imuUpsideDown");
     double input_roll, input_pitch, input_yaw;
 
     tf2::Quaternion input_orientation;
@@ -1356,10 +1381,12 @@ void NDTMatching::imuUpsideDown(const sensor_msgs::msg::Imu::SharedPtr input)
     quat_tf.setRPY(input_roll, input_pitch, input_yaw);
     tf2::convert(quat_tf, input->orientation);
 
+    RCLCPP_INFO_STREAM(get_logger(), "Entering imuUpsidedown");
+
 }
 
 void NDTMatching::imu_calc(rclcpp::Time current_time){
-        
+    RCLCPP_INFO_STREAM(get_logger(), "Entering imu_calc");
     static rclcpp::Time previous_time = current_time;
     double diff_time = (current_time - previous_time).seconds();
 
@@ -1405,6 +1432,7 @@ void NDTMatching::imu_calc(rclcpp::Time current_time){
     predict_pose_imu.yaw = previous_pose.yaw + offset_imu_yaw;
 
     previous_time = current_time;
+    RCLCPP_INFO_STREAM(get_logger(), "Entering imu_calc");
 }
 
 double NDTMatching::wrapToPm(double a_num, const double a_max)
@@ -1433,6 +1461,7 @@ double NDTMatching::calcDiffForRadian(const double lhs_rad, const double rhs_rad
 
 void NDTMatching::map_callback(const sensor_msgs::msg::PointCloud2::SharedPtr input)
 {
+    RCLCPP_INFO_STREAM(get_logger(), "Entering map callback");
 // if (map_loaded == 0)
 if (points_map_num != input->width)
 {
@@ -1557,6 +1586,7 @@ if (points_map_num != input->width)
     #endif
         map_loaded = 1;
     }
+    RCLCPP_INFO_STREAM(get_logger(), "Exiting param callback");
 }
 
 template<typename PointT>
