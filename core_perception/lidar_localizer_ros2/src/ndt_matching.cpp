@@ -288,10 +288,15 @@ carma_ros2_utils::CallbackReturn NDTMatching::handle_on_configure(const rclcpp_l
     imu_sub = create_subscription<sensor_msgs::msg::Imu>(_imu_topic.c_str(), _queue_size * 10, std::bind(&NDTMatching::imu_callback, this, std::placeholders::_1));
 
     // Create callback group to handle points_map callbacks
+    //points_map topic is published as transient_local, subscriber needs to be set to that
     auto points_map_callback_group = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
     rclcpp::SubscriptionOptions points_map_sub_options;
+    points_map_sub_options.use_intra_process_comm = rclcpp::IntraProcessSetting::Disable;
+    auto sub_qos_transient_local = rclcpp::QoS(rclcpp::KeepLast(10));
+    sub_qos_transient_local.transient_local();
     points_map_sub_options.callback_group = points_map_callback_group;
-    map_sub = create_subscription<sensor_msgs::msg::PointCloud2>("points_map", 10, std::bind(&NDTMatching::map_callback, this, std::placeholders::_1), points_map_sub_options);
+
+    map_sub = create_subscription<sensor_msgs::msg::PointCloud2>("points_map", sub_qos_transient_local, std::bind(&NDTMatching::map_callback, this, std::placeholders::_1), points_map_sub_options);
 
     return CallbackReturn::SUCCESS;
 }
