@@ -1157,7 +1157,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         geometry_msgs::msg::Vector3Stamped estimate_vel_msg;
         estimate_vel_msg.header.stamp = current_scan_time;
         estimate_vel_msg.vector.x = current_velocity;
-        RCLCPP(get_logger(), "Reaching before estimate vel msg");
+        RCLCPP_INFO(get_logger(), "Reaching before estimate vel msg");
         estimated_vel_pub->publish(estimate_vel_msg);
 
         // Set values for /ndt_stat
