@@ -8,7 +8,7 @@ static pcl::PointCloud<pcl::PointXYZI> removePointsByRange(pcl::PointCloud<pcl::
 
 #if 1     //  This error handling should be detemind.
   if( min_range>=max_range ) {
-    ROS_ERROR_ONCE("min_range>=max_range @(%lf, %lf)", min_range, max_range );
+    RCLCPP_ERROR_ONCE(rclcpp::get_logger("points_downsampler"), "min_range>=max_range @(%lf, %lf)", min_range, max_range );
     return scan;
   }
 #endif
