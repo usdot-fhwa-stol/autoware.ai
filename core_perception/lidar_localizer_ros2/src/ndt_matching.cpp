@@ -540,7 +540,7 @@ void NDTMatching::gnss_callback(const geometry_msgs::msg::PoseStamped::SharedPtr
     previous_gnss_pose.yaw = current_gnss_pose.yaw;
     previous_gnss_time = current_gnss_time;
 
-    RCLCPP_INFO_STREAM(get_logger(), "Exiting param callback");
+    RCLCPP_INFO_STREAM(get_logger(), "Exiting gnss callback");
 }
 
 pose NDTMatching::convertPoseIntoRelativeCoordinate(const pose &target_pose, const pose &reference_pose)
@@ -671,7 +671,7 @@ void NDTMatching::initialpose_callback(const geometry_msgs::msg::PoseWithCovaria
 
     init_pos_set = 1;
 
-    RCLCPP_INFO_STREAM(get_logger(), "Entering initialpose callback");
+    RCLCPP_INFO_STREAM(get_logger(), "Exiting initialpose callback");
 }
 
 void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr input){
@@ -966,8 +966,9 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
 
         estimated_vel_mps.data = current_velocity;
         estimated_vel_kmph.data = current_velocity * 3.6;
-
+        RCLCPP_INFO(get_logger(), "Reaching before estimated vel mps pub");
         estimated_vel_mps_pub->publish(estimated_vel_mps);
+        RCLCPP_INFO(get_logger(), "Reaching before estimated vel kmph pub");
         estimated_vel_kmph_pub->publish(estimated_vel_kmph);
 
         // Set values for publishing pose
@@ -1010,6 +1011,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         predict_pose_imu_msg.pose.orientation.y = predict_q_imu.y();
         predict_pose_imu_msg.pose.orientation.z = predict_q_imu.z();
         predict_pose_imu_msg.pose.orientation.w = predict_q_imu.w();
+        RCLCPP_INFO("Reaching before predict pose imu pub");
         predict_pose_imu_pub->publish(predict_pose_imu_msg);
 
         tf2::Quaternion predict_q_odom;
@@ -1023,6 +1025,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         predict_pose_odom_msg.pose.orientation.y = predict_q_odom.y();
         predict_pose_odom_msg.pose.orientation.z = predict_q_odom.z();
         predict_pose_odom_msg.pose.orientation.w = predict_q_odom.w();
+        RCLCPP_INFO(get_logger(), "Reaching before predict pose odom pub");
         predict_pose_odom_pub->publish(predict_pose_odom_msg);
 
         tf2::Quaternion predict_q_imu_odom;
@@ -1036,6 +1039,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         predict_pose_imu_odom_msg.pose.orientation.y = predict_q_imu_odom.y();
         predict_pose_imu_odom_msg.pose.orientation.z = predict_q_imu_odom.z();
         predict_pose_imu_odom_msg.pose.orientation.w = predict_q_imu_odom.w();
+        RCLCPP_INFO(get_logger(), "Reaching before predict pose imu odom");
         predict_pose_imu_odom_pub->publish(predict_pose_imu_odom_msg);
 
         ndt_q.setRPY(ndt_pose.roll, ndt_pose.pitch, ndt_pose.yaw);
@@ -1108,11 +1112,13 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         localizer_pose_msg.pose.orientation.w = localizer_q.w();
         }
 
+        RCLCPP_INFO(get_logger(), "Reaching before predict pose");
         predict_pose_pub->publish(predict_pose_msg);
-        
+        RCLCPP_INFO("Reaching before ndt pose pub");
         ndt_pose_pub->publish(ndt_pose_msg);
         // current_pose is published by vel_pose_mux
         //    current_pose_pub.publish(current_pose_msg);
+        RCLCPP_INFO("Reaching before localizer pose pub");
         localizer_pose_pub->publish(localizer_pose_msg);
 
         // Send TF _base_frame to _map_frame
@@ -1133,7 +1139,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         matching_end = std::chrono::system_clock::now();
         exe_time = std::chrono::duration_cast<std::chrono::microseconds>(matching_end - matching_start).count() / 1000.0;
         time_ndt_matching.data = exe_time;
-        
+        RCLCPP_INFO(get_logger(), "Reaching before time_ndt_matching pub");
         time_ndt_matching_pub->publish(time_ndt_matching);
 
         // Set values for /estimate_twist
@@ -1145,13 +1151,13 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         estimate_twist_msg.twist.angular.x = 0.0;
         estimate_twist_msg.twist.angular.y = 0.0;
         estimate_twist_msg.twist.angular.z = angular_velocity;
-
+        RCLCPP_INFO(get_logger(), "Reaching before estimate twist pub");
         estimate_twist_pub->publish(estimate_twist_msg);
 
         geometry_msgs::msg::Vector3Stamped estimate_vel_msg;
         estimate_vel_msg.header.stamp = current_scan_time;
         estimate_vel_msg.vector.x = current_velocity;
-        
+        RCLCPP(get_logger(), "Reaching before estimate vel msg");
         estimated_vel_pub->publish(estimate_vel_msg);
 
         // Set values for /ndt_stat
@@ -1162,11 +1168,12 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         ndt_stat_msg.velocity = current_velocity;
         ndt_stat_msg.acceleration = current_accel;
         ndt_stat_msg.use_predict_pose = 0;
-
+        RCLCPP_INFO(get_logger(), "Reaching before ndt stat pub");
         ndt_stat_pub->publish(ndt_stat_msg);
         /* Compute NDT_Reliability */
         ndt_reliability.data = Wa * (exe_time / 100.0) * 100.0 + Wb * (iteration / 10.0) * 100.0 +
                             Wc * ((2.0 - trans_probability) / 2.0) * 100.0;
+        RCLCPP_INFO(get_logger(), "Reaching before ndt_reliability pub");
         ndt_reliability_pub->publish(ndt_reliability);
 
         // Write log
@@ -1381,7 +1388,7 @@ void NDTMatching::imuUpsideDown(const sensor_msgs::msg::Imu::SharedPtr input)
     quat_tf.setRPY(input_roll, input_pitch, input_yaw);
     tf2::convert(quat_tf, input->orientation);
 
-    RCLCPP_INFO_STREAM(get_logger(), "Entering imuUpsidedown");
+    RCLCPP_INFO_STREAM(get_logger(), "Exiting imuUpsidedown");
 
 }
 
@@ -1432,7 +1439,7 @@ void NDTMatching::imu_calc(rclcpp::Time current_time){
     predict_pose_imu.yaw = previous_pose.yaw + offset_imu_yaw;
 
     previous_time = current_time;
-    RCLCPP_INFO_STREAM(get_logger(), "Entering imu_calc");
+    RCLCPP_INFO_STREAM(get_logger(), "Exiting imu_calc");
 }
 
 double NDTMatching::wrapToPm(double a_num, const double a_max)
