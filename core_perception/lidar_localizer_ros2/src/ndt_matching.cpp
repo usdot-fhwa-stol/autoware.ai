@@ -1011,7 +1011,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         predict_pose_imu_msg.pose.orientation.y = predict_q_imu.y();
         predict_pose_imu_msg.pose.orientation.z = predict_q_imu.z();
         predict_pose_imu_msg.pose.orientation.w = predict_q_imu.w();
-        RCLCPP_INFO("Reaching before predict pose imu pub");
+        RCLCPP_INFO(get_logger(), "Reaching before predict pose imu pub");
         predict_pose_imu_pub->publish(predict_pose_imu_msg);
 
         tf2::Quaternion predict_q_odom;
