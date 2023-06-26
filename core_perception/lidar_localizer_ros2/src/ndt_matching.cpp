@@ -1114,11 +1114,11 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
 
         RCLCPP_INFO(get_logger(), "Reaching before predict pose");
         predict_pose_pub->publish(predict_pose_msg);
-        RCLCPP_INFO("Reaching before ndt pose pub");
+        RCLCPP_INFO(get_logger(), "Reaching before ndt pose pub");
         ndt_pose_pub->publish(ndt_pose_msg);
         // current_pose is published by vel_pose_mux
         //    current_pose_pub.publish(current_pose_msg);
-        RCLCPP_INFO("Reaching before localizer pose pub");
+        RCLCPP_INFO(get_logger(), "Reaching before localizer pose pub");
         localizer_pose_pub->publish(localizer_pose_msg);
 
         // Send TF _base_frame to _map_frame
