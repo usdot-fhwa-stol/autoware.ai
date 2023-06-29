@@ -1500,8 +1500,8 @@ if (points_map_num != input->width)
         RCLCPP_ERROR(get_logger(), "%s", ex.what());
     }
 
-//    // Implementation taken from pcl_ros
-    // transformPointCloud(map, map, local_transform.inverse());
+    // Implementation taken from pcl_ros
+    transformPointCloud(map, map, local_transform.inverse());
 
     }
 
