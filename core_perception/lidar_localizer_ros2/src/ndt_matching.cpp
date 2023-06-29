@@ -1045,6 +1045,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         ndt_q.setRPY(ndt_pose.roll, ndt_pose.pitch, ndt_pose.yaw);
         if (_use_local_transform == true)
         {
+        RCLCPP_INFO_STREAM(get_logger(), "Entering use_local_transform is True");
         tf2::Vector3 v(ndt_pose.x, ndt_pose.y, ndt_pose.z);
         tf2::Transform transform(ndt_q, v);
         ndt_pose_msg.header.frame_id = _map_frame;
@@ -1593,7 +1594,7 @@ if (points_map_num != input->width)
     // #endif
         map_loaded = 1;
     }
-    RCLCPP_INFO_STREAM(get_logger(), "Exiting param callback");
+    RCLCPP_INFO_STREAM(get_logger(), "Exiting map callback");
 }
 
 template<typename PointT>
