@@ -1590,7 +1590,7 @@ if (points_map_num != input->width)
 //         omp_ndt = new_omp_ndt;
 //         pthread_mutex_unlock(&mutex);
 //         }
-    #endif
+    // #endif
         map_loaded = 1;
     }
     RCLCPP_INFO_STREAM(get_logger(), "Exiting param callback");
