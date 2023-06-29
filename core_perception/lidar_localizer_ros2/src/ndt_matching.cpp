@@ -1468,43 +1468,42 @@ double NDTMatching::calcDiffForRadian(const double lhs_rad, const double rhs_rad
 
 void NDTMatching::map_callback(const sensor_msgs::msg::PointCloud2::SharedPtr input)
 {
-//     RCLCPP_INFO_STREAM(get_logger(), "Entering map callback");
-// // if (map_loaded == 0)
-// if (points_map_num != input->width)
-// {
-//     std::cout << "Update points_map." << std::endl;
+    RCLCPP_INFO_STREAM(get_logger(), "Entering map callback");
+// if (map_loaded == 0)
+if (points_map_num != input->width)
+{
+    std::cout << "Update points_map." << std::endl;
 
-//     _map_frame = input->header.frame_id; // Update map frame to be the frame of the map points topic
+    _map_frame = input->header.frame_id; // Update map frame to be the frame of the map points topic
 
-//     points_map_num = input->width;
+    points_map_num = input->width;
 
-//     // Convert the data type(from sensor_msgs to pcl).
-//     pcl::fromROSMsg(*input, map);
+    // Convert the data type(from sensor_msgs to pcl).
+    pcl::fromROSMsg(*input, map);
 
-//     if (_use_local_transform == true)
-//     {
-//         tf2_ros::Buffer local_buffer(get_clock());
-//         tf2_ros::TransformListener local_transform_listener(local_buffer);
-//         geometry_msgs::msg::TransformStamped local_tf_geom;
+    if (_use_local_transform == true)
+    {
+        tf2_ros::Buffer local_buffer(get_clock());
+        tf2_ros::TransformListener local_transform_listener(local_buffer);
+        geometry_msgs::msg::TransformStamped local_tf_geom;
 
-//         tf2::Stamped<tf2::Transform> local_transform;
+        tf2::Stamped<tf2::Transform> local_transform;
     
-//     try
-//     {
-//         rclcpp::Time now = this->now();
-//         local_tf_geom = local_buffer.lookupTransform(_map_frame, "world", now, rclcpp::Duration(10, 0));
-//         tf2::convert(local_tf_geom, local_transform);
+    try
+    {
+        rclcpp::Time now = this->now();
+        local_tf_geom = local_buffer.lookupTransform(_map_frame, "world", now, rclcpp::Duration(10, 0));
+        tf2::convert(local_tf_geom, local_transform);
+    }
+    catch (tf2::TransformException& ex)
+    {
+        RCLCPP_ERROR(get_logger(), "%s", ex.what());
+    }
 
-//     }
-//     catch (tf2::TransformException& ex)
-//     {
-//         RCLCPP_ERROR(get_logger(), "%s", ex.what());
-//     }
+//    // Implementation taken from pcl_ros
+    // transformPointCloud(map, map, local_transform.inverse());
 
-//     //Implementation taken from pcl_ros
-//     transformPointCloud(map, map, local_transform.inverse());
-
-//     }
+    }
 
 //     pcl::PointCloud<pcl::PointXYZ>::Ptr map_ptr(new pcl::PointCloud<pcl::PointXYZ>(map));
 
