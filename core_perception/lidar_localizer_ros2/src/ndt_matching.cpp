@@ -1591,8 +1591,8 @@ if (points_map_num != input->width)
 //         }
 //     #endif
 //         map_loaded = 1;
-//     }
-//     RCLCPP_INFO_STREAM(get_logger(), "Exiting param callback");
+    }
+    RCLCPP_INFO_STREAM(get_logger(), "Exiting param callback");
 }
 
 template<typename PointT>
