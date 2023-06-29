@@ -1504,32 +1504,33 @@ if (points_map_num != input->width)
     transformPointCloud(map, map, local_transform.inverse());
 
     }
+    RCLCPP_INFO_STREAM(get_logger(), "Reached line 1507");
+    pcl::PointCloud<pcl::PointXYZ>::Ptr map_ptr(new pcl::PointCloud<pcl::PointXYZ>(map));
 
-//     pcl::PointCloud<pcl::PointXYZ>::Ptr map_ptr(new pcl::PointCloud<pcl::PointXYZ>(map));
+    double rot_threshold = 1.0 - trans_eps;
+    RCLCPP_INFO_STREAM(get_logger(), "Reached line 1511");
+    // Setting point cloud to be aligned to.
+    if (_method_type == MethodType::PCL_GENERIC)
+    {
+    RCLCPP_INFO(get_logger(), "Using translation threshold of %f", trans_eps);
+    RCLCPP_INFO(get_logger(), "Using rotation threshold of %f", rot_threshold);
+    pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> new_ndt;
+    pcl::PointCloud<pcl::PointXYZ>::Ptr output_cloud(new pcl::PointCloud<pcl::PointXYZ>);
+    new_ndt.setResolution(ndt_res);
+    new_ndt.setInputTarget(map_ptr);
+    new_ndt.setMaximumIterations(max_iter);
+    new_ndt.setStepSize(step_size);
+    new_ndt.setTransformationEpsilon(trans_eps);
+    new_ndt.setTransformationRotationEpsilon(rot_threshold);
 
-//     double rot_threshold = 1.0 - trans_eps;
+    new_ndt.align(*output_cloud, Eigen::Matrix4f::Identity());
 
-//     // Setting point cloud to be aligned to.
-//     if (_method_type == MethodType::PCL_GENERIC)
-//     {
-//     RCLCPP_INFO(get_logger(), "Using translation threshold of %f", trans_eps);
-//     RCLCPP_INFO(get_logger(), "Using rotation threshold of %f", rot_threshold);
-//     pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> new_ndt;
-//     pcl::PointCloud<pcl::PointXYZ>::Ptr output_cloud(new pcl::PointCloud<pcl::PointXYZ>);
-//     new_ndt.setResolution(ndt_res);
-//     new_ndt.setInputTarget(map_ptr);
-//     new_ndt.setMaximumIterations(max_iter);
-//     new_ndt.setStepSize(step_size);
-//     new_ndt.setTransformationEpsilon(trans_eps);
-//     new_ndt.setTransformationRotationEpsilon(rot_threshold);
-
-//     new_ndt.align(*output_cloud, Eigen::Matrix4f::Identity());
-
-//     pthread_mutex_lock(&mutex);
-//     ndt = new_ndt;
-//     pthread_mutex_unlock(&mutex);
-//     }
-//     else if (_method_type == MethodType::PCL_ANH)
+    pthread_mutex_lock(&mutex);
+    ndt = new_ndt;
+    pthread_mutex_unlock(&mutex);
+    RCLCPP_INFO_STREAM(get_logger(), "Reached line 1531");
+    }
+    // else if (_method_type == MethodType::PCL_ANH)
 //     {
 //     cpu::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> new_anh_ndt;
 //     new_anh_ndt.setResolution(ndt_res);
@@ -1549,8 +1550,8 @@ if (points_map_num != input->width)
 //     anh_ndt = new_anh_ndt;
 //     pthread_mutex_unlock(&mutex);
 //     }
-//     #ifdef CUDA_FOUND
-//         else if (_method_type == MethodType::PCL_ANH_GPU)
+    // #ifdef CUDA_FOUND
+        // else if (_method_type == MethodType::PCL_ANH_GPU)
 //         {
 //         std::shared_ptr<gpu::GNormalDistributionsTransform> new_anh_gpu_ndt_ptr =
 //             std::make_shared<gpu::GNormalDistributionsTransform>();
@@ -1589,8 +1590,8 @@ if (points_map_num != input->width)
 //         omp_ndt = new_omp_ndt;
 //         pthread_mutex_unlock(&mutex);
 //         }
-//     #endif
-//         map_loaded = 1;
+    #endif
+        map_loaded = 1;
     }
     RCLCPP_INFO_STREAM(get_logger(), "Exiting param callback");
 }
