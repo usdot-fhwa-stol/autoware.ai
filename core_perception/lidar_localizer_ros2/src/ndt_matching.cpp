@@ -1468,132 +1468,132 @@ double NDTMatching::calcDiffForRadian(const double lhs_rad, const double rhs_rad
 
 void NDTMatching::map_callback(const sensor_msgs::msg::PointCloud2::SharedPtr input)
 {
-    RCLCPP_INFO_STREAM(get_logger(), "Entering map callback");
-// if (map_loaded == 0)
-if (points_map_num != input->width)
-{
-    std::cout << "Update points_map." << std::endl;
+//     RCLCPP_INFO_STREAM(get_logger(), "Entering map callback");
+// // if (map_loaded == 0)
+// if (points_map_num != input->width)
+// {
+//     std::cout << "Update points_map." << std::endl;
 
-    _map_frame = input->header.frame_id; // Update map frame to be the frame of the map points topic
+//     _map_frame = input->header.frame_id; // Update map frame to be the frame of the map points topic
 
-    points_map_num = input->width;
+//     points_map_num = input->width;
 
-    // Convert the data type(from sensor_msgs to pcl).
-    pcl::fromROSMsg(*input, map);
+//     // Convert the data type(from sensor_msgs to pcl).
+//     pcl::fromROSMsg(*input, map);
 
-    if (_use_local_transform == true)
-    {
-        tf2_ros::Buffer local_buffer(get_clock());
-        tf2_ros::TransformListener local_transform_listener(local_buffer);
-        geometry_msgs::msg::TransformStamped local_tf_geom;
+//     if (_use_local_transform == true)
+//     {
+//         tf2_ros::Buffer local_buffer(get_clock());
+//         tf2_ros::TransformListener local_transform_listener(local_buffer);
+//         geometry_msgs::msg::TransformStamped local_tf_geom;
 
-        tf2::Stamped<tf2::Transform> local_transform;
+//         tf2::Stamped<tf2::Transform> local_transform;
     
-    try
-    {
-        rclcpp::Time now = this->now();
-        local_tf_geom = local_buffer.lookupTransform(_map_frame, "world", now, rclcpp::Duration(10, 0));
-        tf2::convert(local_tf_geom, local_transform);
+//     try
+//     {
+//         rclcpp::Time now = this->now();
+//         local_tf_geom = local_buffer.lookupTransform(_map_frame, "world", now, rclcpp::Duration(10, 0));
+//         tf2::convert(local_tf_geom, local_transform);
 
-    }
-    catch (tf2::TransformException& ex)
-    {
-        RCLCPP_ERROR(get_logger(), "%s", ex.what());
-    }
+//     }
+//     catch (tf2::TransformException& ex)
+//     {
+//         RCLCPP_ERROR(get_logger(), "%s", ex.what());
+//     }
 
-    //Implementation taken from pcl_ros
-    transformPointCloud(map, map, local_transform.inverse());
+//     //Implementation taken from pcl_ros
+//     transformPointCloud(map, map, local_transform.inverse());
 
-    }
+//     }
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr map_ptr(new pcl::PointCloud<pcl::PointXYZ>(map));
+//     pcl::PointCloud<pcl::PointXYZ>::Ptr map_ptr(new pcl::PointCloud<pcl::PointXYZ>(map));
 
-    double rot_threshold = 1.0 - trans_eps;
+//     double rot_threshold = 1.0 - trans_eps;
 
-    // Setting point cloud to be aligned to.
-    if (_method_type == MethodType::PCL_GENERIC)
-    {
-    RCLCPP_INFO(get_logger(), "Using translation threshold of %f", trans_eps);
-    RCLCPP_INFO(get_logger(), "Using rotation threshold of %f", rot_threshold);
-    pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> new_ndt;
-    pcl::PointCloud<pcl::PointXYZ>::Ptr output_cloud(new pcl::PointCloud<pcl::PointXYZ>);
-    new_ndt.setResolution(ndt_res);
-    new_ndt.setInputTarget(map_ptr);
-    new_ndt.setMaximumIterations(max_iter);
-    new_ndt.setStepSize(step_size);
-    new_ndt.setTransformationEpsilon(trans_eps);
-    new_ndt.setTransformationRotationEpsilon(rot_threshold);
+//     // Setting point cloud to be aligned to.
+//     if (_method_type == MethodType::PCL_GENERIC)
+//     {
+//     RCLCPP_INFO(get_logger(), "Using translation threshold of %f", trans_eps);
+//     RCLCPP_INFO(get_logger(), "Using rotation threshold of %f", rot_threshold);
+//     pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> new_ndt;
+//     pcl::PointCloud<pcl::PointXYZ>::Ptr output_cloud(new pcl::PointCloud<pcl::PointXYZ>);
+//     new_ndt.setResolution(ndt_res);
+//     new_ndt.setInputTarget(map_ptr);
+//     new_ndt.setMaximumIterations(max_iter);
+//     new_ndt.setStepSize(step_size);
+//     new_ndt.setTransformationEpsilon(trans_eps);
+//     new_ndt.setTransformationRotationEpsilon(rot_threshold);
 
-    new_ndt.align(*output_cloud, Eigen::Matrix4f::Identity());
+//     new_ndt.align(*output_cloud, Eigen::Matrix4f::Identity());
 
-    pthread_mutex_lock(&mutex);
-    ndt = new_ndt;
-    pthread_mutex_unlock(&mutex);
-    }
-    else if (_method_type == MethodType::PCL_ANH)
-    {
-    cpu::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> new_anh_ndt;
-    new_anh_ndt.setResolution(ndt_res);
-    new_anh_ndt.setInputTarget(map_ptr);
-    new_anh_ndt.setMaximumIterations(max_iter);
-    new_anh_ndt.setStepSize(step_size);
-    new_anh_ndt.setTransformationEpsilon(trans_eps);
+//     pthread_mutex_lock(&mutex);
+//     ndt = new_ndt;
+//     pthread_mutex_unlock(&mutex);
+//     }
+//     else if (_method_type == MethodType::PCL_ANH)
+//     {
+//     cpu::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> new_anh_ndt;
+//     new_anh_ndt.setResolution(ndt_res);
+//     new_anh_ndt.setInputTarget(map_ptr);
+//     new_anh_ndt.setMaximumIterations(max_iter);
+//     new_anh_ndt.setStepSize(step_size);
+//     new_anh_ndt.setTransformationEpsilon(trans_eps);
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr dummy_scan_ptr(new pcl::PointCloud<pcl::PointXYZ>());
-    pcl::PointXYZ dummy_point;
-    dummy_scan_ptr->push_back(dummy_point);
-    new_anh_ndt.setInputSource(dummy_scan_ptr);
+//     pcl::PointCloud<pcl::PointXYZ>::Ptr dummy_scan_ptr(new pcl::PointCloud<pcl::PointXYZ>());
+//     pcl::PointXYZ dummy_point;
+//     dummy_scan_ptr->push_back(dummy_point);
+//     new_anh_ndt.setInputSource(dummy_scan_ptr);
 
-    new_anh_ndt.align(Eigen::Matrix4f::Identity());
+//     new_anh_ndt.align(Eigen::Matrix4f::Identity());
 
-    pthread_mutex_lock(&mutex);
-    anh_ndt = new_anh_ndt;
-    pthread_mutex_unlock(&mutex);
-    }
-    #ifdef CUDA_FOUND
-        else if (_method_type == MethodType::PCL_ANH_GPU)
-        {
-        std::shared_ptr<gpu::GNormalDistributionsTransform> new_anh_gpu_ndt_ptr =
-            std::make_shared<gpu::GNormalDistributionsTransform>();
-        new_anh_gpu_ndt_ptr->setResolution(ndt_res);
-        new_anh_gpu_ndt_ptr->setInputTarget(map_ptr);
-        new_anh_gpu_ndt_ptr->setMaximumIterations(max_iter);
-        new_anh_gpu_ndt_ptr->setStepSize(step_size);
-        new_anh_gpu_ndt_ptr->setTransformationEpsilon(trans_eps);
+//     pthread_mutex_lock(&mutex);
+//     anh_ndt = new_anh_ndt;
+//     pthread_mutex_unlock(&mutex);
+//     }
+//     #ifdef CUDA_FOUND
+//         else if (_method_type == MethodType::PCL_ANH_GPU)
+//         {
+//         std::shared_ptr<gpu::GNormalDistributionsTransform> new_anh_gpu_ndt_ptr =
+//             std::make_shared<gpu::GNormalDistributionsTransform>();
+//         new_anh_gpu_ndt_ptr->setResolution(ndt_res);
+//         new_anh_gpu_ndt_ptr->setInputTarget(map_ptr);
+//         new_anh_gpu_ndt_ptr->setMaximumIterations(max_iter);
+//         new_anh_gpu_ndt_ptr->setStepSize(step_size);
+//         new_anh_gpu_ndt_ptr->setTransformationEpsilon(trans_eps);
 
-        pcl::PointCloud<pcl::PointXYZ>::Ptr dummy_scan_ptr(new pcl::PointCloud<pcl::PointXYZ>());
-        pcl::PointXYZ dummy_point;
-        dummy_scan_ptr->push_back(dummy_point);
-        new_anh_gpu_ndt_ptr->setInputSource(dummy_scan_ptr);
+//         pcl::PointCloud<pcl::PointXYZ>::Ptr dummy_scan_ptr(new pcl::PointCloud<pcl::PointXYZ>());
+//         pcl::PointXYZ dummy_point;
+//         dummy_scan_ptr->push_back(dummy_point);
+//         new_anh_gpu_ndt_ptr->setInputSource(dummy_scan_ptr);
 
-        new_anh_gpu_ndt_ptr->align(Eigen::Matrix4f::Identity());
+//         new_anh_gpu_ndt_ptr->align(Eigen::Matrix4f::Identity());
 
-        pthread_mutex_lock(&mutex);
-        anh_gpu_ndt_ptr = new_anh_gpu_ndt_ptr;
-        pthread_mutex_unlock(&mutex);
-        }
-    #endif
-    #ifdef USE_PCL_OPENMP
-        else if (_method_type == MethodType::PCL_OPENMP)
-        {
-        pcl_omp::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> new_omp_ndt;
-        pcl::PointCloud<pcl::PointXYZ>::Ptr output_cloud(new pcl::PointCloud<pcl::PointXYZ>);
-        new_omp_ndt.setResolution(ndt_res);
-        new_omp_ndt.setInputTarget(map_ptr);
-        new_omp_ndt.setMaximumIterations(max_iter);
-        new_omp_ndt.setStepSize(step_size);
-        new_omp_ndt.setTransformationEpsilon(trans_eps);
+//         pthread_mutex_lock(&mutex);
+//         anh_gpu_ndt_ptr = new_anh_gpu_ndt_ptr;
+//         pthread_mutex_unlock(&mutex);
+//         }
+//     #endif
+//     #ifdef USE_PCL_OPENMP
+//         else if (_method_type == MethodType::PCL_OPENMP)
+//         {
+//         pcl_omp::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> new_omp_ndt;
+//         pcl::PointCloud<pcl::PointXYZ>::Ptr output_cloud(new pcl::PointCloud<pcl::PointXYZ>);
+//         new_omp_ndt.setResolution(ndt_res);
+//         new_omp_ndt.setInputTarget(map_ptr);
+//         new_omp_ndt.setMaximumIterations(max_iter);
+//         new_omp_ndt.setStepSize(step_size);
+//         new_omp_ndt.setTransformationEpsilon(trans_eps);
 
-        new_omp_ndt.align(*output_cloud, Eigen::Matrix4f::Identity());
+//         new_omp_ndt.align(*output_cloud, Eigen::Matrix4f::Identity());
 
-        pthread_mutex_lock(&mutex);
-        omp_ndt = new_omp_ndt;
-        pthread_mutex_unlock(&mutex);
-        }
-    #endif
-        map_loaded = 1;
-    }
-    RCLCPP_INFO_STREAM(get_logger(), "Exiting param callback");
+//         pthread_mutex_lock(&mutex);
+//         omp_ndt = new_omp_ndt;
+//         pthread_mutex_unlock(&mutex);
+//         }
+//     #endif
+//         map_loaded = 1;
+//     }
+//     RCLCPP_INFO_STREAM(get_logger(), "Exiting param callback");
 }
 
 template<typename PointT>
