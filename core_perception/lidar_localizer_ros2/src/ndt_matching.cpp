@@ -316,7 +316,7 @@ carma_ros2_utils::CallbackReturn NDTMatching::handle_on_configure(const rclcpp_l
 }
 
 void NDTMatching::param_callback(const autoware_config_msgs::msg::ConfigNDT::SharedPtr input){
-    RCLCPP_INFO_STREAM(get_logger(), "Entering param callback");
+    
     if (_use_gnss != input->init_pos_gnss)
     {
         init_pos_set = 0;
@@ -483,12 +483,10 @@ void NDTMatching::param_callback(const autoware_config_msgs::msg::ConfigNDT::Sha
         init_pos_set = 1;
     }
 
-    RCLCPP_INFO_STREAM(get_logger(), "Exiting param callback");
 }
 
 void NDTMatching::gnss_callback(const geometry_msgs::msg::PoseStamped::SharedPtr input){
 
-    RCLCPP_INFO_STREAM(get_logger(), "Entering gnss callback");
 
     tf2::Quaternion gnss_q(input->pose.orientation.x, input->pose.orientation.y, input->pose.orientation.z,
                     input->pose.orientation.w);
@@ -554,12 +552,10 @@ void NDTMatching::gnss_callback(const geometry_msgs::msg::PoseStamped::SharedPtr
     previous_gnss_pose.yaw = current_gnss_pose.yaw;
     previous_gnss_time = current_gnss_time;
 
-    RCLCPP_INFO_STREAM(get_logger(), "Exiting gnss callback");
 }
 
 pose NDTMatching::convertPoseIntoRelativeCoordinate(const pose &target_pose, const pose &reference_pose)
 {
-    RCLCPP_INFO_STREAM(get_logger(), "Entering convertPoseIntoRelativeCoordinate callback");
 
     tf2::Quaternion target_q;
     target_q.setRPY(target_pose.roll, target_pose.pitch, target_pose.yaw);
@@ -580,12 +576,10 @@ pose NDTMatching::convertPoseIntoRelativeCoordinate(const pose &target_pose, con
     tf2::Matrix3x3 tmp_m(trans_target_tf.getRotation());
     tmp_m.getRPY(trans_target_pose.roll, trans_target_pose.pitch, trans_target_pose.yaw);
 
-    RCLCPP_INFO_STREAM(get_logger(), "Exiting param callback");
     return trans_target_pose;
 }
 
 void NDTMatching::initialpose_callback(const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr input){
-    RCLCPP_INFO_STREAM(get_logger(), "Entering initialpose callback");
 
     tf2_ros::Buffer buffer(get_clock());
     tf2_ros::TransformListener listener(buffer);
@@ -685,7 +679,6 @@ void NDTMatching::initialpose_callback(const geometry_msgs::msg::PoseWithCovaria
 
     init_pos_set = 1;
 
-    RCLCPP_INFO_STREAM(get_logger(), "Exiting initialpose callback");
 }
 
 void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr input){
@@ -980,9 +973,8 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
 
         estimated_vel_mps.data = current_velocity;
         estimated_vel_kmph.data = current_velocity * 3.6;
-        RCLCPP_INFO(get_logger(), "Reaching before estimated vel mps pub");
+
         estimated_vel_mps_pub->publish(estimated_vel_mps);
-        RCLCPP_INFO(get_logger(), "Reaching before estimated vel kmph pub");
         estimated_vel_kmph_pub->publish(estimated_vel_kmph);
 
         // Set values for publishing pose
@@ -1025,7 +1017,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         predict_pose_imu_msg.pose.orientation.y = predict_q_imu.y();
         predict_pose_imu_msg.pose.orientation.z = predict_q_imu.z();
         predict_pose_imu_msg.pose.orientation.w = predict_q_imu.w();
-        RCLCPP_INFO(get_logger(), "Reaching before predict pose imu pub");
+
         predict_pose_imu_pub->publish(predict_pose_imu_msg);
 
         tf2::Quaternion predict_q_odom;
@@ -1039,7 +1031,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         predict_pose_odom_msg.pose.orientation.y = predict_q_odom.y();
         predict_pose_odom_msg.pose.orientation.z = predict_q_odom.z();
         predict_pose_odom_msg.pose.orientation.w = predict_q_odom.w();
-        RCLCPP_INFO(get_logger(), "Reaching before predict pose odom pub");
+        
         predict_pose_odom_pub->publish(predict_pose_odom_msg);
 
         tf2::Quaternion predict_q_imu_odom;
@@ -1053,13 +1045,13 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         predict_pose_imu_odom_msg.pose.orientation.y = predict_q_imu_odom.y();
         predict_pose_imu_odom_msg.pose.orientation.z = predict_q_imu_odom.z();
         predict_pose_imu_odom_msg.pose.orientation.w = predict_q_imu_odom.w();
-        RCLCPP_INFO(get_logger(), "Reaching before predict pose imu odom");
+        
         predict_pose_imu_odom_pub->publish(predict_pose_imu_odom_msg);
 
         ndt_q.setRPY(ndt_pose.roll, ndt_pose.pitch, ndt_pose.yaw);
         if (_use_local_transform == true)
         {
-        RCLCPP_INFO_STREAM(get_logger(), "Entering use_local_transform is True");
+        
         tf2::Vector3 v(ndt_pose.x, ndt_pose.y, ndt_pose.z);
         tf2::Transform transform(ndt_q, v);
         ndt_pose_msg.header.frame_id = _map_frame;
@@ -1127,13 +1119,13 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         localizer_pose_msg.pose.orientation.w = localizer_q.w();
         }
 
-        RCLCPP_INFO(get_logger(), "Reaching before predict pose");
+        
         predict_pose_pub->publish(predict_pose_msg);
-        RCLCPP_INFO(get_logger(), "Reaching before ndt pose pub");
+        
         ndt_pose_pub->publish(ndt_pose_msg);
         // current_pose is published by vel_pose_mux
         //    current_pose_pub.publish(current_pose_msg);
-        RCLCPP_INFO(get_logger(), "Reaching before localizer pose pub");
+        
         localizer_pose_pub->publish(localizer_pose_msg);
 
         // Send TF _base_frame to _map_frame
@@ -1154,7 +1146,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         matching_end = std::chrono::system_clock::now();
         exe_time = std::chrono::duration_cast<std::chrono::microseconds>(matching_end - matching_start).count() / 1000.0;
         time_ndt_matching.data = exe_time;
-        RCLCPP_INFO(get_logger(), "Reaching before time_ndt_matching pub");
+        
         time_ndt_matching_pub->publish(time_ndt_matching);
 
         // Set values for /estimate_twist
@@ -1166,13 +1158,13 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         estimate_twist_msg.twist.angular.x = 0.0;
         estimate_twist_msg.twist.angular.y = 0.0;
         estimate_twist_msg.twist.angular.z = angular_velocity;
-        RCLCPP_INFO(get_logger(), "Reaching before estimate twist pub");
+        
         estimate_twist_pub->publish(estimate_twist_msg);
 
         geometry_msgs::msg::Vector3Stamped estimate_vel_msg;
         estimate_vel_msg.header.stamp = current_scan_time;
         estimate_vel_msg.vector.x = current_velocity;
-        RCLCPP_INFO(get_logger(), "Reaching before estimate vel msg");
+        
         estimated_vel_pub->publish(estimate_vel_msg);
 
         // Set values for /ndt_stat
@@ -1183,12 +1175,12 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         ndt_stat_msg.velocity = current_velocity;
         ndt_stat_msg.acceleration = current_accel;
         ndt_stat_msg.use_predict_pose = 0;
-        RCLCPP_INFO(get_logger(), "Reaching before ndt stat pub");
+        
         ndt_stat_pub->publish(ndt_stat_msg);
         /* Compute NDT_Reliability */
         ndt_reliability.data = Wa * (exe_time / 100.0) * 100.0 + Wb * (iteration / 10.0) * 100.0 +
                             Wc * ((2.0 - trans_probability) / 2.0) * 100.0;
-        RCLCPP_INFO(get_logger(), "Reaching before ndt_reliability pub");
+        
         ndt_reliability_pub->publish(ndt_reliability);
 
         // Write log
@@ -1282,14 +1274,12 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
 }
 
 void NDTMatching::odom_callback(const nav_msgs::msg::Odometry::SharedPtr input){
-    RCLCPP_INFO_STREAM(get_logger(), "Entering odom callback");
     odom = *input;
     odom_calc(input->header.stamp);
-    RCLCPP_INFO_STREAM(get_logger(), "Exiting param callback");
 }
 
 void NDTMatching::odom_calc(rclcpp::Time current_time){
-    RCLCPP_INFO_STREAM(get_logger(), "Entering odom_calc");        
+           
     static rclcpp::Time previous_time = current_time;
     double diff_time = (current_time - previous_time).seconds();
 
@@ -1319,13 +1309,13 @@ void NDTMatching::odom_calc(rclcpp::Time current_time){
 
     previous_time = current_time;
 
-    RCLCPP_INFO_STREAM(get_logger(), "Exiting odom_calc");
+    
     }
 
 
 void NDTMatching::imu_callback(const sensor_msgs::msg::Imu::SharedPtr input){
     // std::cout << __func__ << std::endl;
-    RCLCPP_INFO_STREAM(get_logger(), "Entering imu callback");
+    
 
     if (_imu_upside_down)
         imuUpsideDown(input);
@@ -1375,12 +1365,11 @@ void NDTMatching::imu_callback(const sensor_msgs::msg::Imu::SharedPtr input){
     previous_imu_roll = imu_roll;
     previous_imu_pitch = imu_pitch;
     previous_imu_yaw = imu_yaw;
-    RCLCPP_INFO_STREAM(get_logger(), "Exiting param callback");
+    
 }
 
 void NDTMatching::imuUpsideDown(const sensor_msgs::msg::Imu::SharedPtr input)
 {
-    RCLCPP_INFO_STREAM(get_logger(), "Entering imuUpsideDown");
     double input_roll, input_pitch, input_yaw;
 
     tf2::Quaternion input_orientation;
@@ -1403,12 +1392,11 @@ void NDTMatching::imuUpsideDown(const sensor_msgs::msg::Imu::SharedPtr input)
     quat_tf.setRPY(input_roll, input_pitch, input_yaw);
     tf2::convert(quat_tf, input->orientation);
 
-    RCLCPP_INFO_STREAM(get_logger(), "Exiting imuUpsidedown");
 
 }
 
 void NDTMatching::imu_calc(rclcpp::Time current_time){
-    RCLCPP_INFO_STREAM(get_logger(), "Entering imu_calc");
+    
     static rclcpp::Time previous_time = current_time;
     double diff_time = (current_time - previous_time).seconds();
 
@@ -1454,7 +1442,6 @@ void NDTMatching::imu_calc(rclcpp::Time current_time){
     predict_pose_imu.yaw = previous_pose.yaw + offset_imu_yaw;
 
     previous_time = current_time;
-    RCLCPP_INFO_STREAM(get_logger(), "Exiting imu_calc");
 }
 
 double NDTMatching::wrapToPm(double a_num, const double a_max)
@@ -1545,67 +1532,67 @@ if (points_map_num != input->width)
     pthread_mutex_unlock(&mutex);
     RCLCPP_INFO_STREAM(get_logger(), "Reached line 1531");
     }
-    // else if (_method_type == MethodType::PCL_ANH)
-//     {
-//     cpu::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> new_anh_ndt;
-//     new_anh_ndt.setResolution(ndt_res);
-//     new_anh_ndt.setInputTarget(map_ptr);
-//     new_anh_ndt.setMaximumIterations(max_iter);
-//     new_anh_ndt.setStepSize(step_size);
-//     new_anh_ndt.setTransformationEpsilon(trans_eps);
+    else if (_method_type == MethodType::PCL_ANH)
+    {
+    cpu::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> new_anh_ndt;
+    new_anh_ndt.setResolution(ndt_res);
+    new_anh_ndt.setInputTarget(map_ptr);
+    new_anh_ndt.setMaximumIterations(max_iter);
+    new_anh_ndt.setStepSize(step_size);
+    new_anh_ndt.setTransformationEpsilon(trans_eps);
 
-//     pcl::PointCloud<pcl::PointXYZ>::Ptr dummy_scan_ptr(new pcl::PointCloud<pcl::PointXYZ>());
-//     pcl::PointXYZ dummy_point;
-//     dummy_scan_ptr->push_back(dummy_point);
-//     new_anh_ndt.setInputSource(dummy_scan_ptr);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr dummy_scan_ptr(new pcl::PointCloud<pcl::PointXYZ>());
+    pcl::PointXYZ dummy_point;
+    dummy_scan_ptr->push_back(dummy_point);
+    new_anh_ndt.setInputSource(dummy_scan_ptr);
 
-//     new_anh_ndt.align(Eigen::Matrix4f::Identity());
+    new_anh_ndt.align(Eigen::Matrix4f::Identity());
 
-//     pthread_mutex_lock(&mutex);
-//     anh_ndt = new_anh_ndt;
-//     pthread_mutex_unlock(&mutex);
-//     }
-    // #ifdef CUDA_FOUND
-        // else if (_method_type == MethodType::PCL_ANH_GPU)
-//         {
-//         std::shared_ptr<gpu::GNormalDistributionsTransform> new_anh_gpu_ndt_ptr =
-//             std::make_shared<gpu::GNormalDistributionsTransform>();
-//         new_anh_gpu_ndt_ptr->setResolution(ndt_res);
-//         new_anh_gpu_ndt_ptr->setInputTarget(map_ptr);
-//         new_anh_gpu_ndt_ptr->setMaximumIterations(max_iter);
-//         new_anh_gpu_ndt_ptr->setStepSize(step_size);
-//         new_anh_gpu_ndt_ptr->setTransformationEpsilon(trans_eps);
+    pthread_mutex_lock(&mutex);
+    anh_ndt = new_anh_ndt;
+    pthread_mutex_unlock(&mutex);
+    }
+    #ifdef CUDA_FOUND
+        else if (_method_type == MethodType::PCL_ANH_GPU)
+        {
+        std::shared_ptr<gpu::GNormalDistributionsTransform> new_anh_gpu_ndt_ptr =
+            std::make_shared<gpu::GNormalDistributionsTransform>();
+        new_anh_gpu_ndt_ptr->setResolution(ndt_res);
+        new_anh_gpu_ndt_ptr->setInputTarget(map_ptr);
+        new_anh_gpu_ndt_ptr->setMaximumIterations(max_iter);
+        new_anh_gpu_ndt_ptr->setStepSize(step_size);
+        new_anh_gpu_ndt_ptr->setTransformationEpsilon(trans_eps);
 
-//         pcl::PointCloud<pcl::PointXYZ>::Ptr dummy_scan_ptr(new pcl::PointCloud<pcl::PointXYZ>());
-//         pcl::PointXYZ dummy_point;
-//         dummy_scan_ptr->push_back(dummy_point);
-//         new_anh_gpu_ndt_ptr->setInputSource(dummy_scan_ptr);
+        pcl::PointCloud<pcl::PointXYZ>::Ptr dummy_scan_ptr(new pcl::PointCloud<pcl::PointXYZ>());
+        pcl::PointXYZ dummy_point;
+        dummy_scan_ptr->push_back(dummy_point);
+        new_anh_gpu_ndt_ptr->setInputSource(dummy_scan_ptr);
 
-//         new_anh_gpu_ndt_ptr->align(Eigen::Matrix4f::Identity());
+        new_anh_gpu_ndt_ptr->align(Eigen::Matrix4f::Identity());
 
-//         pthread_mutex_lock(&mutex);
-//         anh_gpu_ndt_ptr = new_anh_gpu_ndt_ptr;
-//         pthread_mutex_unlock(&mutex);
-//         }
-//     #endif
-//     #ifdef USE_PCL_OPENMP
-//         else if (_method_type == MethodType::PCL_OPENMP)
-//         {
-//         pcl_omp::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> new_omp_ndt;
-//         pcl::PointCloud<pcl::PointXYZ>::Ptr output_cloud(new pcl::PointCloud<pcl::PointXYZ>);
-//         new_omp_ndt.setResolution(ndt_res);
-//         new_omp_ndt.setInputTarget(map_ptr);
-//         new_omp_ndt.setMaximumIterations(max_iter);
-//         new_omp_ndt.setStepSize(step_size);
-//         new_omp_ndt.setTransformationEpsilon(trans_eps);
+        pthread_mutex_lock(&mutex);
+        anh_gpu_ndt_ptr = new_anh_gpu_ndt_ptr;
+        pthread_mutex_unlock(&mutex);
+        }
+    #endif
+    #ifdef USE_PCL_OPENMP
+        else if (_method_type == MethodType::PCL_OPENMP)
+        {
+        pcl_omp::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> new_omp_ndt;
+        pcl::PointCloud<pcl::PointXYZ>::Ptr output_cloud(new pcl::PointCloud<pcl::PointXYZ>);
+        new_omp_ndt.setResolution(ndt_res);
+        new_omp_ndt.setInputTarget(map_ptr);
+        new_omp_ndt.setMaximumIterations(max_iter);
+        new_omp_ndt.setStepSize(step_size);
+        new_omp_ndt.setTransformationEpsilon(trans_eps);
 
-//         new_omp_ndt.align(*output_cloud, Eigen::Matrix4f::Identity());
+        new_omp_ndt.align(*output_cloud, Eigen::Matrix4f::Identity());
 
-//         pthread_mutex_lock(&mutex);
-//         omp_ndt = new_omp_ndt;
-//         pthread_mutex_unlock(&mutex);
-//         }
-    // #endif
+        pthread_mutex_lock(&mutex);
+        omp_ndt = new_omp_ndt;
+        pthread_mutex_unlock(&mutex);
+        }
+    #endif
         map_loaded = 1;
     }
     RCLCPP_INFO_STREAM(get_logger(), "Exiting map callback");
