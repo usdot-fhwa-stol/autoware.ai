@@ -262,6 +262,20 @@ carma_ros2_utils::CallbackReturn NDTMatching::handle_on_configure(const rclcpp_l
     }
     #endif
 
+    Eigen::Translation3f tl_btol(_tf_x, _tf_y, _tf_z);                 // tl: translation
+    Eigen::AngleAxisf rot_x_btol(_tf_roll, Eigen::Vector3f::UnitX());  // rot: rotation
+    Eigen::AngleAxisf rot_y_btol(_tf_pitch, Eigen::Vector3f::UnitY());
+    Eigen::AngleAxisf rot_z_btol(_tf_yaw, Eigen::Vector3f::UnitZ());
+    tf_btol = (tl_btol * rot_z_btol * rot_y_btol * rot_x_btol).matrix();
+
+    // Updated in initialpose_callback or gnss_callback
+    initial_pose.x = 0.0;
+    initial_pose.y = 0.0;
+    initial_pose.z = 0.0;
+    initial_pose.roll = 0.0;
+    initial_pose.pitch = 0.0;
+    initial_pose.yaw = 0.0;
+
     // Initialize publishers
     predict_pose_pub = create_publisher<geometry_msgs::msg::PoseStamped>("predict_pose", 10);
     predict_pose_imu_pub = create_publisher<geometry_msgs::msg::PoseStamped>("predict_pose_imu", 10);
