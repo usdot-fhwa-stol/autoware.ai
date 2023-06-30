@@ -682,7 +682,6 @@ void NDTMatching::initialpose_callback(const geometry_msgs::msg::PoseWithCovaria
 }
 
 void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr input){
-    RCLCPP_INFO_STREAM(get_logger(), "Entering points callback");
 
     if (map_loaded == 1 && init_pos_set == 1)
     {
@@ -1470,7 +1469,6 @@ double NDTMatching::calcDiffForRadian(const double lhs_rad, const double rhs_rad
 
 void NDTMatching::map_callback(const sensor_msgs::msg::PointCloud2::SharedPtr input)
 {
-    RCLCPP_INFO_STREAM(get_logger(), "Entering map callback");
 // if (map_loaded == 0)
 if (points_map_num != input->width)
 {
@@ -1506,11 +1504,11 @@ if (points_map_num != input->width)
     transformPointCloud(map, map, local_transform.inverse());
 
     }
-    RCLCPP_INFO_STREAM(get_logger(), "Reached line 1507");
+
     pcl::PointCloud<pcl::PointXYZ>::Ptr map_ptr(new pcl::PointCloud<pcl::PointXYZ>(map));
 
     double rot_threshold = 1.0 - trans_eps;
-    RCLCPP_INFO_STREAM(get_logger(), "Reached line 1511");
+
     // Setting point cloud to be aligned to.
     if (_method_type == MethodType::PCL_GENERIC)
     {
@@ -1530,7 +1528,7 @@ if (points_map_num != input->width)
     pthread_mutex_lock(&mutex);
     ndt = new_ndt;
     pthread_mutex_unlock(&mutex);
-    RCLCPP_INFO_STREAM(get_logger(), "Reached line 1531");
+    
     }
     else if (_method_type == MethodType::PCL_ANH)
     {
@@ -1595,7 +1593,6 @@ if (points_map_num != input->width)
     #endif
         map_loaded = 1;
     }
-    RCLCPP_INFO_STREAM(get_logger(), "Exiting map callback");
 }
 
 template<typename PointT>
