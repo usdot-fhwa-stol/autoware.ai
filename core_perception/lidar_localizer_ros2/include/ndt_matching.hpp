@@ -46,9 +46,9 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/registration/ndt.h>
 
-#include <ndt_cpu_ros2/NormalDistributionsTransform.h>
+#include <ndt_cpu/NormalDistributionsTransform.h>
 #ifdef CUDA_FOUND
-#include <ndt_gpu_ros2/NormalDistributionsTransform.h>
+#include <ndt_gpu/NormalDistributionsTransform.h>
 #endif
 #include <autoware_config_msgs/msg/config_ndt.hpp>
 #include <autoware_msgs/msg/ndt_stat.hpp>
