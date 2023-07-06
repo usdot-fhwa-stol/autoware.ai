@@ -191,9 +191,7 @@ else() #ROS2
         ament_export_libraries(ndt_gpu)
         ament_export_include_directories(include)
 
-        ament_auto_package(
-                INSTALL_TO_SHARE config
-        )
+        ament_auto_package()
 
         install(DIRECTORY include/
                 DESTINATION include

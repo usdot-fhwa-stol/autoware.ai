@@ -133,8 +133,6 @@ else() #ROS2
     RUNTIME DESTINATION bin
   )
 
-  ament_auto_package(
-      INSTALL_TO_SHARE config
-  )
+  ament_auto_package()
 
 endif()
