@@ -15,4 +15,8 @@
   <exec_depend>libpcl-all</exec_depend>
 
   <build_depend>carma_cmake_common</build_depend>
+    <export>
+    <build_type condition="$ROS_VERSION == 1">catkin</build_type>
+    <build_type condition="$ROS_VERSION == 2">ament_cmake</build_type>
+  </export>
 </package>
