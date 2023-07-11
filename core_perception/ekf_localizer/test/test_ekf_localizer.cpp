@@ -87,6 +87,9 @@ class EKFLocalizerTestSuite : public rclcpp::Node
 
 };
 
+/* Class implementation for template message publisher taken from,
+    https://github.com/cmrobotics/cmr_tests_utils/blob/humble-devel/include/cmr_tests_utils/basic_publisher_node_test.hpp
+*/
 template<class MessageT>
 class TestPublisher: public rclcpp::Node
 {
