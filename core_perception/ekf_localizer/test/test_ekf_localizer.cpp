@@ -115,6 +115,7 @@ TEST(EKFLocalizerTestSuite, measurementUpdatePose)
     auto test_node = std::make_shared<EKFLocalizerTestSuite>("pose_test_node");
     auto worker_node = std::make_shared<ekf_localizer::EKFLocalizer>(rclcpp::NodeOptions());
     worker_node->configure(); //Call configure state transition
+    rclcpp::sleep_for(std::chrono::milliseconds(100));
     worker_node->activate();  //Call activate state transition to get not read for runtime
     // Create publisher node
     auto pub_pose = std::make_shared<TestPublisher<geometry_msgs::msg::PoseStamped>>("pose_publisher_node", "in_pose");
@@ -176,6 +177,7 @@ TEST(EKFLocalizerTestSuite, measurementUpdateTwist)
     auto test_node = std::make_shared<EKFLocalizerTestSuite>("twist_test_node");
     auto worker_node = std::make_shared<ekf_localizer::EKFLocalizer>(rclcpp::NodeOptions());
     worker_node->configure(); //Call configure state transition
+    rclcpp::sleep_for(std::chrono::milliseconds(100));
     worker_node->activate();  //Call activate state transition to get not read for runtime
     // Create publisher node
     auto pub_twist = std::make_shared<TestPublisher<geometry_msgs::msg::TwistStamped>>("twist_publisher_node", "in_twist");
@@ -234,6 +236,7 @@ TEST(EKFLocalizerTestSuite, measurementUpdatePoseWithCovariance)
     auto test_node = std::make_shared<EKFLocalizerTestSuite>("pose_with_cov_test_node");
     auto worker_node = std::make_shared<ekf_localizer::EKFLocalizer>(node_options);
     worker_node->configure(); //Call configure state transition
+    rclcpp::sleep_for(std::chrono::milliseconds(100));
     worker_node->activate();  //Call activate state transition to get not read for runtime
     // Create publisher node
     auto pub_pose_cov = std::make_shared<TestPublisher<geometry_msgs::msg::PoseWithCovarianceStamped>>("pose_with_covariance_pub_node", "in_pose_with_covariance");
@@ -296,26 +299,21 @@ TEST(EKFLocalizerTestSuite, measurementUpdatePoseWithCovariance)
 
 TEST(EKFLocalizerTestSuite, measurementUpdateTwistWithCovariance)
 {
-    std::vector<rclcpp::Parameter> initial_parameters =  {rclcpp::Parameter("use_twist_with_covariance", true)};
-    rclcpp::NodeOptions node_options;
-    node_options.parameter_overrides(initial_parameters);
-
-    auto test_node = std::make_shared<EKFLocalizerTestSuite>("twist_with_cov_test_node");
-    auto worker_node = std::make_shared<ekf_localizer::EKFLocalizer>(node_options);
-    
+    auto test_node = std::make_shared<EKFLocalizerTestSuite>("twist_with_cov_node");
+    auto worker_node = std::make_shared<ekf_localizer::EKFLocalizer>(rclcpp::NodeOptions());
+    worker_node->configure(); //Call configure state transition
+    rclcpp::sleep_for(std::chrono::milliseconds(100));
+    worker_node->activate();  //Call activate state transition to get not read for runtime
     // Create publisher node
-    auto pub_twist_cov = std::make_shared<TestPublisher<geometry_msgs::msg::TwistWithCovarianceStamped>>("twist_covariance_publisher_node", "in_twist_with_covariance");
-    
+    auto pub_twist_with_cov = std::make_shared<TestPublisher<geometry_msgs::msg::TwistWithCovarianceStamped>>("twist_with_cov_publisher_node", "in_twist_with_covariance");
+
     geometry_msgs::msg::TwistWithCovarianceStamped in_twist;
     in_twist.header.frame_id = "base_link";
 
     rclcpp::executors::MultiThreadedExecutor executor;
     executor.add_node(test_node->get_node_base_interface());
-    executor.add_node(pub_twist_cov->get_node_base_interface());
+    executor.add_node(pub_twist_with_cov->get_node_base_interface());
     executor.add_node(worker_node->get_node_base_interface());
-
-    worker_node->configure(); //Call configure state transition
-    worker_node->activate();  //Call activate state transition to get not read for runtime
 
     /* test for valid value */
     const double vx = 12.3;
@@ -324,14 +322,15 @@ TEST(EKFLocalizerTestSuite, measurementUpdateTwistWithCovariance)
     {
         in_twist.twist.covariance[i] = 0.1;
     }
+
     for (int i = 0; i < 10; ++i)
     {
         in_twist.header.stamp = rclcpp::Time(0,0);
-        pub_twist_cov->publish(in_twist);
+        pub_twist_with_cov->publish(in_twist);
         executor.spin_once();
         rclcpp::sleep_for(std::chrono::milliseconds(100));
     }
-    
+
     ASSERT_FALSE(test_node->current_pose_ptr_ == nullptr);
     ASSERT_FALSE(test_node->current_twist_ptr_ == nullptr);
 
@@ -345,7 +344,7 @@ TEST(EKFLocalizerTestSuite, measurementUpdateTwistWithCovariance)
     for (int i = 0; i < 10; ++i)
     {
         in_twist.header.stamp = rclcpp::Time(0,0);
-        pub_twist_cov->publish(in_twist);
+        pub_twist_with_cov->publish(in_twist);
         executor.spin_once();
         rclcpp::sleep_for(std::chrono::milliseconds(100));
     }
