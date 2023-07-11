@@ -58,7 +58,6 @@ class EKFLocalizer: public carma_ros2_utils::CarmaLifecycleNode
     rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_twist_;                        //!< @brief measurement twist subscriber
 
     rclcpp::TimerBase::SharedPtr timer_control_;             //!< @brief time for ekf calculation callback
-    // tf2_ros::TransformBroadcaster tf_br_;  //!< @brief tf broadcaster
 
     TimeDelayKalmanFilter ekf_;  //!< @brief  extended kalman filter instance.
 
