@@ -52,7 +52,7 @@ class EKFLocalizer: public carma_ros2_utils::CarmaLifecycleNode
     rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr pub_yaw_bias_;                                //!< @brief ekf estimated yaw bias publisher
     
     rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr sub_initialpose_;     //!< @brief initial pose subscriber
-    rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr sub_pose_with_cov_;   //!< @brief measurement pose with covariance subscriber
+    rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr sub_pose_with_cov_;   //!< @brief measurement pose with covariance subscriber
     rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr sub_pose_;                          //!< @brief measurement pose subscriber
     rclcpp::Subscription<geometry_msgs::msg::TwistWithCovarianceStamped>::SharedPtr sub_twist_with_cov_; //!< @brief measurement twist with covariance subscriber
     rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_twist_;                        //!< @brief measurement twist subscriber

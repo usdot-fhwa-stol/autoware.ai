@@ -114,8 +114,9 @@ namespace ekf_localizer{
         pub_twist_ = create_publisher<geometry_msgs::msg::TwistStamped>("ekf_twist", 1);
         pub_twist_cov_ = create_publisher<geometry_msgs::msg::TwistWithCovarianceStamped>("ekf_twist_with_covariance", 1);
         pub_yaw_bias_ = create_publisher<std_msgs::msg::Float64>("estimated_yaw_bias", 1);
-        sub_initialpose_ = create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>("in_pose_with_covariance", 1, std::bind(&EKFLocalizer::callbackPoseWithCovariance, this, std::placeholders::_1));
-        sub_pose_with_cov_ = create_subscription<geometry_msgs::msg::PoseStamped>("in_pose", 1, std::bind(&EKFLocalizer::callbackPose, this, std::placeholders::_1));
+        sub_initialpose_ = create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>("initialpose", 1, std::bind(&EKFLocalizer::callbackInitialPose, this, std::placeholders::_1));
+        sub_pose_with_cov_ = create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>("in_pose_with_covariance", 1, std::bind(&EKFLocalizer::callbackPoseWithCovariance, this, std::placeholders::_1)); 
+        sub_pose_ = create_subscription<geometry_msgs::msg::PoseStamped>("in_pose", 1, std::bind(&EKFLocalizer::callbackPose, this, std::placeholders::_1));
         sub_twist_with_cov_ = create_subscription<geometry_msgs::msg::TwistWithCovarianceStamped>("in_twist_with_covariance", 1, std::bind(&EKFLocalizer::callbackTwistWithCovariance, this, std::placeholders::_1));
         sub_twist_ = create_subscription<geometry_msgs::msg::TwistStamped>("in_twist", 1, std::bind(&EKFLocalizer::callbackTwist, this, std::placeholders::_1));
         
