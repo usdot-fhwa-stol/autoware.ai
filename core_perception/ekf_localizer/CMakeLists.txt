@@ -1,77 +1,65 @@
-cmake_minimum_required(VERSION 2.8.3)
+# Copyright (C) 2023 LEIDOS.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+cmake_minimum_required(VERSION 3.5)
 project(ekf_localizer)
 
+# Declare carma package and check ROS version
 find_package(carma_cmake_common REQUIRED)
-carma_check_ros_version(1)
-
-find_package(catkin REQUIRED
-        autoware_build_flags
-        roscpp
-        std_msgs
-        tf2
-        tf2_ros
-        geometry_msgs
-        autoware_msgs
-        sensor_msgs
-        rostest
-        rosunit
-        amathutils_lib
-)
+carma_check_ros_version(2)
+carma_package()
 
 find_package(Eigen3 REQUIRED)
 
+## Find dependencies using ament auto
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
 
-catkin_package(
- INCLUDE_DIRS include
- CATKIN_DEPENDS
-        autoware_build_flags
-        roscpp
-        std_msgs
-        tf2
-        tf2_ros
-        geometry_msgs
-        autoware_msgs
-        sensor_msgs
-        amathutils_lib
-)
-
-###########
-## Build ##
-###########
-
+# Includes
 include_directories(
-        include
-        ${catkin_INCLUDE_DIRS}
-        ${EIGEN3_INCLUDE_DIR}
+    include
+    ${EIGEN3_INCLUDE_DIR}
 )
 
-add_executable(ekf_localizer src/ekf_localizer_node.cpp src/ekf_localizer.cpp)
-add_dependencies(ekf_localizer ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(ekf_localizer ${catkin_LIBRARIES})
+ament_auto_add_library(ekf_localizer_lib SHARED
+    src/ekf_localizer.cpp)
 
-#############
-## Install ##
-#############
+ament_auto_add_executable(ekf_localizer_exec
+    src/ekf_localizer_node.cpp)
 
-## Install executables and/or libraries
-install(TARGETS ekf_localizer
-        ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-        LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-        RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+# Register component
+rclcpp_components_register_nodes(ekf_localizer_lib "ekf_localizer::EKFLocalizer")
 
-## Install project namespaced headers
-install(DIRECTORY include/ekf_localizer/
-        DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
+target_link_libraries(
+    ekf_localizer_exec
+    ekf_localizer_lib
+)
 
-install(DIRECTORY launch/
-        DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
-        PATTERN ".svn" EXCLUDE)
+# Testing
+if(BUILD_TESTING)  
 
-        
-if(CATKIN_ENABLE_TESTING)
-        find_package(rostest REQUIRED)
-        add_rostest_gtest(ekf_localizer-test test/test_ekf_localizer.test 
-                        test/src/test_ekf_localizer.cpp 
-                        src/ekf_localizer.cpp)
-        target_link_libraries(ekf_localizer-test ${catkin_LIBRARIES})
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies() # This populates the ${${PROJECT_NAME}_FOUND_TEST_DEPENDS} variable
+
+  ament_add_gtest(test_ekf_localizer test/test_ekf_localizer.cpp)
+
+  ament_target_dependencies(test_ekf_localizer ${${PROJECT_NAME}_FOUND_TEST_DEPENDS})
+
+  target_link_libraries(test_ekf_localizer ekf_localizer_lib)
+
 endif()
+
+ament_auto_package(
+    INSTALL_TO_SHARE launch
+)
