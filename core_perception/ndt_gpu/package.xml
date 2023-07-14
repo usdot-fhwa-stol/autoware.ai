@@ -1,18 +1,24 @@
 <?xml version="1.0"?>
-<package format="2">
+<package format="3">
   <name>ndt_gpu</name>
-  <version>1.12.0</version>
+  <version>4.0.0</version>
   <description>The ndt_gpu package</description>
   <maintainer email="yuki@ertl.jp">Yuki Kitsukawa</maintainer>
   <maintainer email="anh@ertl.jp">Anh Viet Nguyen</maintainer>
   <license>Apache 2</license>
 
   <buildtool_depend>autoware_build_flags</buildtool_depend>
-  <buildtool_depend>catkin</buildtool_depend>
-
+  <buildtool_depend condition="$ROS_VERSION == 1">catkin</buildtool_depend>
+  <buildtool_depend condition="$ROS_VERSION == 2">ament_cmake</buildtool_depend>  
+  
+  <build_depend condition="$ROS_VERSION == 2">ament_auto_cmake</build_depend>
   <build_depend>libpcl-all-dev</build_depend>
 
   <exec_depend>libpcl-all</exec_depend>
 
   <build_depend>carma_cmake_common</build_depend>
+  <export>
+    <build_type condition="$ROS_VERSION == 1">catkin</build_type>
+    <build_type condition="$ROS_VERSION == 2">ament_cmake</build_type>
+  </export>
 </package>
