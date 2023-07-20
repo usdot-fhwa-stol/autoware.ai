@@ -684,6 +684,8 @@ void NDTMatching::initialpose_callback(const geometry_msgs::msg::PoseWithCovaria
 void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr input){
 
     RCLCPP_INFO_STREAM(get_logger(), "Entering points callback");
+    RCLCPP_INFO_STREAM(get_logger(), "map_loaded: %s"<< map_loaded);
+    RCLCPP_INFO_STREAM(get_logger(), "init_pos_set: %s"<< init_pos_set);
 
     if (map_loaded == 1 && init_pos_set == 1)
     {
