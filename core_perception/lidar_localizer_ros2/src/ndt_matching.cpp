@@ -683,8 +683,11 @@ void NDTMatching::initialpose_callback(const geometry_msgs::msg::PoseWithCovaria
 
 void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr input){
 
+    RCLCPP_INFO_STREAM(get_logger(), "Entering points callback");
+
     if (map_loaded == 1 && init_pos_set == 1)
     {
+        RCLCPP_INFO(get_logger(), "Entering map_loaded and init_pos_set");
         matching_start = std::chrono::system_clock::now();
 
         static tf2_ros::TransformBroadcaster br(shared_from_this());
@@ -712,6 +715,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
 
         if (_method_type == MethodType::PCL_GENERIC)
         ndt.setInputSource(filtered_scan_ptr);
+        RCLCPP_INFO(get_logger(), "Set inputsource for ndt PCL GENERIC");
         else if (_method_type == MethodType::PCL_ANH)
         anh_ndt.setInputSource(filtered_scan_ptr);
     #ifdef CUDA_FOUND
@@ -787,6 +791,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         align_end = std::chrono::system_clock::now();
 
         has_converged = ndt.hasConverged();
+        RCLCPP_INFO(get_logger(), "Set has_converged to: %s", has_converged);
 
         t = ndt.getFinalTransformation();
         iteration = ndt.getFinalNumIteration();
@@ -804,6 +809,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         align_end = std::chrono::system_clock::now();
 
         has_converged = anh_ndt.hasConverged();
+        RCLCPP_INFO(get_logger(), "After align end set has_converged to: %s", has_converged);
 
         t = anh_ndt.getFinalTransformation();
         iteration = anh_ndt.getFinalNumIteration();
@@ -1269,7 +1275,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         previous_estimated_vel_kmph.data = estimated_vel_kmph.data;
     } 
 
-    RCLCPP_INFO_STREAM(get_logger(), "Exiting points callback");
+    RCLCPP_INFO(get_logger(), "Exiting points callback");
 }
 
 void NDTMatching::odom_callback(const nav_msgs::msg::Odometry::SharedPtr input){
