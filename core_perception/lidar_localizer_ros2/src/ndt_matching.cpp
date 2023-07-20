@@ -129,7 +129,7 @@ static bool _output_log_data = false;
 static std::string _imu_topic = "/imu_raw";
 
 static std::ofstream ofs;
-static std::string filename = "/opt/carma/ndt_matching.txt";  
+static std::string filename;  
 
 static sensor_msgs::msg::Imu imu;
 static nav_msgs::msg::Odometry odom;   
