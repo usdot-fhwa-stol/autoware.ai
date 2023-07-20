@@ -713,9 +713,10 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
 
         pthread_mutex_lock(&mutex);
 
-        if (_method_type == MethodType::PCL_GENERIC)
+        if (_method_type == MethodType::PCL_GENERIC){
         ndt.setInputSource(filtered_scan_ptr);
         RCLCPP_INFO(get_logger(), "Set inputsource for ndt PCL GENERIC");
+        }
         else if (_method_type == MethodType::PCL_ANH)
         anh_ndt.setInputSource(filtered_scan_ptr);
     #ifdef CUDA_FOUND
