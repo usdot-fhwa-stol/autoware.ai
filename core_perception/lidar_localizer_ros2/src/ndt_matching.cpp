@@ -687,7 +687,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
 
     if (map_loaded == 1 && init_pos_set == 1)
     {
-        RCLCPP_INFO(get_logger(), "Entering map_loaded and init_pos_set");
+        RCLCPP_INFO_STREAM(get_logger(), "Entering map_loaded and init_pos_set");
         matching_start = std::chrono::system_clock::now();
 
         static tf2_ros::TransformBroadcaster br(shared_from_this());
@@ -715,7 +715,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
 
         if (_method_type == MethodType::PCL_GENERIC){
         ndt.setInputSource(filtered_scan_ptr);
-        RCLCPP_INFO(get_logger(), "Set inputsource for ndt PCL GENERIC");
+        RCLCPP_INFO_STREAM(get_logger(), "Set inputsource for ndt PCL GENERIC");
         }
         else if (_method_type == MethodType::PCL_ANH)
         anh_ndt.setInputSource(filtered_scan_ptr);
@@ -792,7 +792,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         align_end = std::chrono::system_clock::now();
 
         has_converged = ndt.hasConverged();
-        RCLCPP_INFO(get_logger(), "Set has_converged to: %s", has_converged);
+        RCLCPP_INFO_STREAM(get_logger(), "Set has_converged to: %s", has_converged);
 
         t = ndt.getFinalTransformation();
         iteration = ndt.getFinalNumIteration();
