@@ -792,7 +792,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         align_end = std::chrono::system_clock::now();
 
         has_converged = ndt.hasConverged();
-        RCLCPP_INFO_STREAM(get_logger(), "Set has_converged to: %s", has_converged);
+        RCLCPP_INFO(get_logger(), "Set has_converged to: %s", has_converged);
 
         t = ndt.getFinalTransformation();
         iteration = ndt.getFinalNumIteration();
