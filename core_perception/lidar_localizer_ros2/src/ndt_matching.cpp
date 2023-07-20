@@ -303,7 +303,7 @@ carma_ros2_utils::CallbackReturn NDTMatching::handle_on_configure(const rclcpp_l
 
     // Create callback group to handle points_map callbacks
     //points_map topic is published as transient_local, subscriber needs to be set to that
-    auto points_map_callback_group = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+    auto points_map_callback_group = create_callback_group(rclcpp::CallbackGroupType::Reentrant);
     rclcpp::SubscriptionOptions points_map_sub_options;
     points_map_sub_options.use_intra_process_comm = rclcpp::IntraProcessSetting::Disable;
     auto sub_qos_transient_local = rclcpp::QoS(rclcpp::KeepLast(10));
@@ -1478,6 +1478,7 @@ double NDTMatching::calcDiffForRadian(const double lhs_rad, const double rhs_rad
 
 void NDTMatching::map_callback(const sensor_msgs::msg::PointCloud2::SharedPtr input)
 {
+    
 // if (map_loaded == 0)
 if (points_map_num != input->width)
 {
