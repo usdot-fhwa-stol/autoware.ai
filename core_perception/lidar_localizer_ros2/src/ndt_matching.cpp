@@ -129,7 +129,7 @@ static bool _output_log_data = false;
 static std::string _imu_topic = "/imu_raw";
 
 static std::ofstream ofs;
-static std::string filename = "/opt/carma/ndt_matching.txt";  
+static std::string filename;  
 
 static sensor_msgs::msg::Imu imu;
 static nav_msgs::msg::Odometry odom;   
@@ -689,7 +689,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
 
     if (map_loaded == 1 && init_pos_set == 1)
     {
-        RCLCPP_INFO(get_logger(), "Entering map_loaded and init_pos_set");
+        RCLCPP_INFO_STREAM(get_logger(), "Entering map_loaded and init_pos_set");
         matching_start = std::chrono::system_clock::now();
 
         static tf2_ros::TransformBroadcaster br(shared_from_this());
@@ -717,7 +717,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
 
         if (_method_type == MethodType::PCL_GENERIC){
         ndt.setInputSource(filtered_scan_ptr);
-        RCLCPP_INFO(get_logger(), "Set inputsource for ndt PCL GENERIC");
+        RCLCPP_INFO_STREAM(get_logger(), "Set inputsource for ndt PCL GENERIC");
         }
         else if (_method_type == MethodType::PCL_ANH)
         anh_ndt.setInputSource(filtered_scan_ptr);
