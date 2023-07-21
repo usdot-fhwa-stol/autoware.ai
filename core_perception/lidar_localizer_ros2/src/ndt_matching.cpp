@@ -1563,9 +1563,10 @@ if (points_map_num != input->width)
 
         new_ndt.align(*output_cloud, Eigen::Matrix4f::Identity());
 
-        pthread_mutex_lock(&mutex);
+        // pthread_mutex_lock(&mutex);
         ndt = new_ndt;
-        pthread_mutex_unlock(&mutex);
+        // pthread_mutex_unlock(&mutex);
+        RCLCPP_ERROR(get_logger(), "Set ndt in pcl generic");
     
     }
     else if (_method_type == MethodType::PCL_ANH)
@@ -1635,6 +1636,8 @@ if (points_map_num != input->width)
     map_loaded = 1;
     
     }
+
+    RCLCPP_ERROR_STREAM(get_logger(), "Map loaded val at end" << int(map_loaded));
 }
 
 template<typename PointT>
