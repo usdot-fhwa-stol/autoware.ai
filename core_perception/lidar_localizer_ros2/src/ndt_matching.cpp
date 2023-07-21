@@ -297,13 +297,31 @@ carma_ros2_utils::CallbackReturn NDTMatching::handle_on_configure(const rclcpp_l
     ndt_reliability_pub = create_publisher<std_msgs::msg::Float32>("ndt_reliability", 10);
 
     // Initialize subscribers
-    param_sub = create_subscription<autoware_config_msgs::msg::ConfigNDT>("config/ndt", 10 , std::bind(&NDTMatching::param_callback, this, std::placeholders::_1));
-    gnss_sub = create_subscription<geometry_msgs::msg::PoseStamped>("gnss_pose", _queue_size, std::bind(&NDTMatching::gnss_callback, this, std::placeholders::_1));
+    auto param_callback_group = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+    rclcpp::SubscriptionOptions param_map_sub_options;
+    param_map_sub_options.callback_group = param_map_sub_options;
+    param_sub = create_subscription<autoware_config_msgs::msg::ConfigNDT>("config/ndt", 10 , std::bind(&NDTMatching::param_callback, this, std::placeholders::_1),param_map_sub_options);
+    auto gnss_callback_group =  create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+    rclcpp::SubscriptionOptions gnss_sub_options;
+    gnss_sub_options.callback_group = gnss_callback_group;
+    gnss_sub = create_subscription<geometry_msgs::msg::PoseStamped>("gnss_pose", _queue_size, std::bind(&NDTMatching::gnss_callback, this, std::placeholders::_1), gnss_sub_options);
     //  ros::Subscriber map_sub = nh.subscribe("points_map", 1, map_callback);
-    initialpose_sub = create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>("initialpose", _queue_size, std::bind(&NDTMatching::initialpose_callback, this, std::placeholders::_1));
-    points_sub = create_subscription<sensor_msgs::msg::PointCloud2>("filtered_points", _queue_size, std::bind(&NDTMatching::points_callback, this, std::placeholders::_1));
-    odom_sub = create_subscription<nav_msgs::msg::Odometry>("vehicle/odom", _queue_size * 10, std::bind(&NDTMatching::odom_callback, this, std::placeholders::_1));
-    imu_sub = create_subscription<sensor_msgs::msg::Imu>(_imu_topic.c_str(), _queue_size * 10, std::bind(&NDTMatching::imu_callback, this, std::placeholders::_1));
+    auto initialpose_group = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+    rclcpp::SubscriptionOptions initialpose_callback_options;
+    initialpose_callback_options.callback_group = initialpose_group;
+    initialpose_sub = create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>("initialpose", _queue_size, std::bind(&NDTMatching::initialpose_callback, this, std::placeholders::_1),initialpose_callback_options);
+    auto points_group = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+    rclcpp::SubscriptionOptions points_options;
+    points_options.callback_group = points_group;
+    points_sub = create_subscription<sensor_msgs::msg::PointCloud2>("filtered_points", _queue_size, std::bind(&NDTMatching::points_callback, this, std::placeholders::_1), points_options);
+    auto odom_group = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+    rclcpp::SubscriptionOptions odom_options;
+    odom_options.callback_group = odom_group;
+    odom_sub = create_subscription<nav_msgs::msg::Odometry>("vehicle/odom", _queue_size * 10, std::bind(&NDTMatching::odom_callback, this, std::placeholders::_1), odom_options);
+    auto imu_group = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+    rclcpp::SubscriptionOptions imu_options;
+    imu_options.callback_group = imu_group;
+    imu_sub = create_subscription<sensor_msgs::msg::Imu>(_imu_topic.c_str(), _queue_size * 10, std::bind(&NDTMatching::imu_callback, this, std::placeholders::_1), imu_group);
 
     // Create callback group to handle points_map callbacks
     //points_map topic is published as transient_local, subscriber needs to be set to that
@@ -1563,9 +1581,9 @@ if (points_map_num != input->width)
 
         new_ndt.align(*output_cloud, Eigen::Matrix4f::Identity());
 
-        // pthread_mutex_lock(&mutex);
+        pthread_mutex_lock(&mutex);
         ndt = new_ndt;
-        // pthread_mutex_unlock(&mutex);
+        pthread_mutex_unlock(&mutex);
         RCLCPP_ERROR(get_logger(), "Set ndt in pcl generic");
     
     }
@@ -1637,7 +1655,7 @@ if (points_map_num != input->width)
     
     }
 
-    RCLCPP_ERROR_STREAM(get_logger(), "Map loaded val at end" << int(map_loaded));
+    RCLCPP_ERROR_STREAM(get_logger(), "Map loaded val at end: " << int(map_loaded));
 }
 
 template<typename PointT>
