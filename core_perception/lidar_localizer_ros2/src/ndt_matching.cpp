@@ -687,13 +687,13 @@ void NDTMatching::initialpose_callback(const geometry_msgs::msg::PoseWithCovaria
 
 void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr input){
 
-    RCLCPP_INFO_STREAM(get_logger(), "Entering points callback");
-    RCLCPP_INFO_STREAM(get_logger(), "map_loaded: %s"<< map_loaded);
-    RCLCPP_INFO_STREAM(get_logger(), "init_pos_set: %s"<< init_pos_set);
+    RCLCPP_ERROR_STREAM(get_logger(), "Entering points callback");
+    RCLCPP_ERROR_STREAM(get_logger(), "map_loaded: %s"<< map_loaded);
+    RCLCPP_ERROR_STREAM(get_logger(), "init_pos_set: %s"<< init_pos_set);
 
     if (map_loaded == 1 && init_pos_set == 1)
     {
-        RCLCPP_INFO_STREAM(get_logger(), "Entering map_loaded and init_pos_set");
+        RCLCPP_ERROR_STREAM(get_logger(), "Entering map_loaded and init_pos_set");
         matching_start = std::chrono::system_clock::now();
 
         static tf2_ros::TransformBroadcaster br(shared_from_this());
@@ -717,8 +717,11 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
             getFitnessScore_end;
         static double align_time, getFitnessScore_time = 0.0;
 
-        pthread_mutex_lock(&mutex);
+        RCLCPP_ERROR_STREAM(get_logger(), "STAGE 1");
 
+
+        pthread_mutex_lock(&mutex);
+        
         if (_method_type == MethodType::PCL_GENERIC){
         ndt.setInputSource(filtered_scan_ptr);
         RCLCPP_INFO_STREAM(get_logger(), "Set inputsource for ndt PCL GENERIC");
@@ -736,7 +739,8 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
 
         // Guess the initial gross estimation of the transformation
         double diff_time = (current_scan_time - previous_scan_time).seconds();
-
+        RCLCPP_ERROR_STREAM(get_logger(), "STAGE 2");
+        
         if (_offset == "linear")
         {
         offset_x = current_velocity_x * diff_time;
@@ -791,8 +795,12 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
 
         pcl::PointCloud<pcl::PointXYZ>::Ptr output_cloud(new pcl::PointCloud<pcl::PointXYZ>);
 
-        if (_method_type == MethodType::PCL_GENERIC)
+        RCLCPP_ERROR_STREAM(get_logger(), "STAGE 3");
+
+        if (_method_type == MethodType::PCL_GENERIC)        
         {
+        RCLCPP_ERROR_STREAM(get_logger(), "STAGE 33a");
+
         align_start = std::chrono::system_clock::now();
         ndt.align(*output_cloud, init_guess);
         align_end = std::chrono::system_clock::now();
@@ -806,8 +814,11 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         getFitnessScore_start = std::chrono::system_clock::now();
         fitness_score = ndt.getFitnessScore();
         getFitnessScore_end = std::chrono::system_clock::now();
+        
 
         trans_probability = ndt.getTransformationProbability();
+        RCLCPP_ERROR_STREAM(get_logger(), "STAGE 33b");
+
         }
         else if (_method_type == MethodType::PCL_ANH)
         {
@@ -830,6 +841,8 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
     #ifdef CUDA_FOUND
         else if (_method_type == MethodType::PCL_ANH_GPU)
         {
+        RCLCPP_ERROR_STREAM(get_logger(), "STAGE 3a");
+
         align_start = std::chrono::system_clock::now();
         anh_gpu_ndt_ptr->align(init_guess);
         align_end = std::chrono::system_clock::now();
@@ -844,6 +857,8 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         getFitnessScore_end = std::chrono::system_clock::now();
 
         trans_probability = anh_gpu_ndt_ptr->getTransformationProbability();
+        RCLCPP_ERROR_STREAM(get_logger(), "STAGE 3b");
+
         }
     #endif
     #ifdef USE_PCL_OPENMP
@@ -866,6 +881,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         }
     #endif
         align_time = std::chrono::duration_cast<std::chrono::microseconds>(align_end - align_start).count() / 1000.0;
+        RCLCPP_ERROR_STREAM(get_logger(), "STAGE 4");
 
         t2 = t * tf_btol.inverse();
 
@@ -1280,9 +1296,11 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         previous_accel = current_accel;
 
         previous_estimated_vel_kmph.data = estimated_vel_kmph.data;
+        RCLCPP_ERROR_STREAM(get_logger(), "STAGE 5");
+
     } 
 
-    RCLCPP_INFO(get_logger(), "Exiting points callback");
+    RCLCPP_ERROR(get_logger(), "Exiting points callback");
 }
 
 void NDTMatching::odom_callback(const nav_msgs::msg::Odometry::SharedPtr input){
