@@ -108,7 +108,7 @@ namespace ekf_localizer{
         proc_cov_yaw_bias_d_ = std::pow(proc_stddev_yaw_bias_c_, 2.0) * ekf_dt_;
 
         /* initialize ros system */
-        timer_control_ = create_wall_timer(std::chrono::milliseconds(int(ekf_dt_*1000)), std::bind(&EKFLocalizer::timerCallback, this));
+        timer_control_ = create_timer(get_clock(), std::chrono::milliseconds(int(ekf_dt_*1000)), std::bind(&EKFLocalizer::timerCallback, this));
         pub_pose_ = create_publisher<geometry_msgs::msg::PoseStamped>("ekf_pose", 1);
         pub_pose_cov_ = create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>("ekf_pose_with_covariance", 1);
         pub_twist_ = create_publisher<geometry_msgs::msg::TwistStamped>("ekf_twist", 1);
