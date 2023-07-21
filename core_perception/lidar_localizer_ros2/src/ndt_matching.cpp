@@ -15,134 +15,9 @@
  */
 
 #include <ndt_matching.hpp>
-#include <pcl/common/transforms.h>
+
 
 namespace ndt_matching{
-
-static MethodType _method_type = MethodType::PCL_GENERIC;
-
-static pose initial_pose, predict_pose, predict_pose_imu, predict_pose_odom, predict_pose_imu_odom, previous_pose,
-    ndt_pose, current_pose, current_pose_imu, current_pose_odom, current_pose_imu_odom, localizer_pose;
-
-static double offset_x, offset_y, offset_z, offset_yaw;  // current_pos - previous_pose
-static double offset_imu_x, offset_imu_y, offset_imu_z, offset_imu_roll, offset_imu_pitch, offset_imu_yaw;
-static double offset_odom_x, offset_odom_y, offset_odom_z, offset_odom_roll, offset_odom_pitch, offset_odom_yaw;
-static double offset_imu_odom_x, offset_imu_odom_y, offset_imu_odom_z, offset_imu_odom_roll, offset_imu_odom_pitch,
-    offset_imu_odom_yaw;
-
-// Can't load if typed "pcl::PointCloud<pcl::PointXYZRGB> map, add;"
-static pcl::PointCloud<pcl::PointXYZ> map, add;
-
-// If the map is loaded, map_loaded will be 1.
-static int map_loaded = 0;
-static int _use_gnss = 1;
-static int init_pos_set = 0;
-
-pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> ndt;
-cpu::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> anh_ndt;
-#ifdef CUDA_FOUND
-static std::shared_ptr<gpu::GNormalDistributionsTransform> anh_gpu_ndt_ptr =
-    std::make_shared<gpu::GNormalDistributionsTransform>();
-#endif
-#ifdef USE_PCL_OPENMP
-static pcl_omp::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> omp_ndt;
-#endif
-
-// Default values
-static int max_iter = 30;        // Maximum iterations
-static float ndt_res = 1.0;      // Resolution
-static double step_size = 0.1;   // Step size
-static double trans_eps = 0.001;  // Transformation epsilon. In PCLv1.10 (ros noetic) this value is squared error not base epsilon 
-                                // NOTE: A value of 0.0001 can work as well. 
-                                // This will increase the required iteration count (and therefore execution time) but might increase accuracy.
-
-static geometry_msgs::msg::PoseStamped predict_pose_msg;
-static geometry_msgs::msg::PoseStamped predict_pose_imu_msg;
-static geometry_msgs::msg::PoseStamped predict_pose_odom_msg;
-static geometry_msgs::msg::PoseStamped predict_pose_imu_odom_msg;
-static geometry_msgs::msg::PoseStamped ndt_pose_msg;
-
-static geometry_msgs::msg::PoseStamped localizer_pose_msg;
-static geometry_msgs::msg::TwistStamped estimate_twist_msg;
-
-
-static double exe_time = 0.0;
-static bool has_converged;
-static int iteration = 0;
-static double fitness_score = 0.0;
-static double trans_probability = 0.0;
-
-// reference for comparing fitness_score, default value set to 500.0
-static double _gnss_reinit_fitness = 500.0;
-
-static double diff = 0.0;
-static double diff_x = 0.0, diff_y = 0.0, diff_z = 0.0, diff_yaw;
-
-static double current_velocity = 0.0, previous_velocity = 0.0, previous_previous_velocity = 0.0;  // [m/s]
-static double current_velocity_x = 0.0, previous_velocity_x = 0.0;
-static double current_velocity_y = 0.0, previous_velocity_y = 0.0;
-static double current_velocity_z = 0.0, previous_velocity_z = 0.0;
-// static double current_velocity_yaw = 0.0, previous_velocity_yaw = 0.0;
-static double current_velocity_smooth = 0.0;
-
-static double current_velocity_imu_x = 0.0;
-static double current_velocity_imu_y = 0.0;
-static double current_velocity_imu_z = 0.0;
-
-static double current_accel = 0.0, previous_accel = 0.0;  // [m/s^2]
-static double current_accel_x = 0.0;
-static double current_accel_y = 0.0;
-static double current_accel_z = 0.0;
-// static double current_accel_yaw = 0.0;
-
-static double angular_velocity = 0.0;
-
-static int use_predict_pose = 0;      
-
-static std_msgs::msg::Float32 estimated_vel_mps, estimated_vel_kmph, previous_estimated_vel_kmph;
-
-static std::chrono::time_point<std::chrono::system_clock> matching_start, matching_end;          
-
-static std_msgs::msg::Float32 time_ndt_matching;      
-
-static int _queue_size = 1;
-
-static autoware_msgs::msg::NDTStat ndt_stat_msg; 
-
-static double predict_pose_error = 0.0;
-
-static double _tf_x, _tf_y, _tf_z, _tf_roll, _tf_pitch, _tf_yaw;
-static Eigen::Matrix4f tf_btol;
-
-static std::string _localizer = "velodyne";
-static std::string _offset = "linear";  // linear, zero, quadratic
-
-static std_msgs::msg::Float32 ndt_reliability; 
-
-static bool _get_height = false;
-static bool _use_local_transform = false;
-static bool _use_imu = false;
-static bool _use_odom = false;
-static bool _imu_upside_down = false;
-static bool _output_log_data = false;
-
-static std::string _imu_topic = "/imu_raw";
-
-static std::ofstream ofs;
-static std::string filename;  
-
-static sensor_msgs::msg::Imu imu;
-static nav_msgs::msg::Odometry odom;   
-
-// static tf::TransformListener local_transform_listener;
-static tf2::Stamped<tf2::Transform> local_transform;
-
-static std::string _base_frame = "base_link";
-static std::string _map_frame = "map";
-
-static unsigned int points_map_num = 0;   
-
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 NDTMatching::NDTMatching(const rclcpp::NodeOptions &options) : carma_ros2_utils::CarmaLifecycleNode(options){
         //Initialize parameters
@@ -297,31 +172,13 @@ carma_ros2_utils::CallbackReturn NDTMatching::handle_on_configure(const rclcpp_l
     ndt_reliability_pub = create_publisher<std_msgs::msg::Float32>("ndt_reliability", 10);
 
     // Initialize subscribers
-    auto param_callback_group = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
-    rclcpp::SubscriptionOptions param_map_sub_options;
-    param_map_sub_options.callback_group = param_callback_group;
-    param_sub = create_subscription<autoware_config_msgs::msg::ConfigNDT>("config/ndt", 10 , std::bind(&NDTMatching::param_callback, this, std::placeholders::_1),param_map_sub_options);
-    auto gnss_callback_group =  create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
-    rclcpp::SubscriptionOptions gnss_sub_options;
-    gnss_sub_options.callback_group = gnss_callback_group;
-    gnss_sub = create_subscription<geometry_msgs::msg::PoseStamped>("gnss_pose", _queue_size, std::bind(&NDTMatching::gnss_callback, this, std::placeholders::_1), gnss_sub_options);
+    param_sub = create_subscription<autoware_config_msgs::msg::ConfigNDT>("config/ndt", 10 , std::bind(&NDTMatching::param_callback, this, std::placeholders::_1));
+    gnss_sub = create_subscription<geometry_msgs::msg::PoseStamped>("gnss_pose", _queue_size, std::bind(&NDTMatching::gnss_callback, this, std::placeholders::_1));
     //  ros::Subscriber map_sub = nh.subscribe("points_map", 1, map_callback);
-    auto initialpose_group = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
-    rclcpp::SubscriptionOptions initialpose_callback_options;
-    initialpose_callback_options.callback_group = initialpose_group;
-    initialpose_sub = create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>("initialpose", _queue_size, std::bind(&NDTMatching::initialpose_callback, this, std::placeholders::_1),initialpose_callback_options);
-    auto points_group = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
-    rclcpp::SubscriptionOptions points_options;
-    points_options.callback_group = points_group;
-    points_sub = create_subscription<sensor_msgs::msg::PointCloud2>("filtered_points", _queue_size, std::bind(&NDTMatching::points_callback, this, std::placeholders::_1), points_options);
-    auto odom_group = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
-    rclcpp::SubscriptionOptions odom_options;
-    odom_options.callback_group = odom_group;
-    odom_sub = create_subscription<nav_msgs::msg::Odometry>("vehicle/odom", _queue_size * 10, std::bind(&NDTMatching::odom_callback, this, std::placeholders::_1), odom_options);
-    auto imu_group = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
-    rclcpp::SubscriptionOptions imu_options;
-    imu_options.callback_group = imu_group;
-    imu_sub = create_subscription<sensor_msgs::msg::Imu>(_imu_topic.c_str(), _queue_size * 10, std::bind(&NDTMatching::imu_callback, this, std::placeholders::_1), imu_options);
+    initialpose_sub = create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>("initialpose", _queue_size, std::bind(&NDTMatching::initialpose_callback, this, std::placeholders::_1));
+    points_sub = create_subscription<sensor_msgs::msg::PointCloud2>("filtered_points", _queue_size, std::bind(&NDTMatching::points_callback, this, std::placeholders::_1));
+    odom_sub = create_subscription<nav_msgs::msg::Odometry>("vehicle/odom", _queue_size * 10, std::bind(&NDTMatching::odom_callback, this, std::placeholders::_1));
+    imu_sub = create_subscription<sensor_msgs::msg::Imu>(_imu_topic.c_str(), _queue_size * 10, std::bind(&NDTMatching::imu_callback, this, std::placeholders::_1));
 
     // Create callback group to handle points_map callbacks
     //points_map topic is published as transient_local, subscriber needs to be set to that
