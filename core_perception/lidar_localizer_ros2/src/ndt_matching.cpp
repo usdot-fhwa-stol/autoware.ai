@@ -142,7 +142,7 @@ static std::string _map_frame = "map";
 
 static unsigned int points_map_num = 0;   
 
-pthread_mutex_t mutex;
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 NDTMatching::NDTMatching(const rclcpp::NodeOptions &options) : carma_ros2_utils::CarmaLifecycleNode(options){
         //Initialize parameters
@@ -585,6 +585,7 @@ pose NDTMatching::convertPoseIntoRelativeCoordinate(const pose &target_pose, con
 
 void NDTMatching::initialpose_callback(const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr input){
 
+    RCLCPP_WARN(get_logger(), "Entering initialpose callback");
     tf2_ros::Buffer buffer(get_clock());
     tf2_ros::TransformListener listener(buffer);
     geometry_msgs::msg::TransformStamped tf_geom;
@@ -682,6 +683,7 @@ void NDTMatching::initialpose_callback(const geometry_msgs::msg::PoseWithCovaria
     offset_imu_odom_yaw = 0.0;
 
     init_pos_set = 1;
+    RCLCPP_WARN(get_logger(), "Exiting initialpose callback");
 
 }
 
@@ -1304,8 +1306,10 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
 }
 
 void NDTMatching::odom_callback(const nav_msgs::msg::Odometry::SharedPtr input){
+    RCLCPP_WARN(get_logger(), "Entering odom callback");
     odom = *input;
     odom_calc(input->header.stamp);
+    RCLCPP_WARN(get_logger(), "Exiting odom callback");
 }
 
 void NDTMatching::odom_calc(rclcpp::Time current_time){
@@ -1345,7 +1349,7 @@ void NDTMatching::odom_calc(rclcpp::Time current_time){
 
 void NDTMatching::imu_callback(const sensor_msgs::msg::Imu::SharedPtr input){
     // std::cout << __func__ << std::endl;
-    
+    RCLCPP_WARN(get_logger(), "Entering imu callback");
 
     if (_imu_upside_down)
         imuUpsideDown(input);
@@ -1395,6 +1399,7 @@ void NDTMatching::imu_callback(const sensor_msgs::msg::Imu::SharedPtr input){
     previous_imu_roll = imu_roll;
     previous_imu_pitch = imu_pitch;
     previous_imu_yaw = imu_yaw;
+    RCLCPP_WARN(get_logger(), "Exiting imu callback");
     
 }
 
