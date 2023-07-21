@@ -299,7 +299,7 @@ carma_ros2_utils::CallbackReturn NDTMatching::handle_on_configure(const rclcpp_l
     // Initialize subscribers
     auto param_callback_group = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
     rclcpp::SubscriptionOptions param_map_sub_options;
-    param_map_sub_options.callback_group = param_map_sub_options;
+    param_map_sub_options.callback_group = param_callback_group;
     param_sub = create_subscription<autoware_config_msgs::msg::ConfigNDT>("config/ndt", 10 , std::bind(&NDTMatching::param_callback, this, std::placeholders::_1),param_map_sub_options);
     auto gnss_callback_group =  create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
     rclcpp::SubscriptionOptions gnss_sub_options;
