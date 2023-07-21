@@ -174,6 +174,10 @@ NDTMatching::NDTMatching(const rclcpp::NodeOptions &options) : carma_ros2_utils:
 
 carma_ros2_utils::CallbackReturn NDTMatching::handle_on_configure(const rclcpp_lifecycle::State &prev_state)
 {
+    #ifdef CUDA_FOUND
+    RCLCPP_ERROR_STREAM(get_logger(),"Found CUDA");
+    #endif
+
     // Get parameters
     get_parameter<bool>("output_log_data", _output_log_data);
     get_parameter<int>("method_type", method_type_tmp);
@@ -303,7 +307,7 @@ carma_ros2_utils::CallbackReturn NDTMatching::handle_on_configure(const rclcpp_l
 
     // Create callback group to handle points_map callbacks
     //points_map topic is published as transient_local, subscriber needs to be set to that
-    auto points_map_callback_group = create_callback_group(rclcpp::CallbackGroupType::Reentrant);
+    auto points_map_callback_group = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
     rclcpp::SubscriptionOptions points_map_sub_options;
     points_map_sub_options.use_intra_process_comm = rclcpp::IntraProcessSetting::Disable;
     auto sub_qos_transient_local = rclcpp::QoS(rclcpp::KeepLast(10));
@@ -487,7 +491,7 @@ void NDTMatching::param_callback(const autoware_config_msgs::msg::ConfigNDT::Sha
 
 void NDTMatching::gnss_callback(const geometry_msgs::msg::PoseStamped::SharedPtr input){
 
-
+    RCLCPP_ERROR_STREAM(get_logger(), "has converged val : "<<int(has_converged));
     tf2::Quaternion gnss_q(input->pose.orientation.x, input->pose.orientation.y, input->pose.orientation.z,
                     input->pose.orientation.w);
     tf2::Matrix3x3 gnss_m(gnss_q);
@@ -794,7 +798,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         align_end = std::chrono::system_clock::now();
 
         has_converged = ndt.hasConverged();
-        RCLCPP_INFO(get_logger(), "Set has_converged to: %s", has_converged);
+        RCLCPP_ERROR(get_logger(), "Set has_converged to: %s", has_converged);
 
         t = ndt.getFinalTransformation();
         iteration = ndt.getFinalNumIteration();
@@ -1478,10 +1482,11 @@ double NDTMatching::calcDiffForRadian(const double lhs_rad, const double rhs_rad
 
 void NDTMatching::map_callback(const sensor_msgs::msg::PointCloud2::SharedPtr input)
 {
-    
+    RCLCPP_ERROR_STREAM(get_logger(), "Entering the map callback, width:"<< input->width);
 // if (map_loaded == 0)
 if (points_map_num != input->width)
 {
+    RCLCPP_ERROR_STREAM(get_logger(), "Entering if points_map_num check map callback ");
     std::cout << "Update points_map." << std::endl;
 
     _map_frame = input->header.frame_id; // Update map frame to be the frame of the map points topic
@@ -1522,45 +1527,46 @@ if (points_map_num != input->width)
     // Setting point cloud to be aligned to.
     if (_method_type == MethodType::PCL_GENERIC)
     {
-    RCLCPP_INFO(get_logger(), "Using translation threshold of %f", trans_eps);
-    RCLCPP_INFO(get_logger(), "Using rotation threshold of %f", rot_threshold);
-    pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> new_ndt;
-    pcl::PointCloud<pcl::PointXYZ>::Ptr output_cloud(new pcl::PointCloud<pcl::PointXYZ>);
-    new_ndt.setResolution(ndt_res);
-    new_ndt.setInputTarget(map_ptr);
-    new_ndt.setMaximumIterations(max_iter);
-    new_ndt.setStepSize(step_size);
-    new_ndt.setTransformationEpsilon(trans_eps);
-    new_ndt.setTransformationRotationEpsilon(rot_threshold);
+        RCLCPP_INFO(get_logger(), "Using translation threshold of %f", trans_eps);
+        RCLCPP_INFO(get_logger(), "Using rotation threshold of %f", rot_threshold);
+        pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> new_ndt;
+        pcl::PointCloud<pcl::PointXYZ>::Ptr output_cloud(new pcl::PointCloud<pcl::PointXYZ>);
+        new_ndt.setResolution(ndt_res);
+        new_ndt.setInputTarget(map_ptr);
+        new_ndt.setMaximumIterations(max_iter);
+        new_ndt.setStepSize(step_size);
+        new_ndt.setTransformationEpsilon(trans_eps);
+        new_ndt.setTransformationRotationEpsilon(rot_threshold);
 
-    new_ndt.align(*output_cloud, Eigen::Matrix4f::Identity());
+        new_ndt.align(*output_cloud, Eigen::Matrix4f::Identity());
 
-    pthread_mutex_lock(&mutex);
-    ndt = new_ndt;
-    pthread_mutex_unlock(&mutex);
+        pthread_mutex_lock(&mutex);
+        ndt = new_ndt;
+        pthread_mutex_unlock(&mutex);
     
     }
     else if (_method_type == MethodType::PCL_ANH)
     {
-    cpu::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> new_anh_ndt;
-    new_anh_ndt.setResolution(ndt_res);
-    new_anh_ndt.setInputTarget(map_ptr);
-    new_anh_ndt.setMaximumIterations(max_iter);
-    new_anh_ndt.setStepSize(step_size);
-    new_anh_ndt.setTransformationEpsilon(trans_eps);
+        cpu::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> new_anh_ndt;
+        new_anh_ndt.setResolution(ndt_res);
+        new_anh_ndt.setInputTarget(map_ptr);
+        new_anh_ndt.setMaximumIterations(max_iter);
+        new_anh_ndt.setStepSize(step_size);
+        new_anh_ndt.setTransformationEpsilon(trans_eps);
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr dummy_scan_ptr(new pcl::PointCloud<pcl::PointXYZ>());
-    pcl::PointXYZ dummy_point;
-    dummy_scan_ptr->push_back(dummy_point);
-    new_anh_ndt.setInputSource(dummy_scan_ptr);
+        pcl::PointCloud<pcl::PointXYZ>::Ptr dummy_scan_ptr(new pcl::PointCloud<pcl::PointXYZ>());
+        pcl::PointXYZ dummy_point;
+        dummy_scan_ptr->push_back(dummy_point);
+        new_anh_ndt.setInputSource(dummy_scan_ptr);
 
-    new_anh_ndt.align(Eigen::Matrix4f::Identity());
+        new_anh_ndt.align(Eigen::Matrix4f::Identity());
 
-    pthread_mutex_lock(&mutex);
-    anh_ndt = new_anh_ndt;
-    pthread_mutex_unlock(&mutex);
+        pthread_mutex_lock(&mutex);
+        anh_ndt = new_anh_ndt;
+        pthread_mutex_unlock(&mutex);
     }
     #ifdef CUDA_FOUND
+    
         else if (_method_type == MethodType::PCL_ANH_GPU)
         {
         std::shared_ptr<gpu::GNormalDistributionsTransform> new_anh_gpu_ndt_ptr =
@@ -1601,7 +1607,10 @@ if (points_map_num != input->width)
         pthread_mutex_unlock(&mutex);
         }
     #endif
-        map_loaded = 1;
+    RCLCPP_ERROR_STREAM(get_logger(), "Reaching the end map callback");
+
+    map_loaded = 1;
+    
     }
 }
 
