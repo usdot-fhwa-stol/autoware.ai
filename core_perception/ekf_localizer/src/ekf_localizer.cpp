@@ -107,6 +107,8 @@ namespace ekf_localizer{
         proc_cov_yaw_d_ = std::pow(proc_stddev_yaw_c_, 2.0) * ekf_dt_;
         proc_cov_yaw_bias_d_ = std::pow(proc_stddev_yaw_bias_c_, 2.0) * ekf_dt_;
 
+        tf_br_shared_ptr_ = std::make_shared<tf2_ros::TransformBroadcaster>(shared_from_this());
+
         /* initialize ros system */
         timer_control_ = create_timer(get_clock(), std::chrono::milliseconds(int(ekf_dt_*1000)), std::bind(&EKFLocalizer::timerCallback, this));
         pub_pose_ = create_publisher<geometry_msgs::msg::PoseStamped>("ekf_pose", 1);
@@ -222,7 +224,6 @@ namespace ekf_localizer{
     */
     void EKFLocalizer::broadcastTF()
     {
-        tf2_ros::TransformBroadcaster tf_br_(shared_from_this());
         if (current_ekf_pose_.header.frame_id == "")
             return;
 
@@ -239,7 +240,7 @@ namespace ekf_localizer{
         transformStamped.transform.rotation.z = current_ekf_pose_.pose.orientation.z;
         transformStamped.transform.rotation.w = current_ekf_pose_.pose.orientation.w;
 
-        tf_br_.sendTransform(transformStamped);
+        tf_br_shared_ptr_->sendTransform(transformStamped);
     }
 
     /*

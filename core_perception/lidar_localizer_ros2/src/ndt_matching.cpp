@@ -49,10 +49,6 @@ NDTMatching::NDTMatching(const rclcpp::NodeOptions &options) : carma_ros2_utils:
 
 carma_ros2_utils::CallbackReturn NDTMatching::handle_on_configure(const rclcpp_lifecycle::State &prev_state)
 {
-    #ifdef CUDA_FOUND
-    RCLCPP_ERROR_STREAM(get_logger(),"Found CUDA");
-    #endif
-
     // Get parameters
     get_parameter<bool>("output_log_data", _output_log_data);
     get_parameter<int>("method_type", method_type_tmp);
@@ -171,14 +167,38 @@ carma_ros2_utils::CallbackReturn NDTMatching::handle_on_configure(const rclcpp_l
     ndt_stat_pub = create_publisher<autoware_msgs::msg::NDTStat>("ndt_stat", 10);
     ndt_reliability_pub = create_publisher<std_msgs::msg::Float32>("ndt_reliability", 10);
 
+    tf_br_shared_ptr_ = std::make_shared<tf2_ros::TransformBroadcaster>(shared_from_this());
+
     // Initialize subscribers
+    auto param_group = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+    rclcpp::SubscriptionOptions param_options;
+    param_options.callback_group = param_group;
     param_sub = create_subscription<autoware_config_msgs::msg::ConfigNDT>("config/ndt", 10 , std::bind(&NDTMatching::param_callback, this, std::placeholders::_1));
-    gnss_sub = create_subscription<geometry_msgs::msg::PoseStamped>("gnss_pose", _queue_size, std::bind(&NDTMatching::gnss_callback, this, std::placeholders::_1));
-    //  ros::Subscriber map_sub = nh.subscribe("points_map", 1, map_callback);
-    initialpose_sub = create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>("initialpose", _queue_size, std::bind(&NDTMatching::initialpose_callback, this, std::placeholders::_1));
-    points_sub = create_subscription<sensor_msgs::msg::PointCloud2>("filtered_points", _queue_size, std::bind(&NDTMatching::points_callback, this, std::placeholders::_1));
-    odom_sub = create_subscription<nav_msgs::msg::Odometry>("vehicle/odom", _queue_size * 10, std::bind(&NDTMatching::odom_callback, this, std::placeholders::_1));
-    imu_sub = create_subscription<sensor_msgs::msg::Imu>(_imu_topic.c_str(), _queue_size * 10, std::bind(&NDTMatching::imu_callback, this, std::placeholders::_1));
+    
+    auto gnss_callback_group = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+    rclcpp::SubscriptionOptions gnss_callback_options;
+    gnss_callback_options.callback_group = gnss_callback_group;
+    gnss_sub = create_subscription<geometry_msgs::msg::PoseStamped>("gnss_pose", _queue_size, std::bind(&NDTMatching::gnss_callback, this, std::placeholders::_1), gnss_callback_options);
+    
+    auto initialpose_callback_group = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+    rclcpp::SubscriptionOptions initialpose_options;
+    initialpose_options.callback_group = initialpose_callback_group;
+    initialpose_sub = create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>("initialpose", _queue_size, std::bind(&NDTMatching::initialpose_callback, this, std::placeholders::_1), gnss_callback_options);
+    
+    auto filtered_points_callback_group = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+    rclcpp::SubscriptionOptions filtered_points_options;
+    filtered_points_options.callback_group = filtered_points_callback_group;
+    points_sub = create_subscription<sensor_msgs::msg::PointCloud2>("filtered_points", _queue_size, std::bind(&NDTMatching::points_callback, this, std::placeholders::_1), gnss_callback_options);
+
+    auto vehicle_odom_cb_group = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+    rclcpp::SubscriptionOptions vehicle_odom_options;
+    vehicle_odom_options.callback_group = vehicle_odom_cb_group;
+    odom_sub = create_subscription<nav_msgs::msg::Odometry>("vehicle/odom", _queue_size * 10, std::bind(&NDTMatching::odom_callback, this, std::placeholders::_1), gnss_callback_options);
+
+    auto imu_sub_callback_group = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+    rclcpp::SubscriptionOptions imu_sub_options;
+    imu_sub_options.callback_group = imu_sub_callback_group;
+    imu_sub = create_subscription<sensor_msgs::msg::Imu>(_imu_topic.c_str(), _queue_size * 10, std::bind(&NDTMatching::imu_callback, this, std::placeholders::_1), gnss_callback_options);
 
     // Create callback group to handle points_map callbacks
     //points_map topic is published as transient_local, subscriber needs to be set to that
@@ -573,7 +593,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         RCLCPP_ERROR_STREAM(get_logger(), "Entering map_loaded and init_pos_set");
         matching_start = std::chrono::system_clock::now();
 
-        static tf2_ros::TransformBroadcaster br(shared_from_this());
+        // static tf2_ros::TransformBroadcaster br(shared_from_this());
         tf2::Transform transform;
         tf2::Quaternion predict_q, ndt_q, current_q, localizer_q;
 
@@ -680,11 +700,12 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
 
         align_start = std::chrono::system_clock::now();
         ndt.align(*output_cloud, init_guess);
+        
         align_end = std::chrono::system_clock::now();
-
+        
         has_converged = ndt.hasConverged();
-        RCLCPP_ERROR(get_logger(), "Set has_converged to: %s", has_converged);
-
+        // RCLCPP_ERROR(get_logger(), "Set has_converged to: %s", has_converged);
+        RCLCPP_ERROR_STREAM(get_logger(), "STAGE 33a- 1");
         t = ndt.getFinalTransformation();
         iteration = ndt.getFinalNumIteration();
 
@@ -1224,7 +1245,6 @@ void NDTMatching::odom_calc(rclcpp::Time current_time){
 
 void NDTMatching::imu_callback(const sensor_msgs::msg::Imu::SharedPtr input){
     // std::cout << __func__ << std::endl;
-    RCLCPP_WARN(get_logger(), "Entering imu callback");
 
     if (_imu_upside_down)
         imuUpsideDown(input);
@@ -1274,7 +1294,6 @@ void NDTMatching::imu_callback(const sensor_msgs::msg::Imu::SharedPtr input){
     previous_imu_roll = imu_roll;
     previous_imu_pitch = imu_pitch;
     previous_imu_yaw = imu_yaw;
-    RCLCPP_WARN(get_logger(), "Exiting imu callback");
     
 }
 

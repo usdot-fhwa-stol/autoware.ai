@@ -192,7 +192,7 @@ class NDTMatching : public carma_ros2_utils::CarmaLifecycleNode {
 
 
         double exe_time = 0.0;
-        bool has_converged;
+        bool has_converged = false;
         int iteration = 0;
         double fitness_score = 0.0;
         double trans_probability = 0.0;
@@ -267,8 +267,10 @@ class NDTMatching : public carma_ros2_utils::CarmaLifecycleNode {
 
         unsigned int points_map_num = 0;   
 
-        pthread_mutex_t mutex;
+        pthread_mutex_t mutex =  PTHREAD_MUTEX_INITIALIZER;
 
+        std::shared_ptr<tf2_ros::TransformBroadcaster> tf_br_shared_ptr_ = nullptr;
+ 
     public:
         explicit NDTMatching(const rclcpp::NodeOptions &);
         carma_ros2_utils::CallbackReturn handle_on_configure(const rclcpp_lifecycle::State &prev_state);
