@@ -19,131 +19,6 @@
 
 namespace ndt_matching{
 
-static MethodType _method_type = MethodType::PCL_GENERIC;
-
-static pose initial_pose, predict_pose, predict_pose_imu, predict_pose_odom, predict_pose_imu_odom, previous_pose,
-    ndt_pose, current_pose, current_pose_imu, current_pose_odom, current_pose_imu_odom, localizer_pose;
-
-static double offset_x, offset_y, offset_z, offset_yaw;  // current_pos - previous_pose
-static double offset_imu_x, offset_imu_y, offset_imu_z, offset_imu_roll, offset_imu_pitch, offset_imu_yaw;
-static double offset_odom_x, offset_odom_y, offset_odom_z, offset_odom_roll, offset_odom_pitch, offset_odom_yaw;
-static double offset_imu_odom_x, offset_imu_odom_y, offset_imu_odom_z, offset_imu_odom_roll, offset_imu_odom_pitch,
-    offset_imu_odom_yaw;
-
-// Can't load if typed "pcl::PointCloud<pcl::PointXYZRGB> map, add;"
-static pcl::PointCloud<pcl::PointXYZ> map, add;
-
-// If the map is loaded, map_loaded will be 1.
-static int map_loaded = 0;
-static int _use_gnss = 1;
-static int init_pos_set = 0;
-
-pcl::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> ndt;
-cpu::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> anh_ndt;
-#ifdef CUDA_FOUND
-static std::shared_ptr<gpu::GNormalDistributionsTransform> anh_gpu_ndt_ptr =
-    std::make_shared<gpu::GNormalDistributionsTransform>();
-#endif
-#ifdef USE_PCL_OPENMP
-static pcl_omp::NormalDistributionsTransform<pcl::PointXYZ, pcl::PointXYZ> omp_ndt;
-#endif
-
-// Default values
-static int max_iter = 30;        // Maximum iterations
-static float ndt_res = 1.0;      // Resolution
-static double step_size = 0.1;   // Step size
-static double trans_eps = 0.001;  // Transformation epsilon. In PCLv1.10 (ros noetic) this value is squared error not base epsilon 
-                                // NOTE: A value of 0.0001 can work as well. 
-                                // This will increase the required iteration count (and therefore execution time) but might increase accuracy.
-
-static geometry_msgs::msg::PoseStamped predict_pose_msg;
-static geometry_msgs::msg::PoseStamped predict_pose_imu_msg;
-static geometry_msgs::msg::PoseStamped predict_pose_odom_msg;
-static geometry_msgs::msg::PoseStamped predict_pose_imu_odom_msg;
-static geometry_msgs::msg::PoseStamped ndt_pose_msg;
-
-static geometry_msgs::msg::PoseStamped localizer_pose_msg;
-static geometry_msgs::msg::TwistStamped estimate_twist_msg;
-
-
-static double exe_time = 0.0;
-static bool has_converged;
-static int iteration = 0;
-static double fitness_score = 0.0;
-static double trans_probability = 0.0;
-
-// reference for comparing fitness_score, default value set to 500.0
-static double _gnss_reinit_fitness = 500.0;
-
-static double diff = 0.0;
-static double diff_x = 0.0, diff_y = 0.0, diff_z = 0.0, diff_yaw;
-
-static double current_velocity = 0.0, previous_velocity = 0.0, previous_previous_velocity = 0.0;  // [m/s]
-static double current_velocity_x = 0.0, previous_velocity_x = 0.0;
-static double current_velocity_y = 0.0, previous_velocity_y = 0.0;
-static double current_velocity_z = 0.0, previous_velocity_z = 0.0;
-// static double current_velocity_yaw = 0.0, previous_velocity_yaw = 0.0;
-static double current_velocity_smooth = 0.0;
-
-static double current_velocity_imu_x = 0.0;
-static double current_velocity_imu_y = 0.0;
-static double current_velocity_imu_z = 0.0;
-
-static double current_accel = 0.0, previous_accel = 0.0;  // [m/s^2]
-static double current_accel_x = 0.0;
-static double current_accel_y = 0.0;
-static double current_accel_z = 0.0;
-// static double current_accel_yaw = 0.0;
-
-static double angular_velocity = 0.0;
-
-static int use_predict_pose = 0;      
-
-static std_msgs::msg::Float32 estimated_vel_mps, estimated_vel_kmph, previous_estimated_vel_kmph;
-
-static std::chrono::time_point<std::chrono::system_clock> matching_start, matching_end;          
-
-static std_msgs::msg::Float32 time_ndt_matching;      
-
-static int _queue_size = 1;
-
-static autoware_msgs::msg::NDTStat ndt_stat_msg; 
-
-static double predict_pose_error = 0.0;
-
-static double _tf_x, _tf_y, _tf_z, _tf_roll, _tf_pitch, _tf_yaw;
-static Eigen::Matrix4f tf_btol;
-
-static std::string _localizer = "velodyne";
-static std::string _offset = "linear";  // linear, zero, quadratic
-
-static std_msgs::msg::Float32 ndt_reliability; 
-
-static bool _get_height = false;
-static bool _use_local_transform = false;
-static bool _use_imu = false;
-static bool _use_odom = false;
-static bool _imu_upside_down = false;
-static bool _output_log_data = false;
-
-static std::string _imu_topic = "/imu_raw";
-
-static std::ofstream ofs;
-static std::string filename;  
-
-static sensor_msgs::msg::Imu imu;
-static nav_msgs::msg::Odometry odom;   
-
-// static tf::TransformListener local_transform_listener;
-static tf2::Stamped<tf2::Transform> local_transform;
-
-static std::string _base_frame = "base_link";
-static std::string _map_frame = "map";
-
-static unsigned int points_map_num = 0;   
-
-pthread_mutex_t mutex;
-
 NDTMatching::NDTMatching(const rclcpp::NodeOptions &options) : carma_ros2_utils::CarmaLifecycleNode(options){
         //Initialize parameters
         _output_log_data = declare_parameter<bool>("output_log_data", _output_log_data);
@@ -683,11 +558,14 @@ void NDTMatching::initialpose_callback(const geometry_msgs::msg::PoseWithCovaria
 
 void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr input){
 
+    auto exec_start_time = this->now();
+    RCLCPP_WARN(get_logger(), "Entering points_callback at: %f", exec_start_time.seconds());
     if (map_loaded == 1 && init_pos_set == 1)
     {
+        RCLCPP_WARN(get_logger(), "STAGE 1");
         matching_start = std::chrono::system_clock::now();
 
-        static tf2_ros::TransformBroadcaster br(shared_from_this());
+        // static tf2_ros::TransformBroadcaster br(shared_from_this());
         tf2::Transform transform;
         tf2::Quaternion predict_q, ndt_q, current_q, localizer_q;
 
@@ -707,6 +585,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         std::chrono::time_point<std::chrono::system_clock> align_start, align_end, getFitnessScore_start,
             getFitnessScore_end;
         static double align_time, getFitnessScore_time = 0.0;
+        RCLCPP_WARN(get_logger(), "STAGE 2");
 
         pthread_mutex_lock(&mutex);
 
@@ -771,6 +650,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         predict_pose_for_ndt = predict_pose_odom;
         else
         predict_pose_for_ndt = predict_pose;
+        RCLCPP_WARN(get_logger(), "STAGE 3");
 
         Eigen::Translation3f init_translation(predict_pose_for_ndt.x, predict_pose_for_ndt.y, predict_pose_for_ndt.z);
         Eigen::AngleAxisf init_rotation_x(predict_pose_for_ndt.roll, Eigen::Vector3f::UnitX());
@@ -782,6 +662,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
 
         if (_method_type == MethodType::PCL_GENERIC)
         {
+            RCLCPP_WARN(get_logger(), "STAGE 4");
         align_start = std::chrono::system_clock::now();
         ndt.align(*output_cloud, init_guess);
         align_end = std::chrono::system_clock::now();
@@ -796,6 +677,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         getFitnessScore_end = std::chrono::system_clock::now();
 
         trans_probability = ndt.getTransformationProbability();
+        RCLCPP_WARN(get_logger(), "STAGE 5");
         }
         else if (_method_type == MethodType::PCL_ANH)
         {
@@ -861,7 +743,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
             1000.0;
 
         pthread_mutex_unlock(&mutex);
-
+        RCLCPP_WARN(get_logger(), "STAGE 6");
         tf2::Matrix3x3 mat_l;  // localizer
         mat_l.setValue(static_cast<double>(t(0, 0)), static_cast<double>(t(0, 1)), static_cast<double>(t(0, 2)),
                     static_cast<double>(t(1, 0)), static_cast<double>(t(1, 1)), static_cast<double>(t(1, 2)),
@@ -877,7 +759,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         mat_b.setValue(static_cast<double>(t2(0, 0)), static_cast<double>(t2(0, 1)), static_cast<double>(t2(0, 2)),
                     static_cast<double>(t2(1, 0)), static_cast<double>(t2(1, 1)), static_cast<double>(t2(1, 2)),
                     static_cast<double>(t2(2, 0)), static_cast<double>(t2(2, 1)), static_cast<double>(t2(2, 2)));
-
+        RCLCPP_WARN(get_logger(), "STAGE 7");
         // Update ndt_pose
         ndt_pose.x = t2(0, 3);
         ndt_pose.y = t2(1, 3);
@@ -926,7 +808,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         diff = sqrt(diff_x * diff_x + diff_y * diff_y + diff_z * diff_z);
 
         const pose trans_current_pose = convertPoseIntoRelativeCoordinate(current_pose, previous_pose);
-
+        RCLCPP_WARN(get_logger(), "STAGE 8");
         current_velocity = (diff_time > 0) ? (diff / diff_time) : 0;
         current_velocity =  (trans_current_pose.x >= 0) ? current_velocity : -current_velocity;
         current_velocity_x = (diff_time > 0) ? (diff_x / diff_time) : 0;
@@ -975,6 +857,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
 
         estimated_vel_mps_pub->publish(estimated_vel_mps);
         estimated_vel_kmph_pub->publish(estimated_vel_kmph);
+        RCLCPP_WARN(get_logger(), "STAGE 9");
 
         // Set values for publishing pose
         predict_q.setRPY(predict_pose.roll, predict_pose.pitch, predict_pose.yaw);
@@ -1046,6 +929,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         predict_pose_imu_odom_msg.pose.orientation.w = predict_q_imu_odom.w();
         
         predict_pose_imu_odom_pub->publish(predict_pose_imu_odom_msg);
+        RCLCPP_WARN(get_logger(), "STAGE 10");
 
         ndt_q.setRPY(ndt_pose.roll, ndt_pose.pitch, ndt_pose.yaw);
         if (_use_local_transform == true)
@@ -1145,6 +1029,7 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         matching_end = std::chrono::system_clock::now();
         exe_time = std::chrono::duration_cast<std::chrono::microseconds>(matching_end - matching_start).count() / 1000.0;
         time_ndt_matching.data = exe_time;
+        RCLCPP_WARN(get_logger(), "STAGE 10");
         
         time_ndt_matching_pub->publish(time_ndt_matching);
 
@@ -1268,8 +1153,9 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
 
         previous_estimated_vel_kmph.data = estimated_vel_kmph.data;
     } 
-
-    RCLCPP_INFO_STREAM(get_logger(), "Exiting points callback");
+    auto execution_end_time = this->now();
+    RCLCPP_WARN(get_logger(), "Exiting points_callback at: %f", execution_end_time.seconds());
+    
 }
 
 void NDTMatching::odom_callback(const nav_msgs::msg::Odometry::SharedPtr input){
@@ -1469,6 +1355,8 @@ double NDTMatching::calcDiffForRadian(const double lhs_rad, const double rhs_rad
 
 void NDTMatching::map_callback(const sensor_msgs::msg::PointCloud2::SharedPtr input)
 {
+    auto execution_start_time = this->now();
+    RCLCPP_WARN(get_logger(), "Entering mapcallback at: %f", execution_start_time);
 // if (map_loaded == 0)
 if (points_map_num != input->width)
 {
@@ -1591,7 +1479,10 @@ if (points_map_num != input->width)
         pthread_mutex_unlock(&mutex);
         }
     #endif
-        map_loaded = 1;
+    
+    map_loaded = 1;
+    auto execution_end_time = this->now();
+    RCLCPP_WARN(get_logger(), "Exiting mapcallback at: %f", execution_end_time);
     }
 }
 
