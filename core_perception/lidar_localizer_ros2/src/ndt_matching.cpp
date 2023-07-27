@@ -1356,7 +1356,7 @@ double NDTMatching::calcDiffForRadian(const double lhs_rad, const double rhs_rad
 void NDTMatching::map_callback(const sensor_msgs::msg::PointCloud2::SharedPtr input)
 {
     auto execution_start_time = this->now();
-    RCLCPP_WARN(get_logger(), "Entering mapcallback at: %f", execution_start_time);
+    RCLCPP_WARN(get_logger(), "Entering mapcallback at: %f", execution_start_time.seconds());
 // if (map_loaded == 0)
 if (points_map_num != input->width)
 {
@@ -1412,10 +1412,11 @@ if (points_map_num != input->width)
     new_ndt.setTransformationRotationEpsilon(rot_threshold);
 
     new_ndt.align(*output_cloud, Eigen::Matrix4f::Identity());
-
+    RCLCPP_WARN(get_logger(), "STAGE M1");
     pthread_mutex_lock(&mutex);
     ndt = new_ndt;
     pthread_mutex_unlock(&mutex);
+    RCLCPP_WARN(get_logger(), "STAGE M2");
     
     }
     else if (_method_type == MethodType::PCL_ANH)
@@ -1479,10 +1480,10 @@ if (points_map_num != input->width)
         pthread_mutex_unlock(&mutex);
         }
     #endif
-    
+    RCLCPP_WARN(get_logger(), "STAGE M3");
     map_loaded = 1;
     auto execution_end_time = this->now();
-    RCLCPP_WARN(get_logger(), "Exiting mapcallback at: %f", execution_end_time);
+    RCLCPP_WARN(get_logger(), "Exiting mapcallback at: %f", execution_end_time.seconds());
     }
 }
 
