@@ -268,6 +268,13 @@ class NDTMatching : public carma_ros2_utils::CarmaLifecycleNode {
 
         pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
+        // initialpose_callback variables
+        // tf2_ros::Buffer buffer(get_clock());
+        std::shared_ptr<tf2_ros::Buffer> buffer_ptr = nullptr;
+        // tf2_ros::TransformListener listener(buffer);
+        std::shared_ptr<tf2_ros::TransformListener> listener_ptr = nullptr;
+        
+
     public:
         explicit NDTMatching(const rclcpp::NodeOptions &);
         carma_ros2_utils::CallbackReturn handle_on_configure(const rclcpp_lifecycle::State &prev_state);

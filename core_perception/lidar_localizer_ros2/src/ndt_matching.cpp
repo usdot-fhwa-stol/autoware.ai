@@ -151,6 +151,10 @@ carma_ros2_utils::CallbackReturn NDTMatching::handle_on_configure(const rclcpp_l
     initial_pose.pitch = 0.0;
     initial_pose.yaw = 0.0;
 
+
+    buffer_ptr = std::make_shared<tf2_ros::Buffer>(get_clock());
+    listener_ptr = std::make_shared<tf2_ros::TransformListener>(*buffer_ptr);
+    
     // Initialize publishers
     predict_pose_pub = create_publisher<geometry_msgs::msg::PoseStamped>("predict_pose", 10);
     predict_pose_imu_pub = create_publisher<geometry_msgs::msg::PoseStamped>("predict_pose_imu", 10);
@@ -167,23 +171,29 @@ carma_ros2_utils::CallbackReturn NDTMatching::handle_on_configure(const rclcpp_l
     ndt_stat_pub = create_publisher<autoware_msgs::msg::NDTStat>("ndt_stat", 10);
     ndt_reliability_pub = create_publisher<std_msgs::msg::Float32>("ndt_reliability", 10);
 
-    // Initialize subscribers
-    param_sub = create_subscription<autoware_config_msgs::msg::ConfigNDT>("config/ndt", 10 , std::bind(&NDTMatching::param_callback, this, std::placeholders::_1));
-    gnss_sub = create_subscription<geometry_msgs::msg::PoseStamped>("gnss_pose", _queue_size, std::bind(&NDTMatching::gnss_callback, this, std::placeholders::_1));
-    //  ros::Subscriber map_sub = nh.subscribe("points_map", 1, map_callback);
-    initialpose_sub = create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>("initialpose", _queue_size, std::bind(&NDTMatching::initialpose_callback, this, std::placeholders::_1));
-    points_sub = create_subscription<sensor_msgs::msg::PointCloud2>("filtered_points", _queue_size, std::bind(&NDTMatching::points_callback, this, std::placeholders::_1));
-    odom_sub = create_subscription<nav_msgs::msg::Odometry>("vehicle/odom", _queue_size * 10, std::bind(&NDTMatching::odom_callback, this, std::placeholders::_1));
-    imu_sub = create_subscription<sensor_msgs::msg::Imu>(_imu_topic.c_str(), _queue_size * 10, std::bind(&NDTMatching::imu_callback, this, std::placeholders::_1));
-
-    // Create callback group to handle points_map callbacks
-    //points_map topic is published as transient_local, subscriber needs to be set to that
     auto points_map_callback_group = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
     rclcpp::SubscriptionOptions points_map_sub_options;
     points_map_sub_options.use_intra_process_comm = rclcpp::IntraProcessSetting::Disable;
+    points_map_sub_options.callback_group = points_map_callback_group;
+
+    // Initialize subscribers
+    auto generic_sub_cb_group = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+    rclcpp::SubscriptionOptions generic_sub_options;
+    generic_sub_options.callback_group = generic_sub_cb_group;
+
+    param_sub = create_subscription<autoware_config_msgs::msg::ConfigNDT>("config/ndt", 10 , std::bind(&NDTMatching::param_callback, this, std::placeholders::_1), points_map_sub_options);
+    gnss_sub = create_subscription<geometry_msgs::msg::PoseStamped>("gnss_pose", _queue_size, std::bind(&NDTMatching::gnss_callback, this, std::placeholders::_1), generic_sub_options);
+    //  ros::Subscriber map_sub = nh.subscribe("points_map", 1, map_callback);
+    initialpose_sub = create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>("initialpose", _queue_size, std::bind(&NDTMatching::initialpose_callback, this, std::placeholders::_1), generic_sub_options);
+    points_sub = create_subscription<sensor_msgs::msg::PointCloud2>("filtered_points", _queue_size, std::bind(&NDTMatching::points_callback, this, std::placeholders::_1), generic_sub_options);
+    odom_sub = create_subscription<nav_msgs::msg::Odometry>("vehicle/odom", _queue_size * 10, std::bind(&NDTMatching::odom_callback, this, std::placeholders::_1), generic_sub_options);
+    imu_sub = create_subscription<sensor_msgs::msg::Imu>(_imu_topic.c_str(), _queue_size * 10, std::bind(&NDTMatching::imu_callback, this, std::placeholders::_1), generic_sub_options);
+
+    // Create callback group to handle points_map callbacks
+    //points_map topic is published as transient_local, subscriber needs to be set to that
+    
     auto sub_qos_transient_local = rclcpp::QoS(rclcpp::KeepLast(10));
     sub_qos_transient_local.transient_local();
-    points_map_sub_options.callback_group = points_map_callback_group;
 
     map_sub = create_subscription<sensor_msgs::msg::PointCloud2>("points_map", sub_qos_transient_local, std::bind(&NDTMatching::map_callback, this, std::placeholders::_1), points_map_sub_options);
 
@@ -362,7 +372,7 @@ void NDTMatching::param_callback(const autoware_config_msgs::msg::ConfigNDT::Sha
 
 void NDTMatching::gnss_callback(const geometry_msgs::msg::PoseStamped::SharedPtr input){
 
-
+    RCLCPP_WARN(get_logger(),"Entering gnss_callback");
     tf2::Quaternion gnss_q(input->pose.orientation.x, input->pose.orientation.y, input->pose.orientation.z,
                     input->pose.orientation.w);
     tf2::Matrix3x3 gnss_m(gnss_q);
@@ -426,7 +436,7 @@ void NDTMatching::gnss_callback(const geometry_msgs::msg::PoseStamped::SharedPtr
     previous_gnss_pose.pitch = current_gnss_pose.pitch;
     previous_gnss_pose.yaw = current_gnss_pose.yaw;
     previous_gnss_time = current_gnss_time;
-
+    RCLCPP_WARN(get_logger(),"Exiting gnss_callback");
 }
 
 pose NDTMatching::convertPoseIntoRelativeCoordinate(const pose &target_pose, const pose &reference_pose)
@@ -456,15 +466,14 @@ pose NDTMatching::convertPoseIntoRelativeCoordinate(const pose &target_pose, con
 
 void NDTMatching::initialpose_callback(const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr input){
 
-    tf2_ros::Buffer buffer(get_clock());
-    tf2_ros::TransformListener listener(buffer);
+    RCLCPP_WARN(get_logger(), "Entering initialpose_callback");
     geometry_msgs::msg::TransformStamped tf_geom;
 
     tf2::Stamped<tf2::Transform> transform;
     try
     {
         rclcpp::Time now = this->now();
-        tf_geom = buffer.lookupTransform(_map_frame, input->header.frame_id, now, rclcpp::Duration(10,0));
+        tf_geom = buffer_ptr->lookupTransform(_map_frame, input->header.frame_id, now, rclcpp::Duration(10,0));
         tf2::convert(tf_geom, transform);  // note that tf2 is missing child_frame_id
 
     }
@@ -553,16 +562,17 @@ void NDTMatching::initialpose_callback(const geometry_msgs::msg::PoseWithCovaria
     offset_imu_odom_yaw = 0.0;
 
     init_pos_set = 1;
+    RCLCPP_WARN(get_logger(), "Exiting initialpose_callback");
 
 }
 
 void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr input){
 
     auto exec_start_time = this->now();
-    RCLCPP_WARN(get_logger(), "Entering points_callback at: %f", exec_start_time.seconds());
+    RCLCPP_ERROR(get_logger(), "Entering points_callback at: %f", exec_start_time.seconds());
     if (map_loaded == 1 && init_pos_set == 1)
     {
-        RCLCPP_WARN(get_logger(), "STAGE 1");
+        RCLCPP_ERROR(get_logger(), "STAGE 1");
         matching_start = std::chrono::system_clock::now();
 
         // static tf2_ros::TransformBroadcaster br(shared_from_this());
@@ -1159,8 +1169,10 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
 }
 
 void NDTMatching::odom_callback(const nav_msgs::msg::Odometry::SharedPtr input){
+    RCLCPP_WARN(get_logger(), "Entering odom callback");
     odom = *input;
     odom_calc(input->header.stamp);
+    RCLCPP_WARN(get_logger(), "Exiting odom callback");
 }
 
 void NDTMatching::odom_calc(rclcpp::Time current_time){
@@ -1200,7 +1212,7 @@ void NDTMatching::odom_calc(rclcpp::Time current_time){
 
 void NDTMatching::imu_callback(const sensor_msgs::msg::Imu::SharedPtr input){
     // std::cout << __func__ << std::endl;
-    
+    RCLCPP_WARN(get_logger(), "Entering imu callback");
 
     if (_imu_upside_down)
         imuUpsideDown(input);
@@ -1250,6 +1262,8 @@ void NDTMatching::imu_callback(const sensor_msgs::msg::Imu::SharedPtr input){
     previous_imu_roll = imu_roll;
     previous_imu_pitch = imu_pitch;
     previous_imu_yaw = imu_yaw;
+
+    RCLCPP_WARN(get_logger(), "Exiting imu_callback");
     
 }
 
@@ -1375,7 +1389,6 @@ if (points_map_num != input->width)
         tf2_ros::TransformListener local_transform_listener(local_buffer);
         geometry_msgs::msg::TransformStamped local_tf_geom;
 
-        tf2::Stamped<tf2::Transform> local_transform;
     
     try
     {
