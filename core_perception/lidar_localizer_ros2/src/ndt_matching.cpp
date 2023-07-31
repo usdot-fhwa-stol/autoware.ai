@@ -1148,7 +1148,6 @@ void NDTMatching::points_callback(const sensor_msgs::msg::PointCloud2::SharedPtr
         previous_estimated_vel_kmph.data = estimated_vel_kmph.data;
     } 
 
-    RCLCPP_INFO_STREAM(get_logger(), "Exiting points callback");
 }
 
 void NDTMatching::odom_callback(const nav_msgs::msg::Odometry::SharedPtr input){
