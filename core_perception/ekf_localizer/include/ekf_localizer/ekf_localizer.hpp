@@ -125,6 +125,7 @@ class EKFLocalizer: public carma_ros2_utils::CarmaLifecycleNode
 
     rclcpp::Clock clk_; //!< @brief the node clock
 
+    std::shared_ptr<tf2_ros::TransformBroadcaster> tf_br_shared_ptr_ = nullptr;
 
     /**
      * @brief computes update & prediction of EKF for each ekf_dt_[s] time
