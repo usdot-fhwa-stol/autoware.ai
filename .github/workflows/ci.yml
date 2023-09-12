@@ -28,7 +28,7 @@ jobs:
       run: mv $GITHUB_WORKSPACE/src /opt/carma/
     - name: Checkout dependencies
       run: |
-        ./src/${{ github.event.repository.name }}/docker/checkout.bash -r /opt/carma/
+        ./src/${{ github.event.repository.name }}/docker/checkout.bash -r /opt/carma
     - name: Build
       run: |
         source "$INIT_ENV"
