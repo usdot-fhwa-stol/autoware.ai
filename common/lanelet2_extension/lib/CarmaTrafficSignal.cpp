@@ -119,11 +119,6 @@ boost::optional<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> Ca
     LOG_WARN_STREAM("CarmaTrafficSignal doesn't have any recorded states of traffic lights");
     return boost::none;
   }
-
-  if (recorded_time_stamps.size() == 1) // if only 1 timestamp recorded, this signal doesn't change
-  {
-    return std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>(recorded_time_stamps.front().first, recorded_time_stamps.front().second);
-  }
   
   if (lanelet::time::toSec(fixed_cycle_duration) < 1.0) // there are recorded states, but no fixed_cycle_duration means it is dynamic
   {
@@ -156,6 +151,7 @@ boost::optional<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> Ca
     }
   }
   
+  // TODO: This part of the code relates to fixed timing cycles. We are keeping the code until, there is a use case to test it. 
   // shift starting time to the future or to the past to fit input into a valid cycle
   boost::posix_time::time_duration accumulated_offset_duration;
   double offset_duration_dir = recorded_time_stamps.front().first > time_stamp ? -1.0 : 1.0; // -1 if past, +1 if time_stamp is in future
