@@ -151,7 +151,7 @@ boost::optional<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> Ca
     }
   }
   
-  // TODO: This part of the code relates to fixed timing cycles. We are keeping the code until, there is a use case to test it. 
+  // This part of the code is used for predicting state if fixed_cycle_duration is set using setStates function
   // shift starting time to the future or to the past to fit input into a valid cycle
   boost::posix_time::time_duration accumulated_offset_duration;
   double offset_duration_dir = recorded_time_stamps.front().first > time_stamp ? -1.0 : 1.0; // -1 if past, +1 if time_stamp is in future
