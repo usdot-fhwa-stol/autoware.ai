@@ -3,7 +3,7 @@ name: Docker build
 on:
   push:
     branches-ignore:
-      - "develop"
+      - "carma-develop"
       - "master"
       - "release/*"
   pull_request:

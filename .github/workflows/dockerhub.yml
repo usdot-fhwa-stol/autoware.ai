@@ -3,7 +3,7 @@ name: Docker Hub build
 on:
   push:
     branches:
-      - "develop"
+      - "carma-develop"
       - "master"
       - "release/*"
 
