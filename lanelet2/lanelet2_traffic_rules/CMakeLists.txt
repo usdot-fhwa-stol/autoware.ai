@@ -43,6 +43,22 @@ mrt_glob_files_recurse(PROJECT_HEADER_FILES_INC "include/*.h" "include/*.hpp" "i
 mrt_glob_files(PROJECT_SOURCE_FILES_INC "src/*.h" "src/*.hpp" "src/*.cuh")
 mrt_glob_files(PROJECT_SOURCE_FILES_SRC "src/*.cpp" "src/*.cu")
 
+if (PROJECT_SOURCE_FILES_SRC)
+    set(LIBRARY_NAME ${PROJECT_NAME})
+endif()
+
+###################################
+# The catkin_package macro generates cmake config files for your package
+# Declare things to be passed to dependent projects
+# INCLUDE_DIRS: uncomment this if you package contains header files
+# LIBRARIES: libraries you create in this project that dependent projects also need
+# CATKIN_DEPENDS: catkin_packages dependent projects also need
+# DEPENDS: system dependencies of this project that dependent projects also need
+catkin_package(
+    INCLUDE_DIRS include ${mrt_EXPORT_INCLUDE_DIRS}
+    LIBRARIES ${LIBRARY_NAME} ${mrt_EXPORT_LIBRARIES}
+    CATKIN_DEPENDS ${catkin_EXPORT_DEPENDS}
+    )
 ###########
 ## Build ##
 ###########
