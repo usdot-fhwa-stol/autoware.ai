@@ -137,7 +137,7 @@ boost::optional<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> Ca
     if (recorded_time_stamps.back().first <= time_stamp)
     {
       auto end_infinity_time = timeFromSec(2147483647); //corresponds to 03:14:07 on Tuesday, 19 January 2038.
-      LOG_WARN_STREAM("CarmaTrafficSignal doesn't have enough state saved, so returning STOP_AND_REMAIN state! End_time: " << end_infinity_time);
+      LOG_DEBUG_STREAM("CarmaTrafficSignal doesn't have enough state saved, so returning STOP_AND_REMAIN state! End_time: " << end_infinity_time);
       return std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>(end_infinity_time, CarmaTrafficSignalState::STOP_AND_REMAIN);
     }
     
