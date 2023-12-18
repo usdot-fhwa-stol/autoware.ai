@@ -25,9 +25,9 @@
 namespace lanelet
 {
 /**
- * @brief: Enum representing Traffic Light States. 
+ * @brief: Enum representing Traffic Light States.
  * These states match the SAE J2735 PhaseState definitions used for SPaT messages
- * 
+ *
  * UNAVAILABLE : No data available
  * DARK : Light is non-functional
  * STOP_THEN_PROCEED : Flashing Red
@@ -53,6 +53,8 @@ enum class CarmaTrafficSignalState {
   CAUTION_CONFLICTING_TRAFFIC=9
 };
 
+const int INFINITY_END_TIME_FOR_NOT_ENOUGH_STATES = 2147483647;
+
 struct CarmaTrafficSignalRoleNameString
 {
   static constexpr char ControlStart[] = "control_start";
@@ -67,7 +69,7 @@ std::ostream& operator<<(std::ostream& os, CarmaTrafficSignalState s);
 /**
  * @brief: Class representing a known timing traffic light.
  *         Normally the traffic light timing information is provided by SAE J2735 SPaT messages although alternative data sources can be supported
- * 
+ *
  * @ingroup RegulatoryElementPrimitives
  * @ingroup Primitives
  */
@@ -79,7 +81,7 @@ public:
 
   int revision_ = 0; //indicates when was this last modified
   boost::posix_time::time_duration fixed_cycle_duration;
-  std::vector<boost::posix_time::ptime> recorded_start_time_stamps; //user must ensure it's 1 to 1 with recorded_time_stamps , 
+  std::vector<boost::posix_time::ptime> recorded_start_time_stamps; //user must ensure it's 1 to 1 with recorded_time_stamps ,
                                                                                                         //used in dynamic SPAT processing
   std::vector<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> recorded_time_stamps;
   std::unordered_map<CarmaTrafficSignalState, boost::posix_time::time_duration> signal_durations;
@@ -98,11 +100,11 @@ public:
    * NOTE: Order of the lanelets does not correlate to the order of the control_end lanelets
    */
   lanelet::ConstLanelets getControlStartLanelets() const;
- 
+
   /**
    * @brief getControlEndLanelets function returns lanelets where this element's control ends
    * NOTE: Order of the lanelets does not correlate to the order of the control_start lanelets
-   * 
+   *
    */
   lanelet::ConstLanelets getControlEndLanelets() const;
 
@@ -115,7 +117,7 @@ public:
    * @throw  InvalidInputError if timestamps recorded somehow did not have full cycle
    */
   boost::optional<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> predictState(boost::posix_time::ptime time_stamp);
-  
+
   /**
    * @brief Return the stop_lines related to the entry lanelets in order if exists.
    */
@@ -124,16 +126,16 @@ public:
 
   /**
    * @brief Return the stop_lines related to the specified entry lanelet
-   * @param llt entry_lanelet 
-   * @return optional stop line linestring. 
-   *         Empty optional if no stopline, or no entry lanelets, or if specified entry lanelet is not recorded. 
+   * @param llt entry_lanelet
+   * @return optional stop line linestring.
+   *         Empty optional if no stopline, or no entry lanelets, or if specified entry lanelet is not recorded.
    */
   Optional<ConstLineString3d> getConstStopLine(const ConstLanelet& llt);
   Optional<LineString3d> getStopLine(const ConstLanelet& llt);
 
   explicit CarmaTrafficSignal(const lanelet::RegulatoryElementDataPtr& data);
   /**
-   * @brief: Creating one is not directly usable unless setStates is called 
+   * @brief: Creating one is not directly usable unless setStates is called
    *         Static helper function that creates a stop line data object based on the provided inputs
    *
    * @param id The lanelet::Id of this element
