@@ -53,7 +53,11 @@ enum class CarmaTrafficSignalState {
   CAUTION_CONFLICTING_TRAFFIC=9
 };
 
+namespace time{
+
 const int INFINITY_END_TIME_FOR_NOT_ENOUGH_STATES = 2147483647;
+
+}
 
 struct CarmaTrafficSignalRoleNameString
 {
