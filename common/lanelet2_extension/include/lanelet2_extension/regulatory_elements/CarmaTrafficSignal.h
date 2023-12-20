@@ -55,7 +55,7 @@ enum class CarmaTrafficSignalState {
 
 namespace time{
 
-const int INFINITY_END_TIME_FOR_NOT_ENOUGH_STATES = 2147483647;
+constexpr auto INFINITY_END_TIME_FOR_NOT_ENOUGH_STATES{2147483647};
 
 }
 
