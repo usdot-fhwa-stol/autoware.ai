@@ -55,6 +55,9 @@ enum class CarmaTrafficSignalState {
 
 namespace time{
 
+//This int is max representable number by 32bit which the posix::time library is using.
+//It corresponds to 03:14:07 on Tuesday, 19 January 2038.
+
 constexpr auto INFINITY_END_TIME_FOR_NOT_ENOUGH_STATES{2147483647};
 
 }
