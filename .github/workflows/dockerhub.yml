@@ -6,6 +6,7 @@ on:
       - "carma-develop"
       - "master"
       - "release/*"
+      - "release/lavida"
 jobs:
   dockerhub:
     runs-on: ubuntu-latest-8-cores
@@ -24,4 +25,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: usdotfhwastoldev/${{ github.event.repository.name }}:carma-develop
+          tags: usdotfhwastolcandidate/${{ github.event.repository.name }}:lavida
