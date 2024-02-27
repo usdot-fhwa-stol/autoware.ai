@@ -24,4 +24,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: usdotfhwastoldev/${{ github.event.repository.name }}:carma-develop
+          tags: usdotfhwastoldev/${{ github.event.repository.name }}:develop
