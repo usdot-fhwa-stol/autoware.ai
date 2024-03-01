@@ -19,7 +19,7 @@ jobs:
         INIT_ENV: "/home/carma/.base-image/init-env.sh"
         ROS_2_ENV: "/opt/ros/foxy/setup.bash"
         TERM: xterm
-      options: "--user carma"  
+      options: "--user root"  
     steps:    
     - name: Checkout ${{ github.event.repository.name }}
       uses: actions/checkout@v3.3.0
@@ -28,16 +28,13 @@ jobs:
         fetch-depth: 0
     - name: Move source code
       run: |
-        sudo chown -R carma:carma /opt/carma/
-        mv $GITHUB_WORKSPACE/src /opt/carma/
-      
+        mv $GITHUB_WORKSPACE/src /opt/carma/  
     - name: Checkout Dependencies
       run: |
         ./src/${{ github.event.repository.name }}/docker/checkout.bash -r /opt/carma
     - name: Build
       run: |
         source "$INIT_ENV"
-        source "$ROS_2_ENV"
         cd /opt/carma/src/${{ github.event.repository.name }}
         export ROS_PARALLEL_JOBS='-j4 -l4'
         export AUTOWARE_COMPILE_WITH_CUDA=1
@@ -47,12 +44,10 @@ jobs:
     - name: Run C++ Tests
       run: |
         source "$INIT_ENV"
-        source "$ROS_2_ENV"
         cd /opt/carma/src/${{ github.event.repository.name }}
         export ROS_PARALLEL_JOBS='-j4 -l4'
         sed -i '/colcon test/ s/$/ --packages-above $PACKAGES/' /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
         make_with_coverage.bash -t -e /opt/carma/ -o ./coverage_reports/gcov
-        colcon test-result --verbose
     
     - name: Upload Coverage Reports
       uses: actions/upload-artifact@v2
