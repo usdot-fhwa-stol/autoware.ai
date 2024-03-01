@@ -32,7 +32,7 @@ while [[ $# -gt 0 ]]; do
       esac
 done
 
-cd ${dir}/src
+cd ${dir}/src/autoware.ai
 
 if [[ "$BRANCH" = "develop" ]]; then
       git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-msgs.git --branch $BRANCH

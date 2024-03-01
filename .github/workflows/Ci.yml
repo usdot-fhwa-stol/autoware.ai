@@ -5,6 +5,7 @@ on:
     types: [opened, synchronize, reopened]
   push:
     branches: [develop, master, feature/add_gha]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -32,7 +33,7 @@ jobs:
     - name: Checkout Dependencies
       run: |
         ./src/${{ github.event.repository.name }}/docker/checkout.bash -r /opt/carma
-    - name: Build
+    - name: Build ROS1
       run: |
         source "$INIT_ENV"
         cd /opt/carma/src/${{ github.event.repository.name }}
@@ -41,14 +42,41 @@ jobs:
         PACKAGES=$(find . -maxdepth 2 -type f -name package.xml | sed 's/\.\///' | cut -d/ -f1)
         sed -i '/colcon build/ s/$/ --packages-up-to $PACKAGES/' /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
         make_with_coverage.bash -m -e /opt/carma/ -o ./coverage_reports/gcov
-    - name: Run C++ Tests
+    - name: Run ROS1 C++ Tests
+      continue-on-error: true
       run: |
         source "$INIT_ENV"
         cd /opt/carma/src/${{ github.event.repository.name }}
         export ROS_PARALLEL_JOBS='-j4 -l4'
         sed -i '/colcon test/ s/$/ --packages-above $PACKAGES/' /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
         make_with_coverage.bash -t -e /opt/carma/ -o ./coverage_reports/gcov
-    
+    - name: Build ROS2
+      continue-on-error: true
+      run: |
+        source "$INIT_ENV"
+        source "$ROS_2_ENV"
+        cd /opt/carma/src/${{ github.event.repository.name }}
+        export ROS_PARALLEL_JOBS='-j4 -l4'
+        export AUTOWARE_COMPILE_WITH_CUDA=1
+        PACKAGES=$(find . -maxdepth 2 -type f -name package.xml | sed 's/\.\///' | cut -d/ -f1)
+        sed -i '/colcon build/ s/$/ --packages-up-to $PACKAGES/' /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
+        make_with_coverage.bash -m -e /opt/carma/ -o ./coverage_reports/gcov    
+    - name: Run ROS2 C++ Tests
+      continue-on-error: true
+      run: |
+        source "$INIT_ENV"
+        source "$ROS_2_ENV"
+        cd /opt/carma/src/${{ github.event.repository.name }}
+        export ROS_PARALLEL_JOBS='-j4 -l4'
+        sed -i '/colcon test/ s/$/ --packages-above $PACKAGES/' /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
+        make_with_coverage.bash -t -e /opt/carma/ -o ./coverage_reports/gcov  
+
+    - name: Combine ROS1 and ROS2 compile_commands.json files
+      # Combine the ROS1 and ROS2 compile_commands.json files for sonarscan
+      run: |
+        mv /opt/carma/build/compile_commands.json /opt/carma/compile_commands.ros2.json
+        jq -s add /opt/carma/compile_commands.ros1.json /opt/carma/compile_commands.ros2.json > /opt/carma/build/compile_commands.json
+
     - name: Upload Coverage Reports
       uses: actions/upload-artifact@v2
       with:
