@@ -43,7 +43,6 @@ jobs:
         sed -i '/colcon build/ s/$/ --packages-up-to $PACKAGES/' /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
         make_with_coverage.bash -m -e /opt/carma/ -o ./coverage_reports/gcov
     - name: Run ROS1 C++ Tests
-      continue-on-error: true
       run: |
         source "$INIT_ENV"
         cd /opt/carma/src/${{ github.event.repository.name }}
@@ -51,7 +50,6 @@ jobs:
         sed -i '/colcon test/ s/$/ --packages-above $PACKAGES/' /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
         make_with_coverage.bash -t -e /opt/carma/ -o ./coverage_reports/gcov
     - name: Build ROS2
-      continue-on-error: true
       run: |
         source "$INIT_ENV"
         source "$ROS_2_ENV"
@@ -62,7 +60,6 @@ jobs:
         sed -i '/colcon build/ s/$/ --packages-up-to $PACKAGES/' /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
         make_with_coverage.bash -m -e /opt/carma/ -o ./coverage_reports/gcov    
     - name: Run ROS2 C++ Tests
-      continue-on-error: true
       run: |
         source "$INIT_ENV"
         source "$ROS_2_ENV"
