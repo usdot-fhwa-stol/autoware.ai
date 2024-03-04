@@ -18,7 +18,7 @@
  * Modifications:
  * - Added limiting for longitudinal velocity per CARMA specifications. Refactored
  *   namespacing and header as needed to support unit testing.
- *   - Kyle Rush 
+ *   - Kyle Rush
  *   - 9/11/2020
  */
 
@@ -53,17 +53,34 @@ carma_ros2_utils::CallbackReturn TwistFilter::handle_on_configure(const rclcpp_l
   // parameters on private handles
   get_parameter<double>("config_speed_limit", longitudinal_velocity_limit_);
   longitudinal_velocity_limit_ = longitudinal_velocity_limit_ * 0.44704;
-  
+
   get_parameter<double>("vehicle_acceleration_limit", longitudinal_accel_limit_);
+
+  bool use_sim_time = false;
+  get_parameter<bool>("use_sim_time", use_sim_time);
+
+  auto hardcoded_acceleration_limit = MAX_LONGITUDINAL_ACCEL_HARDCODED_LIMIT_M_S_2;
+
+  // if simulation
+  if (use_sim_time)
+  {
+    hardcoded_acceleration_limit = MAX_SIMULATION_LONGITUDINAL_ACCEL_HARDCODED_LIMIT_M_S_2;
+    RCLCPP_INFO_STREAM(rclcpp::get_logger("logger"), "Simulation mode detected. Accounting hardcoded limit longitudinal acceleration limit used: " << hardcoded_acceleration_limit);
+  }
+  else
+  {
+    RCLCPP_INFO_STREAM(rclcpp::get_logger("logger"), "Accounting hardcoded limit, longitudinal acceleration limit used: " << hardcoded_acceleration_limit);
+  }
+
   _lon_accel_limiter = LongitudinalAccelLimiter{
-    std::min(longitudinal_accel_limit_, MAX_LONGITUDINAL_ACCEL_HARDCODED_LIMIT_M_S_2)};
-  
+    std::min(longitudinal_accel_limit_, hardcoded_acceleration_limit)};
+
   get_parameter<double>("vehicle_lateral_accel_limit", lateral_accel_limit_);
   get_parameter<double>("vehicle_lateral_jerk_limit", lateral_jerk_limit_);
   get_parameter<double>("lowpass_gain_linear_x", lowpass_gain_linear_x_);
   get_parameter<double>("lowpass_gain_angular_x", lowpass_gain_angular_z_);
   get_parameter<double>("lowpass_gain_steering_angle", lowpass_gain_steering_angle_);
-  
+
 
   //Setup subscribers
   twist_sub_ = create_subscription<geometry_msgs::msg::TwistStamped>("twist_raw", 1, std::bind(&TwistFilter::TwistCmdCallback, this, std_ph::_1));
@@ -73,7 +90,7 @@ carma_ros2_utils::CallbackReturn TwistFilter::handle_on_configure(const rclcpp_l
   //Setup publishers
   twist_pub_ = create_publisher<geometry_msgs::msg::TwistStamped>("twist_cmd", 5);
   ctrl_pub_ = create_publisher<autoware_msgs::msg::ControlCommandStamped>("ctrl_cmd", 5);
-  
+
   // Publishers on private handles
   twist_lacc_limit_debug_pub_ = create_publisher<std_msgs::msg::Float32>("~/limitation_debug/twist/lateral_accel", 5);
   twist_ljerk_limit_debug_pub_ = create_publisher<std_msgs::msg::Float32>("~/limitation_debug/twist/lateral_jerk", 5);
@@ -83,7 +100,7 @@ carma_ros2_utils::CallbackReturn TwistFilter::handle_on_configure(const rclcpp_l
   twist_ljerk_result_pub_ = create_publisher<std_msgs::msg::Float32>("~/result/twist/lateral_jerk", 5);
   ctrl_lacc_result_pub_ = create_publisher<std_msgs::msg::Float32>("~/result/ctrl/lateral_accel", 5);
   ctrl_ljerk_result_pub_ = create_publisher<std_msgs::msg::Float32>("~/result/ctrl/lateral_jerk", 5);
-  
+
 
   return CallbackReturn::SUCCESS;
 
