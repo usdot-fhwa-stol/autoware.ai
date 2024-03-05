@@ -29,7 +29,7 @@ constexpr double MAX_LONGITUDINAL_ACCEL_MPS2 = 3.5;
 /**
 * The maximum allowable simulation parameters
 * At the time of writing this, platform uses CARLA 0.9.10 as the vehicle's physics simulator.
-* CARLA's this version uses below hardcoded value for its vehicles (so even if increasing this value,
+* CARLA 0.9.10 uses below hardcoded value for its vehicles (so even if increasing this value,
 * actual simulation won't support larger values unless forked and compiled)
 * https://github.com/carla-simulator/ros-bridge/blob/0.9.10.1/carla_ackermann_control/src/carla_ackermann_control/carla_control_physics.py#L254
 */
