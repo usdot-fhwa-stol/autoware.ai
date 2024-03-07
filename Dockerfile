@@ -1,4 +1,4 @@
-FROM usdotfhwastoldev/carma-base:develop AS base_image
+FROM usdotfhwastolcandidate/carma-base:grayson_test AS base_image
 
 FROM base_image AS build
 
