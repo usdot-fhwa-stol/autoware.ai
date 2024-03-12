@@ -5,7 +5,7 @@ on:
     types: [opened, synchronize, reopened]
   push:
     branches: [develop, master, feature/add_gha]
-  workflow_dispatch:
+  workflow_dispatch: # This should be removed while merging back to develop as we dont need this to manually trigger the builds 
 
 jobs:
   build:
