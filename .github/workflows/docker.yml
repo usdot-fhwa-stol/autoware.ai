@@ -1,11 +1,7 @@
+# This workflow will only build for Pull Requests which are opened, changed , merged 
 name: Docker build
 
 on:
-  push:
-    branches-ignore:
-      - "carma-develop"
-      - "master"
-      - "release/*"
   pull_request:
       types: [opened, synchronize, reopened]
 
@@ -20,4 +16,4 @@ jobs:
       - name: Build
         uses: docker/build-push-action@v3
         with:
-          context: .
+          context: .    

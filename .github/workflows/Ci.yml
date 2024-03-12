@@ -1,0 +1,87 @@
+# GitHub Actions triggers based on the PR's and each commits on develop and master
+name: "CI: Run tests"
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [develop, master, feature/add_gha]
+  workflow_dispatch: # This should be removed while merging back to develop as we dont need this to manually trigger the builds 
+
+jobs:
+  build:
+    defaults:
+      run:
+        shell: bash
+        working-directory: "/opt/carma/"
+    runs-on: ubuntu-latest-8-cores
+    container:
+      image: usdotfhwastoldev/carma-base:develop
+      env:
+        INIT_ENV: "/home/carma/.base-image/init-env.sh"
+        ROS_2_ENV: "/opt/ros/foxy/setup.bash"
+        TERM: xterm
+      options: "--user root"  
+    steps:    
+    - name: Checkout ${{ github.event.repository.name }}
+      uses: actions/checkout@v3.3.0
+      with:
+        path: src/${{ github.event.repository.name }}
+        fetch-depth: 0
+    - name: Move source code
+      run: |
+        mv $GITHUB_WORKSPACE/src /opt/carma/  
+    - name: Checkout Dependencies
+      run: |
+        ./src/${{ github.event.repository.name }}/docker/checkout.bash -r /opt/carma
+    - name: Build ROS1
+      run: |
+        source "$INIT_ENV"
+        cd /opt/carma/src/${{ github.event.repository.name }}
+        export ROS_PARALLEL_JOBS='-j4 -l4'
+        export AUTOWARE_COMPILE_WITH_CUDA=1
+        PACKAGES=$(find . -maxdepth 2 -type f -name package.xml | sed 's/\.\///' | cut -d/ -f1)
+        sed -i '/colcon build/ s/$/ --packages-up-to $PACKAGES/' /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
+        make_with_coverage.bash -m -e /opt/carma/ -o ./coverage_reports/gcov
+    - name: Run ROS1 C++ Tests
+      run: |
+        source "$INIT_ENV"
+        cd /opt/carma/src/${{ github.event.repository.name }}
+        export ROS_PARALLEL_JOBS='-j4 -l4'
+        sed -i '/colcon test/ s/$/ --packages-above $PACKAGES/' /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
+        make_with_coverage.bash -t -e /opt/carma/ -o ./coverage_reports/gcov
+    - name: Build ROS2
+      run: |
+        source "$INIT_ENV"
+        source "$ROS_2_ENV"
+        cd /opt/carma/src/${{ github.event.repository.name }}
+        export ROS_PARALLEL_JOBS='-j4 -l4'
+        export AUTOWARE_COMPILE_WITH_CUDA=1
+        PACKAGES=$(find . -maxdepth 2 -type f -name package.xml | sed 's/\.\///' | cut -d/ -f1)
+        sed -i '/colcon build/ s/$/ --packages-up-to $PACKAGES/' /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
+        make_with_coverage.bash -m -e /opt/carma/ -o ./coverage_reports/gcov    
+    - name: Run ROS2 C++ Tests
+      run: |
+        source "$INIT_ENV"
+        source "$ROS_2_ENV"
+        cd /opt/carma/src/${{ github.event.repository.name }}
+        export ROS_PARALLEL_JOBS='-j4 -l4'
+        sed -i '/colcon test/ s/$/ --packages-above $PACKAGES/' /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
+        make_with_coverage.bash -t -e /opt/carma/ -o ./coverage_reports/gcov  
+
+    - name: Combine ROS1 and ROS2 compile_commands.json files
+      # Combine the ROS1 and ROS2 compile_commands.json files for sonarscan
+      run: |
+        mv /opt/carma/build/compile_commands.json /opt/carma/compile_commands.ros2.json
+        jq -s add /opt/carma/compile_commands.ros1.json /opt/carma/compile_commands.ros2.json > /opt/carma/build/compile_commands.json
+
+    - name: Upload Coverage Reports
+      uses: actions/upload-artifact@v2
+      with:
+        name: coverage-reports
+        path: /opt/carma/src/${{ github.event.repository.name }}/coverage_reports/
+    
+    - name: Run SonarScanner
+      uses: usdot-fhwa-stol/actions/sonar-scanner@main
+      with:
+        sonar-token: ${{ secrets.SONAR_TOKEN }}
+        working-dir: "/opt/carma/src/${{ github.event.repository.name }}"

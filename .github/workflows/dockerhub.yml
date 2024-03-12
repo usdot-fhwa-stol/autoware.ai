@@ -1,3 +1,4 @@
+# This workflow will build and push official docker images when new push occurs to develop, master, release branches but doesn't run any unit test or sonar scanner
 name: Docker Hub build
 
 on:
@@ -24,4 +25,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: usdotfhwastoldev/${{ github.event.repository.name }}:develop
+          tags: usdotfhwastoldev/${{ github.event.repository.name }}:develop      
