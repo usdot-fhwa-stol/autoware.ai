@@ -1,9 +1,19 @@
 # This workflow will only build for Pull Requests which are opened, changed , merged 
 name: Docker build
+
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+      types: [opened, synchronize, reopened]
 
 jobs:
   docker:
-    uses: usdot-fhwa-stol/actions/.github/workflows/docker.yml@main
+    runs-on: ubuntu-latest-8-cores
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Build
+        uses: docker/build-push-action@v3
+        with:
+          context: .    
