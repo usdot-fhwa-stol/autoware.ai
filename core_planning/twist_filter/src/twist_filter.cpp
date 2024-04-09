@@ -65,11 +65,11 @@ carma_ros2_utils::CallbackReturn TwistFilter::handle_on_configure(const rclcpp_l
   if (use_sim_time)
   {
     hardcoded_acceleration_limit = MAX_SIMULATION_LONGITUDINAL_ACCEL_HARDCODED_LIMIT_M_S_2;
-    RCLCPP_INFO_STREAM(get_logger(), "Simulation mode detected. Accounting for hardcoded limit, longitudinal acceleration limit used: " << hardcoded_acceleration_limit);
+    RCLCPP_ERROR_STREAM(get_logger(), "Simulation mode detected. Accounting for hardcoded limit, longitudinal acceleration limit used: " << hardcoded_acceleration_limit);
   }
   else
   {
-    RCLCPP_INFO_STREAM(get_logger(), "Accounting for hardcoded limit, longitudinal acceleration limit used: " << hardcoded_acceleration_limit);
+    RCLCPP_ERROR_STREAM(get_logger(), "Accounting for hardcoded limit, longitudinal acceleration limit used: " << hardcoded_acceleration_limit);
   }
 
   _lon_accel_limiter = LongitudinalAccelLimiter{
