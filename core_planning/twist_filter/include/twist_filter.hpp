@@ -19,7 +19,7 @@
  * Modifications:
  * - Added limiting for longitudinal velocity per CARMA specifications. Refactored
  *   namespacing and header as needed to support unit testing.
- *   - Kyle Rush 
+ *   - Kyle Rush
  *   - 9/11/2020
  * - Refactored for ros2
  *    - 11/16/2022
@@ -75,12 +75,12 @@ private:
     carma_ros2_utils::PubPtr<std_msgs::msg::Float32> ctrl_lacc_limit_debug_pub_, ctrl_ljerk_limit_debug_pub_;
     carma_ros2_utils::PubPtr<std_msgs::msg::Float32> twist_lacc_result_pub_, twist_ljerk_result_pub_;
     carma_ros2_utils::PubPtr<std_msgs::msg::Float32> ctrl_lacc_result_pub_, ctrl_ljerk_result_pub_;
-    
+
     //subscribers
     carma_ros2_utils::SubPtr<geometry_msgs::msg::TwistStamped> twist_sub_;
     carma_ros2_utils::SubPtr<autoware_msgs::msg::ControlCommandStamped> ctrl_sub_;
     carma_ros2_utils::SubPtr<autoware_config_msgs::msg::ConfigTwistFilter> config_sub_;
-    
+
     //ros params
     double wheel_base_;
     double longitudinal_velocity_limit_;

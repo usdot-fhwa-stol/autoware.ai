@@ -39,9 +39,9 @@ if [[ "$BRANCH" = "develop" ]]; then
       git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-utils.git --branch $BRANCH
       git clone --depth=1 https://github.com/usdot-fhwa-stol/autoware.auto.git --branch $BRANCH
 else
-      git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-msgs.git --branch carma-system-4.4.0
-      git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-utils.git --branch carma-system-4.4.0
-      git clone --depth=1 https://github.com/usdot-fhwa-stol/autoware.auto.git --branch carma-system-4.4.0
+      git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-msgs.git --branch carma-system-4.5.0
+      git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-utils.git --branch carma-system-4.5.0
+      git clone --depth=1 https://github.com/usdot-fhwa-stol/autoware.auto.git --branch carma-system-4.5.0
 fi
 
 # Required to build pacmod_msgs

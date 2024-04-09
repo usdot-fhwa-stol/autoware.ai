@@ -1,12 +1,12 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 project(ndt_cpu)
 
 find_package(carma_cmake_common REQUIRED)
-carma_check_ros_version(1)
+find_package(ros_environment REQUIRED)
+set(ROS_VERSION $ENV{ROS_VERSION})
 
+find_package(PCL COMPONENTS REQUIRED)
 find_package(catkin REQUIRED)
-find_package(PCL REQUIRED)
-
 find_package(Eigen3 QUIET)
 
 if(NOT EIGEN3_FOUND)
@@ -20,59 +20,119 @@ else()
   set(EIGEN3_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIR})
 endif()
 
-catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES ndt_cpu                   #The exported libraries from the project
-  DEPENDS PCL
-)
+if(${ROS_VERSION} EQUAL 1)
 
-include_directories(
-  "include"
+  catkin_package(
+    INCLUDE_DIRS include
+    LIBRARIES ndt_cpu                   #The exported libraries from the project
+    DEPENDS PCL
+  )
+
+  include_directories(
+    "include"
+    ${PCL_INCLUDE_DIRS}
+    ${catkin_INCLUDE_DIRS}
+    ${EIGEN3_INCLUDE_DIRS}
+  )
+
+  set(srcs
+    src/NormalDistributionsTransform.cpp
+    src/Registration.cpp
+    src/VoxelGrid.cpp
+    src/Octree.cpp
+  )
+
+  set(incs
+    include/ndt_cpu/debug.h
+    include/ndt_cpu/NormalDistributionsTransform.h
+    include/ndt_cpu/Registration.h
+    include/ndt_cpu/SymmetricEigenSolver.h
+    include/ndt_cpu/VoxelGrid.h
+    include/ndt_cpu/Octree.h
+  )
+
+  if(NOT ("${CMAKE_BUILD_TYPE}" STREQUAL "Release"))
+    message(WARNING "Not building for release, performance will be slow")
+
+    message(WARNING
+    "Adding 'EIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT' macro to prevent ndt_matching's runtime error in debug mode.
+      The bug reasons and solutions are written in http://eigen.tuxfamily.org/dox-devel/group__TopicUnalignedArrayAssert.html .
+      This workaround was discussed on https://gitlab.com/autowarefoundation/autoware.ai/core_perception/merge_requests/57 .")
+    add_definitions(-DEIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT)
+  endif()
+
+  add_library(ndt_cpu ${incs} ${srcs})
+
+  target_link_libraries(ndt_cpu
+    ${PCL_LIBRARIES}
+    ${catkin_LIBRARIES}
+  )
+
+  install(DIRECTORY include/${PROJECT_NAME}/
+    DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+    FILES_MATCHING PATTERN "*.h"
+  )
+
+  install(TARGETS ndt_cpu
+    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  )
+
+else() #ROS2
+  ## Find dependencies using ament auto
+  find_package(ament_cmake_auto REQUIRED)
+  ament_auto_find_build_dependencies()
+
+  include_directories(
   ${PCL_INCLUDE_DIRS}
-  ${catkin_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS}
-)
+  include
+  )
 
-set(srcs
-  src/NormalDistributionsTransform.cpp
-  src/Registration.cpp
-  src/VoxelGrid.cpp
-  src/Octree.cpp
-)
+  set(srcs
+    src/NormalDistributionsTransform.cpp
+    src/Registration.cpp
+    src/VoxelGrid.cpp
+    src/Octree.cpp
+  )
 
-set(incs
-  include/ndt_cpu/debug.h
-  include/ndt_cpu/NormalDistributionsTransform.h
-  include/ndt_cpu/Registration.h
-  include/ndt_cpu/SymmetricEigenSolver.h
-  include/ndt_cpu/VoxelGrid.h
-  include/ndt_cpu/Octree.h
-)
+  set(incs
+    include/ndt_cpu/debug.h
+    include/ndt_cpu/NormalDistributionsTransform.h
+    include/ndt_cpu/Registration.h
+    include/ndt_cpu/SymmetricEigenSolver.h
+    include/ndt_cpu/VoxelGrid.h
+    include/ndt_cpu/Octree.h
+  )
 
-if(NOT ("${CMAKE_BUILD_TYPE}" STREQUAL "Release"))
-  message(WARNING "Not building for release, performance will be slow")
+  if(NOT ("${CMAKE_BUILD_TYPE}" STREQUAL "Release"))
+    message(WARNING "Not building for release, performance will be slow")
 
-  message(WARNING
-  "Adding 'EIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT' macro to prevent ndt_matching's runtime error in debug mode.
-    The bug reasons and solutions are written in http://eigen.tuxfamily.org/dox-devel/group__TopicUnalignedArrayAssert.html .
-    This workaround was discussed on https://gitlab.com/autowarefoundation/autoware.ai/core_perception/merge_requests/57 .")
-  add_definitions(-DEIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT)
+    message(WARNING
+    "Adding 'EIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT' macro to prevent ndt_matching's runtime error in debug mode.
+      The bug reasons and solutions are written in http://eigen.tuxfamily.org/dox-devel/group__TopicUnalignedArrayAssert.html .
+      This workaround was discussed on https://gitlab.com/autowarefoundation/autoware.ai/core_perception/merge_requests/57 .")
+    add_definitions(-DEIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT)
+  endif()
+
+  ament_auto_add_library(ndt_cpu ${srcs} ${incs})
+
+  target_link_libraries(ndt_cpu
+    ${PCL_LIBRARIES}
+  )
+
+  install(DIRECTORY include/
+          DESTINATION include
+          FILES_MATCHING PATTERN "*.h"
+          )
+
+  install(TARGETS ndt_cpu
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+  )
+
+  ament_auto_package()
+
 endif()
-
-add_library(ndt_cpu ${incs} ${srcs})
-
-target_link_libraries(ndt_cpu
-  ${PCL_LIBRARIES}
-  ${catkin_LIBRARIES}
-)
-
-install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-  FILES_MATCHING PATTERN "*.h"
-)
-
-install(TARGETS ndt_cpu
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)

@@ -60,7 +60,7 @@ LineStrings3d CarmaTrafficSignal::stopLine()
   return getParameters<LineString3d>(RoleName::RefLine);
 }
 
-Optional<LineString3d> CarmaTrafficSignal::getStopLine(const ConstLanelet& llt) 
+Optional<LineString3d> CarmaTrafficSignal::getStopLine(const ConstLanelet& llt)
 {
   auto sl = stopLine();
   if (sl.empty()) {
@@ -78,15 +78,15 @@ Optional<LineString3d> CarmaTrafficSignal::getStopLine(const ConstLanelet& llt)
   return sl.at(size_t(std::distance(llts.begin(), it)));
 }
 
-Optional<ConstLineString3d> CarmaTrafficSignal::getConstStopLine(const ConstLanelet& llt) 
+Optional<ConstLineString3d> CarmaTrafficSignal::getConstStopLine(const ConstLanelet& llt)
 {
   Optional<LineString3d> mutable_stop_line = getStopLine(llt);
-  
+
   if (!mutable_stop_line)
     return boost::none;
 
   ConstLineString3d const_stop_line = mutable_stop_line.get();
-  
+
   return const_stop_line;
 }
 
@@ -120,18 +120,13 @@ boost::optional<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> Ca
     return boost::none;
   }
 
-  if (recorded_time_stamps.size() == 1) // if only 1 timestamp recorded, this signal doesn't change
-  {
-    return std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>(recorded_time_stamps.front().first, recorded_time_stamps.front().second);
-  }
-  
   if (lanelet::time::toSec(fixed_cycle_duration) < 1.0) // there are recorded states, but no fixed_cycle_duration means it is dynamic
   {
     if (recorded_time_stamps.size() != recorded_start_time_stamps.size())
     {
       throw std::invalid_argument("recorded_start_time_stamps size is not equal to recorded_time_stamps size");
     }
-    
+
     // if requested time is BEFORE recorded states' time interval, return STOP_AND_REMAIN
     if (recorded_start_time_stamps.front() >= time_stamp)
     {
@@ -141,11 +136,11 @@ boost::optional<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> Ca
     // if requested time is AFTER recorded states' time interval, return STOP_AND_REMAIN
     if (recorded_time_stamps.back().first <= time_stamp)
     {
-      auto end_infinity_time = timeFromSec(2147483647); //corresponds to 03:14:07 on Tuesday, 19 January 2038.
-      LOG_WARN_STREAM("CarmaTrafficSignal doesn't have enough state saved, so returning STOP_AND_REMAIN state! End_time: " << end_infinity_time);
+      auto end_infinity_time = timeFromSec(time::INFINITY_END_TIME_FOR_NOT_ENOUGH_STATES); //corresponds to 03:14:07 on Tuesday, 19 January 2038.
+      LOG_DEBUG_STREAM("CarmaTrafficSignal doesn't have enough state saved, so returning STOP_AND_REMAIN state! End_time: " << end_infinity_time);
       return std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>(end_infinity_time, CarmaTrafficSignalState::STOP_AND_REMAIN);
     }
-    
+
     // iterate through states in the dynamic states to get the signal.
     for (size_t i = 0; i < recorded_time_stamps.size(); i++)
     {
@@ -155,15 +150,16 @@ boost::optional<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> Ca
       }
     }
   }
-  
+
+  // This part of the code is used for predicting state if fixed_cycle_duration is set using setStates function
   // shift starting time to the future or to the past to fit input into a valid cycle
   boost::posix_time::time_duration accumulated_offset_duration;
   double offset_duration_dir = recorded_time_stamps.front().first > time_stamp ? -1.0 : 1.0; // -1 if past, +1 if time_stamp is in future
 
   int num_of_cycles = std::abs(lanelet::time::toSec(recorded_time_stamps.front().first - time_stamp) / lanelet::time::toSec(fixed_cycle_duration));
   accumulated_offset_duration = durationFromSec( num_of_cycles * lanelet::time::toSec(fixed_cycle_duration));
-  
-  if (offset_duration_dir < 0) 
+
+  if (offset_duration_dir < 0)
   {
     while (recorded_time_stamps.front().first - accumulated_offset_duration > time_stamp)
     {
@@ -175,7 +171,7 @@ boost::optional<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> Ca
   {
     double end_time = lanelet::time::toSec(recorded_time_stamps[i].first) + offset_duration_dir * lanelet::time::toSec(accumulated_offset_duration);
     if (end_time >= lanelet::time::toSec(time_stamp))
-    { 
+    {
       return std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>(timeFromSec(end_time), recorded_time_stamps[i].second);
     }
   }
@@ -186,7 +182,7 @@ boost::optional<std::pair<boost::posix_time::ptime, CarmaTrafficSignalState>> Ca
 lanelet::ConstLanelets CarmaTrafficSignal::getControlStartLanelets() const
 {
   return getParameters<ConstLanelet>(CarmaTrafficSignalRoleNameString::ControlStart);
-} 
+}
 
 lanelet::ConstLanelets CarmaTrafficSignal::getControlEndLanelets() const
 {
