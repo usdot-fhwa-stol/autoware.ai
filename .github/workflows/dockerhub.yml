@@ -6,6 +6,7 @@ on:
       - "carma-develop"
       - "master"
       - "release/*"
+      - "feature/*"
     tags:
       - "carma-system-*"
 jobs:
