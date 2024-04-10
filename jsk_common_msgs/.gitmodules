@@ -1,8 +1,3 @@
 [submodule ".travis"]
-<<<<<<< Updated upstream
 	path = .travis
 	url = git://github.com/jsk-ros-pkg/jsk_travis
-=======
-	path = jsk_common_msgs/.travis
-	url = git://github.com/jsk-ros-pkg/jsk_travis
->>>>>>> Stashed changes
