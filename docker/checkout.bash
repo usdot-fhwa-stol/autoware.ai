@@ -17,11 +17,12 @@
 set -exo pipefail
 
 dir=~
+BRANCH=develop
 while [[ $# -gt 0 ]]; do
       arg="$1"
       case $arg in
-            -d|--develop)
-                  BRANCH=develop
+            -b|--branch)
+                  BRANCH=$2
                   shift
             ;;
             -r|--root)
@@ -33,16 +34,9 @@ while [[ $# -gt 0 ]]; do
 done
 
 cd ${dir}/autoware.ai
-
-if [[ "$BRANCH" = "develop" ]]; then
-      git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-msgs.git --branch $BRANCH
-      git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-utils.git --branch $BRANCH
-      git clone --depth=1 https://github.com/usdot-fhwa-stol/autoware.auto.git --branch $BRANCH
-else
-      git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-msgs.git --branch carma-system-4.5.0
-      git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-utils.git --branch carma-system-4.5.0
-      git clone --depth=1 https://github.com/usdot-fhwa-stol/autoware.auto.git --branch carma-system-4.5.0
-fi
-
+git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-msgs.git --branch $BRANCH
+git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-utils.git --branch $BRANCH
+git clone --depth=1 https://github.com/usdot-fhwa-stol/autoware.auto.git --branch $BRANCH
+# TODO: Should this external dependencies be moved into install.sh
 # Required to build pacmod_msgs
 git clone https://github.com/astuff/astuff_sensor_msgs.git ${dir}/src/astuff_sensor_msgs -b 3.0.1
