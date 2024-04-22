@@ -1,0 +1,13 @@
+[submodule "jsk_common_msgs/.travis"]
+	path = jsk_common_msgs/.travis
+	url = git://github.com/jsk-ros-pkg/jsk_travis
+[submodule "jsk_recognition/jsk_perception/slic"]
+	path = jsk_recognition/jsk_perception/slic
+	url = https://github.com/garaemon/SLIC-Superpixels.git
+[submodule "jsk_recognition/.travis"]
+	path = jsk_recognition/.travis
+	url = https://github.com/jsk-ros-pkg/jsk_travis.git
+	branch = 0.4.26
+[submodule "jsk_recognition/jsk_perception/node_scripts/deep_sort/deep_sort"]
+	path = jsk_recognition/jsk_perception/node_scripts/deep_sort/deep_sort
+	url = https://github.com/nwojke/deep_sort.git
