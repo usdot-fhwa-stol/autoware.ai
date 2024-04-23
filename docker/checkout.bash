@@ -33,7 +33,12 @@ while [[ $# -gt 0 ]]; do
             ;;
       esac
 done
-
+# When brance is carma-develop or carma-master strip carma prefix
+if [[ "$BRANCH" == "carma-develop" ]]; then
+      BRANCH=develop
+elif [[ "$BRANCH" == "carma-master"]]; then
+      BRANCH=master
+fi
 cd ${dir}/autoware.ai
 git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-msgs.git --branch $BRANCH
 git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-utils.git --branch $BRANCH
