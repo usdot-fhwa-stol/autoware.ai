@@ -17,3 +17,4 @@ jobs:
       GH_PAT: ${{ secrets.GH_PAT }}
     with:
       github_submodules: true
+      context: .

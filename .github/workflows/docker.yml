@@ -9,3 +9,4 @@ jobs:
     uses: usdot-fhwa-stol/actions/.github/workflows/docker.yml@feature-docker-build-github-submodule
     with:
       github_submodules: true
+      context: .
