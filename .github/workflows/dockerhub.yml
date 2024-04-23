@@ -10,8 +10,10 @@ on:
       - carma-system-*
 jobs:
   dockerhub:
-    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@main
+    uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@feature-docker-build-github-submodule
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
       GH_PAT: ${{ secrets.GH_PAT }}
+    with:
+      github_submodules: true
