@@ -33,7 +33,7 @@ while [[ $# -gt 0 ]]; do
             ;;
       esac
 done
-# When brance is carma-develop or carma-master strip carma prefix
+# When branch is carma-develop or carma-master strip carma prefix
 if [[ "$BRANCH" == "carma-develop" ]]; then
       BRANCH=develop
 elif [[ "$BRANCH" == "carma-master" ]]; then
