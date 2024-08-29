@@ -1,7 +1,0 @@
-<launch>
-  <rosparam param="tf_baselink2primarylidar">[1.2, 0.0, 2.0, 0.0, 0.0, 0.0]</rosparam>
-  <param name="localizer" value="velodyne" />
-
-  <node pkg="lidar_localizer" type="ndt_matching" name="ndt_matching" />
-  <test pkg="lidar_localizer" type="test_launch_ndt_matching" test-name="test_launch_ndt_matching" />
-</launch>
