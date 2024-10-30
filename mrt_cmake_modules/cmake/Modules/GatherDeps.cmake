@@ -12,7 +12,7 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/package.xml"
 #variable set. This is used, because the python script is calling some ros tools to distinguish
 #between catkin and non catkin packages.
 set(_gather_cmd
-    ${MRT_CMAKE_ENV} ${PYTHON_EXECUTABLE} ${MRT_CMAKE_MODULES_ROOT_PATH}/scripts/generate_cmake_dependency_file.py
+    ${MRT_CMAKE_ENV} ${Python3_EXECUTABLE} ${MRT_CMAKE_MODULES_ROOT_PATH}/scripts/generate_cmake_dependency_file.py
     "${CMAKE_CURRENT_SOURCE_DIR}/package.xml" "${MRT_CMAKE_MODULES_ROOT_PATH}/yaml/cmake.yaml"
     "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/auto_dep_vars.cmake")
 execute_process(
