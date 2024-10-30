@@ -61,7 +61,7 @@ echo "Build of ROS1 Autoware.AI Components Complete"
 ###
 # ROS 2 Build
 ###
-source /opt/ros/foxy/setup.bash
+source /opt/ros/humble/setup.bash
 if [[ ! -z "$ROS1_PACKAGES$ROS2_PACKAGES" ]]; then
     echo "Sourcing previous build for incremental build start point..."
     source /opt/autoware.ai/ros/install_ros2/setup.bash
