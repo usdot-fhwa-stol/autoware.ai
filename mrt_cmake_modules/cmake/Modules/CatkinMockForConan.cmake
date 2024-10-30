@@ -7,7 +7,7 @@ conan_define_targets()
 target_link_libraries(${PROJECT_NAME}::auto_deps_export INTERFACE ${CONAN_TARGETS})
 if(CONAN_USER_PYTHON_DEV_CONFIG_python_exec)
     set(PYTHON_VERSION ${CONAN_USER_PYTHON_DEV_CONFIG_python_version})
-    set(PYTHON_EXECUTABLE ${CONAN_USER_PYTHON_DEV_CONFIG_python_exec})
+    set(Python3_EXECUTABLE ${CONAN_USER_PYTHON_DEV_CONFIG_python_exec})
 endif()
 
 set(CATKIN_DEVEL_PREFIX ${CMAKE_CURRENT_BINARY_DIR})
