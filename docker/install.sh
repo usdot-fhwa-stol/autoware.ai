@@ -14,7 +14,6 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-source /opt/ros/humble/setup.bash
 if [[ ! -z "$ROS1_PACKAGES$ROS2_PACKAGES" ]]; then
     echo "Sourcing previous build for incremental build start point..."
     source /opt/autoware.ai/ros/install/setup.bash
@@ -22,6 +21,13 @@ else
     echo "Sourcing base image for full build..."
     source /opt/ros/humble/setup.bash
 fi
+
+# Enter source directory
+cd /home/carma/autoware.ai
+
+sudo mkdir /opt/autoware.ai # Create install directory
+sudo chown carma /opt/autoware.ai # Set owner to expose permissions for build
+sudo chgrp carma /opt/autoware.ai # Set group to expose permissions for build
 
 echo "ROS 2 Build"
 if [[ ! -z "$ROS1_PACKAGES$ROS2_PACKAGES" ]]; then
