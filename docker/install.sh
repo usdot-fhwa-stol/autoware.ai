@@ -19,7 +19,7 @@ if [[ ! -z "$ROS1_PACKAGES$ROS2_PACKAGES" ]]; then
     source /opt/autoware.ai/ros/install/setup.bash
 else
     echo "Sourcing base image for full build..."
-    source /opt/ros/humble/setup.bash
+    source /home/carma/.base-image/init-env.sh
 fi
 
 # Enter source directory
