@@ -29,13 +29,13 @@ jobs:
     # Pull docker image from docker hub
     # XTERM used for better catkin_make output
     docker:
-      - image: usdotfhwastoldev/carma-base:develop
+      - image: usdotfhwastoldev/carma-base:develop-humble
         user: carma
         environment:
           TERM: xterm
           INIT_ENV: /home/carma/.base-image/init-env.sh
           COVERAGE_FLAGS: -g --coverage -fprofile-arcs -ftest-coverage -Wall
-    resource_class: xlarge
+    resource_class: large
     # Set working directory
     working_directory: "/opt/carma/"
     # Pull code and execute tests
@@ -48,7 +48,7 @@ jobs:
           name: Pull Deps
           command: |
             source ${INIT_ENV}
-            ./autoware.ai/docker/checkout.bash -r ${PWD}
+            ./autoware.ai/docker/checkout.bash -r ${PWD} -b develop-humble
       - run:
           name: Build autoware.ai
           command: |
