@@ -33,7 +33,7 @@ find_path(PUGIXML_INCLUDE_DIRS
   PATH_SUFFIXES pugixml
 )
 
-find_package(PROJ4 REQUIRED)
+find_package(PROJ REQUIRED)
 find_package(Boost REQUIRED)
 
 
@@ -132,7 +132,7 @@ if(${ROS_VERSION} EQUAL 2)
     include
     ${GeographicLib_INCLUDE_DIRS}
     ${PUGIXML_INCLUDE_DIRS}
-    ${PROJ4_INCLUDE_DIRS}
+    ${PROJ_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}
     ${${LOGGER_DEP}_INCLUDE_DIRS}
     ${hardcoded_params_INCLUDE_DIRS}
@@ -150,7 +150,7 @@ if(${ROS_VERSION} EQUAL 2)
 
   target_link_libraries(lanelet2_extension_lib
     ${GeographicLib_LIBRARIES}
-    ${PROJ4_LIBRARIES}
+    ${PROJ_LIBRARIES}
     ${Boost_LIBRARIES}
     ${${LOGGER_DEP}_LIBRARIES}
   )

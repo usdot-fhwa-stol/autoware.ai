@@ -11,7 +11,7 @@ ENV ROS2_PACKAGES=${ROS2_PACKAGES}
 
 COPY --chown=carma . /home/carma/autoware.ai
 RUN /home/carma/autoware.ai/docker/checkout.bash -b ${GIT_BRANCH}
-RUN ./home/carma/autoware.ai/docker/install.sh
+RUN /home/carma/autoware.ai/docker/install.sh
 
 FROM base_image
 
@@ -30,4 +30,3 @@ LABEL org.label-schema.vcs-ref=${VCS_REF}
 LABEL org.label-schema.build-date=${BUILD_DATE}
 
 COPY --chown=carma --from=build /opt/autoware.ai/ros/install /opt/autoware.ai/ros/install
-COPY --chown=carma --from=build /opt/autoware.ai/ros/install_ros2 /opt/autoware.ai/ros/install_ros2

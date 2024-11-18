@@ -6,7 +6,6 @@ find_package(ros_environment REQUIRED)
 set(ROS_VERSION $ENV{ROS_VERSION})
 
 find_package(PCL COMPONENTS REQUIRED)
-find_package(catkin REQUIRED)
 find_package(Eigen3 QUIET)
 
 if(NOT EIGEN3_FOUND)
@@ -21,7 +20,7 @@ else()
 endif()
 
 if(${ROS_VERSION} EQUAL 1)
-
+  find_package(catkin REQUIRED)
   catkin_package(
     INCLUDE_DIRS include
     LIBRARIES ndt_cpu                   #The exported libraries from the project

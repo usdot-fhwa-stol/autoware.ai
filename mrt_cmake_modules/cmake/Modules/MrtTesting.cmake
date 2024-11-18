@@ -45,7 +45,7 @@ function(mrt_init_testing)
     endif()
     if(NOT TARGET init_tests)
         set(pre_test_cmd
-            ${PYTHON_EXECUTABLE}
+            ${Python3_EXECUTABLE}
             ${MRT_CMAKE_MODULES_ROOT_PATH}/scripts/init_coverage.py
             ${PROJECT_NAME}
             ${CMAKE_BINARY_DIR}
@@ -61,7 +61,7 @@ function(mrt_init_testing)
             set(show_result "--show")
         endif()
         set(post_test_cmd
-            ${PYTHON_EXECUTABLE}
+            ${Python3_EXECUTABLE}
             ${MRT_CMAKE_MODULES_ROOT_PATH}/scripts/eval_coverage.py
             ${CMAKE_SOURCE_DIR}
             ${CMAKE_BINARY_DIR}
@@ -115,7 +115,7 @@ function(_mrt_run_test target_name working_dir result_xml_path)
 
     set(run_test_cmd
         ${CATKIN_ENV}
-        ${PYTHON_EXECUTABLE}
+        ${Python3_EXECUTABLE}
         ${MRT_CMAKE_MODULES_ROOT_PATH}/scripts/run_test.py
         ${result_xml_path}
         ${working_dir_arg}
@@ -205,7 +205,7 @@ function(mrt_add_rostest target launch_file)
         message(FATAL_ERROR "rostest not found! Aborting...")
     endif()
     set(cmd
-        "${PYTHON_EXECUTABLE} ${ROSTEST_EXE} --pkgdir=${PROJECT_SOURCE_DIR} --package=${PROJECT_NAME} --results-filename ${test_name}.xml --results-base-dir \"${MRT_TEST_RESULTS_DIR}\" ${CMAKE_CURRENT_LIST_DIR}/${launch_file}"
+        "${Python3_EXECUTABLE} ${ROSTEST_EXE} --pkgdir=${PROJECT_SOURCE_DIR} --package=${PROJECT_NAME} --results-filename ${test_name}.xml --results-base-dir \"${MRT_TEST_RESULTS_DIR}\" ${CMAKE_CURRENT_LIST_DIR}/${launch_file}"
     )
     if(MRT_ENABLE_COVERAGE)
         set(coverage_arg COVERAGE_DIR ${MRT_COVERAGE_DIR}/${target})

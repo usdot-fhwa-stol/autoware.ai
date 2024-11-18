@@ -118,7 +118,7 @@ void lightAsMarker(lanelet::ConstPoint3d p, visualization_msgs::msg::Marker* mar
     marker->color.g = 1.0f;
     marker->color.b = 1.0f;
   }
-  marker->lifetime = rclcpp::Duration(0.0);
+  marker->lifetime = rclcpp::Duration::from_seconds(0.0);
 }
 
 void laneletDirectionAsMarker(const lanelet::ConstLanelet ll, visualization_msgs::msg::Marker* marker, const int id,
@@ -152,7 +152,7 @@ void laneletDirectionAsMarker(const lanelet::ConstLanelet ll, visualization_msgs
   lanelet::ConstLineString3d center_ls = ll.centerline();
   float s = 1.0;
 
-  marker->lifetime = rclcpp::Duration(0.0);
+  marker->lifetime = rclcpp::Duration::from_seconds(0.0);
 
   marker->pose.position.x = 0.0;  // p.x();
   marker->pose.position.y = 0.0;  // p.y();
@@ -533,7 +533,7 @@ visualization_msgs::msg::MarkerArray visualization::laneletsAsTriangleMarkerArra
   marker.ns = ns;
   marker.id = 0;
   marker.type = visualization_msgs::msg::Marker::TRIANGLE_LIST;
-  marker.lifetime = rclcpp::Duration(0.0);
+  marker.lifetime = rclcpp::Duration::from_seconds(0.0);
   marker.pose.position.x = 0.0;  // p.x();
   marker.pose.position.y = 0.0;  // p.y();
   marker.pose.position.z = 0.0;  // p.z();
