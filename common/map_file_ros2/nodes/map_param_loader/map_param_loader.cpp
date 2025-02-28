@@ -23,24 +23,14 @@ namespace map_param_loader
 
   MapParamLoader::MapParamLoader(const rclcpp::NodeOptions &options) : carma_ros2_utils::CarmaLifecycleNode(options)
   {
-    
+
   }
 
   carma_ros2_utils::CallbackReturn MapParamLoader::handle_on_configure(const rclcpp_lifecycle::State &)
   {
     lanelet2_filename = declare_parameter<std::string>("file_name", lanelet2_filename);
     broadcast_earth_frame = declare_parameter<bool>("broadcast_earth_frame", broadcast_earth_frame);
-
-    // NOTE: Currently, intra-process comms must be disabled for the following two publishers that are transient_local: https://github.com/ros2/rclcpp/issues/1753
-    rclcpp::PublisherOptions intra_proc_disabled; 
-    intra_proc_disabled.use_intra_process_comm = rclcpp::IntraProcessSetting::Disable; // Disable intra-process comms for this PublisherOptions object
-
-    // Create a publisher that will send all previously published messages to late-joining subscribers ONLY If the subscriber is transient_local too
-    auto pub_qos_transient_local = rclcpp::QoS(rclcpp::KeepAll()); // A publisher with this QoS will store all messages that it has sent on the topic
-    pub_qos_transient_local.transient_local();  // A publisher with this QoS will re-send all (when KeepAll is used) messages to all late-joining subscribers 
-                                         // NOTE: The subscriber's QoS must be set to transient_local() as well for earlier messages to be resent to the later-joiner.
-
-    georef_pub_ = this->create_publisher<std_msgs::msg::String>("georeference",  pub_qos_transient_local, intra_proc_disabled);
+    georef_pub_ = this->create_publisher<std_msgs::msg::String>("georeference", 1);
 
     return CallbackReturn::SUCCESS;
   }
@@ -57,11 +47,11 @@ namespace map_param_loader
       tf2::Transform tf = getTransform(target_frame_);
 
       // Broadcast the transform
-      broadcastTransform(tf);  
+      broadcastTransform(tf);
     }
 
     timer_ = this->create_wall_timer(std::chrono::milliseconds(500), std::bind(&MapParamLoader::timer_callback, this));
-    
+
     return CallbackReturn::SUCCESS;
   }
 
@@ -78,7 +68,7 @@ namespace map_param_loader
   {
 
     lanelet::projection::LocalFrameProjector local_projector(map_frame.c_str());
-    
+
     tf2::Matrix3x3 rot_mat, id = tf2::Matrix3x3::getIdentity();
     lanelet::BasicPoint3d origin_in_map{0,0,0}, origin_in_ecef;
 
@@ -97,7 +87,7 @@ namespace map_param_loader
     // Transpose due to the way tf2::Matrix3x3 supposed to be stored.
     tf2::Vector3 v_origin_in_ecef{origin_in_ecef[0],origin_in_ecef[1],origin_in_ecef[2]};
     tf2::Transform tf(rot_mat.transpose(), v_origin_in_ecef);
-    
+
     // map_to_ecef tf
     return tf;
   }
