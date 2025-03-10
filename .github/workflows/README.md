@@ -7,6 +7,6 @@ curl -X POST \
   -H "Accept: application/vnd.github+json" \
   https://api.github.com/repos/usdot-fhwa-stol/autoware.ai/actions/workflows/dockerhub.yml/dispatches \
   -d '{
-    "ref": "develop-humble"
+    "ref": "carma-develop"
   }'
 ```

@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - carma-develop
-      - develop-humble
       - carma-master
       - "release/*"
     tags:
