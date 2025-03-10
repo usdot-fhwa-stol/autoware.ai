@@ -8,4 +8,5 @@ jobs:
   docker:
     uses: usdot-fhwa-stol/actions/.github/workflows/docker.yml@main
     with:
+      tag_name_suffix: humble
       context: .
