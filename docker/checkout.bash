@@ -43,6 +43,3 @@ cd "${dir}"/autoware.ai
 git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-msgs.git --branch "$BRANCH"
 git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-utils.git --branch "$BRANCH"
 git clone --depth=1 https://github.com/usdot-fhwa-stol/autoware.auto.git --branch develop-humble #TODO temporary change to allow successful build
-# TODO(CAR-6023): Should this external dependencies be moved into install.sh
-# Required to build pacmod_msgs
-git clone https://github.com/astuff/astuff_sensor_msgs.git "${dir}"/src/astuff_sensor_msgs -b 3.0.1
