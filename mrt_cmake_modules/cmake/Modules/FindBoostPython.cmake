@@ -5,8 +5,8 @@
 #  BoostPython_INCLUDE_DIRS - the include directory for boost+python
 #  BoostPython_LIBRARIES - the needed libs for boost+python
 
-if(PYTHON_VERSION)
-    set(_python_version ${PYTHON_VERSION})
+if(Python3_VERSION)
+    set(_python_version ${Python3_VERSION})
 else()
     set(_python_version 2.7)
 endif()

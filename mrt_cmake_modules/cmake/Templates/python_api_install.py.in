@@ -4,7 +4,7 @@ import os
 import sys
 import subprocess
 
-python_interpreter = "@PYTHON_EXECUTABLE@"
+python_interpreter = "@Python3_EXECUTABLE@"
 if not python_interpreter:
     python_interpreter = "python"
 
