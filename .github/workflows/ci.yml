@@ -27,7 +27,7 @@ jobs:
         working-directory: "/opt/carma/"
     runs-on: ubuntu-latest-8-cores
     container:
-      image: ${{ needs.determine_docker_org_and_tag.outputs.docker_organization }}/carma-base:${{ needs.determine_docker_org_and_tag.outputs.docker_image_tag }}
+      image: usdotfhwastoldev/carma-base:develop-humble
       env:
         INIT_ENV: "/home/carma/.base-image/init-env.sh"
         ROS_2_ENV: "/opt/ros/humble/setup.bash"
@@ -58,7 +58,7 @@ jobs:
         run: |
           source "$INIT_ENV"
           source "$ROS_2_ENV"
-          ./src/autoware.ai/docker/checkout.bash -r /opt/carma/src -b ${{ steps.determine-base-branch.outputs.git_branch }}
+          ./src/autoware.ai/docker/checkout.bash -r /opt/carma/src -b carma-develop
 
       - name: Build
         run: |
