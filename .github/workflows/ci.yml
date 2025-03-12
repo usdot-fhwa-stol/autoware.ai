@@ -1,0 +1,82 @@
+name: CI
+on:
+  push:
+    branches:
+      - carma-develop
+      - master
+      - "release/*"
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  determine_docker_org_and_tag:
+    runs-on: ubuntu-latest
+    outputs:
+      docker_organization: ${{ steps.docker-org-and-tag.outputs.docker_organization }}
+      docker_image_tag: ${{ steps.docker-org-and-tag.outputs.docker_image_tag }}-humble
+    steps:
+      - id: docker-org-and-tag
+        uses: usdot-fhwa-stol/actions/docker-org-and-tag@main
+
+  build:
+    needs: determine_docker_org_and_tag
+    defaults:
+      run:
+        shell: bash
+        working-directory: "/opt/carma/"
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.determine_docker_org_and_tag.outputs.docker_organization }}/carma-base:${{ needs.determine_docker_org_and_tag.outputs.docker_image_tag }}
+      env:
+        INIT_ENV: "/home/carma/.base-image/init-env.sh"
+        ROS_2_ENV: "/opt/ros/humble/setup.bash"
+        TERM: xterm
+      options: "--user root"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          path: src/autoware.ai
+
+      - name: Move source code
+        run: |
+          mkdir -p /opt/carma/src
+          mv $GITHUB_WORKSPACE/src/autoware.ai /opt/carma/src/autoware.ai
+
+      - name: Determine base branch
+        id: determine-base-branch
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            echo git_branch="$GITHUB_BASE_REF" >> $GITHUB_OUTPUT
+          else
+            echo git_branch="$GITHUB_REF_NAME" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Checkout dependencies
+        run: |
+          source "$INIT_ENV"
+          source "$ROS_2_ENV"
+          ./src/autoware.ai/docker/checkout.bash -r /opt/carma/src -b ${{ steps.determine-base-branch.outputs.git_branch }}
+
+      - name: Build
+        run: |
+          source "$INIT_ENV"
+          source "$ROS_2_ENV"
+          PACKAGES=$(find . -maxdepth 5 -type f -name package.xml | sed 's/\.\///' | cut -d/ -f1)
+          sed -i '/colcon build/ s/$/ --parallel-workers 4 --packages-up-to $PACKAGES/' /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
+          make_with_coverage.bash -m -e /opt/carma/ -o ./coverage_reports/gcov
+
+      - name: Run C++ Tests
+        continue-on-error: true
+        run: |
+          source "$INIT_ENV"
+          source "$ROS_2_ENV"
+          sed -i '/colcon test/ s/$/ --parallel-workers 4 --packages-above $PACKAGES/' /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
+          make_with_coverage.bash -t -e /opt/carma/ -o ./coverage_reports/gcov
+
+      - name: Run SonarScanner
+        uses: usdot-fhwa-stol/actions/sonar-scanner@main
+        with:
+          sonar-token: ${{ secrets.SONAR_TOKEN }}
+          working-dir: "/opt/carma/src/autoware.ai"
