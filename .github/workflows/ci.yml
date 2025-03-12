@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - carma-develop
+      - feature/add_gha
       - master
       - "release/*"
   pull_request:
@@ -24,7 +25,7 @@ jobs:
       run:
         shell: bash
         working-directory: "/opt/carma/"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-8-cores
     container:
       image: ${{ needs.determine_docker_org_and_tag.outputs.docker_organization }}/carma-base:${{ needs.determine_docker_org_and_tag.outputs.docker_image_tag }}
       env:
