@@ -68,7 +68,7 @@ jobs:
           PACKAGES=$(find . -maxdepth 5 -type f -name package.xml | sed 's/\.\///' | cut -d/ -f1)
           sed -i '/colcon build/ s/$/ --parallel-workers 4 --packages-up-to $PACKAGES --packages-ignore parking_planner parking_planner_nodes/' /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
           make_with_coverage.bash -m -e /opt/carma/ -o ./coverage_reports/gcov
-
+      - run: ls -la && pwd
       - name: Run C++ Tests
         continue-on-error: true
         run: |
@@ -77,7 +77,13 @@ jobs:
           export AUTOWARE_COMPILE_WITH_CUDA=1
           sed -i '/colcon test/ s/$/ --parallel-workers 4 --packages-above $PACKAGES --packages-ignore parking_planner parking_planner_nodes/' /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
           make_with_coverage.bash -t -e /opt/carma/ -o ./coverage_reports/gcov
-
+      - name: Find coverage info
+        continue-on-error: true
+        shell: bash
+        run: |
+          find "$GITHUB_WORKSPACE" -name "coverage.xml"
+          ls -la && pwd
+          find "$GITHUB_WORKSPACE" -name "gcov"
       - name: Run SonarScanner
         uses: usdot-fhwa-stol/actions/sonar-scanner@main
         with:
