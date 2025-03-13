@@ -69,6 +69,12 @@ jobs:
           sed -i '/colcon build/ s/$/ --parallel-workers 4 --packages-up-to $PACKAGES --packages-ignore parking_planner parking_planner_nodes/' /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
           make_with_coverage.bash -m -e /opt/carma/ -o ./coverage_reports/gcov
       - run: ls -la && pwd
+      - name: Check compile_commands.json
+        continue-on-error: true
+        run: |
+          echo "Looking for compile_commands.json file"
+          find /opt/carma -name compile_commands.json
+          find "/opt/carma" -name "compile_commands.json"      
       - name: Run C++ Tests
         continue-on-error: true
         run: |
@@ -81,9 +87,9 @@ jobs:
         continue-on-error: true
         shell: bash
         run: |
-          find "$GITHUB_WORKSPACE" -name "coverage.xml"
+          find "/opt/carma" -name "coverage.xml"
           ls -la && pwd
-          find "$GITHUB_WORKSPACE" -name "gcov"
+          find "/opt/carma" -name "gcov"
       - name: Run SonarScanner
         uses: usdot-fhwa-stol/actions/sonar-scanner@main
         with:
