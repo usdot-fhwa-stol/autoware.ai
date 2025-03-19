@@ -1,5 +1,5 @@
-ARG DOCKER_ORG=usdotfhwastoldev
-ARG DOCKER_TAG=develop-humble
+ARG DOCKER_ORG=usdotfhwastolcandidate
+ARG DOCKER_TAG=timtsp-humble
 FROM ${DOCKER_ORG}/carma-base:${DOCKER_TAG} as base_image
 
 FROM base_image AS build
