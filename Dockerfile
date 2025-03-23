@@ -3,7 +3,7 @@ ARG DOCKER_TAG=test_run-humble
 FROM ${DOCKER_ORG}/carma-base:${DOCKER_TAG} as base_image
 
 FROM base_image AS build
-ARG GIT_BRANCH=develop
+ARG GIT_BRANCH=release/test_run
 ARG ROS1_PACKAGES=""
 ENV ROS1_PACKAGES=${ROS1_PACKAGES}
 ARG ROS2_PACKAGES=""
