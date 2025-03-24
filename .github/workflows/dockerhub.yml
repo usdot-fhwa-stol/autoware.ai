@@ -6,6 +6,7 @@ on:
       - carma-develop
       - carma-master
       - "release/*"
+      - sync_test_run
     tags:
       - carma-system-*
   workflow_dispatch:
