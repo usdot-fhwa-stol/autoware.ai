@@ -80,7 +80,7 @@ if(DEFINED ENV{ROS_VERSION})
     set(ROS_VERSION $ENV{ROS_VERSION})
 endif()
 
-# make sure catkin/ament are found so that PYTHON_EXECUTABLE (and CATKIN_ENV) is set.
+# make sure catkin/ament are found so that Python3_EXECUTABLE (and CATKIN_ENV) is set.
 if(NOT PYTHON_VERSION AND DEFINED $ENV{ROS_PYTHON_VERSION})
     set(PYTHON_VERSION
         $ENV{ROS_PYTHON_VERSION}
@@ -394,7 +394,7 @@ function(_mrt_get_python_destination output_var)
             "print(os.path.relpath(get_python_lib(prefix='${CMAKE_INSTALL_PREFIX}'), start='${CMAKE_INSTALL_PREFIX}').replace(os.sep, '/'))"
         )
         execute_process(
-            COMMAND "${PYTHON_EXECUTABLE}" "-c" "${_python_code}"
+            COMMAND "${Python3_EXECUTABLE}" "-c" "${_python_code}"
             OUTPUT_VARIABLE _output
             RESULT_VARIABLE _result
             OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -604,7 +604,7 @@ function(mrt_python_module_setup)
         install(
             CODE "execute_process(
             COMMAND
-             \"${PYTHON_EXECUTABLE}\" \"-m\" \"compileall\"
+             \"${Python3_EXECUTABLE}\" \"-m\" \"compileall\"
              \"${CMAKE_INSTALL_PREFIX}/${python_destination}/${PROJECT_NAME}\"
              )")
         if(ROS_VERSION EQUAL 2)
@@ -727,7 +727,7 @@ function(mrt_add_python_api modulename)
         configure_file(${MCM_TEMPLATE_DIR}/setup.py.in "${CMAKE_CURRENT_BINARY_DIR}/setup.py" @ONLY)
         configure_file(${MCM_TEMPLATE_DIR}/python_api_install.py.in "${CMAKE_CURRENT_BINARY_DIR}/python_api_install.py"
                        @ONLY)
-        install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/python_api_install.py)")
+        install(CODE "execute_process(COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/python_api_install.py)")
     else()
         if(ROS_VERSION EQUAL 2)
             _mrt_register_ament_python_hook()
@@ -1353,7 +1353,7 @@ function(_mrt_install_python source_file destination)
     string(SUBSTRING "${data}" 0 ${length} prefix)
     if("${shebang_line}" STREQUAL "${prefix}")
         # write modified file with modified shebang line
-        get_filename_component(python_name ${PYTHON_EXECUTABLE} NAME)
+        get_filename_component(python_name ${Python3_EXECUTABLE} NAME)
         string(REGEX REPLACE "${regex}" "#!/\\1/env ${python_name}\\2" data "${data}")
         get_filename_component(filename ${source_file} NAME)
         set(rewritten_file "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/python_files")

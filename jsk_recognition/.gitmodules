@@ -1,6 +1,7 @@
 [submodule "jsk_perception/slic"]
 	path = jsk_perception/slic
 	url = https://github.com/garaemon/SLIC-Superpixels.git
+	branch = master
 [submodule ".travis"]
 	path = .travis
 	url = https://github.com/jsk-ros-pkg/jsk_travis.git
@@ -8,3 +9,4 @@
 [submodule "jsk_perception/node_scripts/deep_sort/deep_sort"]
 	path = jsk_perception/node_scripts/deep_sort/deep_sort
 	url = https://github.com/nwojke/deep_sort.git
+	branch = master
