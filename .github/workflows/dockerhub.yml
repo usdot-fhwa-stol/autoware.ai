@@ -3,14 +3,21 @@ name: Docker Hub build
 on:
   push:
     branches:
-      - "carma-develop"
-      - "master"
+      - carma-develop
+      - carma-master
       - "release/*"
     tags:
-      - "carma-system-*"
+      - carma-system-*
+  workflow_dispatch:
+
 jobs:
   dockerhub:
     uses: usdot-fhwa-stol/actions/.github/workflows/dockerhub.yml@main
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      GH_PAT: ${{ secrets.GH_PAT }}
+    with:
+      tag_name_suffix: humble
+      remove_suffix: true
+      context: .
