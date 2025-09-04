@@ -39,7 +39,7 @@ if [[ ! -z "$ROS1_PACKAGES$ROS2_PACKAGES" ]]; then
         --cmake-args -DCMAKE_BUILD_TYPE=Release \
         --packages-above $ROS2_PACKAGES \
         --allow-overriding $ROS2_PACKAGES \
-        --packages-ignore $(cat docker/autoware-auto-packages-ignore.txt | tr '\n' ' ')
+        --packages-ignore $(cat autoware.auto/docker/autoware-auto-packages-ignore.txt | tr '\n' ' ')
     else
         echo "Build type is incremental but no ROS2 packages specified, skipping ROS2 build..."
     fi
@@ -50,6 +50,6 @@ else
     --build-base build \
     --cmake-args -DCMAKE_BUILD_TYPE=Release \
     --packages-up-to $(cat docker/autoware-ai-packages.txt | tr '\n' ' ') \
-    $(cat docker/autoware-auto-packages.txt | tr '\n' ' ')\
-    --packages-ignore $(cat docker/autoware-auto-packages-ignore.txt | tr '\n' ' ')
+    $(cat autoware.auto/docker/autoware-auto-packages.txt | tr '\n' ' ')\
+    --packages-ignore $(cat autoware.auto/docker/autoware-auto-packages-ignore.txt | tr '\n' ' ')
 fi
