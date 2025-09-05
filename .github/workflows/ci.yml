@@ -66,31 +66,19 @@ jobs:
           source "$INIT_ENV"
           source "$ROS_2_ENV"
           export AUTOWARE_COMPILE_WITH_CUDA=1
-          PACKAGES=$(find . -maxdepth 5 -type f -name package.xml | sed 's/\.\///' | cut -d/ -f1)
-          sed -i '/colcon build/ s/$/ --parallel-workers 4 --packages-up-to $PACKAGES --packages-ignore parking_planner parking_planner_nodes/' /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
+          PACKAGES=$(awk '{print $1}' ./src/autoware.ai/docker/autoware-ai-packages.txt | sed 's/#.*//' | tr -d '\r' | xargs -n1 | sort -u | tr '\n' ' ')
+          export PACKAGES
+          sed -i '/colcon build/ s/$/ --parallel-workers 4 --packages-up-to $PACKAGES /' /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
           make_with_coverage.bash -m -e /opt/carma/ -o ./coverage_reports/gcov
-      - run: ls -la && pwd
-      - name: Check compile_commands.json
-        continue-on-error: true
-        run: |
-          echo "Looking for compile_commands.json file"
-          find /opt/carma -name compile_commands.json
-          find "/opt/carma" -name "compile_commands.json"      
       - name: Run C++ Tests
-        continue-on-error: true
         run: |
           source "$INIT_ENV"
           source "$ROS_2_ENV"
           export AUTOWARE_COMPILE_WITH_CUDA=1
-          sed -i '/colcon test/ s/$/ --parallel-workers 4 --packages-above $PACKAGES --packages-ignore parking_planner parking_planner_nodes/' /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
+          export PACKAGES=$(awk '{print $1}' ./src/autoware.ai/docker/autoware-ai-packages.txt | sed 's/#.*//' | tr -d '\r' | xargs -n1 | sort -u | tr '\n' ' ')
+          sed -i '/colcon test/ s/$/ --parallel-workers 4 --event-handlers console_cohesion+ --packages-above $PACKAGES --ctest-args --output-on-failure/' /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
           make_with_coverage.bash -t -e /opt/carma/ -o ./coverage_reports/gcov
-      - name: Find coverage info
-        continue-on-error: true
-        shell: bash
-        run: |
-          find "/opt/carma" -name "coverage.xml"
-          ls -la && pwd
-          find "/opt/carma" -name "gcov"
+
       - name: Run SonarScanner
         uses: usdot-fhwa-stol/actions/sonar-scanner@main
         with:
