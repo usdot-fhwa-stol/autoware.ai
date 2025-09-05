@@ -76,7 +76,7 @@ jobs:
           source "$ROS_2_ENV"
           export AUTOWARE_COMPILE_WITH_CUDA=1
           export PACKAGES=$(awk '{print $1}' ./src/autoware.ai/docker/autoware-ai-packages.txt | sed 's/#.*//' | tr -d '\r' | xargs -n1 | sort -u | tr '\n' ' ')
-          sed -i '/colcon test/ s/$/ --parallel-workers 4 --event-handlers console_cohesion+ --packages-above $PACKAGES --ctest-args --output-on-failure/' /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
+          sed -i -E 's|(colcon[[:space:]]+test)([[:space:]]|$)|\1 --parallel-workers 4 --event-handlers console_cohesion+ --packages-select $PACKAGES --ctest-args --output-on-failure \2|' /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
           make_with_coverage.bash -t -e /opt/carma/ -o ./coverage_reports/gcov
 
       - name: Run SonarScanner
