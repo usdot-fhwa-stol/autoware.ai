@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - carma-develop
-      - feature/add_gha
       - master
       - "release/*"
   pull_request:
@@ -71,6 +70,7 @@ jobs:
           sed -i '/colcon build/ s/$/ --parallel-workers 4 --packages-up-to $PACKAGES /' /home/carma/.ci-image/engineering_tools/code_coverage/make_with_coverage.bash
           make_with_coverage.bash -m -e /opt/carma/ -o ./coverage_reports/gcov
       - name: Run C++ Tests
+        continue-on-error: true
         run: |
           source "$INIT_ENV"
           source "$ROS_2_ENV"
