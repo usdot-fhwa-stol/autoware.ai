@@ -1,12 +1,5 @@
-amathutils_lib
-autoware_build_flags
-autoware_config_msgs
-autoware_lanelet2_msgs
-autoware_lanelet2_ros_interface
-autoware_msgs
 dead_reckoner
 hardcoded_params
-jsk_recognition_msgs
 lanelet2
 lanelet2_core
 lanelet2_examples
@@ -21,9 +14,6 @@ lanelet2_traffic_rules
 lanelet2_validation
 lidar_localizer_ros2
 map_file_ros2
-mrt_cmake_modules
-ndt_cpu
-ndt_gpu
 points_downsampler
 twist_filter
 twist_gate
