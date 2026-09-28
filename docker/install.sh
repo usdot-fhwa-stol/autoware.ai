@@ -33,13 +33,23 @@ echo "ROS 2 Build"
 if [[ ! -z "$ROS1_PACKAGES$ROS2_PACKAGES" ]]; then
     if [[ ! -z "$ROS2_PACKAGES" ]]; then
         echo "Incrementally building ROS2 packages: $ROS1_PACKAGES"
-        # Build with CUDA compile option 
-        AUTOWARE_COMPILE_WITH_CUDA=1 colcon build --install-base /opt/autoware.ai/ros/install --build-base build --cmake-args -DCMAKE_BUILD_TYPE=Release --packages-above $ROS2_PACKAGES --allow-overriding $ROS2_PACKAGES --packages-ignore parking_planner parking_planner_nodes
+        # Build with CUDA compile option
+        AUTOWARE_COMPILE_WITH_CUDA=1 colcon build --install-base /opt/autoware.ai/ros/install \
+        --build-base build \
+        --cmake-args -DCMAKE_BUILD_TYPE=Release \
+        --packages-above $ROS2_PACKAGES \
+        --allow-overriding $ROS2_PACKAGES \
+        --packages-ignore $(cat autoware.auto/docker/autoware-auto-packages-ignore.txt | tr '\n' ' ')
     else
         echo "Build type is incremental but no ROS2 packages specified, skipping ROS2 build..."
     fi
 else
     echo "Building all ROS2 Autoware.AI Components"
     # Build with CUDA compile option
-    AUTOWARE_COMPILE_WITH_CUDA=1 colcon build --install-base /opt/autoware.ai/ros/install --build-base build --cmake-args -DCMAKE_BUILD_TYPE=Release --packages-ignore parking_planner parking_planner_nodes
+    AUTOWARE_COMPILE_WITH_CUDA=1 colcon build --install-base /opt/autoware.ai/ros/install \
+    --build-base build \
+    --cmake-args -DCMAKE_BUILD_TYPE=Release \
+    --packages-up-to $(cat docker/autoware-ai-packages.txt | tr '\n' ' ') \
+    $(cat autoware.auto/docker/autoware-auto-packages.txt | tr '\n' ' ')\
+    --packages-ignore $(cat autoware.auto/docker/autoware-auto-packages-ignore.txt | tr '\n' ' ')
 fi
